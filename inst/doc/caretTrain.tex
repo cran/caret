@@ -1,0 +1,709 @@
+% \VignetteIndexEntry{caret Manual -- Model Building}
+% \VignetteDepends{caret}
+% \VignettePackage{caret}
+\documentclass[12pt]{article}
+\usepackage{amsmath}
+\usepackage[pdftex]{graphicx}
+\usepackage{color}
+\usepackage{xspace}
+\usepackage{fancyvrb}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{algorithm2e}
+\usepackage[
+         colorlinks=true,
+         linkcolor=blue,
+         citecolor=blue,
+         urlcolor=blue]
+         {hyperref}
+         \usepackage{lscape}
+\usepackage{Sweave}         
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% define new colors for use
+\definecolor{darkgreen}{rgb}{0,0.6,0}
+\definecolor{darkred}{rgb}{0.6,0.0,0}
+\definecolor{lightbrown}{rgb}{1,0.9,0.8}
+\definecolor{brown}{rgb}{0.6,0.3,0.3}
+\definecolor{darkblue}{rgb}{0,0,0.8}
+\definecolor{darkmagenta}{rgb}{0.5,0,0.5}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\bld}[1]{\mbox{\boldmath $#1$}}
+\newcommand{\shell}[1]{\mbox{$#1$}}
+\renewcommand{\vec}[1]{\mbox{\bf {#1}}}
+
+\newcommand{\ReallySmallSpacing}{\renewcommand{\baselinestretch}{.6}\Large\normalsize}
+\newcommand{\SmallSpacing}{\renewcommand{\baselinestretch}{1.1}\Large\normalsize}
+
+\newcommand{\halfs}{\frac{1}{2}}
+
+\setlength{\oddsidemargin}{-.25 truein}
+\setlength{\evensidemargin}{0truein}
+\setlength{\topmargin}{-0.2truein}
+\setlength{\textwidth}{7 truein}
+\setlength{\textheight}{8.5 truein}
+\setlength{\parindent}{0.20truein}
+\setlength{\parskip}{0.10truein}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\pagestyle{fancy}
+\lhead{}
+\chead{The {\tt caret} Package}
+\rhead{}
+\lfoot{}
+\cfoot{}
+\rfoot{\thepage\ of \pageref{LastPage}}
+\renewcommand{\headrulewidth}{1pt}
+\renewcommand{\footrulewidth}{1pt}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{The {\tt caret} Package}
+\author{Max Kuhn \\ max.kuhn@pfizer.com}
+
+
+\begin{document}
+
+\maketitle
+
+\thispagestyle{empty}
+	
+
+\section{Model Training and Parameter Tuning}\label{S:train}
+
+\texttt{caret} has several functions that attempt to streamline the model building and evaluation process. 
+
+The \texttt{train} function can be used to
+\begin{itemize}
+   \item evaluate, using resampling, the effect of model tuning parameters on performance
+   \item choose the ``optimal'' model across these parameters 
+   \item estimate model performance from a training set
+\end{itemize}
+
+To optimize tuning parameters of models, \texttt{train} can be used to fit many predictive models over a grid of parameters and return the ``best'' model (based on resampling statistics). See Table \ref{T:methods} for the models currently available.
+
+As an example, the multidrug resistance reversal (MDRR) agent data is used to determine a predictive model for the ``ability of a compound to reverse a leukemia cell's resistance to adriamycin'' (\href{http://pubs.acs.org/cgi-bin/abstract.cgi/jcisd8/2005/45/i03/abs/ci0500379.html}{Svetnik et al, 2003}). For each sample (i.e. compound), predictors are calculated that reflect characteristics of the molecular structure. These molecular descriptors are then used to predict assay results that reflect resistance. 
+
+The data are accessed using \texttt{data(mdrr)}. This creates a data frame of predictors called \texttt{mdrrDescr} and a factor vector with the observed class called \texttt{mdrrClass}.
+
+To start, we will:
+ 
+\begin{itemize}
+   \item use unsupervised filters to remove predictors with unattractive characteristics (e.g. spare distributions or high inter--predictor correlations)
+   \item split the entire data set into a training and test set
+   \item center and scale the training and test set using the predictor means and standard deviations from the training set
+\end{itemize}
+
+See the package vignette ``caret Manual -- Data and Functions'' for more details about these operations.
+
+\begin{small}
+\begin{Schunk}
+\begin{Sinput}
+> print(ncol(mdrrDescr))
+\end{Sinput}
+\begin{Soutput}
+[1] 342
+\end{Soutput}
+\begin{Sinput}
+> nzv <- nearZeroVar(mdrrDescr)
+> filteredDescr <- mdrrDescr[, -nzv]
+> print(ncol(filteredDescr))
+\end{Sinput}
+\begin{Soutput}
+[1] 297
+\end{Soutput}
+\begin{Sinput}
+> descrCor <- cor(filteredDescr)
+> highlyCorDescr <- findCorrelation(descrCor, cutoff = 0.75)
+> filteredDescr <- filteredDescr[, -highlyCorDescr]
+> print(ncol(filteredDescr))
+\end{Sinput}
+\begin{Soutput}
+[1] 50
+\end{Soutput}
+\begin{Sinput}
+> set.seed(1)
+> inTrain <- sample(seq(along = mdrrClass), length(mdrrClass)/2)
+> trainDescr <- filteredDescr[inTrain, ]
+> testDescr <- filteredDescr[-inTrain, ]
+> trainMDRR <- mdrrClass[inTrain]
+> testMDRR <- mdrrClass[-inTrain]
+> print(length(trainMDRR))
+\end{Sinput}
+\begin{Soutput}
+[1] 264
+\end{Soutput}
+\begin{Sinput}
+> print(length(testMDRR))
+\end{Sinput}
+\begin{Soutput}
+[1] 264
+\end{Soutput}
+\begin{Sinput}
+> preProcValues <- apply(trainDescr, 2, processData)
+> trainDescr <- applyProcessing(trainDescr, preProcValues)
+> testDescr <- applyProcessing(testDescr, preProcValues)
+\end{Sinput}
+\end{Schunk}
+\end{small}
+
+To estimate model performance across the tuning parameters ``leave group out cross--validation'' (\texttt{LGOCV}) can be used. This technique is repeated splitting of the data into training and test sets (without replacement). If the resampling method is not specified, simple bootstrapping is used. To train a support vector machine classification model (radial basis function kernel) on these multidrug resistance reversal agent data, we can first setup a control object\footnote{This is optional; to use the default specifications, the control object does not need to be specified} that specifies the type of resampling used, the number of data splits (30), the proportion of data in the sub--training sets (75$\%$) and whether the iterations should be printed as they occur. In this case, we need to specify the proportion of samples used in each resampled training set. We also set the seed.
+
+\begin{small}
+\begin{Schunk}
+\begin{Sinput}
+> fitControl <- trainControl(method = "LGOCV", p = 0.75, number = 30, 
++     verboseIter = FALSE)
+> set.seed(2)
+\end{Sinput}
+\end{Schunk}
+\end{small}
+
+
+The first two arguments to \texttt{train} are the predictor and outcome data objects, respectively. The third argument, \texttt{method}, specifies the type of model. For this model, the tuning parameters are the cost value (\texttt{C} and the radius of the RBF (\texttt{sigma})). The \texttt{tuneLength} argument sets the size of the grid used to search the tuning parameter space and \texttt{trControl} is the control parameter for the \texttt{train} function. 
+
+\begin{small}
+\begin{Schunk}
+\begin{Sinput}
+> svmFit <- train(trainDescr, trainMDRR, method = "svmradial", 
++     tuneLength = 4, trControl = fitControl)
+> svmFit
+\end{Sinput}
+\begin{Soutput}
+Call:
+train.default(x = trainDescr, y = trainMDRR, method = "svmradial", 
+    trControl = fitControl, tuneLength = 4)
+
+264 samples
+50 predictors
+
+summary of leave group out cross-validation (30 reps) sample sizes:
+    198, 198, 198, 198, 198, 198, ... 
+
+LGOCV resampled training results across tuning parameters:
+
+  sigma    C    Accuracy  Kappa   Accuracy SD  Kappa SD  Optimal
+  0.00571  0.1  0.574     0.0346  0.0128       0.0323           
+  0.00571  1    0.829     0.649   0.0438       0.091     *      
+  0.00571  10   0.814     0.621   0.0467       0.0951           
+  0.00571  100  0.777     0.553   0.0472       0.0933           
+
+Accuracy was used to select the optimal model
+\end{Soutput}
+\end{Schunk}
+\end{small}
+
+
+There are two tuning parameters for this model: \texttt{sigma} is a parameter for the kernel function that can be used to expand/contract the distance function and \texttt{C} is the cost parameter that can be used as a regularization term that controls the complexity of the model. For this model, the function \texttt{sigest} in the \texttt{kernlab} package is used to provide a good estimate of the \texttt{sigma} parameter, so that only the cost parameter is tuned. This tuning scheme is the default, but can be modified (details are below). 
+
+The column labeled ``\texttt{Accuracy}'' is the overall agreement rate averaged over cross--validation iterations. The agreement standard deviation is also calculated from the cross-validation results. The column ``\texttt{Kappa}'' is Cohen's (unweighted) Kappa statistic  averaged across the resampling results
+
+
+For regression models (i.e. a numeric outcome), a similar table would be produced showing the average root mean squared error and average $R^2$ value statistic across tuning parameters, otherwise known as $Q^2$ (see the note below related to this calculation).
+
+\texttt{caret} works with specific models (see Table \ref{T:methods}). For these models, \texttt{train} can automatically create a grid of tuning parameters. By default, if $p$ is the number of tuning parameters, the grid size is $3^p$. For example, regularized discriminant analysis (RDA) models have two  parameters (\texttt{gamma} and \texttt{lambda}), both of which lie on $[0, 1]$. The default training grid would produce nine combinations in this two--dimensional space.
+
+Alternatively, the grid can be specified by the user. The argument \texttt{tuneGrid} can take a data frame with columns for each tuning parameter (see Table \ref{T:methods} for specific details). The column names should be the same as the fitting function's arguments with a period preceding the name. For our RDA example, the names would be \texttt{.gamma} and \texttt{.lambda}. \texttt{train} will tune the model over each combination of values in the rows.
+
+For a gradient boosting machine (GBM) model, the amount of ``shrinkage'' in a gradient boosting model is fixed at 0.1 and the other meta--parameters can be manually specified:
+\begin{small}
+\begin{landscape}
+
+\begin{Schunk}
+\begin{Sinput}
+> gbmGrid <- expand.grid(.interaction.depth = c(1, 3), .n.trees = c(100, 300, 
++     500), .shrinkage = 0.1)
+> set.seed(3)
+> gbmFit <- train(trainDescr, trainMDRR, "gbm", tuneGrid = gbmGrid, trControl = fitControl, 
++     verbose = FALSE)
+> gbmFit
+\end{Sinput}
+\begin{Soutput}
+Call:
+train.default(x = trainDescr, y = trainMDRR, method = "gbm", 
+    verbose = FALSE, trControl = fitControl, tuneGrid = gbmGrid)
+
+264 samples
+50 predictors
+
+summary of leave group out cross-validation (30 reps) sample sizes:
+    198, 198, 198, 198, 198, 198, ... 
+
+LGOCV resampled training results across tuning parameters:
+
+  interaction.depth  n.trees  shrinkage  Accuracy  Kappa  Accuracy SD  Kappa SD  Optimal
+  1                  100      0.1        0.813     0.616  0.0407       0.0811    *      
+  3                  100      0.1        0.8       0.59   0.055        0.113            
+  1                  300      0.1        0.795     0.582  0.0475       0.0948           
+  3                  300      0.1        0.809     0.609  0.0451       0.0917           
+  1                  500      0.1        0.791     0.574  0.0409       0.0826           
+  3                  500      0.1        0.805     0.6    0.0446       0.0907           
+
+Accuracy was used to select the optimal model
+\end{Soutput}
+\end{Schunk}
+
+\end{landscape}
+\end{small}
+
+
+Some notes about the use of \texttt{train}:
+\begin{itemize}
+	\item The function determines the type of problem (classification or regression) from the type of the response given in the \texttt{y} argument. 
+	
+	\item The \texttt{$\ldots$} option can be used to pass parameters to the fitting function. For example, in random forest models, you can specify the number of trees to be used in the call to \texttt{train}. In the example above, the default trace for a \texttt{gbm} model was turned off using the \texttt{verbose} argument to \texttt{gbm}.
+	
+	\item For regression models, the classical $R^2$ statistic cannot be compared between models that contain an intercept and models that do not. Also, some models do not have an intercept only null model.	To approximate this statistic across different types of models,  the square of the correlation between the observed and predicted outcomes is used.	
+	
+	\item The nearest shrunken centroid model of \href{http://projecteuclid.org/handle/euclid.ss/1056397488}{Tibshirani et al (2003)} is specified using \texttt{method = "pam"}. For this model, there must be at least two samples in each class. \texttt{train} will ignore classes where there are less than two samples per class from every model fit during bootstrapping or cross--validation (this model only).
+	
+	\item For recursive partitioning models, an initial model is fit to all of the training data to obtain the possible values of the maximum depth of any node (\texttt{maxdepth}). The tuning grid is created based on these values. If \texttt{tuneLength} is larger than the number of possible \texttt{maxdepth} values determined by the initial model, the grid will be truncated to the  \texttt{maxdepth} list.
+	
+	\item [] The same is also true for nearest shrunken centroid models, where an initial model is fit to find the range of possible threshold values.
+	
+	\item There are \texttt{print} and \texttt{plot} methods. See Figures \ref{f:plots1} and \ref{f:plots2} for examples. This is also a function, \texttt{resampleHist}, that will plot a histogram or density plot of the resampled performance estimates for the optimal model. Figure \ref{f:plots2} shows and example of this type of plot for the support vector machine example.
+	
+	\item Using the first set of tuning parameters that are optimal (in the sense of accuracy or mean squared error), \texttt{train} automatically fits a model with these parameters to the entire training data set. That model object is accessible in the \texttt{finalModel} object within \texttt{train}. For example, \verb+gbmFit$finalModel+  is the same object that would have been produced using a direct call to the \texttt{gbm} function. The \texttt{metric} argument of the \texttt{train} function allows the user to control which the optimality criterion is used. For example, in problems where there are a low percentage of samples in one class, using \texttt{metric = "Kappa"} can improve the model selection procedure.
+	
+   \item For the \texttt{glmboost} and \texttt{gamboost} functions form the \texttt{mboost} package, an additional tuning parameter, \texttt{prune}, is used by train. If \texttt{prune = "yes"}, the number of trees is reduced based on the AIC statistic. If \texttt{"no"}, the number of trees is kept at the value specified by the \texttt{mstop} parameter. See the \texttt{mboost} package vignette for more details about AIC pruning.	
+
+   \item For some models, such as \texttt{ctree} or MARS (via the \texttt{earth} function), this package is inefficient because the same model is needlessly fit several times. For example, for \texttt{earth}, the largest model can be fit without pruning to get performance for the full model. The same model object can be passed to the \texttt{update} function to get performance on sub-models without refitting the entire model. This is a feature that should be in the next version.
+	
+\end{itemize}
+
+
+The function \texttt{trainControl}, generates parameters that control how models are built with possible values:
+\begin{itemize}
+   \item \texttt{method}: The resampling method: \texttt{boot}, \texttt{cv}, \texttt{LOOCV}, \texttt{LGOCV}  and \texttt{oob}. The last value, out--of--bag estimates, can only be used by random forest, bagged trees, bagged earth, bagged flexible discriminant analysis, or conditional tree forest models. GBM models are not included (the \texttt{gbm} package maintainer has indicated that it would not be a good idea to choose tuning parameter values based on the model OOB error estimates with boosted trees).
+   \item \texttt{number}: Either the number of folds or number of resampling iterations
+   \item \texttt{verboseIter}: A logical for printing a training log.
+   \item \texttt{returnData}: A logical for saving the data
+   \item \texttt{p}: For leave-group out cross-validation: the training percentage
+   \item \texttt{index}: a list with elements for each resampling iteration. Each list element is the sample rows used for training at that iteration. When these values are not specified, \texttt{caret} will generate them.
+\end{itemize}
+
+Note that \texttt{caret} picks the ``best'' values of the tuning parameters based on resampling measures and does not use a one standard deviation rule (like recursive partitioning models). In many cases, the user will need to look at the profiles of performance measures across the tuning parameters to get an idea of the truly best choice.
+
+
+
+\begin{table}[hp]
+   \begin{center}
+      \caption{Models used in \texttt{train}}
+
+      \vspace*{.2 in}   	        
+      
+      \label{T:methods}
+      \begin{tabular}{lllll}
+      Model & \texttt{method} Value & Package & Tuning Parameters  \\
+      \hline
+      
+      Recursive partitioning &
+         \texttt{rpart} & 
+            \texttt{rpart}       & 
+            \texttt{maxdepth} \\  
+       &
+         \texttt{ctree} & 
+            \texttt{party}       & 
+            \texttt{mincriterion} \\   
+                  
+      Boosted Trees &
+         \texttt{gbm} & 
+            \texttt{gbm}       & 
+            \texttt{interaction.depth}, \\
+      & & & \texttt{n.trees}, \texttt{shrinkage}  \\
+
+       &
+         \texttt{blackboost} & 
+            \texttt{gbm}       & 
+            \texttt{maxdepth}, \texttt{mstop}\\
+            
+       &
+         \texttt{ada} & 
+            \texttt{ada}       & 
+            \texttt{maxdepth}, \texttt{iter}, \texttt{nu}\\            
+     
+      Boosted linear models &
+         \texttt{glmboost} & 
+            \texttt{mboost}       &          
+            \texttt{mstop}\\   
+      &      
+         \texttt{gamboost} & 
+            \texttt{mboost}       &          
+            \texttt{mstop}\\               
+                 
+      Random forests & 
+         \texttt{rf} & 
+            \texttt{randomForest}       & 
+            \texttt{mtry} \\
+                        
+       & 
+         \texttt{cforest} & 
+            \texttt{party}       & 
+            \texttt{mtry} \\     
+                        
+      Bagged Trees &
+         \texttt{treebag} & 
+            \texttt{ipred}       & 
+            None \\                         
+                        
+      Neural networks &               
+         \texttt{nnet} & 
+            \texttt{nnet}       &       
+            \texttt{decay}, \texttt{size} \\      
+      
+      Partial least squares &
+         \texttt{pls} & 
+            \texttt{pls}, \texttt{caret}       & 
+            \texttt{ncomp} \\      
+      
+      Support Vector Machines  &
+         \texttt{svmradial} & 
+            \texttt{kernlab}       & 
+            \texttt{sigma}, \texttt{C} \\            
+      \:\: (RBF kernel) \\   
+      
+      Support Vector Machines  &
+         \texttt{svmpoly} & 
+            \texttt{kernlab}       & 
+            \texttt{scale}, \texttt{degree}, \texttt{C} \\            
+      \:\: (polynomial kernel) \\         
+      
+      \\
+      
+      Linear least squares &
+         \texttt{lm} & 
+            \texttt{stats}       & 
+            None \\         
+      
+      Multivariate adaptive  &
+         \texttt{earth} & 
+            \texttt{earth}       & 
+            \texttt{degree}, \texttt{nk} \\            
+      \:\: regression splines \\
+            
+      Bagged MARS &
+         \texttt{bagEarth} & 
+            \texttt{caret},  \texttt{earth}      & 
+            \texttt{degree}, \texttt{nk} \\          
+      
+      \\       
+             
+
+      Linear discriminant analysis &
+         \texttt{lda} & 
+            \texttt{MASS}       &          
+            None\\                     
+            
+      Logistic/multinomial  &
+         \texttt{multinom} & 
+            \texttt{nnet}       & 
+            \texttt{decay}& \\   
+      \: \: regression \\ 
+                     
+      Regularized discriminant  &
+         \texttt{rda} & 
+            \texttt{klaR}       & 
+            \texttt{lambda}, \texttt{gamma} & \\
+      \: \: analysis \\
+      
+      Flexible discriminant  &
+         \texttt{fda} & 
+            \texttt{mda}, \texttt{earth}       & 
+            \texttt{degree}, \texttt{nk} & \\
+      \: \: analysis (MARS basis)\\      
+      
+      Bagged FDA &
+         \texttt{bagFDA} & 
+            \texttt{caret},  \texttt{earth}       & 
+            \texttt{degree}, \texttt{nk} \\         
+                   
+      $k$ nearest neighbors &
+         \texttt{knn3} & 
+            \texttt{caret}       & 
+            \texttt{k} \\   
+                  
+      Nearest shrunken centroids &
+         \texttt{pam} & 
+            \texttt{pamr}       & 
+            \texttt{threshold} \\  
+                                                                   
+      Naive Bayes &
+         \texttt{nb} & 
+            \texttt{klaR}       & 
+            \texttt{usekernel} \\
+        
+      Generalized partial &
+         \texttt{gpls} & 
+            \texttt{gpls}       & 
+            \texttt{K.prov} \\
+      \:\: least squares \\
+      
+      Learned vector quantization &
+         \texttt{lvq} & 
+            \texttt{class}       &          
+            \texttt{k} \\                             
+      \end{tabular}      
+   \end{center}
+\end{table}  
+
+\begin{figure}[p]
+   \begin{center}		
+      \includegraphics[clip, width = .45\textwidth]{svm1}
+      \hspace*{.4 in}   
+      \includegraphics[clip, width = .45\textwidth]{svm2}
+      
+      \vspace*{.5 in}   
+      
+      \includegraphics[clip, width = .45\textwidth]{gbm1}
+      \hspace*{.4 in}
+      \includegraphics[clip, width = .45\textwidth]{gbm2}    
+
+      \caption{ Examples of output from \texttt{plot.tain}. {\bf top left} a plot produced using \texttt{plot(svmFit)} showing the relationship between SVM cost parameter and the resampled classification accuracy. Although this model has two tuning parameters, a constant value for the parameter \texttt{sigma} was used. {\bf top right} the same plot but the \texttt{xTrans} argument was used to log--transform the cost parameter. {\bf bottom left} a plot produced using \texttt{plot(gbmFit)} showing the relationship between the number of boosting iterations, the interaction depth and the resampled classification accuracy {\bf bottom right} the same plot, but the Kappa statistic is plotted using \texttt{plot(gbmFit metric = "Kappa")}}
+      \label{f:plots1} 
+    \end{center}
+\end{figure} 
+	   
+\begin{figure}[p]
+   \begin{center}	
+      \includegraphics[clip, width = .45\textwidth]{gbm3}    
+   
+      \vspace*{1 in}      
+      
+      \includegraphics[clip, width = .7\textwidth]{resampHist}
+   
+ \caption{More examples. {\bf top:} A plot produced using \texttt{plot(gbmFit metric = "Kappa", plotType = "level")} showing the relationship (using a \texttt{levelplot}) between the number of boosting iterations, the interaction depth and the resampled estimate of the Kappa statistic. {\bf bottom:} A plot of the resampling estimates of performance from the optimal support vector machine model produced using \texttt{resampleHist(svmFit, type = "density", layout = c(2, 1), adjust = 1.5)}.}   
+      \label{f:plots2}         
+   \end{center}
+\end{figure}   
+
+\clearpage
+
+\section{Extracting Predictions and Class Probabilities}
+
+As previously mentioned, objects produced by the \texttt{train} function contain the ``optimized'' model in the \texttt{finalModel} sub--object. Predictions can be made from these objects as usual. Alternatively, predictions can be extracted from a series of model using the function \texttt{extractPrediction}.
+
+For example, we can load the Boston Housing data:
+
+\begin{small}
+\begin{Schunk}
+\begin{Sinput}
+> library(mlbench)
+> data(BostonHousing)
+> bhDesignMatrix <- model.matrix(medv ~ . - 1, BostonHousing)
+\end{Sinput}
+\end{Schunk}
+\end{small}
+
+\noindent split the data into random training/test groups:
+
+\begin{small}
+\begin{Schunk}
+\begin{Sinput}
+> set.seed(4)
+> inTrain <- createDataPartition(BostonHousing$medv, p = 0.8, list = FALSE, 
++     times = 1)
+> trainBH <- bhDesignMatrix[inTrain, ]
+> testBH <- bhDesignMatrix[-inTrain, ]
+> trainMedv <- BostonHousing$medv[inTrain]
+> testMedv <- BostonHousing$medv[-inTrain]
+\end{Sinput}
+\end{Schunk}
+\end{small}
+
+\noindent fit a regression tree, random forest and multivariate adaptive regression spline model (none of these  models require centering and scaling):
+
+\begin{small}
+\begin{Schunk}
+\begin{Sinput}
+> rpartFit <- train(trainBH, trainMedv, "rpart", tuneLength = 9, 
++     trControl = trainControl(verboseIter = FALSE))
+> marsFit <- train(trainBH, trainMedv, "mars", trControl = trainControl(verboseIter = FALSE))
+> rfFit <- train(trainBH, trainMedv, "rf", trControl = trainControl(verboseIter = FALSE, 
++     method = "oob"))
+\end{Sinput}
+\end{Schunk}
+\end{small}
+
+\noindent obtain predictions for the test samples for both models:
+
+\begin{small}
+\begin{Schunk}
+\begin{Sinput}
+> bhPredictions <- extractPrediction(list(rpartFit, marsFit, rfFit), 
++     testX = testBH, testY = testMedv)
+> bhTestPred <- bhPredictions[bhPredictions$dataType != "Resampled", 
++     ]
+> str(bhPredictions)
+\end{Sinput}
+\begin{Soutput}
+'data.frame':	1518 obs. of  4 variables:
+ $ obs     : num  16.5 15 13.6 14.5 13.9 16.6 14.8 12.7 13.2 13.1 ...
+ $ pred    : num  18.1 18.1 18.1 18.1 18.1 ...
+ $ model   : Factor w/ 3 levels "mars","rf","rpart": 3 3 3 3 3 3 3 3 3 3 ...
+ $ dataType: Factor w/ 2 levels "Test","Training": 2 2 2 2 2 2 2 2 2 2 ...
+\end{Soutput}
+\end{Schunk}
+\end{small}
+
+\noindent and evaluate the test set:
+
+\begin{small}
+\begin{Schunk}
+\begin{Sinput}
+> by(bhTestPred, list(model = bhTestPred$model), function(x) postResample(x$pred, 
++     x$obs))
+\end{Sinput}
+\begin{Soutput}
+model: mars
+     RMSE  Rsquared 
+3.5861417 0.8480957 
+------------------------------------------------------------ 
+model: rf
+     RMSE  Rsquared 
+2.0695123 0.9542742 
+------------------------------------------------------------ 
+model: rpart
+     RMSE  Rsquared 
+4.0730971 0.8046558 
+\end{Soutput}
+\end{Schunk}
+\end{small}
+
+The output of \texttt{extractPrediction} is a data frame with columns:
+   \begin{itemize}   
+      \item \texttt{obs}, the observed data
+      \item \texttt{pred}, the predicted values from each model
+      \item \texttt{model}, a character string (``\texttt{rpart}'', ``\texttt{pls}'' etc.)
+      \item \texttt{dataType}, a character string for the type of data:
+      \begin{itemize}
+         \item ``\texttt{Training}'' data are the predictions on the training data from
+            the optimal model,
+         \item ``\texttt{Test}'' denote the predictions on the test set (if one is specified),
+         \item ``\texttt{Unknown}'' data are the predictions on the unknown samples (if specified). 
+         Only the predictions are produced for these data. Also, if the quick prediction of the unknowns
+         is the primary goal, the argument \texttt{unkOnly} can be used to only process the unknowns.
+      \end{itemize}
+   \end{itemize}      
+
+Some classification models can produce probabilities for each class. The function \texttt{extractProbs} can be used to get these probabilities from one or more models. The results are very similar to what is produced by \texttt{extractPrediction} but with columns for each class. The column \texttt{pred} is still the predicted class from the model. 
+
+
+\section{Evaluating Models}
+
+A function, \texttt{postResample}, can be used obtain the same performance measures as generated by \texttt{train}. 
+
+\texttt{caret} also contains several functions that can be used to describe the performance of classification models. The functions \texttt{sensitivity}, \texttt{specificity}, \texttt{posPredValue} and \texttt{negPredValue} can be used to characterize performance where there are two classes. By default, the first level of the outcome factor is used to define the ``positive'' result, although this can be changed. 
+
+The function \texttt{confusionMatrix} can also be used to summarize the results of a classification model:
+
+\begin{small}
+\begin{Schunk}
+\begin{Sinput}
+> mbrrPredictions <- extractPrediction(list(svmFit), testX = testDescr, 
++     testY = testMDRR)
+> mbrrPredictions <- mbrrPredictions[mbrrPredictions$dataType == 
++     "Test", ]
+> sensitivity(mbrrPredictions$pred, mbrrPredictions$obs)
+\end{Sinput}
+\begin{Soutput}
+[1] 0.7933333
+\end{Soutput}
+\begin{Sinput}
+> confusionMatrix(mbrrPredictions$pred, mbrrPredictions$obs)
+\end{Sinput}
+\begin{Soutput}
+Confusion Matrix and Statistics
+
+          Reference
+Prediction Active Inactive
+  Active      119       27
+  Inactive     31       87
+
+Statistics:                     
+Accuracy       0.7803
+Kappa          0.5542
+Sensitivity    0.7933
+Specificity    0.7632
+Pos Pred Value 0.8151
+Neg Pred Value 0.7373
+
+Class = Active was used to define a positive result
+\end{Soutput}
+\end{Schunk}
+\end{small}
+
+When there are three or more classes, \texttt{confusionMatrix} will show the confusion matrix and a set of ``one--versus--all'' results. For example, in a three class problem, the sensitivity of the first class is calculated against all the samples in the second and third classes (and so on).
+
+
+\subsection*{ROC Curves}
+
+The function \texttt{roc}\footnote{I'm looking into using the \texttt{ROCR} package for ROC curves, so don't get too attached to these functions} can be used to calculate the sensitivity and specificity used in an ROC plot. For example, using the previous support vector machine fit to the MBRR data, the predicted class probabilities on the test set can used to create an ROC curve. The area under the ROC curve, via the trapezoidal rule, is calculated using the \texttt{aucRoc} function. 
+
+\begin{small}
+\begin{Schunk}
+\begin{Sinput}
+> mbrrProbs <- extractProb(list(svmFit), testX = testDescr, testY = testMDRR)
+> mbrrProbs <- mbrrProbs[mbrrProbs$dataType == "Test", ]
+> mbrrROC <- roc(mbrrProbs$Active, mbrrProbs$obs)
+> aucRoc(mbrrROC)
+\end{Sinput}
+\begin{Soutput}
+[1] 0.8749415
+\end{Soutput}
+\end{Schunk}
+\end{small}
+
+See Figure \ref{f:mbrrROC} for an example.
+
+\subsection*{Plotting Predictions and Probabilities}
+
+Two functions, \texttt{plotObsVsPred} and \texttt{plotClassProbs}, are interfaces to lattice to plot model results. For regression, \texttt{plotObsVsPred} plots the observed versus predicted values by model type and data (e.g. test). See Figures \ref{f:bbbPredPlot} and \ref{f:mbrrROC}  for examples. For classification data, \texttt{plotObsVsPred} plots the accuracy rates for models/data in a dotplot. 
+
+
+
+\begin{figure}[ht]
+   \begin{center}      
+      \includegraphics[clip, width = .6\textwidth]{svmProbs}   
+      \caption{The predicted class probabilities from a support vector machine fit for the MBRR test set. This plot was created using \texttt{plotClassProbs(mbrrProbs)}.}
+      \label{f:mbrrProbs}         
+      \vspace*{.5 in}      
+       \includegraphics[clip, width = .5\textwidth]{roc}   
+      \caption{An ROC curve from the predicted class probabilities from a support vector machine fit for the MBRR test set. }
+      \label{f:mbrrROC}       
+   \end{center}
+\end{figure}  
+
+\begin{figure}
+   \begin{center}      
+\includegraphics{caretTrain-bbbPredPlot}
+      \caption{The results of using \texttt{ plotObsVsPred } to show plots of the observed median home price against the predictions from two models. The plot shows the training and test sets in the same Lattice plot}
+      \label{f:bbbPredPlot}         
+   \end{center}
+\end{figure}
+
+
+To plot class probabilities, \texttt{plotClassProbs} will display the results by model, data and true class (for example, Figure \ref{f:mbrrProbs}).     
+
+\section{References}
+
+\begin{description}
+   \item Svetnik, V., Wang, T., Tong, C., Liaw, A., Sheridan, R. P. and Song, Q. (2005), ``Boosting: An ensemble learning tool for compound classification and QSAR modeling,'' {\it Journal of Chemical Information and Modeling}, 45, 786 --799.
+   
+   \item Tibshirani, R., Hastie, T., Narasimhan, B., Chu, G. (2003), ``Class prediction by nearest shrunken centroids, with applications to DNA microarrays,'' {\it  Statistical Science}, 18, 104--117.
+
+
+\end{description}
+
+\end{document}
+
+   setwd("c:/program files/R/R250/bin/caret082007/inst/doc/")
+   oldWidth <- options("width")$width
+   options(width = 80)
+   Sweave(
+      file = "c:/program files/R/R250/bin/caret082007/inst/doc/caretTrain.Rnw",
+      out = "c:/program files/R/R250/bin/caret082007/inst/doc/caretTrain.tex")
+   options(width = oldWidth)
+   
+   

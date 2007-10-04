@@ -1,0 +1,37 @@
+\name{print.train}
+\alias{print.train}
+\title{Print Method for the train Class}
+\description{
+ Print the results of a \code{\link{train}} object. 
+}
+\usage{
+print.train(x, digits = min(3, getOption("digits") - 3), printCall =
+TRUE, ...)
+}
+\arguments{
+  \item{x}{an object of class  \code{\link{train}}.}
+  \item{digits}{an integer specifying the number of significant digits
+    to print.}
+  \item{printCall}{a logical to print the call at the top of the output}  
+  \item{\ldots}{options passed to the generic print method}
+}
+\details{
+   The table of complexity parameters used, their resampled performance and a 
+   flag for which rows are optimal.
+}
+\value{
+   A data frame with the complexity parameter(s) and performance (invisibly).
+}
+\author{Max Kuhn}
+\seealso{\code{\link{train}}}
+\examples{
+data(iris)
+TrainData <- iris[,1:4]
+TrainClasses <- iris[,5]
+
+library(klaR)
+rdaFit <- train(TrainData, TrainClasses, "rda", 
+   control = trainControl(method = "cv")) 
+print(rdaFit)
+}
+\keyword{print}
