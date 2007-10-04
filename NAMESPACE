@@ -1,0 +1,113 @@
+useDynLib(caret)
+
+export(
+   createFolds, 
+   createDataPartition,
+   createResample,
+   createGrid, 
+   createModel, 
+   panel.needle,
+   processData, 
+   applyProcessing, 
+   featurePlot,
+   generateExprVal.method.trimMean,
+   normalize.AffyBatch.normalize2Reference,
+   normalize2Reference, 
+   train,
+   varImp,
+   extractPrediction,
+   findCorrelation,
+   filterVarImp,
+   plotObsVsPred,
+   sortImp,
+   spatialSign,
+   spatialSign.default,
+   spatialSign.matrix,
+   spatialSign.data.frame,
+   resampleSummary,
+   postResample,
+   print.train,
+   plot.train,
+   sensitivity,
+   specificity,
+   roc,
+   aucRoc,   
+   extractProb,
+   plotClassProbs,
+   caretTheme,
+   trainControl,
+   resampleWrapper,
+   confusionMatrix,
+   posPredValue,
+   negPredValue,
+   nearZeroVar,
+   resampleHist,
+   dotPlot,
+   findLinearCombos,
+   knn3,
+   knn3.formula,
+   knn3.matrix,   
+   predict.knn3,
+   knn3Train,
+   maxDissim,
+   minDiss,
+   sumDiss,
+   plsda,
+   plsda.default,
+   predict.plsda,
+   bagEarth,
+   bagEarth.default,
+   bagEarth.formula,
+   summary.bagEarth,
+   predict.bagEarth,
+   bagFDA,
+   bagFDA.default,
+   bagFDA.formula,
+   summary.bagFDA,
+   predict.bagFDA
+   
+   )
+
+S3method(confusionMatrix, default)
+S3method(spatialSign,     default)
+S3method(enumLC,          default)
+S3method(train,           default)
+S3method(PLS,             default)
+S3method(plsda,           default)
+S3method(bagEarth,        default)
+S3method(bagFDA,          default)
+
+S3method(varImp, train)
+S3method(varImp, rpart)
+S3method(varImp, randomForest)
+S3method(varImp, gbm)
+S3method(varImp, classbagg)
+S3method(varImp, regbagg)
+S3method(varImp, pamrtrained)
+S3method(varImp, lm)
+S3method(varImp, mvr)
+S3method(varImp, earth)
+S3method(varImp, RandomForest)
+
+S3method(plot,  train)
+S3method(plot,  varImp.train)
+
+S3method(print, train)
+S3method(print, varImp.train)
+S3method(print, confusionMatrix)
+S3method(print, knn3)
+S3method(print, plsda)
+S3method(print, bagEarth)
+S3method(print, bagFDA)
+S3method(print, summary.bagEarth)
+S3method(print, summary.bagFDA)
+
+S3method(predict, PLS)
+S3method(predict, plsda)
+S3method(predict, knn3)
+S3method(predict, bagEarth)
+S3method(predict, bagFDA)
+
+S3method(summary, bagEarth)
+S3method(summary, bagFDA)
+
