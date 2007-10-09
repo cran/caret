@@ -34,20 +34,14 @@ trainData <- iris[inTrain,]
 testData <- iris[-inTrain,]
 
 rpartFit <- train(trainData[, -5], trainData[, 5], "rpart", tuneLength = 15)
-plsFit <- train(trainData[, -5], trainData[, 5], "pls", tuneLength = 9)
-predProbs <- extractProb(list(plsFit, rpartFit),
+ldaFit <- train(trainData[, -5], trainData[, 5], "lda")
+predProbs <- extractProb(list(ldaFit, rpartFit),
    testX = testData[, -5], testY = testData[, 5])
 
-
 plotClassProbs(predProbs)
-plotClassProbs(predProbs[predProbs$model == "pls",])
-plotClassProbs(predProbs[predProbs$model == "pls" & predProbs$dataType == "Test",])
+plotClassProbs(predProbs[predProbs$model == "lda",])
+plotClassProbs(predProbs[predProbs$model == "lda" & predProbs$dataType == "Test",])
 
-# example plot as if this were a two class problem:
-trainData <- iris[-(1:50),]
-plsFit <- train(trainData[, -5], factor(trainData[, 5]), "pls", tuneLength = 9)
-predProbs <- extractProb(list(plsFit))
-plotClassProbs(predProbs)
 }
 
 \keyword{hplot}
