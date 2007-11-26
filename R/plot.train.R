@@ -3,8 +3,12 @@ function(x, plotType = "scatter", metric = c("Accuracy", "RMSE"), digits = getOp
 {
    if(!(plotType %in% c("level", "scatter", "line"))) stop("plotType must be either level, scatter or line")
    require(lattice)
+
+   modelInfo <- modelLookup(x$method)
+
   
-   if(x$call$method %in% c("lm", "lda", "treebag")) stop("This model type does not have a plot method (no tuning parameter)")
+   if(all(modelInfo == "parameter")) 
+      stop("This model type does not have a plot method (no tuning parameter)")
   
    performance <- x$results[, names(x$results) %in% metric]
 
@@ -17,89 +21,9 @@ function(x, plotType = "scatter", metric = c("Accuracy", "RMSE"), digits = getOp
    metricName <- metric[metric %in% perfNames]
    yLabel <- paste(x$control$method, "resampled training", tolower(metricName))   
 
-   paramKey <- data.frame(
-      model = c(
-         "ctree",
-         "cforest",
-         "ada", "ada", "ada",
-         "glmboost", "glmboost",
-         "gamboost", "gamboost",
-         "blackboost", "blackboost",
-         "nnet", "nnet", 
-         "multinom", 
-         "rda", "rda", 
-         "gbm", "gbm", "gbm", 
-         "rf", 
-         "svmpoly", "svmpoly", "svmpoly", 
-         "svmradial", "svmradial",          
-         "gpls", 
-         "lvq", 
-         "rpart", 
-         "pls", 
-         "pam", 
-         "knn", 
-         "nb", 
-         "earth", "earth", 
-         "mars", "mars",          
-         "bagEarth", "bagEarth",         
-         "fda", "fda",
-         "bagFDA", "bagFDA"),
-      parameter = c(
-         "mincriterion",
-         "mtry",
-         "iter", "maxdepth", "nu",
-         "mstop", "prune",
-         "mstop", "prune", 
-         "mstop", "maxdepth",                    
-         "size", "decay", 
-         "decay", 
-         "gamma", "lambda", 
-         "n.trees", "interaction.depth",  "shrinkage", 
-         "mtry", 
-         "C", "degree", "scale",  
-         "C", "sigma",           
-         "K.prov", 
-         "k", 
-         "maxdepth", 
-         "ncomp", 
-         "threshold", 
-         "k", 
-         "usekernel", 
-         "nk", "degree", 
-         "nk", "degree",          
-         "nk", "degree", 
-         "nk", "degree",                    
-         "nk", "degree"),
-      label = I(c(
-         "P-Value Threshold",
-         "#Randomly Selected Predictors",
-         "#Trees", "Max Tree Depth", "Learning Rate",
-         "# Boosting Iterations", "AIC Prune?",
-         "# Boosting Iterations", "AIC Prune?",    
-         "#Trees", "Max Tree Depth",                        
-         "#Hidden Units", "Weight Decay", 
-         "Weight Decay", 
-         "Gamma", "Lambda", 
-         "#Trees", "Interaction Depth",  "Learning Rate", 
-         "#Randomly Selected Predictors", 
-         "Cost", "Polynomial Degree", "Scale",  
-         "Cost", "Sigma",          
-         "#Components", 
-         "#Prototypes", 
-         "Max Tree Depth", 
-         "#Components", 
-         "Shrinkage Threshold", 
-         "#Neighbors", 
-         "Distribution Type", 
-         "#Retained Terms", "Product Degree",          
-         "#Retained Terms", "Product Degree",  
-         "#Retained Terms", "Product Degree",
-         "#Retained Terms", "Product Degree",                  
-         "#Retained Terms", "Product Degree")))
-
    # check to see if some of the tuning parameters were not varied  
    tuneGrid <- x$results[, !(names(x$results) %in% perfNames), drop = FALSE]
-   theseParam <- as.character(paramKey[paramKey$model == x$call$method, "parameter"])
+   theseParam <- modelInfo$parameter
    tuneGrid <- tuneGrid[, theseParam,drop = FALSE]
  
    
@@ -123,7 +47,7 @@ function(x, plotType = "scatter", metric = c("Accuracy", "RMSE"), digits = getOp
          prettyVal, 
          dig = digits))
    
-   if(x$call$method == "nb")
+   if(x$method == "nb")
    {
       resultsCopy$usekernel <- factor(ifelse(resultsCopy$usekernel == 1, "Nonparametric", "Parametric"))  
    }
@@ -134,12 +58,12 @@ function(x, plotType = "scatter", metric = c("Accuracy", "RMSE"), digits = getOp
          RMSE = signif(unique(performance[which.min(performance)]), 4),
          Rsquared = round(unique(performance[which.max(performance)]), 3))
              
-      mainText <- paste(x$call$method, " - Optimal performance: ", optimalValue, sep="")   
+      mainText <- paste(x$method, " - Optimal performance: ", optimalValue, sep="")   
    } else {
       if(metricName == "Accuracy") optimalValue <- round(unique(performance[which.max(performance)]), 3)
          else optimalValue <- round(unique(performance[which.max(performance)]), 3)
        
-      mainText <- paste(x$call$method, " - Optimal performance: ", optimalValue,  sep="")      
+      mainText <- paste(x$method, " - Optimal performance: ", optimalValue,  sep="")      
    }
    
    
@@ -164,7 +88,7 @@ function(x, plotType = "scatter", metric = c("Accuracy", "RMSE"), digits = getOp
    lineStyle <- trellis.par.get("superpose.line") 
   
 
-   plotLabels <- paramKey[paramKey$model == x$call$method & paramKey$parameter %in% tuneNames,"label"]  
+   plotLabels <- modelInfo$label[theseParam %in% tuneNames]  
   
    if(numTune == 1)
    {

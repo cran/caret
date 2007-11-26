@@ -1,9 +1,7 @@
 probFunction <- function(method, modelFit, newdata)
 {   
             
-   if(!(method %in% c("lda", "rda", "gbm",  "nnet", "knn", "svmradial", "svmpoly",
-      "net", "rf", "rpart", "pls", "treebag", "gpls", "pam", "nb", "fda", "multinom",
-      "glmboost", "ctree", "cforest")))
+   if(!any(modelLookup(method)$probModel))
       stop("no probability method for this model")
     
     
@@ -55,7 +53,7 @@ probFunction <- function(method, modelFit, newdata)
             out
       },        
                  
-      gbm =   
+      gbm = 
       {  
          library(gbm)    
          out <- predict(modelFit, newdata, type = "response", 
@@ -83,7 +81,7 @@ probFunction <- function(method, modelFit, newdata)
          out <- predict(modelFit, newdata, type = "prob",  ncomp = modelFit$tuneValue$.ncomp)
          out            
       },      
-      rf =, rpart =, pls =, treebag  = 
+      rf =, rpart =, pls =, plsTest =, treebag  = 
       {  
          library(randomForest)      
          out <- predict(modelFit, newdata, type = "prob")

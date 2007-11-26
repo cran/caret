@@ -48,7 +48,7 @@ tmpX <- scale(mdrrDescr)
 
 plsFit <- plsda(tmpX, mdrrClass, ncomp = 3)
 
-table(predict(plsFit), mdrrClass)
+table(predict(plsFit)[,1], mdrrClass)
 }
 
 

@@ -111,3 +111,5 @@ S3method(predict, bagFDA)
 S3method(summary, bagEarth)
 S3method(summary, bagFDA)
 
+S3method(format, bagEarth)
+

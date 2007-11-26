@@ -1,10 +1,10 @@
 \name{caret-internal}
 \title{Internal Functions}
 \alias{createModel}
-\alias{boxcoxMod}
 \alias{resampleWrapper}
 \alias{sortImp}
 \alias{caretTheme}
+
 \description{Internal functions}
 \usage{
 createModel(data, method, tuneValue, obsLevels, ...)
@@ -12,6 +12,12 @@ sortImp(object, top)
 resampleWrapper(x, ind)
 caretTheme()
 rocPoint(cutoff, x, y, positive)
+ipredStats(x)
+rfStats(x)
+bagEarthStats(x)
+cforestStats(x)
+byResampleBasic(ind, x, combo = NULL)
+byResampleSeq(ind, x, seq, combo)
 }
 \author{Max Kuhn, but \code{caretTheme} uses an expanded grid of the "Blues" palette designed by Cynthia Brewer and Mark Harrower}
 

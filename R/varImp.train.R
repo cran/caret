@@ -3,7 +3,7 @@ function(object, useModel = TRUE, nonpara = TRUE, scale = TRUE, ...)
 {
 
    if(is.null(object$finalModel)) stop("must have retained the final model")
-   modelName <- object$call[["method"]]    
+   modelName <- object$method    
    if(!(modelName %in% c("lm", "pls", "pam", "rf", "rpart", "gbm", "treebag", "mars", "earth", "bmars", "cforest"))) useModel <- FALSE   
    availMethods <- methods("varImp")
    availMethods <- rownames(attributes(availMethods)$info)

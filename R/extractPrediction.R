@@ -12,13 +12,23 @@ extractPrediction <- function(
    trainX <- object[[1]]$trainingData[,!(names(object[[1]]$trainingData) %in% ".outcome")]
    trainY <- object[[1]]$trainingData$.outcome  
 
-   if(object[[1]]$call[[4]] %in% c("svmradial", "svmpoly"))
+   if(object[[1]]$method %in% c("svmradial", "svmpoly", "ctree", "cforest"))
    {
-      library(kernlab)
-      obsLevels <- lev(object[[1]]$finalModel)
+      obsLevels <- switch(object[[1]]$method,
+         svmradial =, svmpoly =
+         {
+            library(kernlab)
+            lev(object[[1]]$finalModel)
+         },
+   
+         ctree =, cforest =
+         {
+            library(party)
+            levels(object[[1]]$finalModel@data@get("response")[,1])
+         })
    } else {
       obsLevels <- object[[1]]$finalModel$obsLevels
-   }   
+   }  
 
 
    if(verbose)
@@ -39,7 +49,7 @@ extractPrediction <- function(
    for(i in seq(along = object))
    {
       modelFit <- object[[i]]$finalModel
-      method <- object[[i]]$call[[4]]
+      method <- object[[i]]$method
       
       if(!unkOnly)
       {
@@ -47,7 +57,7 @@ extractPrediction <- function(
          #now generate predictions on the training data from the final model
          tempTrainPred <- predictionFunction(method, modelFit, trainX)
       
-         if(verbose) cat(object[[i]]$call[[4]], ":", length(tempTrainPred), "training predictions were added\n")         
+         if(verbose) cat(object[[i]]$method, ":", length(tempTrainPred), "training predictions were added\n")         
          
          if(object[[i]]$modelType == "Classification")
          {
@@ -58,12 +68,12 @@ extractPrediction <- function(
             obs <- c(obs, trainY)      
          }
          
-         modelName <- c(modelName, rep(object[[i]]$call[[4]], length(tempTrainPred)))
+         modelName <- c(modelName, rep(object[[i]]$method, length(tempTrainPred)))
          dataType <- c(dataType, rep("Training", length(tempTrainPred)))
          
          if(!is.null(testX) & !is.null(testY))
          {
-            if(object[[i]]$call[[4]] %in% c("rpart", "treebag"))
+            if(object[[i]]$method %in% c("rpart", "treebag"))
             {
                tempX <- testX
                tempY <- testY
@@ -74,7 +84,7 @@ extractPrediction <- function(
      
             tempTestPred <- predictionFunction(method, modelFit, tempX)
             
-            if(verbose) cat(object[[i]]$call[[4]], ":", length(tempTestPred), "test predictions were added\n")         
+            if(verbose) cat(object[[i]]$method, ":", length(tempTestPred), "test predictions were added\n")         
          
             if(object[[i]]$modelType == "Classification")
             {
@@ -85,7 +95,7 @@ extractPrediction <- function(
                obs <- c(obs, tempY) 
             }
            
-            modelName <- c(modelName, rep(object[[i]]$call[[4]], length(tempTestPred)))
+            modelName <- c(modelName, rep(object[[i]]$method, length(tempTestPred)))
             dataType <- c(dataType, rep("Test", length(tempTestPred)))   
             
          }
@@ -93,7 +103,7 @@ extractPrediction <- function(
       }
       if(!is.null(unkX))
       {
-         if(object[[i]]$call[[4]] %in% c("rpart", "treebag"))
+         if(object[[i]]$method %in% c("rpart", "treebag"))
          {
             tempX <- unkX
          } else {
@@ -104,7 +114,7 @@ extractPrediction <- function(
   
          tempUnkPred <- predictionFunction(method, modelFit, tempX)
          
-         if(verbose) cat(object[[i]]$call[[4]], ":", length(tempUnkPred), "unknown predictions were added\n")         
+         if(verbose) cat(object[[i]]$method, ":", length(tempUnkPred), "unknown predictions were added\n")         
       
          if(object[[i]]$modelType == "Classification")
          {
@@ -115,7 +125,7 @@ extractPrediction <- function(
             obs <- c(obs, rep(NA, length(tempUnkPred)))    
          }
         
-         modelName <- c(modelName, rep(object[[i]]$call[[4]], length(tempUnkPred)))
+         modelName <- c(modelName, rep(object[[i]]$method, length(tempUnkPred)))
          dataType <- c(dataType, rep("Unknown", length(tempUnkPred)))   
          
       }

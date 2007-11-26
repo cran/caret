@@ -205,19 +205,14 @@ To evaluate the effect of between--predictor correlations, descriptors with abso
 > plsFit2 <- train(mdrrDescr, mdrrClass, "pls", tuneGrid = data.frame(.ncomp = 2 * 
 +     (1:10)), trControl = ctrl)
 > modelFree <- filterVarImp(mdrrDescr, mdrrClass)
-> allImp2 <- data.frame(randomForest = varImp(rfFit2)[, 1], PLS = varImp(plsFit2$finalModel)[, 
-+     1], ROC = modelFree[, 1])
+> allImp2 <- data.frame(randomForest = varImp(rfFit2)[, 1], PLS = varImp(plsFit2$finalModel)[, 1], ROC = modelFree[, 1])
 > allImp2$note <- "|Corr| < 0.90"
 > allPred <- splom(~allImp1[, 1:3], type = c("p", "smooth"), main = "Variable Importance: All Predictors")
-> filteredPred <- splom(~allImp2[, 1:3], type = c("p", "smooth"), 
-+     main = "Variable Importance: |Corr| < 0.90 Filter")
+> filteredPred <- splom(~allImp2[, 1:3], type = c("p", "smooth"), main = "Variable Importance: |Corr| < 0.90 Filter")
 \end{Sinput}
 \end{Schunk}
 
-
-
 Figure \ref{f:varImpInd} demonstrates the \texttt{plot} method for object of class \texttt{varImp}. In each case, needle plots are produced for the top predictors, based on their importance values. For classification models with more than 2 classes, the predictors are ordered by their average importance. With two classes, only one importance is plotted.
-
 
 \begin{figure}[p]
    \begin{center}        
@@ -243,11 +238,11 @@ Figure \ref{f:varImpInd} demonstrates the \texttt{plot} method for object of cla
 
 \end{document}
 
-   setwd("c:/program files/R/R250/bin/caret082007/inst/doc/")
+   setwd("c:/program files/R/R251/bin/caret/inst/doc/")
    oldWidth <- options("width")$width
    options(width = 80)
    Sweave(
-      file = "c:/program files/R/R260dev/bin/caret/inst/doc/caretVarImp.Rnw",
-      out = "c:/program files/R/R260dev/bin/caret/inst/doc/caretVarImp.tex")
+      file = "c:/program files/R/R251/bin/caret/inst/doc/caretVarImp.Rnw",
+      out = "c:/program files/R/R251/bin/caret/inst/doc/caretVarImp.tex")
    options(width = oldWidth)
      

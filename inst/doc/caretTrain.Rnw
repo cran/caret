@@ -204,15 +204,23 @@ Some notes about the use of \texttt{train}:
 	
 	\item For recursive partitioning models, an initial model is fit to all of the training data to obtain the possible values of the maximum depth of any node (\texttt{maxdepth}). The tuning grid is created based on these values. If \texttt{tuneLength} is larger than the number of possible \texttt{maxdepth} values determined by the initial model, the grid will be truncated to the  \texttt{maxdepth} list.
 	
-	\item [] The same is also true for nearest shrunken centroid models, where an initial model is fit to find the range of possible threshold values.
+	\item [] The same is also true for nearest shrunken centroid models, where an initial model is fit to find the range of possible threshold values, and MARS models (see the details below).
 	
-	\item There are \texttt{print} and \texttt{plot} methods. See Figures \ref{f:plots1} and \ref{f:plots2} for examples. This is also a function, \texttt{resampleHist}, that will plot a histogram or density plot of the resampled performance estimates for the optimal model. Figure \ref{f:plots2} shows and example of this type of plot for the support vector machine example.
-	
-	\item Using the first set of tuning parameters that are optimal (in the sense of accuracy or mean squared error), \texttt{train} automatically fits a model with these parameters to the entire training data set. That model object is accessible in the \texttt{finalModel} object within \texttt{train}. For example, \verb+gbmFit$finalModel+  is the same object that would have been produced using a direct call to the \texttt{gbm} function. The \texttt{metric} argument of the \texttt{train} function allows the user to control which the optimality criterion is used. For example, in problems where there are a low percentage of samples in one class, using \texttt{metric = "Kappa"} can improve the model selection procedure.
+  \item For multivariate adaptive regression splines (MARS), the \texttt{earth} package is used with a model type of \texttt{mars} or \texttt{earth} is requested. The tuning parameters used by \texttt{train} are \texttt{degree} and \texttt{nprune}. The parameter \texttt{nk} is not automatically specified and, if not specified, the default in the \texttt{earth} function is used. 
+
+  \item [] For example, suppose a training set with 40 predictors is used with \texttt{degree = 1} and \texttt{nprune = 20}. An initial model with \texttt{nk = 41} is fit and is pruned down to 20 terms. This number includes the intercept and may include ``singleton'' terms instead of pairs. 
+
+  \item [] Alternate model training schemes can be used by passing \texttt{nk} and/or \texttt{pmethod} to the \texttt{earth} function.
+
+  \item [] Also, there may be cases where the message such as ``specified 'nprune' 29 is greater than the number of available model terms 24, forcing 'nprune' to 24'' show up after the model fit. This can occur since the \texttt{earth} function may not actually use the number of terms in the initial model as specified by \texttt{nk}. This may be because the \texttt{earth} function removes terms with linear dependencies and  the forward pass counts as if terms were added in pairs (although singleton terms may be used). By default, the \texttt{train} function fits and initial MARS model is used to determine the number of possible terms in the training set to create the tuning grid. Resampled data sets may produce slightly different models that do not have as many possible values of  \texttt{nprune}.
 	
    \item For the \texttt{glmboost} and \texttt{gamboost} functions form the \texttt{mboost} package, an additional tuning parameter, \texttt{prune}, is used by train. If \texttt{prune = "yes"}, the number of trees is reduced based on the AIC statistic. If \texttt{"no"}, the number of trees is kept at the value specified by the \texttt{mstop} parameter. See the \texttt{mboost} package vignette for more details about AIC pruning.	
 
-   \item For some models, such as \texttt{ctree} or MARS (via the \texttt{earth} function), this package is inefficient because the same model is needlessly fit several times. For example, for \texttt{earth}, the largest model can be fit without pruning to get performance for the full model. The same model object can be passed to the \texttt{update} function to get performance on sub-models without refitting the entire model. This is a feature that should be in the next version.
+   \item For some models (\texttt{pls}, \texttt{plsda}, \texttt{earth}, \texttt{rpart}, \texttt{gbm}, \texttt{gamboost}, \texttt{glmboost}, \texttt{blackboost}, \texttt{ctree}, \texttt{pam}, \texttt{enet} and \texttt{lasso}), the \texttt{train} function will fit a model that can be used to derive predictions for some sub-models. For example, for MARS (via the \texttt{earth} function), for a fixed degree, a model with a maximum number of terms will be fit and the predictions of all of the requested models with the same degree and smaller number of terms will be computed using \texttt{update.earth} instead of fitting a new model. When the \texttt{verboseIter} option is used, a line is printed for the ``top--level'' model (instead of each model in the tuning grid).
+
+	\item There are \texttt{print} and \texttt{plot} methods. See Figures \ref{f:plots1} and \ref{f:plots2} for examples. This is also a function, \texttt{resampleHist}, that will plot a histogram or density plot of the resampled performance estimates for the optimal model. Figure \ref{f:plots2} shows and example of this type of plot for the support vector machine example.
+	
+	\item Using the first set of tuning parameters that are optimal (in the sense of accuracy or mean squared error), \texttt{train} automatically fits a model with these parameters to the entire training data set. That model object is accessible in the \texttt{finalModel} object within \texttt{train}. For example, \verb+gbmFit$finalModel+  is the same object that would have been produced using a direct call to the \texttt{gbm} function. The \texttt{metric} argument of the \texttt{train} function allows the user to control which the optimality criterion is used. For example, in problems where there are a low percentage of samples in one class, using \texttt{metric = "Kappa"} can improve the model selection procedure.
 	
 \end{itemize}
 
@@ -227,8 +235,9 @@ The function \texttt{trainControl}, generates parameters that control how models
    \item \texttt{index}: a list with elements for each resampling iteration. Each list element is the sample rows used for training at that iteration. When these values are not specified, \texttt{caret} will generate them.
 \end{itemize}
 
-Note that \texttt{caret} picks the ``best'' values of the tuning parameters based on resampling measures and does not use a one standard deviation rule (like recursive partitioning models). In many cases, the user will need to look at the profiles of performance measures across the tuning parameters to get an idea of the truly best choice.
+Note that \texttt{caret} picks the ``best'' values of the tuning parameters based on resampling measures and does not use the one standard deviation rule typically used by recursive partitioning models. In many cases, the user will need to look at the profiles of performance measures across the tuning parameters to get an idea of the truly best choice.
 
+Also, for leave--one--out cross--validation, no uncertainty estiamtes are given for the resampled performance measures.
 
 <<makePlots, results = hide, echo = FALSE>>=
 pdf(paste(getwd(), "/svm1.pdf", sep = ""), width = 5, height = 5)
@@ -293,7 +302,7 @@ dev.off()
             \texttt{ada}       & 
             \texttt{maxdepth}, \texttt{iter}, \texttt{nu}\\            
      
-      Boosted linear models &
+      Other Boosted Models &
          \texttt{glmboost} & 
             \texttt{mboost}       &          
             \texttt{mstop}\\   
@@ -347,16 +356,26 @@ dev.off()
             None \\         
       
       Multivariate adaptive  &
-         \texttt{earth} & 
+         \texttt{earth}, \texttt{mars} & 
             \texttt{earth}       & 
-            \texttt{degree}, \texttt{nk} \\            
+            \texttt{degree}, \texttt{nprune} \\            
       \:\: regression splines \\
             
       Bagged MARS &
          \texttt{bagEarth} & 
             \texttt{caret},  \texttt{earth}      & 
-            \texttt{degree}, \texttt{nk} \\          
+            \texttt{degree}, \texttt{nprune} \\          
       
+      Elastic Net &
+         \texttt{enet} & 
+            \texttt{elasticnet}      & 
+            \texttt{lambda}, \texttt{fraction} \\          
+
+      The Lasso &
+         \texttt{lasso} & 
+            \texttt{elasticnet}      & 
+            \texttt{fraction} \\          
+
       \\       
              
 
@@ -380,13 +399,13 @@ dev.off()
       Flexible discriminant  &
          \texttt{fda} & 
             \texttt{mda}, \texttt{earth}       & 
-            \texttt{degree}, \texttt{nk} & \\
+            \texttt{degree}, \texttt{nprune} & \\
       \: \: analysis (MARS basis)\\      
       
       Bagged FDA &
          \texttt{bagFDA} & 
             \texttt{caret},  \texttt{earth}       & 
-            \texttt{degree}, \texttt{nk} \\         
+            \texttt{degree}, \texttt{nprune} \\         
                    
       $k$ nearest neighbors &
          \texttt{knn3} & 

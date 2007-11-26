@@ -29,14 +29,18 @@ function(method, len = 3, data = NULL)
       out
    }
    
-   marsSeq <- function(x, len)
+   marsSeq <- function(data, len)
    {
-      out <- if(x < 100) unique(floor(seq(4, to = max(2 * x, 8), length = len))) 
-         else 
-            unique(floor(2^seq(log(10.5, base = 2), to = log(2 * x, base = 2), length = len)))
-      out
+      library(earth)
+      maxTerms <- if(is.factor(data$.outcome))
+      {
+         library(mda)
+         nrow(fda(.outcome~., data, method = earth, pmethod = "none")$fit$dirs) - 1
+      } else nrow(earth(.outcome~., data, pmethod = "none")$dirs)
+      unique(floor(seq(2, to = maxTerms, length = len)))
    }   
-   
+    
+
    # We should not have mtry be larger than the number of features
    # in the data.
    rfTune <- function(data, len)
@@ -94,7 +98,7 @@ function(method, len = 3, data = NULL)
       tuneSeq
    }
    trainGrid <- switch(method,
-      nnet =  expand.grid(.size = 1:len, 
+      nnet =  expand.grid(.size = ((1:len) * 2) - 1, 
           .decay = c(0, 10 ^ seq(-1, -4, length = len - 1))),
       rda = expand.grid(.gamma = seq(0, 1, length = len), 
           .lambda =  seq(0, 1, length = len)),
@@ -107,12 +111,12 @@ function(method, len = 3, data = NULL)
       gpls = data.frame(.K.prov =seq(1, len) ),
       lvq = data.frame(.k =seq(4, 3+len) ),
       rpart = rpartTune(data, len),
-      pls =, PLS = data.frame(.ncomp = seq(1, min(dim(data)[2] - 1, len), by = 1)),
+      pls =, plsTest =,PLS = data.frame(.ncomp = seq(1, min(dim(data)[2] - 1, len), by = 1)),
       pam = pamTune(data, len),
       knn = data.frame(.k = (5:((2 * len)+4))[(5:((2 * len)+4))%%2 > 0]),
       nb = data.frame(.usekernel = c(TRUE, FALSE)),
       multinom = data.frame(.decay = c(0, 10 ^ seq(-4, 0, length = len - 1))),
-      bagEarth =, bagFDA =, earth =, mars =, fda = expand.grid(.degree = 1, .nk = marsSeq(dim(data)[2] - 1, len)),    
+      bagEarth =, bagFDA =, earth =, earthTest =, mars =, fda = expand.grid(.degree = 1, .nprune = marsSeq(data, len)),    
       svmradial = expand.grid(
          .sigma = rbfTune(data, len),
          .C = 10 ^((1:len) - 2)
@@ -139,6 +143,14 @@ function(method, len = 3, data = NULL)
       ),
       cforest = cforestTune(data, len),
       ctree = data.frame(.mincriterion = seq(from = .99, to = 0.01, length = len)),
+      enet = expand.grid(
+         .lambda = c(0, 10 ^((1:(len - 1)) - 1)),
+         .fraction = seq(0.05, 1, length = len)
+      ),
+      lasso = expand.grid(
+         .lambda = 0,
+         .fraction = seq(0, 1, length = len)
+      ),      
       lda =, lm =, treebag = data.frame(.parameter = "none")
    )
    trainGrid

@@ -12,9 +12,9 @@ extractProb <- function(
    if(any(unlist(lapply(object, function(x) x$modelType)) !=  "Classification"))
       stop("only classification models allowed")
 
-   if(object[[1]]$call[[4]] %in% c("svmradial", "svmpoly", "ctree", "cforest"))
+   if(object[[1]]$method %in% c("svmradial", "svmpoly", "ctree", "cforest"))
    {
-      obsLevels <- switch(object[[1]]$call[[4]],
+      obsLevels <- switch(object[[1]]$method,
          svmradial =, svmpoly =
          {
             library(kernlab)
@@ -51,25 +51,25 @@ extractProb <- function(
    for(i in seq(along = object))
    {
       modelFit <- object[[i]]$finalModel
-      method <- object[[i]]$call[[4]]
-      if(verbose) cat("starting ", object[[i]]$call[[4]], "\n"); flush.console()         
+      method <- object[[i]]$method
+      if(verbose) cat("starting ", object[[i]]$method, "\n"); flush.console()         
       if(!unkOnly)
       {
          # Training Data
          tempTrainPred  <- predictionFunction(method, modelFit, trainX)
          tempTrainProb <- probFunction(method, modelFit, trainX)         
-         if(verbose) cat(object[[i]]$call[[4]], ":", length(tempTrainPred), "training predictions were added\n"); flush.console()         
+         if(verbose) cat(object[[i]]$method, ":", length(tempTrainPred), "training predictions were added\n"); flush.console()         
          
          predProb <- if(is.null(predProb)) tempTrainProb else rbind(predProb, tempTrainProb)      
          predClass <- c(predClass, as.character(tempTrainPred))         
          obs <- c(obs, as.character(trainY))
-         modelName <- c(modelName, rep(object[[i]]$call[[4]], length(tempTrainPred)))
+         modelName <- c(modelName, rep(object[[i]]$method, length(tempTrainPred)))
          dataType <- c(dataType, rep("Training", length(tempTrainPred)))         
          
          # Test Data         
          if(!is.null(testX) & !is.null(testY))
          {
-            if(object[[i]]$call[[4]] %in% c("rpart", "treebag"))
+            if(object[[i]]$method %in% c("rpart", "treebag"))
             {
                tempX <- testX
                tempY <- testY
@@ -80,12 +80,12 @@ extractProb <- function(
 
             tempTestPred  <- predictionFunction(method, modelFit, tempX)  
             tempTestProb <- probFunction(method, modelFit, tempX)       
-            if(verbose) cat(object[[i]]$call[[4]], ":", length(tempTestPred), "test predictions were added\n")         
+            if(verbose) cat(object[[i]]$method, ":", length(tempTestPred), "test predictions were added\n")         
             
             predProb <- if(is.null(predProb)) tempTestProb else rbind(predProb, tempTestProb)             
             predClass <- c(predClass, as.character(tempTestPred))         
             obs <- c(obs, as.character(testY))
-            modelName <- c(modelName, rep(object[[i]]$call[[4]], length(tempTestPred)))
+            modelName <- c(modelName, rep(object[[i]]$method, length(tempTestPred)))
             dataType <- c(dataType, rep("Test", length(tempTestPred)))                  
          }      
          
@@ -94,7 +94,7 @@ extractProb <- function(
       # Unknown Data   
       if(!is.null(unkX))
       {
-         if(object[[i]]$call[[4]] %in% c("rpart", "treebag"))
+         if(object[[i]]$method %in% c("rpart", "treebag"))
          {
             tempX <- unkX
          } else {
@@ -106,12 +106,12 @@ extractProb <- function(
          tempUnkPred  <- predictionFunction(method, modelFit, tempX)
          tempUnkProb <- probFunction(method, modelFit, tempX)
       
-         if(verbose) cat(object[[i]]$call[[4]], ":", length(tempUnkPred), "unknown predictions were added\n")         
+         if(verbose) cat(object[[i]]$method, ":", length(tempUnkPred), "unknown predictions were added\n")         
          
          predProb <- if(is.null(predProb)) tempUnkProb else rbind(predProb, tempUnkProb)      
          predClass <- c(predClass, as.character(tempUnkPred))         
          obs <- c(obs, rep(NA, length(tempUnkPred)))
-         modelName <- c(modelName, rep(object[[i]]$call[[4]], length(tempUnkPred)))
+         modelName <- c(modelName, rep(object[[i]]$method, length(tempUnkPred)))
          dataType <- c(dataType, rep("Unknown", length(tempUnkPred)))        
          
       }

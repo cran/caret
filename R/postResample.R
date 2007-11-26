@@ -7,8 +7,13 @@ postResample <- function(pred, obs)
 
    if(!is.factor(obs) & is.numeric(obs))
    {
-      if(sd(pred) == 0 || sd(obs) == 0) resamplCor <- NA
-         else resamplCor <- cor(pred, obs, use = "pairwise.complete.obs")
+      if(length(unique(pred)) < 2 || length(unique(obs)) < 2)
+      {
+         resamplCor <- NA
+      } else {
+         resamplCor <- try(cor(pred, obs, use = "pairwise.complete.obs"), silent = TRUE)
+         if(class(resamplCor) == "try-error") resamplCor <- NA 
+      }
       mse <- mean((pred - obs)^2)
       n <- length(obs)
 

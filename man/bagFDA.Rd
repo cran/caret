@@ -76,7 +76,7 @@ trainData <- Glass[ inTrain, ]
 testData  <- Glass[-inTrain, ]
 
 
-baggedFit <- bagFDA(Type ~ ., trainData, B = 100)
+baggedFit <- bagFDA(Type ~ ., trainData)
 baggedMat <- table(
    predict(baggedFit, testData[, -10]),
    testData[, 10])
