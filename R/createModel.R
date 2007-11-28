@@ -37,9 +37,9 @@ function(data, method, tuneValue, obsLevels, ...)
    # so extract the feature matrix and class factor.
    # for svm, we can use the formula interface, but we can't save predicted
    # probabilites, so we will use the svm(x, y) interface
-   if(method %in% c("glmboost", "blackboost", "gamboost", "earth",
-      "bagFDA", "bagEarth", "lda",
-      "lvq", "pls", "gbm", "pam", "rf", "ada", "knn", "PLS",
+   if(method %in% c("glmboost", "blackboost", "gamboost", "earth", "earthTest",
+      "bagFDA", "bagEarth", "lda", "enet", "lasso",
+      "lvq", "pls", "plsTest", "gbm", "pam", "rf", "ada", "knn", "PLS",
       "mars", "rda",  "gpls", "svmpoly", "svmradial"))
    {
       trainX <- data[,!(names(data) %in% ".outcome")]
@@ -112,7 +112,7 @@ function(data, method, tuneValue, obsLevels, ...)
          library(class)      
          lvq3(trainX, trainY, lvqinit(trainX, trainY, k = tuneValue$.k), ...)
       },         
-      rpart =
+      rpart = 
       {
          library(rpart)   
          
@@ -136,7 +136,7 @@ function(data, method, tuneValue, obsLevels, ...)
          out <- do.call("rpart", modelArgs)
          out
       }, 
-      pls = 
+      pls =, plsTest = 
       {
 
          library(pls)
@@ -177,7 +177,7 @@ function(data, method, tuneValue, obsLevels, ...)
          library(klaR)
          NaiveBayes(modFormula, data, usekernel= tuneValue$.usekernel, ...)
       },
-      mars =, earth =
+      mars =, earth =, earthTest =
       {
          library(earth)
          
@@ -190,12 +190,12 @@ function(data, method, tuneValue, obsLevels, ...)
                x = trainX,
                y = trainY,
                degree = tuneValue$.degree,
-               nk = tuneValue$.nk),
+               nprune = tuneValue$.nprune),
             theDots)
          
          tmp <- do.call("earth", modelArgs)
 
-         tmp$call["nk"] <-  tuneValue$.nk
+         tmp$call["nprune"] <-  tuneValue$.nprune
          tmp$call["degree"] <-  tuneValue$.degree
          tmp  
       },
@@ -206,14 +206,14 @@ function(data, method, tuneValue, obsLevels, ...)
          library(earth)
          fda(modFormula, data, method = earth, 
             degree = tuneValue$.degree,
-            nk = tuneValue$.nk, ...)
+            nprune = tuneValue$.nprune, ...)
       },
       
       bagEarth =
       {
          library(earth)
          bagEarth(trainX, trainY, degree = tuneValue$.degree,
-            nk = tuneValue$.nk, ...)
+            nprune = tuneValue$.nprune, ...)
       },
                       
       bagFDA =
@@ -222,7 +222,7 @@ function(data, method, tuneValue, obsLevels, ...)
          library(earth)
          bagFDA(modFormula, data, 
             degree = tuneValue$.degree,
-            nk = tuneValue$.nk, ...)
+            nprune = tuneValue$.nprune, ...)
       },      
       treebag = 
       {
@@ -315,7 +315,7 @@ function(data, method, tuneValue, obsLevels, ...)
          
          if(tuneValue$.prune == "yes")
          {
-            out <- if(is.factor(trainY)) out[mstop(AIC(out, "classical"))] else out[mstop(AIC(out))]
+            tmp <- if(is.factor(trainY)) try(out[mstop(AIC(out, "classical"))], silent = TRUE) else try(out[mstop(AIC(out))], silent = TRUE)
          }
 
          # for easier printing (and tracebacks), we'll try to make the calls shorter
@@ -462,7 +462,13 @@ function(data, method, tuneValue, obsLevels, ...)
             
          out <- do.call("cforest", modelArgs)
          out        
-      }            
+      },
+      enet =, lasso =
+      {
+         library(elasticnet)
+         
+         enet(as.matrix(trainX), trainY, lambda = tuneValue$.lambda) 
+      }                  
    )
   
  

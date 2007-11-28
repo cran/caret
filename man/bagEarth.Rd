@@ -68,7 +68,7 @@ library(mda)
 library(earth)
 data(trees)
 fit1 <-  earth(trees[,-3], trees[,3])
-fit2 <- bagEarth(trees[,-3], trees[,3])
+fit2 <- bagEarth(trees[,-3], trees[,3], B = 10)
 }
 
 \keyword{regression}

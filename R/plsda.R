@@ -11,7 +11,7 @@ predict.plsda <- function(object, newdata = NULL, ncomp = NULL, type = "class", 
       if(!is.null(object$ncomp)) ncomp <- object$ncomp else stop("specify ncomp")  
    }
    
-   tmpPred <- predict.mvr(object, newdata = newdata)[,,ncomp]
+   tmpPred <- predict.mvr(object, newdata = newdata)[,,ncomp,drop = FALSE]
    
    switch(type,
       raw = 
@@ -30,11 +30,11 @@ predict.plsda <- function(object, newdata = NULL, ncomp = NULL, type = "class", 
             tmpOut <- matrix("", nrow = dim(tmpPred)[1], ncol = dim(tmpPred)[3])
             for(i in 1:dim(tmpPred)[3])
             {
-               tmpOut[,i] <- object$obsLevels[apply(tmpPred[,,i], 1, which.max)]
+               tmpOut[,i] <- object$obsLevels[apply(tmpPred[,,i,drop=FALSE], 1, which.max)]
             }
             out <- as.data.frame(tmpOut)
             out <- as.data.frame(lapply(out, function(x, y) factor(x, levels = y), y = object$obsLevels))
-            names(out) <- paste("ncomp", 1:ncol(out), sep = "")
+            names(out) <- paste("ncomp", ncomp, sep = "")
          }
       },
       prob =
@@ -47,7 +47,7 @@ predict.plsda <- function(object, newdata = NULL, ncomp = NULL, type = "class", 
             out <- tmpPred * NA
             for(i in 1:dim(tmpPred)[3])
             {
-               out[,,i] <- t(apply(tmpPred[,,i], 1, function(data) exp(data)/sum(exp(data))))
+               out[,,i] <- t(apply(tmpPred[,,i,drop=FALSE], 1, function(data) exp(data)/sum(exp(data))))
             }
          }      
       }

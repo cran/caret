@@ -186,65 +186,39 @@ mdrrDescr <- applyProcessing(mdrrDescr, preProcVals)
 
 Classification models were fit using random forests and partial least squares. The variable importance measures were calculated for these models and using the ROC method described above. 
 
-<<varImp>>=
-ctrl <- trainControl(verboseIter = FALSE)
-rfFit <- randomForest(mdrrDescr, mdrrClass, ntree = 2000, importance = TRUE)
-plsFit <- train(mdrrDescr, mdrrClass, "pls", tuneGrid = data.frame(.ncomp = 2 * (1:10)), trControl = ctrl)
-modelFree <- filterVarImp(mdrrDescr, mdrrClass)
-
-allImp1 <- data.frame(
-   randomForest = varImp(rfFit)[,1], 
-   PLS = varImp(plsFit$finalModel)[,1], 
-   ROC = modelFree[,1])
-allImp1$note <- "All Descriptors"
-@
+\begin{Schunk}
+\begin{Sinput}
+> ctrl <- trainControl(verboseIter = FALSE)
+> rfFit <- randomForest(mdrrDescr, mdrrClass, ntree = 2000, importance = TRUE)
+> plsFit <- train(mdrrDescr, mdrrClass, "pls", tuneGrid = data.frame(.ncomp = 2 * 
++     (1:10)), trControl = ctrl)
+> modelFree <- filterVarImp(mdrrDescr, mdrrClass)
+> allImp1 <- data.frame(randomForest = varImp(rfFit)[, 1], PLS = varImp(plsFit$finalModel)[, 
++     1], ROC = modelFree[, 1])
+> allImp1$note <- "All Descriptors"
+\end{Sinput}
+\end{Schunk}
 
 A scatter plot matrices of the unscaled importances with a loess smooth curve are given in Figure \label{f:varImpSplom}. The top panel shows the results when the models use all predictors as inputs. Here, there is no 1:1 relationship between between methods. However, in the case of random forests, if a set of predictors are highly correlated, the selection of which predictor is used in a split is essentially random. This dilutes the importance of each of the correlated descriptors and may make the variable importance measures less helpful. 
 
 To evaluate the effect of between--predictor correlations, descriptors with absolute pair--wise correlations above 0.90 are removed. In this case, the three methods show better agreement (the bottom panel of \label{f:varImpSplom}). 
 
-<<varImpFiltered>>=
-corrColumns <- findCorrelation(cor(mdrrDescr))
-mdrrDescr <- mdrrDescr[, -corrColumns]
-   
-rfFit2 <- randomForest(mdrrDescr, mdrrClass, ntree = 2000, importance = TRUE)
-plsFit2 <- train(mdrrDescr, mdrrClass, "pls", tuneGrid = data.frame(.ncomp = 2 * (1:10)), trControl = ctrl)
-modelFree <- filterVarImp(mdrrDescr, mdrrClass)
-
-allImp2 <- data.frame(
-   randomForest = varImp(rfFit2)[,1], 
-   PLS = varImp(plsFit2$finalModel)[,1], 
-   ROC = modelFree[,1])
-allImp2$note <- "|Corr| < 0.90"
-  
-allPred <- splom(~allImp1[, 1:3], type = c("p", "smooth"), main = "Variable Importance: All Predictors")
-filteredPred <- splom(~allImp2[, 1:3], type = c("p", "smooth"), main = "Variable Importance: |Corr| < 0.90 Filter")  
-   
-@
-
-
+\begin{Schunk}
+\begin{Sinput}
+> corrColumns <- findCorrelation(cor(mdrrDescr))
+> mdrrDescr <- mdrrDescr[, -corrColumns]
+> rfFit2 <- randomForest(mdrrDescr, mdrrClass, ntree = 2000, importance = TRUE)
+> plsFit2 <- train(mdrrDescr, mdrrClass, "pls", tuneGrid = data.frame(.ncomp = 2 * 
++     (1:10)), trControl = ctrl)
+> modelFree <- filterVarImp(mdrrDescr, mdrrClass)
+> allImp2 <- data.frame(randomForest = varImp(rfFit2)[, 1], PLS = varImp(plsFit2$finalModel)[, 1], ROC = modelFree[, 1])
+> allImp2$note <- "|Corr| < 0.90"
+> allPred <- splom(~allImp1[, 1:3], type = c("p", "smooth"), main = "Variable Importance: All Predictors")
+> filteredPred <- splom(~allImp2[, 1:3], type = c("p", "smooth"), main = "Variable Importance: |Corr| < 0.90 Filter")
+\end{Sinput}
+\end{Schunk}
 
 Figure \ref{f:varImpInd} demonstrates the \texttt{plot} method for object of class \texttt{varImp}. In each case, needle plots are produced for the top predictors, based on their importance values. For classification models with more than 2 classes, the predictors are ordered by their average importance. With two classes, only one importance is plotted.
-
-<<mbrrImp, echo = FALSE, results = hide>>=
-
-pdf(paste(getwd(), "/plsVarImp.pdf", sep = ""), width = 4.5, height = 7)
-   trellis.par.set(caretTheme(), warn = FALSE)
-   plot(varImp(plsFit2, scale = FALSE), top = 15, main = "PLS Importance - Top 15")
-dev.off()
-pdf(paste(getwd(), "/rocVarImp.pdf", sep = ""), width = 4.5, height = 7)
-   trellis.par.set(caretTheme(), warn = FALSE)
-   plot(varImp(plsFit2, useModel = FALSE, scale = FALSE), top = 15, main = "ROC Importance - Top 15")
-dev.off()
-pdf(paste(getwd(), "/allPred.pdf", sep = ""), width = 7, height = 7)
-   trellis.par.set(caretTheme(), warn = FALSE)
-   plot(allPred)
-dev.off()
-pdf(paste(getwd(), "/filteredPred.pdf", sep = ""), width = 7, height = 7)
-   trellis.par.set(caretTheme(), warn = FALSE)
-   plot(filteredPred)
-dev.off()
-@
 
 \begin{figure}[p]
    \begin{center}        
@@ -270,11 +244,11 @@ dev.off()
 
 \end{document}
 
-   setwd("c:/program files/R/R250/bin/caret082007/inst/doc/")
+   setwd("c:/program files/R/R251/bin/caret/inst/doc/")
    oldWidth <- options("width")$width
    options(width = 80)
    Sweave(
-      file = "c:/program files/R/R260dev/bin/caret/inst/doc/caretVarImp.Rnw",
-      out = "c:/program files/R/R260dev/bin/caret/inst/doc/caretVarImp.tex")
+      file = "c:/program files/R/R251/bin/caret/inst/doc/caretVarImp.Rnw",
+      out = "c:/program files/R/R251/bin/caret/inst/doc/caretVarImp.tex")
    options(width = oldWidth)
      

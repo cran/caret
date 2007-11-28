@@ -24,7 +24,7 @@ spatialSign(rnorm(5))
 spatialSign(matrix(rnorm(12), ncol = 3))
 
 # should fail since the fifth column is a factor
-try(spatialSign(iris))
+try(spatialSign(iris), silent = TRUE)
 
 spatialSign(iris[,-5])
 

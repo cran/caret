@@ -9,29 +9,26 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
             lda = library(MASS),
             rda = library(klaR),
             gpls = library(gpls))      
-         predClass <- as.character(predict(modelFit, newdata)$class)
-         out <- factor(predClass, levels = modelFit$obsLevels)
+         out <- as.character(predict(modelFit, newdata)$class)
          out
       },
       
       gbm = 
       {
          library(gbm)
-         if(is.null(param))
-         {
-            if(modelFit$problemType == "Classification")
-            {      
-               gbmProb <- predict(modelFit, newdata, type = "response", 
-                  n.trees = modelFit$tuneValue$.n.trees)
-               gbmClass <- ifelse(gbmProb >= .5, modelFit$obsLevels[1], modelFit$obsLevels[2]) # to correspond to gbmClasses definition above
-               out <- factor(gbmClass, levels = modelFit$obsLevels)          
-            } else {
-               out <- predict(modelFit, newdata, type = "response", 
-                  n.trees = modelFit$tuneValue$.n.trees)
-            }
+         if(modelFit$problemType == "Classification")
+         {      
+            gbmProb <- predict(modelFit, newdata, type = "response", 
+               n.trees = modelFit$tuneValue$.n.trees)
+            out <- ifelse(gbmProb >= .5, modelFit$obsLevels[1], modelFit$obsLevels[2]) # to correspond to gbmClasses definition above
          } else {
+            out <- predict(modelFit, newdata, type = "response", 
+               n.trees = modelFit$tuneValue$.n.trees)
+         }         
          
-            out <- data.frame(
+         if(!is.null(param))
+         {
+            tmp <- data.frame(
                matrix(NA, nrow = nrow(newdata), ncol = nrow(param)), 
                stringsAsFactors = FALSE)
                        
@@ -40,14 +37,14 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
                if(modelFit$problemType == "Classification")
                {      
                   gbmProb <- predict(modelFit, newdata, type = "response", n.trees = param$.n.trees[j])
-                  gbmClass <- ifelse(gbmProb >= .5, modelFit$obsLevels[1], modelFit$obsLevels[2]) # to correspond to gbmClasses definition above
-                  out[,j] <- factor(gbmClass, levels = modelFit$obsLevels)
-                  
+                  tmp[,j] <- ifelse(gbmProb >= .5, modelFit$obsLevels[1], modelFit$obsLevels[2]) # to correspond to gbmClasses definition above                  
                } else {
-                  out[,j]  <- predict(modelFit, newdata, type = "response", n.trees = param$.n.trees[j]) 
+                  tmp[,j]  <- predict(modelFit, newdata, type = "response", n.trees = param$.n.trees[j]) 
                }
             }
-         
+            out <- cbind(out, tmp)      
+            attr(out, "values") <- c(modelFit$tuneValue$.n.trees, param$.n.trees)      
+            
          }      
          out
       },
@@ -56,8 +53,7 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
       {
          if(modelFit$problemType == "Classification")
          {
-            predClass <-  as.character(predict(modelFit, newdata))
-            out <- factor(predClass, levels = modelFit$obsLevels)
+            out <-  as.character(predict(modelFit, newdata))
          } else {
             out <- predict(modelFit, newdata)
          }
@@ -79,8 +75,7 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
             
       knn =
       {
-         predClass <- as.character(predict(modelFit, newdata, type="class"))
-         out <- factor(predClass, levels = modelFit$obsLevels)
+         out <- as.character(predict(modelFit, newdata, type="class"))
          out
       },
    
@@ -89,8 +84,7 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
          library(nnet)
          if(modelFit$problemType == "Classification")
          {       
-            predClass <- as.character(predict(modelFit, newdata, type="class"))
-            out <- factor(predClass, levels = modelFit$obsLevels)
+            out <- as.character(predict(modelFit, newdata, type="class"))
          } else {
             out  <- predict(modelFit, newdata, type="raw")
          }
@@ -107,19 +101,17 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
             out
          }
 
-         if(is.null(param))
-         {
-            if(modelFit$problemType == "Classification")
-            {      
-               predClass <- as.character(predict(modelFit, newdata, type="class"))
-               out  <- factor(predClass, levels = modelFit$obsLevels)
-            } else {
-               out  <- predict(modelFit, newdata, type="vector")      
-   
-            }
+         if(modelFit$problemType == "Classification")
+         {      
+            out <- as.character(predict(modelFit, newdata, type="class"))
          } else {
-         
-            out <- data.frame(
+            out  <- predict(modelFit, newdata, type="vector")      
+
+         }
+
+         if(!is.null(param))
+         {        
+            tmp <- data.frame(
                matrix(NA, nrow = nrow(newdata), ncol = nrow(param)), 
                stringsAsFactors = FALSE)
             
@@ -132,57 +124,76 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
                prunedFit <- prune.rpart(modelFit, cp = cpValues[j])
                if(modelFit$problemType == "Classification")
                {      
-                  predClass <- as.character(predict(prunedFit, newdata, type="class"))
-                  out[,j]  <- factor(predClass, levels = modelFit$obsLevels)
+                  tmp[,j] <- as.character(predict(prunedFit, newdata, type="class"))
                } else {
-                  out[,j]  <- predict(prunedFit, newdata, type="vector")      
+                  tmp[,j]  <- predict(prunedFit, newdata, type="vector")      
                }
             }
-         
+            out <- cbind(out, tmp)
+            attr(out, "values") <- c(modelFit$tuneValue$.maxdepth, param$.maxdepth)      
+            
          }
          out            
-      },           
-      
+      },    
+          
       lvq = 
       {
          library(class)
-         predClass <- as.character(lvqtest(modelFit , newdata))
-         out <- factor(predClass, levels = modelFit$obsLevels)
+         out <- as.character(lvqtest(modelFit , newdata))
          out
       },
 
       pls =, 
       {             
          library(pls)
+         
+         out <- if(modelFit$problemType == "Classification")
+         {      
+            if(!is.matrix(newdata)) newdata <- as.matrix(newdata)          
+            predict(modelFit, newdata, type="class")
+         } else as.vector(predict(modelFit, newdata, ncomp = max(modelFit$ncomp)))         
         
-         if(is.null(param))
+        
+         if(!is.null(param))
          {
-            out <- if(modelFit$problemType == "Classification")
-            {      
-               if(!is.matrix(newdata)) newdata <- as.matrix(newdata)          
-               predict(modelFit, newdata, type="class")
-            } else as.vector(predict(modelFit, newdata, ncomp = max(modelFit$ncomp)))         
-
-         } else {
-            out <- predict(modelFit, newdata, ncomp = param$.ncomp)            
-            
             if(modelFit$problemType == "Classification")
             {
-               out <- lapply(out, function(u, y) factor(as.character(u), levels = y), y = modelFit$obsLevels)  
+               tmp <- if(length(param$.ncomp) > 1) predict(modelFit, newdata, ncomp = param$.ncomp)          
+                  else data.frame(pred = predict(modelFit, newdata, ncomp = param$.ncomp))
+               tmp <- as.data.frame(lapply(tmp, as.character), stringsAsFactors = FALSE)
+               out <- cbind(as.character(out[,1]), tmp)                 
+            } else {
+               tmp <- if(length(param$.ncomp) > 1) predict(modelFit, newdata, ncomp = param$.ncomp)[,1,]          
+                  else data.frame(pred = predict(modelFit, newdata, ncomp = param$.ncomp))          
+               out <- cbind(out, tmp)                    
             }
-            out <- as.data.frame(out)         
 
+            out <- as.data.frame(out)         
+            attr(out, "values") <- c(modelFit$tuneValue$.ncomp, param$.ncomp)      
+            
          }
          out
-      },      
+      },     
+      
+      plsTest =, 
+      {             
+         library(pls)
+         
+         out <- if(modelFit$problemType == "Classification")
+         {      
+            if(!is.matrix(newdata)) newdata <- as.matrix(newdata)          
+            predict(modelFit, newdata, type="class")
+         } else as.vector(predict(modelFit, newdata, ncomp = max(modelFit$ncomp)))         
+
+         out
+      },         
       
       PLS =, 
       {     
          library(pls)
          if(modelFit$problemType == "Classification")
          {      
-            predClass <- as.character(predict(modelFit, as.matrix(newdata),  ncomp = modelFit$tuneValue$.ncomp))
-            out <- factor(predClass, levels = modelFit$obsLevels) 
+            out <- as.character(predict(modelFit, as.matrix(newdata),  ncomp = modelFit$tuneValue$.ncomp))
          } else {
             out <- as.vector(predict(modelFit, as.matrix(newdata), ncomp = modelFit$tuneValue$.ncomp))
          }
@@ -193,26 +204,27 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
       {
          library(pamr)
          
-         if(is.null(param))
+         predClass <- as.character(pamr.predict(modelFit, t(newdata), 
+            threshold = modelFit$tuneValue$.threshold))
+         out <- factor(predClass,  levels = modelFit$obsLevels)         
+         
+         if(!is.null(param))
          {
-            predClass <- as.character(pamr.predict(modelFit, t(newdata), 
-               threshold = modelFit$tuneValue$.threshold))
-            out <- factor(predClass,  levels = modelFit$obsLevels)
-         } else {
-            out <- data.frame(
+            tmp <- data.frame(
                matrix(NA, nrow = nrow(newdata), ncol = nrow(param)), 
                stringsAsFactors = FALSE)
             
             for(j in seq(along = param$.threshold))
             {
-               out[,j] <- as.character(
+               tmp[,j] <- as.character(
                   pamr.predict(
                      modelFit, 
                      t(newdata), 
                      threshold = param$.threshold[j]))
             }
-            out <- lapply(out, function(u, y) factor(as.character(u), levels = y), y = modelFit$obsLevels)
-            out <- as.data.frame(out)
+            tmp <- cbind(as.character(out), tmp)
+            out <- as.data.frame(tmp)
+            attr(out, "values") <- c(modelFit$tuneValue$.threshold, param$.threshold)      
          }
          out  
       },
@@ -220,8 +232,7 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
       nb =  
       {
          library(klaR)
-         predClass <- as.character(predict(modelFit , newdata)$class)
-         out <- factor(predClass, levels = modelFit$obsLevels)
+         out <- as.character(predict(modelFit , newdata)$class)
          out
       },
             
@@ -229,8 +240,7 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
       {
          library(mda)
          library(earth)         
-         predClass <- as.character(predict(modelFit , newdata))
-         out <- factor(predClass, levels = modelFit$obsLevels)
+         out <- as.character(predict(modelFit , newdata))
          out
       },      
           
@@ -238,8 +248,7 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
       {
          library(mda)
          library(earth)
-         predClass <- as.character(predict(modelFit , newdata))
-         out <- factor(predClass, levels = modelFit$obsLevels)
+         out <- as.character(predict(modelFit , newdata))
          out
       },
                   
@@ -248,41 +257,41 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
          library(ipred)
          if(modelFit$problemType == "Classification")
          {      
-            bagClass <- as.character(predict(modelFit, newdata,  type = "class"))
-            out <- factor(bagClass, levels = modelFit$obsLevels) 
+            out <- as.character(predict(modelFit, newdata,  type = "class"))
          } else {
             out <- predict(modelFit, newdata)
          }         
          out
       },
 
-      mars =
+      mars =, earth =
       {
          library(earth)
          out <- predict(modelFit, newdata)
-         out
-      },
-      
-      earth =
-      {
-         library(earth)
-         if(is.null(param))
-         {
-            out <- predict(modelFit, newdata)
-         } else {
-         
-            out <- data.frame(
+         if(!is.null(param))
+         {         
+            tmp <- data.frame(
                matrix(NA, nrow = nrow(newdata), ncol = nrow(param)), 
                stringsAsFactors = FALSE)
                       
-            for(j in seq(along = param$.nk))
+            for(j in seq(along = param$.nprune))
             {
-               prunedFit <- update(modelFit, nprune = param$.nk[j])
-               out[,j]  <- predict(prunedFit, newdata)      
+               prunedFit <- update(modelFit, nprune = param$.nprune[j])
+               tmp[,j]  <- predict(prunedFit, newdata)      
             }
+            out <- cbind(out, tmp)
+            attr(out, "values") <- c(modelFit$tuneValue$.nprune, param$.nprune)                  
          }         
          out
-      },      
+      },   
+      
+      earthTest =
+      {
+         library(earth)
+         out <- predict(modelFit, newdata)
+         
+         out
+      },          
       
       bagEarth =
       {
@@ -301,21 +310,22 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
       gamboost =, blackboost =, glmboost =
       {
          library(mboost) 
-         if(is.null(param))
-         {
-            out <- predict(modelFit, as.matrix(newdata), type = "response")
-            if(modelFit$problemType == "Classification") out <- factor(out, levels = modelFit$obsLevels)  
-         } else {
-         
-            out <- data.frame(
+         out <- predict(modelFit, as.matrix(newdata), type = "response")
+         if(modelFit$problemType == "Classification") out <- as.character(out)
+
+         if(!is.null(param))
+         {        
+            tmp <- data.frame(
                matrix(NA, nrow = nrow(newdata), ncol = nrow(param)), 
                stringsAsFactors = FALSE)
                       
             for(j in seq(along = param$.mstop))
             {
-               out[,j]  <- predict(modelFit[param$.mstop[j]], as.matrix(newdata))  
-               if(modelFit$problemType == "Classification") out[,j] <- factor(as.character(out[,j]), levels = modelFit$obsLevels)  
+               tmp[,j]  <- predict(modelFit[param$.mstop[j]], as.matrix(newdata), type = "response")  
+               if(modelFit$problemType == "Classification") tmp[,j] <- as.character(tmp[,j])
             }
+            out <- cbind(out, tmp)            
+            attr(out, "values") <- c(mstop(modelFit), param$.mstop)                 
          }  
          out
       },
@@ -324,7 +334,7 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
       {
          library(ada)
          out <- predict(modelFit, newdata)
-         out <- factor(out, levels = modelFit$obsLevels)          
+         out <-as.character(out)
          out      
       
       },
@@ -333,20 +343,27 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
       {
          library(party)
 
-         if(is.null(param))
-         {
-            out <- predict(modelFit, newdata)
-         } else {
-         
-            out <- data.frame(
+         out <- predict(modelFit, newdata)
+
+         if(!is.null(param))
+         {  
+            # see note in tuneScheme about this two lines:
+            minMinCrit <- min(param$.mincriterion)
+            param <- param[param$.mincriterion > minMinCrit,, drop = FALSE]
+                   
+            tmp <- data.frame(
                matrix(NA, nrow = nrow(newdata), ncol = nrow(param)), 
                stringsAsFactors = FALSE)
             
             for(j in seq(along = param$.mincriterion))
             {
-               out[,j] <- predict(modelFit, newdata, mincriterion = param$.mincriterion[j])
+               tmp[,j] <- predict(modelFit, newdata, mincriterion = param$.mincriterion[j])
+               if(!is.null(modelFit@responses@levels$.outcome)) tmp[,j] <-as.character(tmp[,j])               
             }
-         
+            out <- cbind(out, tmp)
+            
+            attr(out, "values") <- c(minMinCrit, param$.mincriterion)               
+            
          }
        
          out
@@ -359,25 +376,29 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
          # going to assume that all the levels will be passed to
          # the output         
          out <- predict(modelFit, newdata, OOB = TRUE)
-       
-         out
-       }
+         if(!is.null(modelFit@responses@levels$.outcome)) out <-as.character(out)
       
-#      lasso =, enet = 
-#      {
-#         library(elasticnet)
-#         
-#         if(is.null(param))         
-#         {
-#            out <- predict(modelFit, newdata, s = modelFit$tuneValue$.fraction, mode = "fraction", type = "fit")
-#         } else {
-#            out <- predict(modelFit, newdata, s = param$.fraction, mode = "fraction")$fit
-#         }
-#      
-#         out         
-#        
+         out
+      },
+      
+      lasso =, enet = 
+      {
+         library(elasticnet)
+         out <- predict(modelFit, newdata, s = modelFit$tuneValue$.fraction, mode = "fraction")$fit
+         
+         if(!is.null(param))         
+         {
+            tmp <- predict(modelFit, newx = as.matrix(newdata), s = param$.fraction, mode = "fraction")$fit
+            out <- cbind(out, tmp)
+            attr(out, "values") <- c(modelFit$tuneValue$.fraction, param$.fraction)                  
+            
+         }
+      
+         out         
+      }  
             
    )
    predictedValue
 }
+
 
