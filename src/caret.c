@@ -134,11 +134,11 @@ knn3(Sint *kin, Sint *lin, Sint *pntr, Sint *pnte, Sint *p,
 #include "R_ext/Rdynload.h"
 
 static const R_CMethodDef CEntries[] = {
-    {"knn3", (DL_FUNC) &knn3, 14},
+    {"knn3", (DL_FUNC) &knn3, 13},
     {NULL, NULL, 0}
 };
 
-void R_init_class(DllInfo *dll)
+void R_init_caret(DllInfo *dll)
 {
     R_registerRoutines(dll, CEntries, NULL, NULL, NULL);
 }

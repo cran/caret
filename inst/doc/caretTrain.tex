@@ -17,7 +17,8 @@
          urlcolor=blue]
          {hyperref}
          \usepackage{lscape}
-\usepackage{Sweave}         
+\usepackage{/Users/kuhna03/Library/texmf/tex/latex/Sweave}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -176,9 +177,8 @@ Call:
 train.default(x = trainDescr, y = trainMDRR, method = "svmradial", 
     trControl = fitControl, tuneLength = 4)
 
-264 samples, 50 predictors
-
-largest class: 56.06% (Active)
+264 samples
+50 predictors
 
 summary of leave group out cross-validation (30 reps) sample sizes:
     198, 198, 198, 198, 198, 198, ... 
@@ -226,9 +226,8 @@ Call:
 train.default(x = trainDescr, y = trainMDRR, method = "gbm", 
     verbose = FALSE, trControl = fitControl, tuneGrid = gbmGrid)
 
-264 samples, 50 predictors
-
-largest class: 56.06% (Active)
+264 samples
+50 predictors
 
 summary of leave group out cross-validation (30 reps) sample sizes:
     198, 198, 198, 198, 198, 198, ... 
@@ -236,12 +235,12 @@ summary of leave group out cross-validation (30 reps) sample sizes:
 LGOCV resampled training results across tuning parameters:
 
   interaction.depth  n.trees  shrinkage  Accuracy  Kappa  Accuracy SD  Kappa SD  Optimal
-  1                  100      0.1        0.809     0.608  0.0414       0.0833           
-  1                  300      0.1        0.796     0.583  0.049        0.098            
-  1                  500      0.1        0.784     0.558  0.0448       0.0901           
-  3                  100      0.1        0.809     0.608  0.0437       0.0876    *      
-  3                  300      0.1        0.804     0.598  0.0388       0.0791           
-  3                  500      0.1        0.802     0.594  0.039        0.0802           
+  1                  100      0.1        0.809     0.608  0.0414       0.0833    *      
+  1                  300      0.1        0.795     0.581  0.0482       0.0965           
+  1                  500      0.1        0.783     0.557  0.0445       0.0896           
+  3                  100      0.1        0.808     0.606  0.0399       0.0813           
+  3                  300      0.1        0.803     0.595  0.042        0.0851           
+  3                  500      0.1        0.805     0.599  0.0357       0.0745           
 
 Accuracy was used to select the optimal model
 \end{Soutput}
@@ -257,7 +256,12 @@ Some notes about the use of \texttt{train}:
 	
 	\item The \texttt{$\ldots$} option can be used to pass parameters to the fitting function. For example, in random forest models, you can specify the number of trees to be used in the call to \texttt{train}. In the example above, the default trace for a \texttt{gbm} model was turned off using the \texttt{verbose} argument to \texttt{gbm}.
 	
-	\item For regression models, the classical $R^2$ statistic cannot be compared between models that contain an intercept and models that do not. Also, some models do not have an intercept only null model.	To approximate this statistic across different types of models,  the square of the correlation between the observed and predicted outcomes is used.	
+	\item For regression models, the classical $R^2$ statistic cannot be compared between models that contain an intercept and models that do not. Also, some models do not have an intercept only null model.	
+          
+          \item [] To approximate this statistic across different types of models,  the square of the correlation between the observed and predicted outcomes is used. This means that the $R^2$ values produced by \texttt{train} will not match the results of \texttt{lm} and other functions. 
+            
+            \item [] Also, the correlation estimate does not take into account the degrees of freedom in a model and thus does not penalize models with more parameters. For some models (e.g random forests or on--linear support vector machines) there is no clear sense of the degrees of freedom, so this information cannot be used in $R^2$ if we would like to compare different models.
+          
 	
 	\item The nearest shrunken centroid model of \href{http://projecteuclid.org/handle/euclid.ss/1056397488}{Tibshirani et al (2003)} is specified using \texttt{method = "pam"}. For this model, there must be at least two samples in each class. \texttt{train} will ignore classes where there are less than two samples per class from every model fit during bootstrapping or cross--validation (this model only).
 	
@@ -582,8 +586,8 @@ model: mars
 3.525408 0.853236 
 ------------------------------------------------------------ 
 model: rf
-     RMSE  Rsquared 
-2.0695123 0.9542742 
+    RMSE Rsquared 
+2.071966 0.954025 
 ------------------------------------------------------------ 
 model: rpart
      RMSE  Rsquared 
@@ -641,19 +645,23 @@ Confusion Matrix and Statistics
 Prediction Active Inactive
   Active      119       27
   Inactive     31       87
-
-Statistics:                     
-Accuracy       0.7803
-Kappa          0.5542
-Sensitivity    0.7933
-Specificity    0.7632
-Pos Pred Value 0.8151
-Neg Pred Value 0.7373
-
-Class = Active was used to define a positive result
+                                       
+            Accuracy : 0.7803          
+              95% CI : (0.7255, 0.8287)
+ No Information Rate : 0.5682          
+ P-Value [Acc > NIR] : 4.063e-13       
+                                       
+               Kappa : 0.5542          
+                                       
+         Sensitivity : 0.7933          
+         Specificity : 0.7632          
+      Pos Pred Value : 0.8151          
+      Neg Pred Value : 0.7373          
 \end{Soutput}
 \end{Schunk}
 \end{small}
+
+The ``no--information rate'' is the largest proportion of the observed classes (there were more actives than inactives in this test set). A hypothesis test is also computed to evaluate whether the overall accuarcy rate is greater than the rate of the largest class. 
 
 When there are three or more classes, \texttt{confusionMatrix} will show the confusion matrix and a set of ``one--versus--all'' results. For example, in a three class problem, the sensitivity of the first class is calculated against all the samples in the second and third classes (and so on).
 
@@ -719,12 +727,10 @@ To plot class probabilities, \texttt{plotClassProbs} will display the results by
 
 \end{document}
 
-   setwd("c:/program files/R/R250/bin/caret082007/inst/doc/")
+   setwd("/Users/kuhna03/Documents/Code/caret/inst/doc")
    oldWidth <- options("width")$width
    options(width = 80)
    Sweave(
-      file = "c:/program files/R/R250/bin/caret082007/inst/doc/caretTrain.Rnw",
-      out = "c:/program files/R/R250/bin/caret082007/inst/doc/caretTrain.tex")
+      file = "/Users/kuhna03/Documents/Code/caret/inst/doc/caretTrain.Rnw",
+      out = "/Users/kuhna03/Documents/Code/caret/inst/doc/caretTrain.tex")
    options(width = oldWidth)
-   
-   

@@ -1,7 +1,7 @@
 \name{applyProcessing}
 \alias{applyProcessing}
 \alias{processData}
-\title{Data Processing on Predictor Variables}
+\title{Data Processing on Predictor Variables (Deprecated) }
 \description{
   \code{processData} is used to estimate data processing parameters and
   \code{applyProcessing} takes the results  and applies them to data objects
@@ -17,6 +17,11 @@ applyProcessing(x, object)
   \item{na.remove}{Should \code{NA} values be removed?}
   \item{object}{the results from a previous call to \link{processData}.}
 }
+
+\details{
+These functions are deprecated and have been replaced by the \code{\link{preProcess}} class. In a few more versions, they will not be around.
+}
+
 
 \value{
 \code{x}, after it has been processed.

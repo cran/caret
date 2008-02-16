@@ -1,4 +1,4 @@
-plsda <- function (x, ...) 
+plsda <- function (x, ...)
    UseMethod("plsda")
 
 
@@ -8,17 +8,17 @@ predict.plsda <- function(object, newdata = NULL, ncomp = NULL, type = "class", 
    library(pls)
    if(is.null(ncomp))
    {
-      if(!is.null(object$ncomp)) ncomp <- object$ncomp else stop("specify ncomp")  
+      if(!is.null(object$ncomp)) ncomp <- object$ncomp else stop("specify ncomp")
    }
    
    tmpPred <- predict.mvr(object, newdata = newdata)[,,ncomp,drop = FALSE]
    
    switch(type,
-      raw = 
+      raw =
       {
          out <- tmpPred
       },
-      class = 
+      class =
       {
          if(length(dim(tmpPred)) < 3)
          {
@@ -35,6 +35,7 @@ predict.plsda <- function(object, newdata = NULL, ncomp = NULL, type = "class", 
             out <- as.data.frame(tmpOut)
             out <- as.data.frame(lapply(out, function(x, y) factor(x, levels = y), y = object$obsLevels))
             names(out) <- paste("ncomp", ncomp, sep = "")
+            if(length(ncomp) == 1) out <- out[,1]
          }
       },
       prob =
@@ -49,7 +50,7 @@ predict.plsda <- function(object, newdata = NULL, ncomp = NULL, type = "class", 
             {
                out[,,i] <- t(apply(tmpPred[,,i,drop=FALSE], 1, function(data) exp(data)/sum(exp(data))))
             }
-         }      
+         }
       }
    )
    out
@@ -86,7 +87,7 @@ plsda.default <- function(x, y, ncomp = 2, ...)
       } else stop("y must be a matrix or a factor")
    }
    
-   if(!is.matrix(x)) x <- as.matrix(x)  
+   if(!is.matrix(x)) x <- as.matrix(x)
 
    tmpData <- data.frame(n = paste("row", 1:nrow(y), sep = ""))
    tmpData$y <- y
@@ -95,7 +96,7 @@ plsda.default <- function(x, y, ncomp = 2, ...)
    out <- plsr(
       y ~ x,
       data = tmpData,
-      ncomp = ncomp, 
+      ncomp = ncomp,
       ...)
       
    out$obsLevels <- obsLevels
@@ -104,7 +105,7 @@ plsda.default <- function(x, y, ncomp = 2, ...)
    out
 }
 
-print.plsda <- function (x, ...) 
+print.plsda <- function (x, ...)
 {
    # minor change to print.mvr
     switch(x$method, kernelpls = {
@@ -121,8 +122,8 @@ print.plsda <- function (x, ...)
         alg = "singular value decomposition"
     }, stop("Unknown fit method."))
     cat(regr, "classification, fitted with the", alg, "algorithm.")
-    if (!is.null(x$validation)) 
-        cat("\nCross-validated using", length(x$validation$segments), 
+    if (!is.null(x$validation))
+        cat("\nCross-validated using", length(x$validation$segments),
             attr(x$validation$segments, "type"), "segments.")
     cat("\nCall:\n", deparse(x$call), "\n", sep = "")
     invisible(x)

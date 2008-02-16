@@ -1,5 +1,5 @@
 "print.train" <-
-function(x, digits = min(3, getOption("digits") - 3), printCall = TRUE, ...)
+function(x, digits = min(3, getOption("digits") - 3), printCall = TRUE, details = FALSE, ...)
 {
    stringFunc <- function (x) 
    {
@@ -27,30 +27,11 @@ function(x, digits = min(3, getOption("digits") - 3), printCall = TRUE, ...)
    {
       cat(
          dim(x$trainingData)[1], 
-         " samples, ", 
+         " samples\n", 
          dim(x$trainingData)[2] - 1,
          " predictors\n\n",
          sep = "")    
    }
-   
-   if(x$modelType == "Classification")
-   {
-      if(!is.null(x$trainingData))
-      {
-         classDist <- table(x$trainingData$.outcome)
-         maxFreq <- max(classDist)
-         maxClasses <- names(classDist)[classDist == maxFreq]
-         cat(
-          "largest class",
-          ifelse(length(maxClasses) > 1, "es", ""),
-          ": ", 
-          round(maxFreq/length(x$trainingData$.outcome) * 100, 2),
-          "% (",
-          paste(maxClasses, collapse = ", "),
-          ")\n\n",
-          sep = "")
-      }
-   }   
    
    if(!is.null(x$control$index))
    {
@@ -106,15 +87,15 @@ function(x, digits = min(3, getOption("digits") - 3), printCall = TRUE, ...)
       } else optString <- ""
    } else optString <- ""
       
-   sdCols <- names(tuneAcc) %in% c("RMSESD", "RsquaredSD", "AccuracySD", "KappaSD")
-   sdCheck <- unlist(lapply(
-      tuneAcc[, sdCols, drop = FALSE],
-      function(u) all(is.na(u))))
-   if(any(sdCheck))
-   {
-      rmCols <- which(sdCols)[sdCheck]
-      tuneAcc <- tuneAcc[, -rmCols]   
-   }
+	sdCols <- names(tuneAcc) %in% c("RMSESD", "RsquaredSD", "AccuracySD", "KappaSD")
+	sdCheck <- unlist(lapply(
+		tuneAcc[, sdCols, drop = FALSE],
+		function(u) all(is.na(u))))
+	if(any(sdCheck))
+	{
+		rmCols <- which(sdCols)[sdCheck]
+		tuneAcc <- tuneAcc[, -rmCols]	
+	}
       
       
    printList <- lapply(
@@ -134,6 +115,32 @@ function(x, digits = min(3, getOption("digits") - 3), printCall = TRUE, ...)
    if(dim(tuneAcc)[1] > 1) cat(x$metric, "was used to select the optimal model\n")
    
    cat(optString)
+   
+   if(details)
+   {
+      if(!(x$method %in% c("gbm", "treebag", "nb", "lvq", "knn")))
+      {
+         cat("\n----------------------------------------------------------\n")
+         cat("\nThe final model:\n\n")
+         switch(x$method,
+            lm =, nnet =, multinom =, pls =, earth =, 
+               bagEarth =, bagFDA = print(summary(x$finalModel)),
+            
+            rpart =, ctree =, cforest =,
+               glmboost =, gamboost =, blackboost =,
+               ada =, randomForest =,
+               svmradial =, svmpoly =, enet =, lasso =,
+               lda =, rda =, pamr =, gpls = print(x$finalModel),
+            fda = 
+            {
+               print(x$finalModel)
+               cat("\n Summary of Terms\n\n")
+               print(x$finalModel$fit)
+            
+            })
+      }
+   }
+   
    
    invisible(as.data.frame(printList))
 }

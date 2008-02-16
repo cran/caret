@@ -17,7 +17,7 @@
          urlcolor=blue]
          {hyperref}
          \usepackage{lscape}
-\usepackage{Sweave}         
+\usepackage{/Users/kuhna03/Library/texmf/tex/latex/Sweave}           
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -263,29 +263,34 @@ These types of dependencies can arise when large numbers of binary chemical fing
 
 \subsection{Centering and Scaling}
 
-The two functions \texttt{processData} and \texttt{applyProcessing} are wrappers for \texttt{scale} that can be used to repeat the same centering and scaling to new sets of data.
+The \texttt{preProcess} class can be used for many operations on predictors, including centering and scaling\footnote{Two functions, \texttt{processData} and \texttt{applyProcessing}, are being replaced by \texttt{preProcess}. They are still in the package, but will not be in upcoming versions}. The functiontextt{preProcess} estimates the required parameters for each operation and \texttt{predict.preProcess} is used to apply them to specific data sets.
 
-In the example below, the half of the MDRR data are used to estimate the location and scale of the predictors. The function \texttt{processData} doesn't actually pre--process the data. \texttt{applyProcessing} is used to pre--process this and other data sets.
+
+In the example below, the half of the MDRR data are used to estimate the location and scale of the predictors. The function \texttt{preProcess} doesn't actually pre--process the data. \texttt{predict.preProcess} is used to pre--process this and other data sets.
 \begin{small}
 <<centerScale>>=
 set.seed(96)
 inTrain <- sample(seq(along = mdrrClass), length(mdrrClass)/2)
 
-trainDescr <- filteredDescr[inTrain,]
-testDescr <- filteredDescr[-inTrain,]
+training <- filteredDescr[inTrain,]
+test <- filteredDescr[-inTrain,]
 trainMDRR <- mdrrClass[inTrain]
 testMDRR <- mdrrClass[-inTrain]
 
-preProcValues <- apply(trainDescr, 2, processData)
+preProcValues <- preProcess(training, method = c("center", "scale"))
 
-trainDescr <- applyProcessing(trainDescr, preProcValues)
-testDescr <- applyProcessing(testDescr, preProcValues)
+trainDescr <- predict(preProcValues, training)
+testDescr <- predict(preProcValues, test)
 @
 \end{small}
 
 \subsection{Transforming Predictors}
 
+In some cases, there is a need to use principal component analysis (PCA) to transform the data to a smaller sub--space where the new variable are uncorrelated with one another. The \texttt{preProcess} class can apply this transformation by including \texttt{"pca"} in the \texttt{method} argument. Doing this will also force scaling of the predictors. Note that when PCA is requested, \texttt{predict.preProcess} changes the column names to \texttt{PC1},  \texttt{PC2} and so on.
+
 The ``spatial sign" transformation (\href{http://pubs.acs.org/cgi-bin/abstract.cgi/jcisd8/2006/46/i03/abs/ci050498u.html}{Serneels {\it et al}, 2006}) projects the data for a predictor to the unit circle in $p$ dimensions, where $p$ is the number of predictors. Essentially, a vector of data is divided by its norm. Figures \ref{f:descSplom} and \ref{f:descSplomTrans} show two centered and scaled descriptors from the MDRR data before and after the spatial sign transformation. The predictors should be centered and scaled before applying this transformation.
+
+This transformation can also be applied using the \texttt{preProcess} class.
 
 \begin{figure}[p]
    \begin{center}		
@@ -573,13 +578,13 @@ Also, flexible discriminant analysis is a generalization of linear discriminant 
 
 
 
-   setwd("c:/program files/R/R250/bin/caret082007/inst/doc/")
+   setwd("/Users/kuhna03/Documents/Code/caret/inst/doc")
    oldWidth <- options("width")$width
    options(width = 80)
    Sweave(
-      file = "c:/program files/R/R250/bin/caret082007/inst/doc/caretMisc.Rnw",
-      out = "c:/program files/R/R250/bin/caret082007/inst/doc/caretMisc.tex")
+      file = "/Users/kuhna03/Documents/Code/caret/inst/doc/caretMisc.Rnw",
+      out = "/Users/kuhna03/Documents/Code/caret/inst/doc/caretMisc.tex")
    options(width = oldWidth)
-     
+
 
       

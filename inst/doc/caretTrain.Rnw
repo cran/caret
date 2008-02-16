@@ -17,7 +17,8 @@
          urlcolor=blue]
          {hyperref}
          \usepackage{lscape}
-\usepackage{Sweave}         
+\usepackage{/Users/kuhna03/Library/texmf/tex/latex/Sweave}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -198,7 +199,12 @@ Some notes about the use of \texttt{train}:
 	
 	\item The \texttt{$\ldots$} option can be used to pass parameters to the fitting function. For example, in random forest models, you can specify the number of trees to be used in the call to \texttt{train}. In the example above, the default trace for a \texttt{gbm} model was turned off using the \texttt{verbose} argument to \texttt{gbm}.
 	
-	\item For regression models, the classical $R^2$ statistic cannot be compared between models that contain an intercept and models that do not. Also, some models do not have an intercept only null model.	To approximate this statistic across different types of models,  the square of the correlation between the observed and predicted outcomes is used.	
+	\item For regression models, the classical $R^2$ statistic cannot be compared between models that contain an intercept and models that do not. Also, some models do not have an intercept only null model.	
+          
+          \item [] To approximate this statistic across different types of models,  the square of the correlation between the observed and predicted outcomes is used. This means that the $R^2$ values produced by \texttt{train} will not match the results of \texttt{lm} and other functions. 
+            
+            \item [] Also, the correlation estimate does not take into account the degrees of freedom in a model and thus does not penalize models with more parameters. For some models (e.g random forests or on--linear support vector machines) there is no clear sense of the degrees of freedom, so this information cannot be used in $R^2$ if we would like to compare different models.
+          
 	
 	\item The nearest shrunken centroid model of \href{http://projecteuclid.org/handle/euclid.ss/1056397488}{Tibshirani et al (2003)} is specified using \texttt{method = "pam"}. For this model, there must be at least two samples in each class. \texttt{train} will ignore classes where there are less than two samples per class from every model fit during bootstrapping or cross--validation (this model only).
 	
@@ -562,6 +568,8 @@ confusionMatrix(mbrrPredictions$pred, mbrrPredictions$obs)
 @
 \end{small}
 
+The ``no--information rate'' is the largest proportion of the observed classes (there were more actives than inactives in this test set). A hypothesis test is also computed to evaluate whether the overall accuarcy rate is greater than the rate of the largest class. 
+
 When there are three or more classes, \texttt{confusionMatrix} will show the confusion matrix and a set of ``one--versus--all'' results. For example, in a three class problem, the sensitivity of the first class is calculated against all the samples in the second and third classes (and so on).
 
 
@@ -635,12 +643,10 @@ To plot class probabilities, \texttt{plotClassProbs} will display the results by
 
 \end{document}
 
-   setwd("c:/program files/R/R250/bin/caret082007/inst/doc/")
+   setwd("/Users/kuhna03/Documents/Code/caret/inst/doc")
    oldWidth <- options("width")$width
    options(width = 80)
    Sweave(
-      file = "c:/program files/R/R250/bin/caret082007/inst/doc/caretTrain.Rnw",
-      out = "c:/program files/R/R250/bin/caret082007/inst/doc/caretTrain.tex")
+      file = "/Users/kuhna03/Documents/Code/caret/inst/doc/caretTrain.Rnw",
+      out = "/Users/kuhna03/Documents/Code/caret/inst/doc/caretTrain.tex")
    options(width = oldWidth)
-   
-   

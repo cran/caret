@@ -11,7 +11,7 @@ plsda(x, ...)
 
 \method{plsda}{default}(x,  y, ncomp = 2, ...)
 
-predict.plsda(object, newdata = NULL, ncomp = NULL, type = "class", ...)
+\method{predict}{plsda}(object, newdata = NULL, ncomp = NULL, type = "class", ...)
 
 }
 
@@ -48,7 +48,7 @@ tmpX <- scale(mdrrDescr)
 
 plsFit <- plsda(tmpX, mdrrClass, ncomp = 3)
 
-table(predict(plsFit)[,1], mdrrClass)
+table(predict(plsFit), mdrrClass)
 }
 
 
