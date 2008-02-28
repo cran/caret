@@ -17,8 +17,7 @@
          urlcolor=blue]
          {hyperref}
          \usepackage{lscape}
-\usepackage{Sweave}         
-
+\usepackage{/Users/kuhna03/Library/texmf/tex/latex/Sweave}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % define new colors for use
@@ -238,11 +237,12 @@ Figure \ref{f:varImpInd} demonstrates the \texttt{plot} method for object of cla
 
 \end{document}
 
-   setwd("c:/program files/R/R251/bin/caret/inst/doc/")
+
+
+   setwd("/Users/kuhna03/Documents/Code/caret/inst/doc")
    oldWidth <- options("width")$width
    options(width = 80)
    Sweave(
-      file = "c:/program files/R/R251/bin/caret/inst/doc/caretVarImp.Rnw",
-      out = "c:/program files/R/R251/bin/caret/inst/doc/caretVarImp.tex")
+      file = "/Users/kuhna03/Documents/Code/caret/inst/doc/caretVarImp.Rnw",
+      out = "/Users/kuhna03/Documents/Code/caret/inst/doc/caretVarImp.tex")
    options(width = oldWidth)
-     

@@ -1,5 +1,5 @@
 probFunction <- function(method, modelFit, newdata)
-{   
+{
             
    if(!any(modelLookup(method)$probModel))
       stop("no probability method for this model")
@@ -22,16 +22,16 @@ probFunction <- function(method, modelFit, newdata)
          })
    } else {
       obsLevels <- modelFit$obsLevels
-   }     
+   }
     
-   if(any(colnames(newdata) == ".outcome")) newdata$.outcome <- NULL    
+   if(any(colnames(newdata) == ".outcome")) newdata$.outcome <- NULL
       
    classProb <- switch(method,
       lda =, rda =
       {
          switch(method,
             lda = library(MASS),
-            rda = library(klaR))    
+            rda = library(klaR))
             
          out <- predict(modelFit, newdata)$posterior
          out
@@ -40,9 +40,9 @@ probFunction <- function(method, modelFit, newdata)
       knn =
       {
          out <- predict(modelFit, newdata, type = "prob")
-         out            
+         out
         
-      },        
+      },
       
       svmradial =, svmpoly =
       {
@@ -51,89 +51,90 @@ probFunction <- function(method, modelFit, newdata)
             out <- predict(modelFit, newdata, type="probabilities")
             out <- out[, lev(modelFit), drop = FALSE]
             out
-      },        
+      },
                  
-      gbm = 
-      {  
-         library(gbm)    
-         out <- predict(modelFit, newdata, type = "response", 
-               n.trees = modelFit$tuneValue$.n.trees)    
+      gbm =
+      {
+         library(gbm)
+         out <- predict(modelFit, newdata, type = "response",
+               n.trees = modelFit$tuneValue$.n.trees)
          out <- cbind(out, 1-out)
-         dimnames(out)[[2]] <-  modelFit$obsLevels            
+         dimnames(out)[[2]] <-  modelFit$obsLevels
          out
       },
 
-      nnet =   
-      {  
-         library(nnet)      
+      nnet =
+      {
+         library(nnet)
          out <- predict(modelFit, newdata)
          if(dim(as.data.frame(out))[2] == 1)
          {
             out <- cbind(out, 1-out)
             dimnames(out)[[2]] <-  rev(modelFit$obsLevels)
          }
-         out            
-      },      
-      pls = 
-      {  
-         library(pls)   
-         if(!is.matrix(newdata)) newdata <- as.matrix(newdata)     
-         out <- predict(modelFit, newdata, type = "prob",  ncomp = modelFit$tuneValue$.ncomp)
-         out            
-      },      
-      rf =, rpart =, pls =, plsTest =, treebag  = 
-      {  
-         library(randomForest)      
-         out <- predict(modelFit, newdata, type = "prob")
-         out            
+         out
       },
-      gpls =   
-      {  
-         library(gpls)      
+      pls =
+      {
+         library(pls)
+         if(!is.matrix(newdata)) newdata <- as.matrix(newdata)
+         out <- predict(modelFit, newdata, type = "prob",  ncomp = modelFit$tuneValue$.ncomp)
+         if(length(dim(out)) == 3) out <- out[,,1]
+         out
+      },
+      rf =, rpart =, treebag  =
+      {
+         library(randomForest)
+         out <- predict(modelFit, newdata, type = "prob")
+         out
+      },
+      gpls =
+      {
+         library(gpls)
          out <- predict(modelFit, newdata)$predicted
          out <- cbind(out, 1-out)
-         dimnames(out)[[2]] <-  modelFit$obsLevels  
-         out            
+         dimnames(out)[[2]] <-  modelFit$obsLevels
+         out
       },
-      pam = 
+      pam =
       {
          library(pamr)
-         out <-pamr.predict(modelFit, t(newdata), 
+         out <-pamr.predict(modelFit, t(newdata),
             threshold = modelFit$tuneValue$.threshold, type= "posterior")
-         out            
+         out
       },
-      nb = 
+      nb =
       {
-         library(klaR)      
+         library(klaR)
          out <- predict(modelFit, newdata, type = "raw")$posterior
-         out          
+         out
       },
-      fda = 
+      fda =
       {
          library(mda)
-         library(earth)         
+         library(earth)
          out <- predict(modelFit, newdata, type= "posterior")
-         out            
+         out
       },
       
-      bagFDA = 
+      bagFDA =
       {
          library(mda)
          library(earth)
          out <- predict(modelFit, newdata, type= "probs")
-         out            
+         out
       },
             
-      multinom =   
-      {  
-         library(nnet)      
+      multinom =
+      {
+         library(nnet)
          out <- predict(modelFit, newdata, type = "probs")
          if(dim(as.data.frame(out))[2] == 1)
-         {         
+         {
             out <- cbind(out, 1-out)
             dimnames(out)[[2]] <-  rev(modelFit$obsLevels)
          }
-         out            
+         out
       },
       ctree =, cforest =
       {
@@ -145,27 +146,28 @@ probFunction <- function(method, modelFit, newdata)
          rownames(out) <- NULL
          out
       },
-      gamboost =, blackboost =, glmboost = 
+      gamboost =, blackboost =, glmboost =
       {
          # glmboost defies conveintion a bit by having higher values of the lp
          # correspond to the second factor level (as opposed to the first),
          # so we use the -lp for the first factor level prob
          library(mboost)
-         lp <- predict(modelFit, as.matrix(newdata), type = "lp")         
+         lp <- predict(modelFit, as.matrix(newdata), type = "lp")
          out <- cbind(
             binomial()$linkinv(-lp),
             1 - binomial()$linkinv(-lp))
          colnames(out) <- modelFit$obsLevels
          out
       },
-      ada = 
+      ada =
       {
          library(ada)
          out <- predict(modelFit, newdata, type = "prob")
          colnames(out) <-  modelFit$obsLevels
-         out      
-      }                
+         out
+      }
    )
+
    if(!is.data.frame(classProb)) classProb <- as.data.frame(classProb)
    classProb[, obsLevels]
 }

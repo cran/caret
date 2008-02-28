@@ -23,9 +23,21 @@ confusionMatrix.default <- function(data, reference, positive = NULL, dnn = c("P
    if(numLevels == 2 & is.null(positive))  positive <- levels(reference)[1]
    
    classTable <- table(data, reference, dnn = dnn, ...)
+
+   propCI <- function(pred, obs) binom.test(rev(table(pred == obs)))$conf.int
+   propTest <- function(pred, obs) unlist(
+                                        binom.test(
+                                                   rev(table(pred == obs)),
+                                                   p = max(table(obs)/length(obs)),
+                                                   alternative = "greater")
+                                        [c("null.value", "p.value")])
+   overall <- c(
+                unlist(classAgreement(table(reference, data)))[c("diag", "kappa")],
+                propCI(data, reference),
+                propTest(data, reference))
+                
    
-   overall <- unlist(classAgreement(table(reference, data)))[c("diag", "kappa")]
-   names(overall) <- c("Accuracy", "Kappa")  
+   names(overall) <- c("Accuracy", "Kappa", "AccuracyLower", "AccuracyUpper", "AccuracyNull", "AccuracyPValue")  
              
    if(numLevels == 2)
    {

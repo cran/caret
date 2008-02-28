@@ -24,7 +24,8 @@ predictive value and negative predictive value is calculated using the
 calculated comparing each factor level to the remaining levels
 (i.e. a "one versus all" approach). In each case, the overall accuracy and Kappa statistic are calculated.
 
-
+The overall accuracy rate is computed along with a 95 percent confidence interval for this rate (using \code{\link[stats]{binom.test}}) and a one-sided test to see if the accuracy is better than the "no information rate," which is taken to be the largest class percentage in the data.
+ 
 }
 \value{
 a list with elements
@@ -36,7 +37,7 @@ a list with elements
 }
 \author{Max Kuhn}
 
-\seealso{\code{\link{sensitivity}},   \code{\link{specificity}}, \code{\link{posPredValue}}, \code{\link{negPredValue}}, \code{\link{print.confusionMatrix}}}
+\seealso{\code{\link{sensitivity}},   \code{\link{specificity}}, \code{\link{posPredValue}}, \code{\link{negPredValue}}, \code{\link{print.confusionMatrix}}, \code{\link[stats]{binom.test}}}
 \examples{
 numLlvs <- 4
 confusionMatrix(

@@ -39,7 +39,7 @@ function(x, y, weights = NULL, B = 50, keepX = TRUE, ...)
    oob <- matrix(unlist(oobList), ncol = length(oobList[[1]]), byrow = TRUE)
    colnames(oob) <- names(oobList[[1]])
    if(keepX) x <- x else x <- NULL
-   structure(list(fit = btFits, B = B, oob = oob, call = funcCall, x = x, levels = levels(y)), class = "bagFDA")
+   structure(list(fit = btFits, B = B, oob = oob, call = funcCall, x = x, levels = levels(y), dots = list(...)), class = "bagFDA")
 }
 
 "bagFDA.formula" <-
@@ -80,10 +80,7 @@ function (x, ...)
       "\nModel:",
       "\n   B:        \t", x$B,
       "\n   dimension:\t", x$fit[[1]]$dimension,
-      "\n   degree:   \t", x$fit[[1]]$fit$degree,
-      "\n   nk:       \t", x$fit[[1]]$fit$nk,      
-      "\n   penalty:  \t", x$fit[[1]]$fit$penalty,      
-      "\n   threshold:\t", x$fit[[1]]$fit$thresh, "\n")
+      "\n")
      
     cat("\n")
     invisible(x)
@@ -140,7 +137,7 @@ function(object, ...)
       {
          sum(
             apply(
-               x$fit$factor, 
+               x$fit$dirs, 
                2, 
                function(u) any(u != 0)))
       }))
