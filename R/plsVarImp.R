@@ -8,7 +8,7 @@ varImp.mvr <- function(object, ...)
    
    if(numResp <= 2)
    {
-      modelCoef <- modelCoef[,1,]
+      modelCoef <- modelCoef[,1,,drop = FALSE]
       perf <- perf[,1,]
       delta <- -diff(perf)
       delta <- delta/sum(delta)
@@ -24,7 +24,7 @@ varImp.mvr <- function(object, ...)
       
       for(i in 1:numResp)
       {
-         tmp <- abs(modelCoef[,i,])
+         tmp <- abs(modelCoef[,i,, drop = FALSE])
          out[,i] <- apply(tmp, 1,  weighted.mean, w = perf[i,])
       }
       colnames(out) <- dimnames(modelCoef)[[2]]
