@@ -115,7 +115,7 @@ function(object, ...)
       object$fit, 
       function(x)
       {
-         get.nused.preds.per.subset(x$dirs, x$selected.terms)
+         earth:::get.nused.preds.per.subset(x$dirs, x$selected.terms)
       }))
    modelInfo <- cbind(numTerms, numVar)
    colnames(modelInfo) <- c("Num Terms", "Num Variables")

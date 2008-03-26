@@ -107,7 +107,7 @@ function(method, len = 3, data = NULL)
          .n.trees = floor((1:len) * 50),
          .shrinkage = .1
       ),
-      rf = rfTune(data, len),
+      rf =, rfNWS =, rfLSF = rfTune(data, len),
       gpls = data.frame(.K.prov =seq(1, len) ),
       lvq = data.frame(.k =seq(4, 3+len) ),
       rpart = rpartTune(data, len),
