@@ -4,7 +4,7 @@ varImp.earth <- function(object, value = "grsq", ...)
    valNames <- c("grsq", "rsq", "rss", "gcv")
    if(all(!(value %in% valNames))) stop(paste("value must be one of:", paste(valNames, collapse = ", ")))
 
-   splits <- object$cuts[object$selected.terms[-1],]
+   splits <- object$dirs[object$selected.terms[-1],]
    
    allNames <- colnames(object$dirs)
    varNames <- apply(splits, 1, function(u) names(which(u != 0)))

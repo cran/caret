@@ -1,9 +1,18 @@
-format.bagEarth <- function(x, ...) 
+format.bagEarth <- function(x, file = "", ...) 
 {
-   library(earth)
-   cat("(\n") 
-	 cat(format(x$fit[[1]], ...))
-	 if(length(x$fit) > 1) lapply(x$fit[-1], function(u, ...) cat("  +\n", format(u, ...)), ...)
-	 cat(")/", x$B, "\n", sep = "")
+  library(earth)
+
+  eachEq <- lapply(
+                   x$fit,
+                   function(u, ...) format(u, ...),
+                   ...)
+  allEq <- paste(
+                 "(",
+                 paste(eachEq, collapse = "+"),
+                 ") /",
+                 x$B,
+                 "\n")
+  
+  cat(allEq, file = file)
 }
 

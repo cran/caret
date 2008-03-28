@@ -18,8 +18,6 @@
          {hyperref}
          \usepackage{lscape}
 
-\usepackage{/Users/kuhna03/Library/texmf/tex/latex/Sweave}
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % define new colors for use
