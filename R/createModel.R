@@ -41,7 +41,8 @@
                    "bagFDA", "bagEarth", "lda", "enet", "lasso",
                    "lvq", "pls", "plsTest", "gbm", "pam", "rf",
                    "ada", "knn", "PLS", "rfNWS", "rfLSF",
-                   "mars", "rda",  "gpls", "svmpoly", "svmradial"))
+                   "mars", "rda",  "gpls", "svmpoly", "svmradial",
+                   "sddaLDA", "sddaQDA", "glmnet"))
     {
       trainX <- data[,!(names(data) %in% ".outcome")]
       trainY <- data[,".outcome"] 
@@ -227,7 +228,7 @@
                        
                        theDots <- list(...)
                        theDots$keepxy <- TRUE 
-                       theDots$pmethod <- "none"        
+#                       theDots$pmethod <- "none"        
                        
                        modelArgs <- c(
                                       list(
@@ -512,7 +513,30 @@
                        library(elasticnet)
                        
                        enet(as.matrix(trainX), trainY, lambda = tuneValue$.lambda) 
-                     }                  
+                     },
+#                     glmnet =
+#                     {
+#                       library(glmnet)
+#                       numLev <- if(is.character(trainY) | is.factor(trainY)) length(levels(trainY)) else NA
+#                       if(!is.na(numLev))
+#                         {
+#                           fam <- ifelse(numLev > 2, "multinomial", "binomial")
+#                         } else fam <- "gaussian"
+#                       glmnet(as.matrix(x), y, alpha = tuneValue$.alpha, family = fam, ...)
+#
+#
+#                     },
+                       
+                     sddaLDA = 
+                     {
+                       library(SDDA)
+                       sdda(as.matrix(trainX), trainY, method = "lda", ...)
+                     },
+                     sddaQDA = 
+                     {
+                       library(SDDA)
+                       sdda(as.matrix(trainX), trainY, method = "qda", ...)
+                     }                 
                      )
   
   

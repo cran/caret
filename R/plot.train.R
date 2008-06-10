@@ -52,21 +52,6 @@ function(x, plotType = "scatter", metric = c("Accuracy", "RMSE"), digits = getOp
       resultsCopy$usekernel <- factor(ifelse(resultsCopy$usekernel == 1, "Nonparametric", "Parametric"))  
    }
    
-   if(x$modelType == "Regression")
-   {
-      optimalValue <- switch(metricName,
-         RMSE = signif(unique(performance[which.min(performance)]), 4),
-         Rsquared = round(unique(performance[which.max(performance)]), 3))
-             
-      mainText <- paste(x$method, " - Optimal performance: ", optimalValue, sep="")   
-   } else {
-      if(metricName == "Accuracy") optimalValue <- round(unique(performance[which.max(performance)]), 3)
-         else optimalValue <- round(unique(performance[which.max(performance)]), 3)
-       
-      mainText <- paste(x$method, " - Optimal performance: ", optimalValue,  sep="")      
-   }
-   
-   
    interactionPlot <- function(x, y, groups, subscripts)
    {
       group.values <- unique(groups)
@@ -108,7 +93,6 @@ function(x, plotType = "scatter", metric = c("Accuracy", "RMSE"), digits = getOp
             resultsCopy[,metricName] ~ xTrans(resultsCopy[,2]), 
             xlab = plotLabels,
             ylab = yLabel, 
-            main = mainText, 
             type = "o",
             ...),
          level = bwplot(
@@ -117,7 +101,6 @@ function(x, plotType = "scatter", metric = c("Accuracy", "RMSE"), digits = getOp
             type = "o", 
             xlab = plotLabels,
             ylab = yLabel, 
-            main = mainText, 
             ...),
          line = bwplot(
             resultsCopy[,metricName] ~ factor(resultsCopy[,2]), 
@@ -125,7 +108,6 @@ function(x, plotType = "scatter", metric = c("Accuracy", "RMSE"), digits = getOp
             type = "o", 
             xlab = plotLabels,
             ylab = yLabel, 
-            main = mainText, 
             ...))   
 
    } else if(numTune == 2)
@@ -147,7 +129,6 @@ function(x, plotType = "scatter", metric = c("Accuracy", "RMSE"), digits = getOp
             resultsCopy[,metricName] ~ factor(resultsCopy[,2]) * factor(resultsCopy[,3]), 
             xlab = plotLabels[1], 
             ylab = plotLabels[2], 
-            main = mainText, 
             sub = yLabel, 
             ...)      
       },
@@ -157,7 +138,6 @@ function(x, plotType = "scatter", metric = c("Accuracy", "RMSE"), digits = getOp
             panel = interactionPlot, 
             xlab = plotLabels[1], 
             ylab = yLabel, 
-            main = mainText, 
             key = list(
                title =plotLabels[2],  
                cex.title = 1,                  
@@ -179,8 +159,7 @@ function(x, plotType = "scatter", metric = c("Accuracy", "RMSE"), digits = getOp
                groups = factor(prettyVal(resultsCopy[,3], digits)),
                type = "o", 
                xlab = plotLabels[1], 
-               ylab = yLabel, 
-               main = mainText, 
+               ylab = yLabel,  
                key = list(
                   title =plotLabels[2],  
                   cex.title = 1,                  
@@ -218,15 +197,13 @@ function(x, plotType = "scatter", metric = c("Accuracy", "RMSE"), digits = getOp
                resultsCopy[,metricName] ~ factor(resultsCopy[,3]) * factor(resultsCopy[,4])|stripVar, 
                xlab = plotLabels[2], 
                ylab = plotLabels[3], 
-               main = mainText, 
                sub =yLabel, ...),
          line = stripplot(
                resultsCopy[,metricName] ~ factor(resultsCopy[,2])|stripVar, 
                groups = factor(resultsCopy[,4]),
                panel = interactionPlot, 
                xlab = plotLabels[1], 
-               ylab = yLabel, 
-               main = mainText, 
+               ylab = yLabel,  
                key = list(
                   title =plotLabels[3],  
                   cex.title = 1,             
@@ -247,7 +224,6 @@ function(x, plotType = "scatter", metric = c("Accuracy", "RMSE"), digits = getOp
                type = "o", 
                xlab = plotLabels[1], 
                ylab = yLabel, 
-               main = mainText, 
                key = list(
                   title =plotLabels[3],  
                   cex.title = 1,             

@@ -71,16 +71,6 @@
 
 \thispagestyle{empty}
 	
-<<loadLibs, results = hide, echo = FALSE>>=
-library(caret)
-library(kernlab)
-library(gbm)
-library(ipred)
-library(grid)
-library(randomForest)
-data(BloodBrain)
-data(mdrr)
-@
 
 \section{Model Training and Parameter Tuning}\label{S:train}
 
@@ -110,54 +100,102 @@ To start, we will:
 See the package vignette ``caret Manual -- Data and Functions'' for more details about these operations.
 
 \begin{small}
-<<preProc>>=
-print(ncol(mdrrDescr))
-nzv <- nearZeroVar(mdrrDescr)
-filteredDescr <- mdrrDescr[, -nzv]
-
-print(ncol(filteredDescr))
-
-descrCor <- cor(filteredDescr)
-highlyCorDescr <- findCorrelation(descrCor, cutoff = .75)
-filteredDescr <- filteredDescr[,-highlyCorDescr]
-
-print(ncol(filteredDescr))
-
-set.seed(1)
-inTrain <- sample(seq(along = mdrrClass), length(mdrrClass)/2)
-
-trainDescr <- filteredDescr[inTrain,]
-testDescr <- filteredDescr[-inTrain,]
-trainMDRR <- mdrrClass[inTrain]
-testMDRR <- mdrrClass[-inTrain]
-
-print(length(trainMDRR))
-print(length(testMDRR))
-
-preProcValues <- apply(trainDescr, 2, processData)
-
-trainDescr <- applyProcessing(trainDescr, preProcValues)
-testDescr <- applyProcessing(testDescr, preProcValues)
-@
+\begin{Schunk}
+\begin{Sinput}
+> print(ncol(mdrrDescr))
+\end{Sinput}
+\begin{Soutput}
+[1] 342
+\end{Soutput}
+\begin{Sinput}
+> nzv <- nearZeroVar(mdrrDescr)
+> filteredDescr <- mdrrDescr[, -nzv]
+> print(ncol(filteredDescr))
+\end{Sinput}
+\begin{Soutput}
+[1] 297
+\end{Soutput}
+\begin{Sinput}
+> descrCor <- cor(filteredDescr)
+> highlyCorDescr <- findCorrelation(descrCor, cutoff = 0.75)
+> filteredDescr <- filteredDescr[, -highlyCorDescr]
+> print(ncol(filteredDescr))
+\end{Sinput}
+\begin{Soutput}
+[1] 50
+\end{Soutput}
+\begin{Sinput}
+> set.seed(1)
+> inTrain <- sample(seq(along = mdrrClass), length(mdrrClass)/2)
+> trainDescr <- filteredDescr[inTrain, ]
+> testDescr <- filteredDescr[-inTrain, ]
+> trainMDRR <- mdrrClass[inTrain]
+> testMDRR <- mdrrClass[-inTrain]
+> print(length(trainMDRR))
+\end{Sinput}
+\begin{Soutput}
+[1] 264
+\end{Soutput}
+\begin{Sinput}
+> print(length(testMDRR))
+\end{Sinput}
+\begin{Soutput}
+[1] 264
+\end{Soutput}
+\begin{Sinput}
+> preProcValues <- apply(trainDescr, 2, processData)
+> trainDescr <- applyProcessing(trainDescr, preProcValues)
+> testDescr <- applyProcessing(testDescr, preProcValues)
+\end{Sinput}
+\end{Schunk}
 \end{small}
 
 To estimate model performance across the tuning parameters ``leave group out cross--validation'' (\texttt{LGOCV}) can be used. This technique is repeated splitting of the data into training and test sets (without replacement). If the resampling method is not specified, simple bootstrapping is used. To train a support vector machine classification model (radial basis function kernel) on these multidrug resistance reversal agent data, we can first setup a control object\footnote{This is optional; to use the default specifications, the control object does not need to be specified} that specifies the type of resampling used, the number of data splits (30), the proportion of data in the sub--training sets (75$\%$) and whether the iterations should be printed as they occur. In this case, we need to specify the proportion of samples used in each resampled training set. We also set the seed.
 
 \begin{small}
-<<setup>>=
-fitControl <- trainControl(method = "LGOCV", p = .75, number = 30, verboseIter = FALSE)
-set.seed(2)
-@
+\begin{Schunk}
+\begin{Sinput}
+> fitControl <- trainControl(method = "LGOCV", p = 0.75, number = 30, 
++     verboseIter = FALSE)
+> set.seed(2)
+\end{Sinput}
+\end{Schunk}
 \end{small}
 
 
 The first two arguments to \texttt{train} are the predictor and outcome data objects, respectively. The third argument, \texttt{method}, specifies the type of model. For this model, the tuning parameters are the cost value (\texttt{C} and the radius of the RBF (\texttt{sigma})). The \texttt{tuneLength} argument sets the size of the grid used to search the tuning parameter space and \texttt{trControl} is the control parameter for the \texttt{train} function. 
 
 \begin{small}
-<<mdrrModel1>>=
-svmFit <- train(trainDescr, trainMDRR, method = "svmradial", tuneLength = 4, trControl = fitControl)
-svmFit
-@
+\begin{Schunk}
+\begin{Sinput}
+> svmFit <- train(trainDescr, trainMDRR, method = "svmradial", 
++     tuneLength = 4, trControl = fitControl)
+> svmFit
+\end{Sinput}
+\begin{Soutput}
+Call:
+train.default(x = trainDescr, y = trainMDRR, method = "svmradial", 
+    trControl = fitControl, tuneLength = 4)
+
+264 samples
+50 predictors
+
+summary of leave group out cross-validation (30 reps) sample sizes:
+    198, 198, 198, 198, 198, 198, ... 
+
+LGOCV resampled training results across tuning parameters:
+
+  sigma    C    Accuracy  Kappa   Accuracy SD  Kappa SD  Selected
+  0.00571  0.1  0.574     0.0346  0.0128       0.0323            
+  0.00571  1    0.829     0.649   0.0438       0.091     *       
+  0.00571  10   0.814     0.621   0.0467       0.0951            
+  0.00571  100  0.777     0.553   0.0472       0.0933            
+
+Accuracy was used to select the optimal model using the largest value.
+
+The final values used in the model were C = 1 and sigma = 0.00570685013628034.
+\end{Soutput}
+\end{Schunk}
 \end{small}
 
 
@@ -173,26 +211,48 @@ For regression models (i.e. a numeric outcome), a similar table would be produce
 Alternatively, the grid can be specified by the user. The argument \texttt{tuneGrid} can take a data frame with columns for each tuning parameter (see Table \ref{T:methods} for specific details). The column names should be the same as the fitting function's arguments with a period preceding the name. For our RDA example, the names would be \texttt{.gamma} and \texttt{.lambda}. \texttt{train} will tune the model over each combination of values in the rows.
 
 For a gradient boosting machine (GBM) model, the amount of ``shrinkage'' in a gradient boosting model is fixed at 0.1 and the other meta--parameters can be manually specified:
-<<setPageWidth, echo = FALSE, results = hide>>=
-currentWidth <- options("width")$width
-options(width = 100)
-@
 \begin{small}
 \begin{landscape}
 
-<<mdrrModel2>>=
-gbmGrid <-  expand.grid(.interaction.depth = c(1, 3), .n.trees = c(100, 300, 500), .shrinkage = 0.1)
-set.seed(3)
-gbmFit <- train(trainDescr, trainMDRR, "gbm", tuneGrid = gbmGrid, trControl = fitControl, verbose = FALSE)
-gbmFit
-@
+\begin{Schunk}
+\begin{Sinput}
+> gbmGrid <- expand.grid(.interaction.depth = c(1, 3), .n.trees = c(100, 300, 
++     500), .shrinkage = 0.1)
+> set.seed(3)
+> gbmFit <- train(trainDescr, trainMDRR, "gbm", tuneGrid = gbmGrid, trControl = fitControl, 
++     verbose = FALSE)
+> gbmFit
+\end{Sinput}
+\begin{Soutput}
+Call:
+train.default(x = trainDescr, y = trainMDRR, method = "gbm", 
+    verbose = FALSE, trControl = fitControl, tuneGrid = gbmGrid)
+
+264 samples
+50 predictors
+
+summary of leave group out cross-validation (30 reps) sample sizes:
+    198, 198, 198, 198, 198, 198, ... 
+
+LGOCV resampled training results across tuning parameters:
+
+  interaction.depth  n.trees  shrinkage  Accuracy  Kappa  Accuracy SD  Kappa SD  Selected
+  1                  100      0.1        0.809     0.608  0.0414       0.0833    *       
+  1                  300      0.1        0.795     0.581  0.0482       0.0965            
+  1                  500      0.1        0.783     0.557  0.0445       0.0896            
+  3                  100      0.1        0.808     0.606  0.0399       0.0813            
+  3                  300      0.1        0.803     0.595  0.042        0.0851            
+  3                  500      0.1        0.805     0.599  0.0357       0.0745            
+
+Accuracy was used to select the optimal model using the largest value.
+
+The final values used in the model were interaction.depth = 1, n.trees = 100 and shrinkage = 0.1.
+\end{Soutput}
+\end{Schunk}
 
 \end{landscape}
 \end{small}
 
-<<resetPageWidth, echo = FALSE, results = hide>>=
-options(width = currentWidth)
-@
 
 Some notes about the use of \texttt{train}:
 \begin{itemize}
@@ -248,32 +308,6 @@ The function \texttt{trainControl}, generates parameters that control how models
 \end{itemize}
 
 
-<<makePlots, results = hide, echo = FALSE>>=
-pdf(paste(getwd(), "/svm1.pdf", sep = ""), width = 5, height = 5)
-   trellis.par.set(caretTheme(), warn = FALSE)
-   print(plot(svmFit))
-dev.off()
-pdf(paste(getwd(), "/svm2.pdf", sep = ""), width = 5, height = 5)
-   trellis.par.set(caretTheme(), warn = FALSE)
-   print(plot(svmFit, xTrans = function(u) log(u, base = 10)))
-dev.off()
-pdf(paste(getwd(), "/gbm1.pdf", sep = ""), width = 5, height = 5)
-   trellis.par.set(caretTheme(), warn = FALSE)
-   print(plot(gbmFit))
-dev.off()
-pdf(paste(getwd(), "/gbm2.pdf", sep = ""), width = 5, height = 5)
-   trellis.par.set(caretTheme(), warn = FALSE)
-   print(plot(gbmFit, metric = "Kappa"))
-dev.off()
-pdf(paste(getwd(), "/gbm3.pdf", sep = ""), width = 5, height = 5)
-   trellis.par.set(caretTheme(), warn = FALSE)
-   print(plot(gbmFit, meric = "Kappa", plotType = "level"))
-dev.off()
-pdf(paste(getwd(), "/resampHist.pdf", sep = ""), width = 7, height = 3.5)
-   trellis.par.set(caretTheme(), warn = FALSE)
-   print(resampleHist(svmFit, type = "density", layout = c(2, 1), adjust = 1.5))
-dev.off()
-@
 
 \begin{table}[hp]
    \begin{center}
@@ -493,55 +527,88 @@ As previously mentioned, objects produced by the \texttt{train} function contain
 For example, we can load the Boston Housing data:
 
 \begin{small}
-<<bhExample>>=
-library(mlbench)
-data(BostonHousing)
-bhDesignMatrix <-  model.matrix(medv ~. - 1, BostonHousing)
-@
+\begin{Schunk}
+\begin{Sinput}
+> library(mlbench)
+> data(BostonHousing)
+> bhDesignMatrix <- model.matrix(medv ~ . - 1, BostonHousing)
+\end{Sinput}
+\end{Schunk}
 \end{small}
 
 \noindent split the data into random training/test groups:
 
 \begin{small}
-<<bhSplit>>=
-set.seed(4)
-inTrain <- createDataPartition(BostonHousing$medv, p = .8, list = FALSE, times = 1)
-trainBH <- bhDesignMatrix[inTrain,]
-testBH <- bhDesignMatrix[-inTrain,]
-trainMedv <- BostonHousing$medv[inTrain]
-testMedv <- BostonHousing$medv[-inTrain]
-@
+\begin{Schunk}
+\begin{Sinput}
+> set.seed(4)
+> inTrain <- createDataPartition(BostonHousing$medv, p = 0.8, list = FALSE, 
++     times = 1)
+> trainBH <- bhDesignMatrix[inTrain, ]
+> testBH <- bhDesignMatrix[-inTrain, ]
+> trainMedv <- BostonHousing$medv[inTrain]
+> testMedv <- BostonHousing$medv[-inTrain]
+\end{Sinput}
+\end{Schunk}
 \end{small}
 
 \noindent fit a regression tree, random forest and multivariate adaptive regression spline model (none of these  models require centering and scaling):
 
 \begin{small}
-<<bhModels>>=
-rpartFit <- train(trainBH, trainMedv, "rpart", tuneLength = 9, trControl = trainControl(verboseIter = FALSE))
-marsFit <- train(trainBH, trainMedv, "mars", trControl = trainControl(verboseIter = FALSE))
-rfFit <- train(trainBH, trainMedv, "rf", trControl = trainControl(verboseIter = FALSE, method = "oob"))
-@
+\begin{Schunk}
+\begin{Sinput}
+> rpartFit <- train(trainBH, trainMedv, "rpart", tuneLength = 9, 
++     trControl = trainControl(verboseIter = FALSE))
+> marsFit <- train(trainBH, trainMedv, "mars", trControl = trainControl(verboseIter = FALSE))
+> rfFit <- train(trainBH, trainMedv, "rf", trControl = trainControl(verboseIter = FALSE, 
++     method = "oob"))
+\end{Sinput}
+\end{Schunk}
 \end{small}
 
 \noindent obtain predictions for the test samples for both models:
 
 \begin{small}
-<<bhPrediction>>=
-bhPredictions <- extractPrediction(list(rpartFit, marsFit, rfFit), testX = testBH, testY = testMedv)
-bhTestPred <- bhPredictions[bhPredictions$dataType != "Resampled",]
-str( bhPredictions )
-@
+\begin{Schunk}
+\begin{Sinput}
+> bhPredictions <- extractPrediction(list(rpartFit, marsFit, rfFit), 
++     testX = testBH, testY = testMedv)
+> bhTestPred <- bhPredictions[bhPredictions$dataType != "Resampled", 
++     ]
+> str(bhPredictions)
+\end{Sinput}
+\begin{Soutput}
+'data.frame':	1518 obs. of  4 variables:
+ $ obs     : num  16.5 15 13.6 14.5 13.9 16.6 14.8 12.7 13.2 13.1 ...
+ $ pred    : num  18.1 18.1 18.1 18.1 18.1 ...
+ $ model   : Factor w/ 3 levels "mars","rf","rpart": 3 3 3 3 3 3 3 3 3 3 ...
+ $ dataType: Factor w/ 2 levels "Test","Training": 2 2 2 2 2 2 2 2 2 2 ...
+\end{Soutput}
+\end{Schunk}
 \end{small}
 
 \noindent and evaluate the test set:
 
 \begin{small}
-<<bhPrediction>>=
-by(
-   bhTestPred, 
-   list(model = bhTestPred$model), 
-   function(x) postResample(x$pred, x$obs))
-@
+\begin{Schunk}
+\begin{Sinput}
+> by(bhTestPred, list(model = bhTestPred$model), function(x) postResample(x$pred, 
++     x$obs))
+\end{Sinput}
+\begin{Soutput}
+model: mars
+     RMSE  Rsquared 
+3.5881664 0.8479199 
+------------------------------------------------------------ 
+model: rf
+    RMSE Rsquared 
+2.071966 0.954025 
+------------------------------------------------------------ 
+model: rpart
+     RMSE  Rsquared 
+4.0730971 0.8046558 
+\end{Soutput}
+\end{Schunk}
 \end{small}
 
 The output of \texttt{extractPrediction} is a data frame with columns:
@@ -572,12 +639,41 @@ A function, \texttt{postResample}, can be used obtain the same performance measu
 The function \texttt{confusionMatrix} can also be used to summarize the results of a classification model:
 
 \begin{small}
-<<mbrConfusion>>=
-mbrrPredictions <- extractPrediction(list(svmFit), testX = testDescr, testY = testMDRR)
-mbrrPredictions <- mbrrPredictions[mbrrPredictions$dataType == "Test",]
-sensitivity(mbrrPredictions$pred, mbrrPredictions$obs)
-confusionMatrix(mbrrPredictions$pred, mbrrPredictions$obs)
-@
+\begin{Schunk}
+\begin{Sinput}
+> mbrrPredictions <- extractPrediction(list(svmFit), testX = testDescr, 
++     testY = testMDRR)
+> mbrrPredictions <- mbrrPredictions[mbrrPredictions$dataType == 
++     "Test", ]
+> sensitivity(mbrrPredictions$pred, mbrrPredictions$obs)
+\end{Sinput}
+\begin{Soutput}
+[1] 0.7933333
+\end{Soutput}
+\begin{Sinput}
+> confusionMatrix(mbrrPredictions$pred, mbrrPredictions$obs)
+\end{Sinput}
+\begin{Soutput}
+Confusion Matrix and Statistics
+
+          Reference
+Prediction Active Inactive
+  Active      119       27
+  Inactive     31       87
+                                       
+            Accuracy : 0.7803          
+              95% CI : (0.7255, 0.8287)
+ No Information Rate : 0.5682          
+ P-Value [Acc > NIR] : 4.063e-13       
+                                       
+               Kappa : 0.5542          
+                                       
+         Sensitivity : 0.7933          
+         Specificity : 0.7632          
+      Pos Pred Value : 0.8151          
+      Neg Pred Value : 0.7373          
+\end{Soutput}
+\end{Schunk}
 \end{small}
 
 The ``no--information rate'' is the largest proportion of the observed classes (there were more actives than inactives in this test set). A hypothesis test is also computed to evaluate whether the overall accuarcy rate is greater than the rate of the largest class. 
@@ -590,12 +686,17 @@ When there are three or more classes, \texttt{confusionMatrix} will show the con
 The function \texttt{roc}\footnote{I'm looking into using the \texttt{ROCR} package for ROC curves, so don't get too attached to these functions} can be used to calculate the sensitivity and specificity used in an ROC plot. For example, using the previous support vector machine fit to the MBRR data, the predicted class probabilities on the test set can used to create an ROC curve. The area under the ROC curve, via the trapezoidal rule, is calculated using the \texttt{aucRoc} function. 
 
 \begin{small}
-<<mbrrROC>>=
-mbrrProbs <- extractProb(list(svmFit), testX = testDescr, testY = testMDRR)
-mbrrProbs <- mbrrProbs[mbrrProbs$dataType == "Test",]
-mbrrROC <- roc(mbrrProbs$Active, mbrrProbs$obs)
-aucRoc(mbrrROC)
-@
+\begin{Schunk}
+\begin{Sinput}
+> mbrrProbs <- extractProb(list(svmFit), testX = testDescr, testY = testMDRR)
+> mbrrProbs <- mbrrProbs[mbrrProbs$dataType == "Test", ]
+> mbrrROC <- roc(mbrrProbs$Active, mbrrProbs$obs)
+> aucRoc(mbrrROC)
+\end{Sinput}
+\begin{Soutput}
+[1] 0.8749415
+\end{Soutput}
+\end{Schunk}
 \end{small}
 
 See Figure \ref{f:mbrrROC} for an example.
@@ -605,17 +706,6 @@ See Figure \ref{f:mbrrROC} for an example.
 Two functions, \texttt{plotObsVsPred} and \texttt{plotClassProbs}, are interfaces to lattice to plot model results. For regression, \texttt{plotObsVsPred} plots the observed versus predicted values by model type and data (e.g. test). See Figures \ref{f:bbbPredPlot} and \ref{f:mbrrROC}  for examples. For classification data, \texttt{plotObsVsPred} plots the accuracy rates for models/data in a dotplot. 
 
 
-<<mbrrPlots, echo = FALSE, results = hide>>=
-pdf(paste(getwd(), "/roc.pdf", sep = ""), width = 6.5, height = 7)
-   plot(1 - mbrrROC[,"specificity"], mbrrROC[, "sensitivity"], type = "s", xlab = "1 - Specificity", ylab = "Sensitivity")
-   abline(0,1, col = "grey", lty = 2)
-dev.off()
-
-pdf(paste(getwd(), "/svmProbs.pdf", sep = ""), width = 9, height = 7)
-   trellis.par.set(caretTheme(), warn = FALSE)
-   print(plotClassProbs(mbrrProbs))
-dev.off()
-@
 
 \begin{figure}[ht]
    \begin{center}      
@@ -631,10 +721,7 @@ dev.off()
 
 \begin{figure}
    \begin{center}      
-<<bbbPredPlot, echo = FALSE, fig = TRUE>>=
-trellis.par.set(caretTheme(), warn = FALSE)
-print(plotObsVsPred(bhTestPred))
-@         
+\includegraphics{caretTrain-bbbPredPlot}
       \caption{The results of using \texttt{ plotObsVsPred } to show plots of the observed median home price against the predictions from two models. The plot shows the training and test sets in the same Lattice plot}
       \label{f:bbbPredPlot}         
    \end{center}

@@ -100,7 +100,9 @@ modelLookup <- function(model = NULL)
                            "fda", "fda",
                            "bagFDA", "bagFDA",
                            "enet", "enet",
-                           "lasso"
+                           "lasso",
+                           "sddaLDA",
+                           "sddaQDA"
                            ),
                          parameter = c(
                            "parameter",      
@@ -136,7 +138,9 @@ modelLookup <- function(model = NULL)
                            "nprune", "degree",                    
                            "nprune", "degree",
                            "lambda", "fraction",
-                           "fraction"        
+                           "fraction",
+                           "parameter",
+                           "parameter"
                            ),
                          label = I(c(
                            "none",      
@@ -172,7 +176,9 @@ modelLookup <- function(model = NULL)
                            "#Retained Terms", "Product Degree",                  
                            "#Retained Terms", "Product Degree",
                            "Lambda", "Fraction of Full Solution",
-                           "Fraction of Full Solution"
+                           "Fraction of Full Solution",
+                           "none",
+                           "none"
                            
                            )),
                          seq = c(
@@ -209,8 +215,9 @@ modelLookup <- function(model = NULL)
                            FALSE,   FALSE,                 
                            FALSE,   FALSE,
                            FALSE,   TRUE,
-                           TRUE
-                           
+                           TRUE,
+                           FALSE,              # sdda
+                           FALSE
                            ),
                          forReg = c(
                            TRUE,
@@ -246,7 +253,9 @@ modelLookup <- function(model = NULL)
                            FALSE,   FALSE,
                            FALSE,   FALSE,
                            TRUE,    TRUE,
-                           TRUE
+                           TRUE,
+                           FALSE,
+                           FALSE
                            
                            ),               
                          forClass =          
@@ -284,13 +293,15 @@ modelLookup <- function(model = NULL)
                            TRUE,    TRUE,
                            TRUE,    TRUE,
                            FALSE,   FALSE,
-                           FALSE
+                           FALSE,
+                           TRUE,
+                           TRUE
                            
                            ),
                          probModel = c(
                            TRUE,             #   bagged trees
-                           FALSE,             #   lm
-                           TRUE,            #   lda
+                           FALSE,            #   lm
+                           TRUE,             #   lda
                            TRUE,             #   ctree (1)
                            TRUE,             #   cforest (1)
                            TRUE, TRUE,       #   ada (3)
@@ -321,7 +332,9 @@ modelLookup <- function(model = NULL)
                            TRUE, TRUE,       #   fda (2)
                            TRUE, TRUE,       #   bagFDA (2)
                            FALSE, FALSE,     #   enet (2)
-                           FALSE             #   lasso (1)
+                           FALSE,            #   lasso (1)
+                           TRUE,             #   sdda for lda (1)
+                           TRUE              #   sdda for qda (1)
                            ),
                          stringsAsFactors  = FALSE               
                          )         
