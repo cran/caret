@@ -71,11 +71,6 @@
 
 \thispagestyle{empty}
 
-<<loadLibs, results = hide, echo = FALSE>>=
-library(caret)
-library(randomForest)
-data(mdrr)
-@
 
 \section{Variable Importance}
 
@@ -176,18 +171,17 @@ For regression, the relationship between each predictor and the outcome is evalu
 
 As an example, the multidrug resistance reversal (MDRR) agent data is used. First, we filter and standardize the predictors:
 
-<<modelFits>>=
-options(width = 80)
-data(mdrr)
-
-set.seed(100)
-
-nzvColumns <- nearZeroVar(mdrrDescr)
-mdrrDescr <- mdrrDescr[, -nzvColumns]
-
-preProcVals <- apply(mdrrDescr, 2, processData)
-mdrrDescr <- applyProcessing(mdrrDescr, preProcVals)
-@
+\begin{Schunk}
+\begin{Sinput}
+> options(width = 80)
+> data(mdrr)
+> set.seed(100)
+> nzvColumns <- nearZeroVar(mdrrDescr)
+> mdrrDescr <- mdrrDescr[, -nzvColumns]
+> preProcVals <- apply(mdrrDescr, 2, processData)
+> mdrrDescr <- applyProcessing(mdrrDescr, preProcVals)
+\end{Sinput}
+\end{Schunk}
 
 Classification models were fit using random forests and partial least squares. The variable importance measures were calculated for these models and using the ROC method described above. 
 

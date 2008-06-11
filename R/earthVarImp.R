@@ -1,34 +1,49 @@
-varImp.earth <- function(object, value = "grsq", ...)
+
+varImp.earth <- function(object, value = "gcv", ...)
 {
 
-   valNames <- c("grsq", "rsq", "rss", "gcv")
-   if(all(!(value %in% valNames))) stop(paste("value must be one of:", paste(valNames, collapse = ", ")))
+  library(earth)
+  
+  earthImp <- evimp(object)
+  if(!is.matrix(earthImp)) earthImp <- t(as.matrix(earthImp))
 
-   splits <- object$dirs[object$selected.terms[-1],]
-   
-   allNames <- colnames(object$dirs)
-   varNames <- apply(splits, 1, function(u) names(which(u != 0)))
-   
-   perf <- switch(
-      value,
-      grsq = diff(earth:::get.rsq(object$gcv.per.subset[object$selected.terms], object$gcv.per.subset[1])),
-      rsq = diff(earth:::get.rsq(object$rss.per.subset[object$selected.terms], object$rss.per.subset[1])),
-      rss = -diff(object$rss.per.subset[object$selected.terms]),
-      gcv = -diff(object$gcv.per.subset[object$selected.terms]))
 
-   
-   out <- data.frame(Overall = rep(0, dim(object$dirs)[2]))
-   rownames(out) <- allNames
-   
-   for(i in seq(along = varNames))
-   {
-      features <- which(allNames %in% varNames[[i]])
-      out$Overall[features] <- out$Overall[features] + perf[i]
-   }
-   
-   tol <- min(0.0000000001, perf[perf>0]/10)
-   if(any(out$Overall < 0)) out$Overall[out$Overall < 0] <- tol
-   
-   out
+  # get other variable names and padd with zeros
+  
+  out <- earthImp
+  perfCol <- which(colnames(out) == value)
+
+  increaseInd <- out[,perfCol + 1]
+  out <- as.data.frame(out[,perfCol, drop = FALSE])  
+  colnames(out) <- "Overall"
+
+  
+  # At this point, we still may have some variables
+  # that are not in the model but have non-zero
+  # importance. We'll set those to zero
+  if(any(earthImp[,"used"] == 0))
+    {
+      dropList <- grep("-unused", rownames(earthImp), value = TRUE)
+      out$Overall[rownames(out) %in% dropList] <- 0
+    }
+  
+  rownames(out) <- gsub("-unused", "", rownames(out))
+
+  out <- as.data.frame(out)
+
+
+  # fill in zeros for any variabels not  in out
+
+  xNames <- object$namesx.org
+  if(any(!(xNames %in% rownames(out))))
+    {
+      xNames <- xNames[!(xNames %in% rownames(out))]
+      others <- data.frame(
+                           Overall = rep(0, length(xNames)),
+                           row.names = xNames)
+      out <- rbind(out, others)
+    }
+  out
+  
 }
 

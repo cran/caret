@@ -16,7 +16,7 @@ filterVarImp(x, y, nonpara = FALSE, ...)
   \item{x}{A matrix or data frame of predictor data}
   \item{y}{A vector (numeric or factor) of outcomes)}
   \item{nonpara}{should nonparametric methods be used to assess the relationship
-  between the features and response (only used with \code{useModel = FALSE}}  
+  between the features and response}  
   \item{...}{options to pass to either \code{\link[stats]{lm}} or \code{\link[stats]{loess}}}
   
 }

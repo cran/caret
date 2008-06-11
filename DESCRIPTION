@@ -1,13 +1,13 @@
 Package: caret
-Version: 3.16
-Date: 2008-03-26
+Version: 3.21
+Date: 2008-06-10
 Title: Classification and Regression Training
-Author: Max Kuhn. Contributions form Jed Wing, Steve Weston and Andre Williams
+Author: Max Kuhn. Contributions from Jed Wing, Steve Weston and Andre Williams
 Description: Misc functions for training and plotting classification and regression models
 Maintainer: Max Kuhn <Max.Kuhn@pfizer.com>
 Depends: R (>= 2.5.1), lattice
 Suggests: gbm, pls, mlbench, rpart, ellipse, ipred, klaR, randomForest, gpls, pamr,
-  kernlab, mda, mgcv, nnet, class, MASS, mboost, earth, party, ada, affy, proxy, e1071,
-  grid, elasticnet
+  kernlab, mda, mgcv, nnet, class, MASS, mboost, earth (>= 2.0-0), party, ada, affy, proxy, e1071,
+  grid, elasticnet, SDDA
 License: GPL-2
-Packaged: Fri Mar 28 15:52:59 2008; hornik
+Packaged: Wed Jun 11 10:44:07 2008; hornik
