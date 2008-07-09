@@ -18,7 +18,7 @@ byComplexity <- function(x, model)
              # complexity faster than number of splits
              x[order(x$n.trees, x$interaction.depth, x$shrinkage),] 
            },
-           rf =, rfNWS =, rfLSF =, gpls =, pls =, PLS =, pam =, cforest =, nb =, rpart =
+           rf =, rfNWS =, rfLSF =, gpls =, pls =, PLS =, pam =, cforest =, nb =, rpart =, ctree2 =
            {
              x[order(x[,1]),]
            },
@@ -33,7 +33,7 @@ byComplexity <- function(x, model)
            {
              x[order(x$degree, x$C, x$scale),]
            },
-           nnet =
+           nnet =, pcaNNet =
            {
              x[order(x$size, -x$decay),]
            },
@@ -109,7 +109,7 @@ oneSE <- function(x, metric, num)
     bestIter
   }
 
-tolerance <- function(x, metric, tol = 2)
+tolerance <- function(x, metric, tol = 1.5)
   {
        
     index <- 1:nrow(x)

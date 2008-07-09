@@ -12,7 +12,7 @@ extractProb <- function(
    if(any(unlist(lapply(object, function(x) x$modelType)) !=  "Classification"))
       stop("only classification models allowed")
 
-   if(object[[1]]$method %in% c("svmradial", "svmpoly", "ctree", "cforest"))
+   if(object[[1]]$method %in% c("svmradial", "svmpoly", "ctree", "ctree2", "cforest"))
    {
       obsLevels <- switch(object[[1]]$method,
          svmradial =, svmpoly =

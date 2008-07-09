@@ -5,7 +5,7 @@ probFunction <- function(method, modelFit, newdata)
     stop("no probability method for this model")
   
   
-  if(method %in% c("svmradial", "svmpoly", "ctree", "cforest"))
+  if(method %in% c("svmradial", "svmpoly", "ctree", "ctree2",  "cforest"))
     {
       
       obsLevels <- switch(method,
@@ -63,7 +63,7 @@ probFunction <- function(method, modelFit, newdata)
                         out
                       },
 
-                      nnet =
+                      nnet =, pcaNNet =
                       {
                         library(nnet)
                         out <- predict(modelFit, newdata)
@@ -136,7 +136,7 @@ probFunction <- function(method, modelFit, newdata)
                           }
                         out
                       },
-                      ctree =, cforest =
+                      ctree =, ctree2=, cforest =
                       {
                         library(party)
                         rawProbs <- treeresponse(modelFit, newdata)
