@@ -81,7 +81,7 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
                              out
                            },
                            
-                           nnet =, multinom =
+                           nnet =, multinom =, pcaNNet =
                            {
                              library(nnet)
                              if(modelFit$problemType == "Classification")
@@ -372,6 +372,15 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
                              
                              out
                            },
+
+                           ctree2 =
+                           {
+                             library(party)
+
+                             out <- predict(modelFit, newdata)
+                             if(!is.null(modelFit@responses@levels$.outcome)) out <- as.character(out)
+                             out
+                           },                           
                            
                            cforest =
                            {

@@ -1,7 +1,7 @@
 "varImp.randomForest" <- function(object, ...)
 {
    library(randomForest)
-   varImp <- importance(object)
+   varImp <- importance(object, ...)
    if(object$type == "regression")
       varImp <- data.frame(Overall = varImp[,"%IncMSE"])
       else {

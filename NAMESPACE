@@ -70,7 +70,10 @@ export(
        predict.preProcess,
        best,
        oneSE,
-       tolerance       
+       tolerance,
+       pcaNNet,
+       pcaNNet.default,
+       predict.pcaNNet
        )
 
 S3method(confusionMatrix, default)
@@ -82,6 +85,9 @@ S3method(plsda,           default)
 S3method(bagEarth,        default)
 S3method(bagFDA,          default)
 S3method(preProcess,      default)
+S3method(pcaNNet,         default)
+
+S3method(pcaNNet, formula)
 
 S3method(varImp, train)
 S3method(varImp, rpart)
@@ -94,6 +100,8 @@ S3method(varImp, lm)
 S3method(varImp, mvr)
 S3method(varImp, earth)
 S3method(varImp, RandomForest)
+
+
 
 S3method(plot,  train)
 S3method(plot,  varImp.train)
@@ -108,6 +116,7 @@ S3method(print, bagFDA)
 S3method(print, summary.bagEarth)
 S3method(print, summary.bagFDA)
 S3method(print, preProcess)
+S3method(print, pcaNNet)
 
 S3method(predict, PLS)
 S3method(predict, plsda)
@@ -115,6 +124,7 @@ S3method(predict, knn3)
 S3method(predict, bagEarth)
 S3method(predict, bagFDA)
 S3method(predict, preProcess)
+S3method(predict, pcaNNet)
 
 S3method(summary, bagEarth)
 S3method(summary, bagFDA)

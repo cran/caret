@@ -9,7 +9,7 @@ Various funcitons for setting tuning parameters
 \usage{
 best(x, metric)
 oneSE(x, metric, num)
-tolerance(x, metric, tol = 2)
+tolerance(x, metric, tol = 1.5)
 }
 \arguments{
   \item{x}{a data frame of tuning parameters and model results, sorted from least complex models to the mst complex}

@@ -40,7 +40,7 @@
   if(method %in% c("glmboost", "blackboost", "gamboost", "earth", "earthTest",
                    "bagFDA", "bagEarth", "lda", "enet", "lasso",
                    "lvq", "pls", "plsTest", "gbm", "pam", "rf",
-                   "ada", "knn", "PLS", "rfNWS", "rfLSF",
+                   "ada", "knn", "PLS", "rfNWS", "rfLSF", "pcaNNet",
                    "mars", "rda",  "gpls", "svmpoly", "svmradial",
                    "sddaLDA", "sddaQDA", "glmnet"))
     {
@@ -146,7 +146,12 @@
                      {      
                        library(nnet)      
                        nnet(modFormula, data,  size = tuneValue$.size, decay = tuneValue$.decay, ...)
-                     },           
+                     },
+                     pcaNNet =
+                     {      
+                       library(nnet)      
+                       pcaNNet(trainX, trainY, size = tuneValue$.size, decay = tuneValue$.decay, ...)
+                     },                       
                      gpls = 
                      {      
                        library(gpls)      
@@ -483,6 +488,34 @@
                        out <- do.call("ctree", modelArgs)
                        out        
                      },
+
+                     ctree2 = 
+                     {
+                       library(party)
+                       
+                       theDots <- list(...)
+                       
+                       if(any(names(theDots) == "control"))
+                         {
+                           theDots$control$maxdepth <- tuneValue$.maxdepth
+                           theDots$control$mincriterion <- 0
+                           ctl <- theDots$control
+                           theDots$control <- NULL
+                           
+                         } else ctl <- ctree_control(
+                                                     maxdepth = tuneValue$.maxdepth,
+                                                     mincriterion = 0)          
+                       
+                       modelArgs <- c(
+                                      list(
+                                           formula = modFormula,
+                                           data = data,
+                                           control = ctl),
+                                      theDots)
+                       
+                       out <- do.call("ctree", modelArgs)
+                       out        
+                     },                     
                      
                      cforest = 
                      {
@@ -511,8 +544,8 @@
                      enet =, lasso =
                      {
                        library(elasticnet)
-                       
-                       enet(as.matrix(trainX), trainY, lambda = tuneValue$.lambda) 
+                       lmbda <- if(method == "lasso") 1 else tuneValue$.lambda
+                       enet(as.matrix(trainX), trainY, lambda = lmbda) 
                      },
 #                     glmnet =
 #                     {
@@ -545,7 +578,7 @@
 
   # for models using S4 classes, you can't easily append data, so 
   # exclude these and we'll use other methods to get this information
-  if(!(method %in% c("svmradial", "svmpoly", "ctree", "cforest")))
+  if(!(method %in% c("svmradial", "svmpoly", "ctree", "ctree2", "cforest")))
     {
       modelFit$xNames <- xNames
       modelFit$problemType <- type

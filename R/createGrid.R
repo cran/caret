@@ -128,7 +128,7 @@
       tuneSeq
     }
   trainGrid <- switch(method,
-                      nnet =  expand.grid(
+                      nnet =, pcaNNet = expand.grid(
                         .size = ((1:len) * 2) - 1, 
                         .decay = c(0, 10 ^ seq(-1, -4, length = len - 1))),
                       rda = expand.grid(
@@ -172,12 +172,11 @@
                         .nu = .1),
                       cforest = cforestTune(data, len),
                       ctree = data.frame(.mincriterion = seq(from = .99, to = 0.01, length = len)),
+                      ctree2 = data.frame(.maxdepth = 1:len),
                       enet = expand.grid(
-                        .lambda = c(0, 10 ^((1:(len - 1)) - 1)),
+                        .lambda = c(0, 10 ^ seq(-1, -4, length = len - 1)),
                         .fraction = seq(0.05, 1, length = len)),
-                      lasso = expand.grid(
-                        .lambda = 0,
-                        .fraction = seq(0, 1, length = len)),
+                      lasso = expand.grid(.fraction = seq(.1, .9, length = len)),
                       glmnet = expand.grid(
                         .alpha = seq(0.1, 1, length = len),
                         .lambda = seq(.1, 1, length = 3 * len)),
