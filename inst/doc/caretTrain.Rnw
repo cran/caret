@@ -9,6 +9,7 @@
 \usepackage{fancyvrb}
 \usepackage{fancyhdr}
 \usepackage{lastpage}
+\usepackage{longtable} 
 \usepackage{algorithm2e}
 \usepackage[
          colorlinks=true,
@@ -155,7 +156,7 @@ The first two arguments to \texttt{train} are the predictor and outcome data obj
 
 \begin{small}
 <<mdrrModel1>>=
-svmFit <- train(trainDescr, trainMDRR, method = "svmradial", tuneLength = 4, trControl = fitControl)
+svmFit <- train(trainDescr, trainMDRR, method = "svmRadial", tuneLength = 4, trControl = fitControl)
 svmFit
 @
 \end{small}
@@ -221,7 +222,7 @@ Some notes about the use of \texttt{train}:
 
   \item [] Also, there may be cases where the message such as ``specified 'nprune' 29 is greater than the number of available model terms 24, forcing 'nprune' to 24'' show up after the model fit. This can occur since the \texttt{earth} function may not actually use the number of terms in the initial model as specified by \texttt{nk}. This may be because the \texttt{earth} function removes terms with linear dependencies and  the forward pass counts as if terms were added in pairs (although singleton terms may be used). By default, the \texttt{train} function fits and initial MARS model is used to determine the number of possible terms in the training set to create the tuning grid. Resampled data sets may produce slightly different models that do not have as many possible values of  \texttt{nprune}.
 	
-   \item For the \texttt{glmboost} and \texttt{gamboost} functions form the \texttt{mboost} package, an additional tuning parameter, \texttt{prune}, is used by train. If \texttt{prune = "yes"}, the number of trees is reduced based on the AIC statistic. If \texttt{"no"}, the number of trees is kept at the value specified by the \texttt{mstop} parameter. See the \texttt{mboost} package vignette for more details about AIC pruning.	
+   \item For the \texttt{glmboost} and \texttt{gamboost} functions from the \texttt{mboost} package, an additional tuning parameter, \texttt{prune}, is used by train. If \texttt{prune = "yes"}, the number of trees is reduced based on the AIC statistic. If \texttt{"no"}, the number of trees is kept at the value specified by the \texttt{mstop} parameter. See the \texttt{mboost} package vignette for more details about AIC pruning.	
 
    \item For some models (\texttt{pls}, \texttt{plsda}, \texttt{earth}, \texttt{rpart}, \texttt{gbm}, \texttt{gamboost}, \texttt{glmboost}, \texttt{blackboost}, \texttt{ctree}, \texttt{pam}, \texttt{enet} and \texttt{lasso}), the \texttt{train} function will fit a model that can be used to derive predictions for some sub-models. For example, for MARS (via the \texttt{earth} function), for a fixed degree, a model with a maximum number of terms will be fit and the predictions of all of the requested models with the same degree and smaller number of terms will be computed using \texttt{update.earth} instead of fitting a new model. When the \texttt{verboseIter} option is used, a line is printed for the ``top--level'' model (instead of each model in the tuning grid).
 
@@ -243,7 +244,7 @@ The function \texttt{trainControl}, generates parameters that control how models
    \item \texttt{selectionFunction}: In the previous examples, \texttt{train} selected the final model using classification accuracy. By default, the function chooses the model with the largest performance value (or smallest, for mean squared error in regression models). Other schemes for selecting model can be used.  Breiman et al (1984) suggested the ``one standard error rule'' for simple tree--based models. In this case, the model with the best performance value is identified and, using resampling, we can estimate the standard error of performance. The final model used was the simplest model within one standard error of the (empirically) best model. With simple trees this makes sense, since these models will start to overfit as they become more and more specific to the training data.
    \item[] \texttt{train} allows the user to specify alternate rules for selecting the final model. The argument \texttt{selectionFunction}  can be used to supply a function to algorithmically determine the final model. There are three existing functions in the package: \texttt{best} is chooses the largest/smallest value, \texttt{oneSE} attempts to capture the spirit of Breiman et al (1984) and \texttt{tolerance} selects the least complex model within some percent tolerance of the best value. See \texttt{?best} for more details.
 
-  \item[] The main issue with these functions is related to ordering the models form simplest to complex. In some cases, this is easy (e.g. simple trees, partial least squares), but in most cases, the ordering of models is subjective. For example, is a boosted tree model using 100 iterations and a tree depth of 2 more complex than one with 50 iterations and a depth of 8? The package makes some choices regarding the orderings. In the case of boosted trees, the package assumes that increasing the number of iterations adds complexity at a faster rate than increasing the tree depth, so models are ordered on the number of iterations then ordered with depth. See \texttt{?best} for more examples for specific models..
+  \item[] The main issue with these functions is related to ordering the models from simplest to complex. In some cases, this is easy (e.g. simple trees, partial least squares), but in most cases, the ordering of models is subjective. For example, is a boosted tree model using 100 iterations and a tree depth of 2 more complex than one with 50 iterations and a depth of 8? The package makes some choices regarding the orderings. In the case of boosted trees, the package assumes that increasing the number of iterations adds complexity at a faster rate than increasing the tree depth, so models are ordered on the number of iterations then ordered with depth. See \texttt{?best} for more examples for specific models..
 
 \end{itemize}
 
@@ -275,16 +276,18 @@ pdf(paste(getwd(), "/resampHist.pdf", sep = ""), width = 7, height = 3.5)
 dev.off()
 @
 
-\begin{table}[hp]
-   \begin{center}
-      \caption{Models used in \texttt{train}}
 
-      \label{T:methods}
-      \begin{tabular}{lllll}
-      Model & \texttt{method} Value & Package & Tuning Parameters  \\
-      \hline
-      
-      Recursive partitioning &
+\begin{longtable}{lllll}
+\caption{Models used in \texttt{train}} \\ \label{T:methods}
+{\bf Model} & {\bf \texttt{method} Value} & {\bf Package} & {\bf Tuning Parameters}\\
+\hline \\
+\endhead
+\\
+\multicolumn{5}{l}{{{\small \em (continued on next page)}}} \\
+\endfoot
+\hline
+\endlastfoot
+      Recursive Partitioning &
          \texttt{rpart} & 
             \texttt{rpart}       & 
             \texttt{maxdepth} \\  
@@ -316,9 +319,14 @@ dev.off()
       &      
          \texttt{gamboost} & 
             \texttt{mboost}       &          
-            \texttt{mstop}\\               
+            \texttt{mstop}\\      
+ 
+      &      
+         \texttt{logitboost} & 
+            \texttt{caTools}       &          
+            \texttt{nIter}\\                
                  
-      Random forests & 
+      Random Forests & 
          \texttt{rf} & 
             \texttt{randomForest}       & 
             \texttt{mtry} \\
@@ -333,40 +341,49 @@ dev.off()
             \texttt{ipred}       & 
             None \\                         
                         
-      Neural networks &               
+      Neural Networks &               
          \texttt{nnet} & 
             \texttt{nnet}       &       
             \texttt{decay}, \texttt{size} \\      
       
-      Partial least squares &
+      Partial Least Squares &
          \texttt{pls} & 
             \texttt{pls}, \texttt{caret}       & 
             \texttt{ncomp} \\      
       
       Support Vector Machines  &
-         \texttt{svmradial} & 
+         \texttt{svmRadial} & 
             \texttt{kernlab}       & 
             \texttt{sigma}, \texttt{C} \\            
-      \:\: (RBF kernel) \\   
+      \:\: (RBF kernel) & & &\\   
       
       Support Vector Machines  &
-         \texttt{svmpoly} & 
+         \texttt{svmPoly} & 
             \texttt{kernlab}       & 
             \texttt{scale}, \texttt{degree}, \texttt{C} \\            
-      \:\: (polynomial kernel) \\         
+      \:\: (polynomial kernel) & & &\\  
+     Gaussian Processes  &
+         \texttt{gaussprRadial} & 
+            \texttt{kernlab}       & 
+            \texttt{sigma} \\            
+      \:\: (RBF kernel) & & &\\   
       
+      Gaussian Processes  &
+         \texttt{gaussprPoly} & 
+            \texttt{kernlab}       & 
+            \texttt{scale}, \texttt{degree} \\            
+      \:\: (polynomial kernel) & & &\\          
       \\
-      
-      Linear least squares &
+      Linear Least Squares &
          \texttt{lm} & 
             \texttt{stats}       & 
             None \\         
       
-      Multivariate adaptive  &
+      Multivariate Adaptive  &
          \texttt{earth}, \texttt{mars} & 
             \texttt{earth}       & 
             \texttt{degree}, \texttt{nprune} \\            
-      \:\: regression splines \\
+      \:\: Regression Splines & & &\\
             
       Bagged MARS &
          \texttt{bagEarth} & 
@@ -381,51 +398,70 @@ dev.off()
       The Lasso &
          \texttt{lasso} & 
             \texttt{elasticnet}      & 
-            \texttt{fraction} \\          
+            \texttt{fraction} \\       
+            
+      Relevance Vector Machines  &
+         \texttt{rvmRadial} & 
+            \texttt{kernlab}       & 
+            \texttt{sigma} \\            
+      \:\: (RBF kernel) & & &\\   
+      
+      Relevance Vector Machines  &
+         \texttt{rvmPoly} & 
+            \texttt{kernlab}       & 
+            \texttt{scale}, \texttt{degree} \\            
+      \:\: (polynomial kernel) & & &\\               
 
       \\       
              
 
-      Linear discriminant analysis &
+      Linear Discriminant Analysis &
          \texttt{lda} & 
             \texttt{MASS}       &          
             None\\                     
 
       Stepwise Diagonal &
-        \texttt{sddaLDA}, \texttt{sddaQDA} &
+        \texttt{sddaLDA}, &
         \texttt{SDDA} &
         None \\
-      \:\: Discriminant Analysis \\
+      \:\: Discriminant Analysis & \texttt{sddaQDA} & &\\
             
-      Logistic/multinomial  &
+      Logistic/Multinomial  &
          \texttt{multinom} & 
             \texttt{nnet}       & 
             \texttt{decay}& \\   
-      \: \: regression \\ 
+      \: \: Regression \\ 
                      
-      Regularized discriminant  &
+      Regularized Discriminant  &
          \texttt{rda} & 
             \texttt{klaR}       & 
-            \texttt{lambda}, \texttt{gamma} & \\
-      \: \: analysis \\
+            \texttt{lambda}, \texttt{gamma} & \\*
+      \: \: Analysis \\*
       
-      Flexible discriminant  &
+      Flexible Discriminant  &
          \texttt{fda} & 
             \texttt{mda}, \texttt{earth}       & 
             \texttt{degree}, \texttt{nprune} & \\
-      \: \: analysis (MARS basis)\\      
+      \: \: Analysis (MARS basis)\\      
       
       Bagged FDA &
          \texttt{bagFDA} & 
             \texttt{caret},  \texttt{earth}       & 
-            \texttt{degree}, \texttt{nprune} \\         
-                   
-      $k$ nearest neighbors &
+            \texttt{degree}, \texttt{nprune} \\      
+            
+      Least Squares Support Vector  &
+         \texttt{lssvmRadial} & 
+            \texttt{kernlab}       & 
+            \texttt{sigma} \\            
+      \:\:  Machines (RBF kernel) & & &\\   
+      
+                
+      $k$ Nearest Neighbors &
          \texttt{knn3} & 
             \texttt{caret}       & 
             \texttt{k} \\   
                   
-      Nearest shrunken centroids &
+      Nearest Shrunken Centroids &
          \texttt{pam} & 
             \texttt{pamr}       & 
             \texttt{threshold} \\  
@@ -435,19 +471,18 @@ dev.off()
             \texttt{klaR}       & 
             \texttt{usekernel} \\
         
-      Generalized partial &
+      Generalized Partial &
          \texttt{gpls} & 
             \texttt{gpls}       & 
             \texttt{K.prov} \\
-      \:\: least squares \\
+      \:\: Least Squares \\
       
-      Learned vector quantization &
+      Learned Vector Quantization &
          \texttt{lvq} & 
             \texttt{class}       &          
-            \texttt{k} \\                             
-      \end{tabular}      
-   \end{center}
-\end{table}  
+            \texttt{k} \\            
+\label{label-name}
+\end{longtable}
 
 \begin{figure}[p]
    \begin{center}		
@@ -483,12 +518,12 @@ In the previous examples, \texttt{train} selected the final model using classifi
 
 \texttt{train} allows the user to specify alternate rules for selecting the final model. The \texttt{trainControl} function has an argument, \texttt{selectionFunction} that can be used to supply a function to algorithmically determine the final model. There are three existing functions in the package: \texttt{best} is chooses the largest/smallest value, \texttt{oneSE} attempts to capture the spirit of Breiman et al (1984) and \texttt{tolerance} selects the least complex model within some percent tolerance of the best value. See \texttt{?best} for more details.
 
-The main issue with these functions is related to ordering the models form simplest to complex. In some cases, this is easy (e.g. simple trees, partial least squares), but in most cases, the ordering of models is subjective. For example, is a boosted tree model using 100 iterations and a tree depth of 2 more complex than one with 50 iterations and a depth of 8? The package makes some choices regarding the orderings. In the case of boosted trees, the package assumes that increasing the number of iterations adds complexity at a faster rate than increasing the tree depth, so models are ordered on the number of iterations then ordered with depth. See \texttt{?best} for more examples for specific models..
+The main issue with these functions is related to ordering the models from simplest to complex. In some cases, this is easy (e.g. simple trees, partial least squares), but in most cases, the ordering of models is subjective. For example, is a boosted tree model using 100 iterations and a tree depth of 2 more complex than one with 50 iterations and a depth of 8? The package makes some choices regarding the orderings. In the case of boosted trees, the package assumes that increasing the number of iterations adds complexity at a faster rate than increasing the tree depth, so models are ordered on the number of iterations then ordered with depth. See \texttt{?best} for more examples for specific models..
 
 
 \section{Extracting Predictions and Class Probabilities}
 
-As previously mentioned, objects produced by the \texttt{train} function contain the ``optimized'' model in the \texttt{finalModel} sub--object. Predictions can be made from these objects as usual. Alternatively, predictions can be extracted from a series of model using the function \texttt{extractPrediction}.
+As previously mentioned, objects produced by the \texttt{train} function contain the ``optimized'' model in the \texttt{finalModel} sub--object. Predictions can be made from these objects as usual. In some cases, such as \texttt{pls} or \texttt{gbm} objects, additional  parameters from the optimized fit may need to be specified. In these cases, the \texttt{train} objects uses the results of the parameter optimization to predict new samples.
 
 For example, we can load the Boston Housing data:
 
@@ -508,42 +543,68 @@ set.seed(4)
 inTrain <- createDataPartition(BostonHousing$medv, p = .8, list = FALSE, times = 1)
 trainBH <- bhDesignMatrix[inTrain,]
 testBH <- bhDesignMatrix[-inTrain,]
+
+preProc <- preProcess(trainBH)
+trainBH <- predict(preProc, trainBH)
+testBH  <- predict(preProc,  testBH)
+
 trainMedv <- BostonHousing$medv[inTrain]
 testMedv <- BostonHousing$medv[-inTrain]
 @
 \end{small}
 
-\noindent fit a regression tree, random forest and multivariate adaptive regression spline model (none of these  models require centering and scaling):
+\noindent fit partial least squares and multivariate adaptive regression spline models:
 
 \begin{small}
 <<bhModels>>=
-rpartFit <- train(trainBH, trainMedv, "rpart", tuneLength = 9, trControl = trainControl(verboseIter = FALSE))
-marsFit <- train(trainBH, trainMedv, "mars", trControl = trainControl(verboseIter = FALSE))
-rfFit <- train(trainBH, trainMedv, "rf", trControl = trainControl(verboseIter = FALSE, method = "oob"))
+set.seed(5)
+plsFit <- train(trainBH, trainMedv, "pls", tuneLength = 10, trControl = trainControl(verboseIter = FALSE))
+set.seed(5)
+marsFit <- train(trainBH, trainMedv, "earth", tuneLength = 10, trControl = trainControl(verboseIter = FALSE))
+
 @
 \end{small}
-
-\noindent obtain predictions for the test samples for both models:
+To obtain predictions  for the PLS model, \texttt{predict.mvr} can be used. In this case, the number of components must be manually specified or all of the sub-models are predicted:
 
 \begin{small}
-<<bhPrediction>>=
-bhPredictions <- extractPrediction(list(rpartFit, marsFit, rfFit), testX = testBH, testY = testMedv)
-bhTestPred <- bhPredictions[bhPredictions$dataType != "Resampled",]
-str( bhPredictions )
+<<plsPrediction1>>=
+plsPred1 <- predict(plsFit$finalModel, newdata = as.matrix(testBH))
+dim(plsPred1)
+@ 
+\end{small}
+Alternatively, \texttt{predict.train} can be used to get a vector of predictions for the optimal model only:
+\begin{small}
+<<plsPrediction1>>=
+plsPred2 <- predict(plsFit, newdata = testBH)
+length(plsPred2)
 @
 \end{small}
-
-\noindent and evaluate the test set:
-
+For multiple models, the objects can be grouped using a list and predicted simultaneously:
 \begin{small}
-<<bhPrediction>>=
+<<bhPrediction1>>=
+bhModels <- list(
+                 pls = plsFit,
+                 mars = marsFit)
+
+bhPred1 <- predict(bhModels, newdata = testBH)
+str(bhPred1)
+@
+\end{small}
+In some cases,observed outcomes and their associated predictions may be needed for a set of models. In this case, \texttt{extractPrediction} can be used. This function takes a list of models and test and/or unknown samples as inputs and returns a data frame of predictions:
+\begin{small}
+<<bhPrediction1>>=
+allPred <- extractPrediction(bhModels,
+                             testX = testBH,
+                             testY = testMedv)
+testPred <- subset(allPred, dataType == "Test")
+head(testPred)
+
 by(
-   bhTestPred, 
-   list(model = bhTestPred$model), 
+   testPred, 
+   list(model = testPred$model), 
    function(x) postResample(x$pred, x$obs))
 @
 \end{small}
-
 The output of \texttt{extractPrediction} is a data frame with columns:
    \begin{itemize}   
       \item \texttt{obs}, the observed data
@@ -560,7 +621,7 @@ The output of \texttt{extractPrediction} is a data frame with columns:
       \end{itemize}
    \end{itemize}      
 
-Some classification models can produce probabilities for each class. The function \texttt{extractProbs} can be used to get these probabilities from one or more models. The results are very similar to what is produced by \texttt{extractPrediction} but with columns for each class. The column \texttt{pred} is still the predicted class from the model. 
+Some classification models can produce probabilities for each class. The functions \texttt{predict.train} and \texttt{predict.list} can be used with the \texttt{type = "probs"} argument to produce data frames of class probabilities (with one column per class). Also, the function \texttt{extractProbs} can be used to get these probabilities from one or more models. The results are very similar to what is produced by \texttt{extractPrediction} but with columns for each class. The column \texttt{pred} is still the predicted class from the model. 
 
 
 \section{Evaluating Models}
@@ -602,7 +663,7 @@ See Figure \ref{f:mbrrROC} for an example.
 
 \subsection*{Plotting Predictions and Probabilities}
 
-Two functions, \texttt{plotObsVsPred} and \texttt{plotClassProbs}, are interfaces to lattice to plot model results. For regression, \texttt{plotObsVsPred} plots the observed versus predicted values by model type and data (e.g. test). See Figures \ref{f:bbbPredPlot} and \ref{f:mbrrROC}  for examples. For classification data, \texttt{plotObsVsPred} plots the accuracy rates for models/data in a dotplot. 
+Two functions, \texttt{plotObsVsPred} and \texttt{plotClassProbs}, are interfaces to lattice to plot model results. For regression, \texttt{plotObsVsPred} plots the observed versus predicted values by model type and data (e.g. test). See Figures \ref{f:bhPredPlot} and \ref{f:mbrrROC}  for examples. For classification data, \texttt{plotObsVsPred} plots the accuracy rates for models/data in a dotplot. 
 
 
 <<mbrrPlots, echo = FALSE, results = hide>>=
@@ -631,12 +692,12 @@ dev.off()
 
 \begin{figure}
    \begin{center}      
-<<bbbPredPlot, echo = FALSE, fig = TRUE>>=
+<<bhPredPlot, echo = FALSE, fig = TRUE>>=
 trellis.par.set(caretTheme(), warn = FALSE)
-print(plotObsVsPred(bhTestPred))
+print(plotObsVsPred(testPred))
 @         
       \caption{The results of using \texttt{ plotObsVsPred } to show plots of the observed median home price against the predictions from two models. The plot shows the training and test sets in the same Lattice plot}
-      \label{f:bbbPredPlot}         
+      \label{f:bhPredPlot}         
    \end{center}
 \end{figure}
 
@@ -660,10 +721,10 @@ To plot class probabilities, \texttt{plotClassProbs} will display the results by
 
 \end{document}
 
-   setwd("/Users/kuhna03/Documents/Code/caret/inst/doc")
+   setwd("/Users/kuhna03/Documents/Code/caret/pkg/caret/inst/doc")
    oldWidth <- options("width")$width
    options(width = 80)
    Sweave(
-      file = "/Users/kuhna03/Documents/Code/caret/inst/doc/caretTrain.Rnw",
-      out = "/Users/kuhna03/Documents/Code/caret/inst/doc/caretTrain.tex")
+      file = "/Users/kuhna03/Documents/Code/caret/pkg/caret/inst/doc/caretTrain.Rnw",
+      out = "/Users/kuhna03/Documents/Code/caret/pkg/caret/inst/doc/caretTrain.tex")
    options(width = oldWidth)

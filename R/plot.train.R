@@ -194,8 +194,8 @@ function(x, plotType = "scatter", metric = c("Accuracy", "RMSE"), digits = getOp
       
       performancePlot <- switch(plotType,      
          level = levelplot(
-               resultsCopy[,metricName] ~ factor(resultsCopy[,3]) * factor(resultsCopy[,4])|stripVar, 
-               xlab = plotLabels[2], 
+               resultsCopy[,metricName] ~ factor(resultsCopy[,2]) * factor(resultsCopy[,4])|stripVar, 
+               xlab = plotLabels[1], 
                ylab = plotLabels[3], 
                sub =yLabel, ...),
          line = stripplot(

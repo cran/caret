@@ -1,7 +1,7 @@
 
 
 extractPrediction <- function(
-   object, 
+   models, 
    testX = NULL, 
    testY = NULL, 
    unkX = NULL, 
@@ -9,27 +9,10 @@ extractPrediction <- function(
    verbose = FALSE)
 {
 
-   trainX <- object[[1]]$trainingData[,!(names(object[[1]]$trainingData) %in% ".outcome")]
-   trainY <- object[[1]]$trainingData$.outcome  
+   trainX <- models[[1]]$trainingData[,!(names(models[[1]]$trainingData) %in% ".outcome")]
+   trainY <- models[[1]]$trainingData$.outcome  
 
-   if(object[[1]]$method %in% c("svmradial", "svmpoly", "ctree", "ctree2", "cforest"))
-   {
-      obsLevels <- switch(object[[1]]$method,
-         svmradial =, svmpoly =
-         {
-            library(kernlab)
-            lev(object[[1]]$finalModel)
-         },
-   
-         ctree =, cforest =
-         {
-            library(party)
-            levels(object[[1]]$finalModel@data@get("response")[,1])
-         })
-   } else {
-      obsLevels <- object[[1]]$finalModel$obsLevels
-   }  
-
+   obsLevels <- getClassLevels(models[[1]])
 
    if(verbose)
    {
@@ -46,10 +29,10 @@ extractPrediction <- function(
       if(verbose) cat("There were ", sum(hasNa), "rows with missing values\n\n")
    }
    
-   for(i in seq(along = object))
+   for(i in seq(along = models))
    {
-      modelFit <- object[[i]]$finalModel
-      method <- object[[i]]$method
+      modelFit <- models[[i]]$finalModel
+      method <- models[[i]]$method
       
       if(!unkOnly)
       {
@@ -57,9 +40,9 @@ extractPrediction <- function(
          #now generate predictions on the training data from the final model
          tempTrainPred <- predictionFunction(method, modelFit, trainX)
       
-         if(verbose) cat(object[[i]]$method, ":", length(tempTrainPred), "training predictions were added\n")         
+         if(verbose) cat(models[[i]]$method, ":", length(tempTrainPred), "training predictions were added\n")         
          
-         if(object[[i]]$modelType == "Classification")
+         if(models[[i]]$modelType == "Classification")
          {
             pred <- c(pred, as.character(tempTrainPred))
             obs <- c(obs, as.character(trainY))
@@ -68,12 +51,12 @@ extractPrediction <- function(
             obs <- c(obs, trainY)      
          }
          
-         modelName <- c(modelName, rep(object[[i]]$method, length(tempTrainPred)))
+         modelName <- c(modelName, rep(models[[i]]$method, length(tempTrainPred)))
          dataType <- c(dataType, rep("Training", length(tempTrainPred)))
          
          if(!is.null(testX) & !is.null(testY))
          {
-            if(object[[i]]$method %in% c("rpart", "treebag"))
+            if(models[[i]]$method %in% c("rpart", "treebag"))
             {
                tempX <- testX
                tempY <- testY
@@ -84,9 +67,9 @@ extractPrediction <- function(
      
             tempTestPred <- predictionFunction(method, modelFit, tempX)
             
-            if(verbose) cat(object[[i]]$method, ":", length(tempTestPred), "test predictions were added\n")         
+            if(verbose) cat(models[[i]]$method, ":", length(tempTestPred), "test predictions were added\n")         
          
-            if(object[[i]]$modelType == "Classification")
+            if(models[[i]]$modelType == "Classification")
             {
                pred <- c(pred, as.character(tempTestPred))
                obs <- c(obs, as.character(tempY))    
@@ -95,7 +78,7 @@ extractPrediction <- function(
                obs <- c(obs, tempY) 
             }
            
-            modelName <- c(modelName, rep(object[[i]]$method, length(tempTestPred)))
+            modelName <- c(modelName, rep(models[[i]]$method, length(tempTestPred)))
             dataType <- c(dataType, rep("Test", length(tempTestPred)))   
             
          }
@@ -103,7 +86,7 @@ extractPrediction <- function(
       }
       if(!is.null(unkX))
       {
-         if(object[[i]]$method %in% c("rpart", "treebag"))
+         if(models[[i]]$method %in% c("rpart", "treebag"))
          {
             tempX <- unkX
          } else {
@@ -114,9 +97,9 @@ extractPrediction <- function(
   
          tempUnkPred <- predictionFunction(method, modelFit, tempX)
          
-         if(verbose) cat(object[[i]]$method, ":", length(tempUnkPred), "unknown predictions were added\n")         
+         if(verbose) cat(models[[i]]$method, ":", length(tempUnkPred), "unknown predictions were added\n")         
       
-         if(object[[i]]$modelType == "Classification")
+         if(models[[i]]$modelType == "Classification")
          {
             pred <- c(pred, as.character(tempUnkPred))
             obs <- c(obs, rep("", length(tempUnkPred)))    
@@ -125,13 +108,13 @@ extractPrediction <- function(
             obs <- c(obs, rep(NA, length(tempUnkPred)))    
          }
         
-         modelName <- c(modelName, rep(object[[i]]$method, length(tempUnkPred)))
+         modelName <- c(modelName, rep(models[[i]]$method, length(tempUnkPred)))
          dataType <- c(dataType, rep("Unknown", length(tempUnkPred)))   
          
       }
       if(verbose) cat("\n")      
    }
-   if(object[[1]]$modelType == "Classification")
+   if(models[[1]]$modelType == "Classification")
    {   
       pred <- factor(pred, levels = obsLevels)
       obs <- factor(obs, levels = obsLevels)

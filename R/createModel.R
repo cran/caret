@@ -39,9 +39,13 @@
   # probabilites, so we will use the svm(x, y) interface
   if(method %in% c("glmboost", "blackboost", "gamboost", "earth", "earthTest",
                    "bagFDA", "bagEarth", "lda", "enet", "lasso",
-                   "lvq", "pls", "plsTest", "gbm", "pam", "rf",
+                   "lvq", "pls", "plsTest", "gbm", "pam", "rf", "logitBoost",
                    "ada", "knn", "PLS", "rfNWS", "rfLSF", "pcaNNet",
                    "mars", "rda",  "gpls", "svmpoly", "svmradial",
+                   "svmPoly", "svmRadial",
+                   "lssvmPoly", "lssvmRadial",
+                   "rvmRadial", "rvmPoly",
+                   "gaussprRadial", "gaussprPoly",
                    "sddaLDA", "sddaQDA", "glmnet"))
     {
       trainX <- data[,!(names(data) %in% ".outcome")]
@@ -93,7 +97,7 @@
                        do.call("library", list("caretLSF"))
                        rfLSF(trainX, trainY, mtry = tuneValue$.mtry, ...)
                      },                     
-                     svmpoly = 
+                     svmpoly =, svmPoly = 
                      {
                        library(kernlab)
                        if(type == "Classification")
@@ -119,7 +123,7 @@
                                             ...)
                        out            
                      },
-                     svmradial = 
+                     svmradial =, svmRadial = 
                      {      
                        library(kernlab)      
                        if(type == "Classification")
@@ -135,13 +139,112 @@
                            out <- ksvm(
                                        as.matrix(trainX),
                                        trainY,
-                                       type = "eps-svr",
                                        kernel = rbfdot(sigma = tuneValue$.sigma),
                                        C = tuneValue$.C,
                                        ...)
                          }
                        out         
-                     },                          
+                     },
+                     rvmPoly = 
+                     {
+                       library(kernlab)
+                       # As of version 0.9-5 of kernlab, there was a small inconsistency
+                       # between methods on how to specific kernels. Unlike ksvm, we specify
+                       # them here via kpar (same for polynomial kernels)
+
+                       out <- rvm(
+                                  as.matrix(trainX),
+                                  trainY,
+                                  kernel = polydot,
+                                  kpar = list(
+                                    degree = tuneValue$.degree,
+                                    scale = tuneValue$.scale,
+                                    offset = 1),
+                                  ...)
+                       out            
+                     },
+                     rvmRadial = 
+                     {      
+                       library(kernlab)      
+
+                       out <- rvm(
+                                  as.matrix(trainX),
+                                  trainY,
+                                  kernel = rbfdot,
+                                  kpar = list(sigma = tuneValue$.sigma),
+                                  ...)
+
+                       out         
+                     },
+                     lssvmPoly = 
+                     {
+                       library(kernlab)
+
+                       out <- lssvm(
+                                    as.matrix(trainX),
+                                    trainY,
+                                    kernel = polydot(
+                                      degree = tuneValue$.degree,
+                                      scale = tuneValue$.scale,
+                                      offset = 1),
+                                    ...)
+
+                       out            
+                     },
+                     lssvmRadial = 
+                     {      
+                       library(kernlab)      
+
+                       out <- lssvm(
+                                    as.matrix(trainX),
+                                    trainY,
+                                    kernel = rbfdot(sigma = tuneValue$.sigma),
+                                    ...)
+
+                       out         
+                     },
+                     gaussprPoly = 
+                     {
+                       library(kernlab)
+                       if(type == "Classification")
+                         {
+                           out <- gausspr(
+                                          as.matrix(trainX),
+                                          trainY,
+                                          kernel = polydot(
+                                            degree = tuneValue$.degree,
+                                            scale = tuneValue$.scale,
+                                            offset = 1),
+                                          ...)
+                         } else out <- gausspr(
+                                               as.matrix(trainX),
+                                               trainY,
+                                               kernel = polydot(
+                                                 degree = tuneValue$.degree,
+                                                 scale = tuneValue$.scale,
+                                                 offset = 1),
+                                               ...)
+                       out            
+                     },
+                     gaussprRadial = 
+                     {      
+                       library(kernlab)      
+                       if(type == "Classification")
+                         {
+                           out <- gausspr(
+                                          as.matrix(trainX),
+                                          trainY,
+                                          kernel = rbfdot(sigma = tuneValue$.sigma),
+                                          ...)
+                         } else {
+                           out <- gausspr(
+                                          as.matrix(trainX),
+                                          trainY,
+                                          kernel = rbfdot(sigma = tuneValue$.sigma),
+                                          ...)
+                         }
+                       out         
+                     },                     
                      nnet =
                      {      
                        library(nnet)      
@@ -569,7 +672,12 @@
                      {
                        library(SDDA)
                        sdda(as.matrix(trainX), trainY, method = "qda", ...)
-                     }                 
+                     },
+                     logitBoost =
+                     {
+                       library(caTools)
+                       LogitBoost(as.matrix(trainX), trainY, nIter = tuneValue$.nIter)
+                     }
                      )
   
   
@@ -578,7 +686,12 @@
 
   # for models using S4 classes, you can't easily append data, so 
   # exclude these and we'll use other methods to get this information
-  if(!(method %in% c("svmradial", "svmpoly", "ctree", "ctree2", "cforest")))
+  if(!(method %in% c("svmradial", "svmpoly",
+                     "svmRadial", "svmPoly",
+                     "rvmRadial", "rvmPoly",
+                     "lssvmRadial", "lssvmPoly",
+                     "gaussprRadial", "gaussprPoly",
+                     "ctree", "ctree2", "cforest")))
     {
       modelFit$xNames <- xNames
       modelFit$problemType <- type

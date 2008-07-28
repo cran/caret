@@ -149,11 +149,15 @@
           switch(x$method,
                  lm =, nnet =, multinom =, pls =, earth =, 
                  bagEarth =, bagFDA = print(summary(x$finalModel)),
-                 
                  rpart =, ctree =, ctree2=, cforest =,
                  glmboost =, gamboost =, blackboost =,
                  ada =, randomForest =, pcaNNet =,
-                 svmradial =, svmpoly =, enet =, lasso =,
+                 svmradial =, svmpoly =,
+                 svmRadial =, svmPoly =,
+                 rvmRadial =, rvmPoly =,
+                 lssvmRadial =, lssvmPoly =,
+                 gaussprRadial =, gaussprPoly =,
+                 enet =, lasso =,
                  lda =, rda =, pamr =, gpls = print(x$finalModel),
                  fda = 
                  {

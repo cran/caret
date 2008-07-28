@@ -62,7 +62,11 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
                              out
                            },
                            
-                           svmradial =, svmpoly =
+                           svmradial =, svmpoly =,
+                           svmRadial =, svmPoly =,
+                           rvmRadial =, rvmPoly =,
+                           lssvmRadial =, lssvmPoly =,
+                           gaussprRadial =, gaussprPoly =
                            {
                              library(kernlab)
                              if(is.character(lev(modelFit)))
@@ -102,6 +106,8 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
                                  out[depth > max(x[,"nsplit"])] <- min(x[,"CP"]) * .99
                                  out
                                }
+
+                             if(!is.data.frame(newdata)) newdata <- as.data.frame(newdata)
 
                              if(modelFit$problemType == "Classification")
                                {
@@ -414,8 +420,34 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
                            {
                              library(SDDA)
                              predict(modelFit, as.matrix(newdata), type = "class")
+                           },
+
+                           logitBoost =,
+                           {
+                             library(caTools)
+
+                             out <- predict(modelFit, newdata, type="class")
+                             
+                             if(!is.null(param))
+                               {
+                                 tmp <- data.frame(
+                                                   matrix(NA, nrow = nrow(newdata), ncol = nrow(param)),
+                                                   stringsAsFactors = FALSE)
+                                 
+                                 for(j in seq(along = param$.nIter))
+                                   {
+                                     tmp[,j] <- as.character(
+                                                             predict(
+                                                                     modelFit,
+                                                                     newdata,
+                                                                     nIter = param$.nIter[j]))
+                                   }
+                                 out <- cbind(out, tmp)
+                                 attr(out, "values") <- c(modelFit$tuneValue$.nIter, param$.nIter)
+                                 
+                               }
+                             out
                            }
-                           
                            )
   predictedValue
 }
