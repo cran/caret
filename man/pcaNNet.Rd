@@ -66,7 +66,7 @@ arguments passed to \code{\link[nnet]{nnet}}
 
 }
 \details{
-The function first will run principal component analysis on the data. The cumulative percentage of variance is computed for each principal component. The function uses the \code{thesh} argument to determine how many components must be retained to capture this amount of variance in the predictors.
+The function first will run principal component analysis on the data. The cumulative percentage of variance is computed for each principal component. The function uses the \code{thresh} argument to determine how many components must be retained to capture this amount of variance in the predictors.
 
 The principal components are then used in a neural network model.
 

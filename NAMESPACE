@@ -73,7 +73,9 @@ export(
        tolerance,
        pcaNNet,
        pcaNNet.default,
-       predict.pcaNNet
+       predict.pcaNNet,
+       predict.list,
+       predict.train
        )
 
 S3method(confusionMatrix, default)
@@ -125,6 +127,8 @@ S3method(predict, bagEarth)
 S3method(predict, bagFDA)
 S3method(predict, preProcess)
 S3method(predict, pcaNNet)
+S3method(predict, list)
+S3method(predict, train)
 
 S3method(summary, bagEarth)
 S3method(summary, bagFDA)

@@ -86,6 +86,7 @@ library(kernlab)
 library(gbm)
 library(ipred)
 library(grid)
+library(pls)
 library(randomForest)
 data(BloodBrain)
 data(mdrr)
@@ -535,7 +536,56 @@ There are also \texttt{print} and \texttt{predict} methods.
 
 \subsection{Partial Least Squares Discriminant Analysis}
 
-The \texttt{plsda} function is a wrapper for the \texttt{plsr} function in the \texttt{pls} package that does not require a formula interface and can take factor outcomes as arguments. The classes are broken down into dummy variables (one for each class). These 0/1 dummy variables are modeled by partial least squares. The predicted class is based on the dummy variable with the largest predicted value. Class probabilities can be generated using the predict method by specifying \texttt{type = "prob"} and are computed using the softmax approach.
+The \texttt{plsda} function is a wrapper for the \texttt{plsr} function in the \texttt{pls} package that does not require a formula interface and can take factor outcomes as arguments. The classes are broken down into dummy variables (one for each class). These 0/1 dummy variables are modeled by partial least squares. 
+
+From this model, there are two approaches to computing the class predictions and probabilities:
+\begin{itemize}
+\item the softmax technique can be used on a per-sample basis to normalize the scores so that they are more ``probability like'' (i.e. they sum to one and are between zero and one). For a vector of model predictions for each class $x$, the softmax class probabilities are computed as
+\[
+prob_k= \frac{exp(x_k)}{\sum_{k=1}^C exp(x_k)}
+\]
+The predicted class is simply the class with the largest model prediction, or equivalently, the largest class probability. This is the default behavior for \texttt{plsda}.
+\item Bayes rule can be applied to the model predictions to form posterior probabilities. Here, the model predictions for the training set are used along with the training set outcomes to create conditional distributions for each class. When new samples are predicted, the raw model predictions are run through these conditional distributions to produce a posterior probability for each class (along with the prior). Bayes rule can be used by specifying \texttt{probModel = "Bayes"}. An additional parameter, \texttt{prior}, can be used to set prior probabilities  for the classes.
+\end{itemize}
+The advantage to using Bayes rule is that the full training set is used to directly compute the class probabilities (unlike the softmax function which only uses the current sample's scores). This creates more realistic probability estimates (See Figure \ref{f:plsProbs}). The disadvantage is that a separate Bayesian model must be created for each value of \texttt{ncomp}, which is more time consuming.  
+ 
+For the MDRR data set, we can fit two PLS models using each technique and predict the class probabilities for the test set. Figure \ref{f:plsProbs}  shows the results.
+
+<<plsProb, echo = FALSE, results = hide>>=
+bTime <- system.time(Bayes <- plsda(trainDescr, trainMDRR, ncomp = 5, probMethod = "Bayes"))[3]
+sTime <- system.time(softmax <- plsda(trainDescr, trainMDRR, ncomp = 5))[3]
+
+bProbs <- as.data.frame(predict(Bayes, as.matrix(testDescr), type = "prob"))
+bProbs$method <- "Bayes Rule"
+bProbs$obs <- testMDRR
+sProbs <- as.data.frame(predict(softmax, as.matrix(testDescr), type = "prob"))
+sProbs$method <- "Softmax"
+sProbs$obs <- testMDRR
+names(sProbs) <- names(bProbs)
+both <- rbind(bProbs, sProbs)
+
+bPerf <- confusionMatrix(predict(Bayes, as.matrix(testDescr)),
+                         testMDRR)
+sPerf <- confusionMatrix(predict(softmax, as.matrix(testDescr)),
+                         testMDRR)
+                                 
+pdf(paste(getwd(), "/plsProbs.pdf", sep = ""), width = 7, height = 5)
+   trellis.par.set(caretTheme(), warn = FALSE)
+print(
+      histogram(
+                ~Active|method*obs, data = both, 
+                xlab = "Active Probability",
+                as.table = TRUE))
+dev.off()
+@ 
+
+\begin{figure}
+   \begin{center}		
+      \includegraphics[clip, width = .9\textwidth]{plsProbs}
+\caption{A comparison of two methods for computing class probabilities for PLS classification models on the MDRR data. Using a 5 component PLS model, the test set sample class probabilities were predicted using either the softmax function or Bayes rule. The histograms show the distributions of the active class probabilities for both methods and the true class of the samples. While Bayes rule takes more time to compute (\Sexpr{round(bTime, 2)} seconds compared to \Sexpr{round(sTime, 3)} seconds for softmax), the probabilities using Bayes rule appear more appropriate since they encompass the full scale. The softmax probabilities are close to the middle of the distribution and rarely show high confidence in the predicted class. Both techniques show approximately the same accuracy (\Sexpr{round(bPerf$overall[1], 2)} for Bayes and \Sexpr{round(sPerf$overall[1], 2)} for softmax) and Kappa values (\Sexpr{round(bPerf$overall[2], 2)} for Bayes and \Sexpr{round(sPerf$overall[2], 2)} for softmax).}
+      \label{f:plsProbs}       
+   \end{center}
+\end{figure}  
 
 \subsection{Bagged MARS and FDA}
 
@@ -543,7 +593,9 @@ Multivariate adaptive regression splines (MARS) models, like classification/regr
 
 Also, flexible discriminant analysis is a generalization of linear discriminant analysis that can use non--linear features as inputs. One way of doing this is the use MARS--type features to classify samples. The function \texttt{bagFDA} fits FDA models of a set of bootstrap samples and aggregates the predictions to reduce noise.  
 
+\subsection{Neural Networks with a Principal Component Step}
 
+Neural networks can be affected by severe amounts of multicollinearity in the predictors. the function \texttt{pcaNNet} is a wrapper around the \texttt{preProcess} and \texttt{nnet} functions that will run principal component analysis on the predictors before using them as inputs into a neural network. The function will keep enough components that will capture some pre-defined threshold on the cumulative proportion of variance (see the \texttt{thresh} argument). For new samples, the same transformation is applied to the new predictor values (based on the loadings from the training set). The function is available for both regression and classification. 
 
 \section{References}
 
@@ -578,12 +630,12 @@ Also, flexible discriminant analysis is a generalization of linear discriminant 
 
 
 
-   setwd("/Users/kuhna03/Documents/Code/caret/inst/doc")
+   setwd("/Users/kuhna03/Documents/Code/caret/pkg/caret/inst/doc")
    oldWidth <- options("width")$width
    options(width = 80)
    Sweave(
-      file = "/Users/kuhna03/Documents/Code/caret/inst/doc/caretMisc.Rnw",
-      out = "/Users/kuhna03/Documents/Code/caret/inst/doc/caretMisc.tex")
+      file = "/Users/kuhna03/Documents/Code/caret/pkg/caret/inst/doc/caretMisc.Rnw",
+      out = "/Users/kuhna03/Documents/Code/caret/pkg/caret/inst/doc/caretMisc.tex")
    options(width = oldWidth)
 
    

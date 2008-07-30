@@ -5,11 +5,19 @@ probFunction <- function(method, modelFit, newdata)
     stop("no probability method for this model")
   
   
-  if(method %in% c("svmradial", "svmpoly", "ctree", "ctree2",  "cforest"))
+  if(method %in% c(
+                   "svmradial", "svmpoly",
+                   "svmRadial", "svmPoly",
+                   "gaussprRadial", "gaussprPoly",
+                   "lssvmRadial",
+                   "ctree", "ctree2",  "cforest"))
     {
       
       obsLevels <- switch(method,
-                          svmradial =, svmpoly =
+                          svmradial =, svmpoly =,
+                          svmRadial =, svmPoly =,
+                          gaussprRadial =, gaussprPoly =,
+                          lssvmRadial =
                           {
                             library(kernlab)
                             lev(modelFit)
@@ -44,7 +52,10 @@ probFunction <- function(method, modelFit, newdata)
                         
                       },
                       
-                      svmradial =, svmpoly =
+                      svmradial =, svmpoly =,
+                      svmRadial =, svmPoly =,
+                      lssvmRadial =,
+                      gaussprRadial =, gaussprPoly =
                       {
                         library(kernlab)
                         
@@ -170,6 +181,14 @@ probFunction <- function(method, modelFit, newdata)
                       {
                         library(SDDA)
                         predict(modelFit, as.matrix(newdata), type = "prob")
+                      },
+                      logitBoost =
+                      {
+                        library(caTools)
+                        out <- predict(modelFit, newdata, type = "raw")
+                        # I've seen them not be on [0, 1]
+                        out <- t(apply(out, 1, function(x) x/sum(x)))
+                        out
                       }
                       )
 

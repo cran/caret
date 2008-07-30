@@ -1,7 +1,7 @@
 
 
 extractProb <- function(
-   object, 
+   models, 
    testX = NULL, 
    testY = NULL, 
    unkX = NULL, 
@@ -9,29 +9,13 @@ extractProb <- function(
    verbose = FALSE)
 {
 
-   if(any(unlist(lapply(object, function(x) x$modelType)) !=  "Classification"))
-      stop("only classification models allowed")
-
-   if(object[[1]]$method %in% c("svmradial", "svmpoly", "ctree", "ctree2", "cforest"))
-   {
-      obsLevels <- switch(object[[1]]$method,
-         svmradial =, svmpoly =
-         {
-            library(kernlab)
-            lev(object[[1]]$finalModel)
-         },
+   if(any(unlist(lapply(models, function(x) !modelLookup(x$method)$probModel))))
+      stop("only classification models that produce probabilities are allowed")
    
-         ctree =, cforest =
-         {
-            library(party)
-            levels(object[[1]]$finalModel@data@get("response")[,1])
-         })
-   } else {
-      obsLevels <- object[[1]]$finalModel$obsLevels
-   } 
+   obsLevels <- getClassLevels(models[[1]])
 
-   trainX <- object[[1]]$trainingData[,!(names(object[[1]]$trainingData) %in% ".outcome")]
-   trainY <- object[[1]]$trainingData$.outcome  
+   trainX <- models[[1]]$trainingData[,!(names(models[[1]]$trainingData) %in% ".outcome")]
+   trainY <- models[[1]]$trainingData$.outcome  
 
    if(verbose)
    {
@@ -48,28 +32,28 @@ extractProb <- function(
       if(verbose) cat("There were ", sum(hasNa), "rows with missing values\n\n"); flush.console()
    }
    
-   for(i in seq(along = object))
+   for(i in seq(along = models))
    {
-      modelFit <- object[[i]]$finalModel
-      method <- object[[i]]$method
-      if(verbose) cat("starting ", object[[i]]$method, "\n"); flush.console()         
+      modelFit <- models[[i]]$finalModel
+      method <- models[[i]]$method
+      if(verbose) cat("starting ", models[[i]]$method, "\n"); flush.console()         
       if(!unkOnly)
       {
          # Training Data
          tempTrainPred  <- predictionFunction(method, modelFit, trainX)
          tempTrainProb <- probFunction(method, modelFit, trainX)         
-         if(verbose) cat(object[[i]]$method, ":", length(tempTrainPred), "training predictions were added\n"); flush.console()         
+         if(verbose) cat(models[[i]]$method, ":", length(tempTrainPred), "training predictions were added\n"); flush.console()         
          
          predProb <- if(is.null(predProb)) tempTrainProb else rbind(predProb, tempTrainProb)      
          predClass <- c(predClass, as.character(tempTrainPred))         
          obs <- c(obs, as.character(trainY))
-         modelName <- c(modelName, rep(object[[i]]$method, length(tempTrainPred)))
+         modelName <- c(modelName, rep(models[[i]]$method, length(tempTrainPred)))
          dataType <- c(dataType, rep("Training", length(tempTrainPred)))         
          
          # Test Data         
          if(!is.null(testX) & !is.null(testY))
          {
-            if(object[[i]]$method %in% c("rpart", "treebag"))
+            if(models[[i]]$method %in% c("rpart", "treebag"))
             {
                tempX <- testX
                tempY <- testY
@@ -80,12 +64,12 @@ extractProb <- function(
 
             tempTestPred  <- predictionFunction(method, modelFit, tempX)  
             tempTestProb <- probFunction(method, modelFit, tempX)       
-            if(verbose) cat(object[[i]]$method, ":", length(tempTestPred), "test predictions were added\n")         
+            if(verbose) cat(models[[i]]$method, ":", length(tempTestPred), "test predictions were added\n")         
             
             predProb <- if(is.null(predProb)) tempTestProb else rbind(predProb, tempTestProb)             
             predClass <- c(predClass, as.character(tempTestPred))         
             obs <- c(obs, as.character(testY))
-            modelName <- c(modelName, rep(object[[i]]$method, length(tempTestPred)))
+            modelName <- c(modelName, rep(models[[i]]$method, length(tempTestPred)))
             dataType <- c(dataType, rep("Test", length(tempTestPred)))                  
          }      
          
@@ -94,7 +78,7 @@ extractProb <- function(
       # Unknown Data   
       if(!is.null(unkX))
       {
-         if(object[[i]]$method %in% c("rpart", "treebag"))
+         if(models[[i]]$method %in% c("rpart", "treebag"))
          {
             tempX <- unkX
          } else {
@@ -106,12 +90,12 @@ extractProb <- function(
          tempUnkPred  <- predictionFunction(method, modelFit, tempX)
          tempUnkProb <- probFunction(method, modelFit, tempX)
       
-         if(verbose) cat(object[[i]]$method, ":", length(tempUnkPred), "unknown predictions were added\n")         
+         if(verbose) cat(models[[i]]$method, ":", length(tempUnkPred), "unknown predictions were added\n")         
          
          predProb <- if(is.null(predProb)) tempUnkProb else rbind(predProb, tempUnkProb)      
          predClass <- c(predClass, as.character(tempUnkPred))         
          obs <- c(obs, rep(NA, length(tempUnkPred)))
-         modelName <- c(modelName, rep(object[[i]]$method, length(tempUnkPred)))
+         modelName <- c(modelName, rep(models[[i]]$method, length(tempUnkPred)))
          dataType <- c(dataType, rep("Unknown", length(tempUnkPred)))        
          
       }

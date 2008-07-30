@@ -77,6 +77,7 @@ modelLookup <- function(model = NULL)
                            "glmboost", "glmboost",
                            "gamboost", "gamboost",
                            "blackboost", "blackboost",
+                           "logitBoost",
                            "nnet", "nnet",
                            "pcaNNet", "pcaNNet",
                            "multinom", 
@@ -84,9 +85,18 @@ modelLookup <- function(model = NULL)
                            "gbm", "gbm", "gbm",
                            "rfNWS",
                            "rfLSF",
-                           "rf", 
+                           "rf",
+                           # to keep backwards compat, we have double svm entries
                            "svmpoly", "svmpoly", "svmpoly", 
-                           "svmradial", "svmradial",          
+                           "svmradial", "svmradial",                           
+                           "svmPoly", "svmPoly", "svmPoly", 
+                           "svmRadial", "svmRadial",
+                           "rvmPoly", "rvmPoly", 
+                           "rvmRadial",
+                           "lssvmPoly", "lssvmPoly", 
+                           "lssvmRadial",
+                           "gaussprPoly", "gaussprPoly", 
+                           "gaussprRadial",                              
                            "gpls", 
                            "lvq", 
                            "rpart", 
@@ -116,7 +126,8 @@ modelLookup <- function(model = NULL)
                            "iter", "maxdepth", "nu",
                            "mstop", "prune",
                            "mstop", "prune", 
-                           "mstop", "maxdepth",                    
+                           "mstop", "maxdepth",
+                           "nIter",
                            "size", "decay",
                            "size", "decay", 
                            "decay", 
@@ -126,7 +137,15 @@ modelLookup <- function(model = NULL)
                            "mtry",         
                            "mtry", 
                            "C", "degree", "scale",  
-                           "C", "sigma",           
+                           "C", "sigma",
+                           "C", "degree", "scale",  
+                           "C", "sigma",
+                           "degree", "scale",  
+                           "sigma",
+                           "degree", "scale",  
+                           "sigma",
+                           "degree", "scale",  
+                           "sigma", 
                            "K.prov", 
                            "k", 
                            "maxdepth", 
@@ -156,7 +175,8 @@ modelLookup <- function(model = NULL)
                            "#Trees", "Max Tree Depth", "Learning Rate",
                            "# Boosting Iterations", "AIC Prune?",
                            "# Boosting Iterations", "AIC Prune?",    
-                           "#Trees", "Max Tree Depth",                        
+                           "#Trees", "Max Tree Depth",
+                           "# Boosting Iterations",
                            "#Hidden Units", "Weight Decay",
                            "#Hidden Units", "Weight Decay", 
                            "Weight Decay", 
@@ -166,7 +186,15 @@ modelLookup <- function(model = NULL)
                            "#Randomly Selected Predictors",         
                            "#Randomly Selected Predictors", 
                            "Cost", "Polynomial Degree", "Scale",  
-                           "Cost", "Sigma",          
+                           "Cost", "Sigma",
+                           "Cost", "Polynomial Degree", "Scale",  
+                           "Cost", "Sigma",
+                           "Polynomial Degree", "Scale",  
+                           "Sigma",
+                           "Polynomial Degree", "Scale",  
+                           "Sigma",
+                           "Polynomial Degree", "Scale",  
+                           "Sigma",  
                            "#Components", 
                            "#Prototypes", 
                            "Max Tree Depth", 
@@ -197,7 +225,8 @@ modelLookup <- function(model = NULL)
                            FALSE,   FALSE,   FALSE,
                            TRUE,    FALSE,
                            TRUE,    FALSE,   
-                           TRUE,    FALSE,                        
+                           TRUE,    FALSE,
+                           TRUE, 
                            FALSE,   FALSE,
                            FALSE,   FALSE, 
                            FALSE, 
@@ -205,9 +234,17 @@ modelLookup <- function(model = NULL)
                            TRUE,    FALSE,   FALSE,         
                            FALSE,
                            FALSE,         
-                           FALSE, 
+                           FALSE,
+                           FALSE,   FALSE,   FALSE, #svmPoly  
+                           FALSE,   FALSE,                              
                            FALSE,   FALSE,   FALSE,  
-                           FALSE,   FALSE,           
+                           FALSE,   FALSE,          
+                           FALSE,   FALSE,   # rvm
+                           FALSE,
+                           FALSE,   FALSE,   # lssvm
+                           FALSE,
+                           FALSE,   FALSE,   # gausspr
+                           FALSE,
                            FALSE, 
                            FALSE, 
                            TRUE, 
@@ -238,6 +275,7 @@ modelLookup <- function(model = NULL)
                            TRUE,    TRUE,
                            TRUE,    TRUE,
                            TRUE,    TRUE,
+                           FALSE,
                            TRUE,    TRUE,
                            TRUE,    TRUE, 
                            FALSE, 
@@ -247,7 +285,15 @@ modelLookup <- function(model = NULL)
                            TRUE,         
                            TRUE,         
                            TRUE,    TRUE,    TRUE, 
-                           TRUE,    TRUE,          
+                           TRUE,    TRUE,
+                           TRUE,    TRUE,    TRUE, 
+                           TRUE,    TRUE,
+                           TRUE,    TRUE, 
+                           TRUE,
+                           FALSE,   FALSE,    #lssvm
+                           FALSE,
+                           TRUE,    TRUE, 
+                           TRUE,               # guasspr
                            FALSE, 
                            FALSE, 
                            TRUE, 
@@ -274,12 +320,13 @@ modelLookup <- function(model = NULL)
                            FALSE,
                            TRUE,
                            TRUE,
-                           TRUE,
+                           TRUE,#check these
                            TRUE,
                            TRUE,    TRUE,    TRUE,
                            TRUE,    TRUE,
                            TRUE,    TRUE,
                            TRUE,    TRUE,
+                           TRUE,
                            TRUE,    TRUE,
                            TRUE,    TRUE,
                            TRUE, 
@@ -288,8 +335,16 @@ modelLookup <- function(model = NULL)
                            TRUE,
                            TRUE,           
                            TRUE, 
+                           TRUE,    TRUE,    TRUE, #svmPoly 
+                           TRUE,    TRUE,
                            TRUE,    TRUE,    TRUE, 
-                           TRUE,    TRUE,          
+                           TRUE,    TRUE,
+                           FALSE,   FALSE,
+                           FALSE,
+                           TRUE,    TRUE,   # lssvm
+                           TRUE,
+                           TRUE,    TRUE, 
+                           TRUE,
                            TRUE, 
                            TRUE, 
                            TRUE, 
@@ -317,10 +372,11 @@ modelLookup <- function(model = NULL)
                            TRUE,             #   ctree (1)
                            TRUE,             #   ctree2
                            TRUE,             #   cforest (1)
-                           TRUE, TRUE,       #   ada (3)
+                           TRUE, TRUE, TRUE, #   ada (3)
                            TRUE, TRUE,       #   glmboost (2)
                            TRUE, TRUE,       #   gamboost (2)
                            TRUE, TRUE,       #   blackboost (2)
+                           TRUE,             #   LogitBoost (1),
                            TRUE, TRUE,       #   nnet (2)
                            TRUE, TRUE,       #   pcaNNet (2)
                            TRUE,             #   multinom (1) 
@@ -329,9 +385,17 @@ modelLookup <- function(model = NULL)
                            TRUE,             #   rfNWS (1)
                            TRUE,             #   rfLSF (1)         
                            TRUE,             #   rf (1) 
+                           TRUE, TRUE, TRUE, #   svmPoly (3) 
+                           TRUE, TRUE,       #   svmRadial (2)
                            TRUE, TRUE, TRUE, #   svmpoly (3) 
-                           TRUE, TRUE,       #   svmradial (2)         
-                           TRUE, TRUE,       #   gpls (1) 
+                           TRUE, TRUE,       #   svmradial (2)
+                           FALSE,FALSE,      #   rvmPoly (2) 
+                           FALSE,            #   rvmRadial (1)
+                           FALSE,FALSE,      #   lssvmPoly (2) # not implemented in kernlab
+                           FALSE,            #   lssvmRadial (1)
+                           TRUE, TRUE,       #   gausspr(2) Poly
+                           TRUE,             #   gausspr(1) radial
+                           TRUE,             #   gpls (1) 
                            FALSE,            #   lvq (1) 
                            TRUE,             #   rpart (1) 
                            TRUE,             #   pls (1) 
@@ -426,6 +490,12 @@ tuneScheme <- function(model, grid, useOOB = FALSE)
       # object      
       
       switch(model,
+             logitBoost = 
+             {
+               grid <- grid[order(grid$.nIter, decreasing = TRUE),, drop = FALSE]
+               loop <- grid[1,,drop = FALSE]
+               seqParam <- list(grid[-1,,drop = FALSE])
+             },             
              pls = 
              {
                grid <- grid[order(grid$.ncomp, decreasing = TRUE),, drop = FALSE]
@@ -573,11 +643,14 @@ poolByResample <- function(x, grid, func)
     {
       subGrid <- grid[i,,drop = FALSE]
       subX <- merge(subGrid, x)
-      tmp <- by(subX, list(group = subX$group), foo)
-      resultsPerGroup <- t(sapply(tmp, function(u)u))
-      resultsPerGroup <- merge(subGrid, resultsPerGroup)
-      
-      out <- if(i == 1) resultsPerGroup else rbind(out, resultsPerGroup)
+      if(nrow(subX) > 0)
+        {
+          tmp <- by(subX, list(group = subX$group), foo)
+          resultsPerGroup <- t(sapply(tmp, function(u)u))
+          resultsPerGroup <- merge(subGrid, resultsPerGroup)
+          
+          out <- if(!exists("out")) resultsPerGroup else rbind(out, resultsPerGroup)
+        }
     }
   out
 }
@@ -754,3 +827,33 @@ iterPrint <- function(x, iter)
     }
   cat("\n")
 }
+
+getClassLevels <- function(x)
+  {
+    if(x$method %in% c("svmradial", "svmpoly",
+                       "svmRadial", "svmPoly",
+                       "rvmRadial", "rvmPoly",
+                       "gaussprRadial", "gaussprPoly",
+                       "ctree", "ctree2", "cforest"))
+      {
+        obsLevels <- switch(x$method,
+                            svmradial =, svmpoly =,
+                            svmRadial =, svmPoly =,
+                            rvmRadial =, rvmPoly =,
+                            gaussprRadial =, gaussprPoly =
+                            {
+                              library(kernlab)
+                              lev(x$finalModel)
+                            },
+                            
+                            ctree =, cforest =
+                            {
+                              library(party)
+                              levels(x$finalModel@data@get("response")[,1])
+                            })
+      } else {
+        obsLevels <- x$finalModel$obsLevels
+      }
+    obsLevels
+  }
+

@@ -151,6 +151,16 @@ train.default <- function(x, y,
     {     
       perResample <- poolByResample(results, tuneGrid, foo)
       performance <- summarize(perResample, tuneGrid, foo)
+
+      # There are some cases where every resampled model
+      # failed for the tuning parameter(s). Catch these.
+      goodResults <- complete.cases(performance)
+      if(any(!goodResults))
+        {
+          if(trControl$verboseIter) cat(paste("These were", sum(!goodResults), "combinations with invalid results\n\n")) 
+          performance <- performance[goodResults,]
+        }
+
       pNames <- names(performance)
       pNames[pNames %in% names(tuneGrid)] <- paramNames
       names(performance) <- pNames
