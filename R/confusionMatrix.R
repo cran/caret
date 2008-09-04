@@ -7,7 +7,7 @@ confusionMatrix.default <- function(data, reference, positive = NULL, dnn = c("P
 {
   library(e1071)
   if(!is.factor(data)) data <- factor(data)
-  if(!is.factor(reference)) data <- factor(reference)
+  if(!is.factor(reference)) reference <- factor(reference)
 
   if(length(levels(data)) != length(levels(reference)))
     stop("the data and reference factors must have the same number of levels")

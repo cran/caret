@@ -194,6 +194,13 @@
                         .alpha = seq(0.1, 1, length = len),
                         .lambda = seq(.1, 1, length = 3 * len)),
                       logitBoost = data.frame(.nIter =  floor((1:len) * 50)),
-                      lda =, lm =, treebag =, sddaLDA =, sddaQDA = data.frame(.parameter = "none"))
+                      J48 = data.frame(.C = 0.25),
+                      M5Rules = data.frame(.pruned = c("Yes", "No")),
+                      LMT = data.frame(.iter = (1:len) * 20),
+                      JRip = data.frame(.NumOpt = 1:len),
+                      superpc = expand.grid(.n.components = 1:3,
+                        .threshold = seq(.1, .9, length = len)),
+                      lda =, lm =, treebag =, sddaLDA =, sddaQDA =,
+                      lmStepAIC =, slda = data.frame(.parameter = "none"))
   trainGrid
 }

@@ -1,0 +1,77 @@
+-------------------
+Version: 3.37
+Date: 2008-09-04
+
+Added the ability of train to use custom made performance functions so that the tuning
+parameters can be chosen on the basis of things other than RMSE/R-squared and 
+Accuracy/Kappa. Specific changes:
+
+  - a new argument was added to trainControl called "summaryFunction" that is used
+    to specify the function used to compute performance metrics. The default function
+    preserves the functionality prior to this new version
+
+   - a new argument to train is "maximize" which is a logical for whether the 
+    performance measure specified in the "metric" argument to train should be 
+    maximized or minimized.
+
+   - the selection function specified in trainControl carries the maximize argument with
+     it so that customized performance metrics can be used.
+
+Other changes:
+
+  - a bug was fixed in confusionMatrix (thanks to Gabor Grothendieck)
+
+  - another bug was fixed related to predictions from least square SVMs 
+
+-------------------
+Version: 3.36
+Date: 2008-08-29
+
+Added superpc from the superpc package. One note: the data argument that is passed
+to superpc is saved in the object that results from superpc.train. This is used later in
+the prediction function.
+
+-------------------
+Version: 3.35
+Date: 2008-08-27
+
+Added slda from ipred
+
+-------------------
+Version: 3.34
+Date: 2008-08-25
+
+Fixed a few bugs related to the lattice plots from version 3.33.
+
+Also added the ripper (aka JRip) and logistic model trees from RWeka
+
+-------------------
+Version: 3.33
+Date: 2008-08-22
+
+Added xyplot.train, densityplot.train, histogram.train and stripplot.train. These are 
+all functions to plot the resampling points. There is some overlap between these
+functions, plot.train and resampleHist. plot.train gives the average metrics only while 
+these plot all of the resampled performance metrics. resampleHist could plot all of the 
+points, but only for the final optimal set of predictors.
+
+To use these functions, there is a new argument in trainControl called returnResamp 
+which should have values "none", "final" and "all". The default is "final" to be consistent 
+with previous versions, but "all" should be specified to use these new functions to their 
+fullest.
+
+-------------------
+Version: 3.32
+Date: 2008-07-28
+
+The functions "predict.train" and "predict.list" were added to use as alternatives to the
+extractPrediction and extractProbs functions. 
+
+Added C4.5 (aka J48) and rules-based models (M5 prime) from RWeka.
+
+Also added logitBoost from the caTools package. This package doesn't have a 
+namespace and RWeka has a function with the same name. It was suggested to use the
+"::" prefix to differentiate them (but we'll see how this works).
+
+
+

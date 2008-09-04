@@ -135,10 +135,10 @@ testMDRR <- mdrrClass[-inTrain]
 print(length(trainMDRR))
 print(length(testMDRR))
 
-preProcValues <- apply(trainDescr, 2, processData)
+preProcValues <- preProcess(trainDescr)
 
-trainDescr <- applyProcessing(trainDescr, preProcValues)
-testDescr <- applyProcessing(testDescr, preProcValues)
+trainDescr <- predict(preProcValues, trainDescr)
+testDescr <-  predict(preProcValues, testDescr)
 @
 \end{small}
 
@@ -146,13 +146,18 @@ To estimate model performance across the tuning parameters ``leave group out cro
 
 \begin{small}
 <<setup>>=
-fitControl <- trainControl(method = "LGOCV", p = .75, number = 30, verboseIter = FALSE)
+fitControl <- trainControl(
+                           method = "LGOCV",
+                           p = .75,
+                           number = 30,
+                           returnResamp = "all",
+                           verboseIter = FALSE)
 set.seed(2)
 @
 \end{small}
 
 
-The first two arguments to \texttt{train} are the predictor and outcome data objects, respectively. The third argument, \texttt{method}, specifies the type of model. For this model, the tuning parameters are the cost value (\texttt{C} and the radius of the RBF (\texttt{sigma})). The \texttt{tuneLength} argument sets the size of the grid used to search the tuning parameter space and \texttt{trControl} is the control parameter for the \texttt{train} function. 
+The first two arguments to \texttt{train} are the predictor and outcome data objects, respectively. The third argument, \texttt{method}, specifies the type of model. For this model, the tuning parameters are the cost value (the \texttt{C} argument in \texttt{kernlab}'s \texttt{ksvm} function) and the radius of the RBF (the \texttt{sigma} argument to the kernel function). The \texttt{tuneLength} argument sets the size of the grid used to search the tuning parameter space and \texttt{trControl} is the control parameter for the \texttt{train} function. 
 
 \begin{small}
 <<mdrrModel1>>=
@@ -197,6 +202,8 @@ options(width = currentWidth)
 
 Some notes about the use of \texttt{train}:
 \begin{itemize}
+  
+  \item There is a formula interface (e.g. \texttt{train(y~., data = someData)} that can be used. One of the issues with a large number of predictors is that the objects related to the formula which are saved can get very large. In these cases, it is best to stick with the non--formula interface described above.
 	\item The function determines the type of problem (classification or regression) from the type of the response given in the \texttt{y} argument. 
 	
 	\item The \texttt{$\ldots$} option can be used to pass parameters to the fitting function. For example, in random forest models, you can specify the number of trees to be used in the call to \texttt{train}. In the example above, the default trace for a \texttt{gbm} model was turned off using the \texttt{verbose} argument to \texttt{gbm}.
@@ -224,57 +231,17 @@ Some notes about the use of \texttt{train}:
 	
    \item For the \texttt{glmboost} and \texttt{gamboost} functions from the \texttt{mboost} package, an additional tuning parameter, \texttt{prune}, is used by train. If \texttt{prune = "yes"}, the number of trees is reduced based on the AIC statistic. If \texttt{"no"}, the number of trees is kept at the value specified by the \texttt{mstop} parameter. See the \texttt{mboost} package vignette for more details about AIC pruning.	
 
-   \item For some models (\texttt{pls}, \texttt{plsda}, \texttt{earth}, \texttt{rpart}, \texttt{gbm}, \texttt{gamboost}, \texttt{glmboost}, \texttt{blackboost}, \texttt{ctree}, \texttt{pam}, \texttt{enet} and \texttt{lasso}), the \texttt{train} function will fit a model that can be used to derive predictions for some sub-models. For example, for MARS (via the \texttt{earth} function), for a fixed degree, a model with a maximum number of terms will be fit and the predictions of all of the requested models with the same degree and smaller number of terms will be computed using \texttt{update.earth} instead of fitting a new model. When the \texttt{verboseIter} option is used, a line is printed for the ``top--level'' model (instead of each model in the tuning grid).
+   \item For some models (\texttt{pls}, \texttt{plsda}, \texttt{earth}, \texttt{rpart}, \texttt{gbm}, \texttt{gamboost}, \texttt{glmboost}, \texttt{blackboost}, \texttt{ctree}, \texttt{pam}, \texttt{superpc}, \texttt{enet} and \texttt{lasso}), the \texttt{train} function will fit a model that can be used to derive predictions for some sub-models. For example, for MARS (via the \texttt{earth} function), for a fixed degree, a model with a maximum number of terms will be fit and the predictions of all of the requested models with the same degree and smaller number of terms will be computed using \texttt{update.earth} instead of fitting a new model. When the \texttt{verboseIter} option is used, a line is printed for the ``top--level'' model (instead of each model in the tuning grid).
 
 	\item There are \texttt{print} and \texttt{plot} methods. See Figures \ref{f:plots1} and \ref{f:plots2} for examples. This is also a function, \texttt{resampleHist}, that will plot a histogram or density plot of the resampled performance estimates for the optimal model. Figure \ref{f:plots2} shows and example of this type of plot for the support vector machine example.
 	
-	\item Using the first set of tuning parameters that are optimal (in the sense of accuracy or mean squared error), \texttt{train} automatically fits a model with these parameters to the entire training data set. That model object is accessible in the \texttt{finalModel} object within \texttt{train}. For example, \verb+gbmFit$finalModel+  is the same object that would have been produced using a direct call to the \texttt{gbm} function. The \texttt{metric} argument of the \texttt{train} function allows the user to control which the optimality criterion is used. For example, in problems where there are a low percentage of samples in one class, using \texttt{metric = "Kappa"} can improve the model selection procedure.
+	\item Using the first set of tuning parameters that are optimal (in the sense of accuracy or mean squared error), \texttt{train} automatically fits a model with these parameters to the entire training data set. That model object is accessible in the \texttt{finalModel} object within \texttt{train}. For example, \verb+gbmFit$finalModel+  is the same object that would have been produced using a direct call to the \texttt{gbm} function. 
 	
 \end{itemize}
 
-
-The function \texttt{trainControl}, generates parameters that control how models are built with possible values:
-\begin{itemize}
-   \item \texttt{method}: The resampling method: \texttt{boot}, \texttt{cv}, \texttt{LOOCV}, \texttt{LGOCV}  and \texttt{oob}. The last value, out--of--bag estimates, can only be used by random forest, bagged trees, bagged earth, bagged flexible discriminant analysis, or conditional tree forest models. GBM models are not included (the \texttt{gbm} package maintainer has indicated that it would not be a good idea to choose tuning parameter values based on the model OOB error estimates with boosted trees). Also, for leave--one--out cross--validation, no uncertainty estimates are given for the resampled performance measures.
-   \item \texttt{number}: Either the number of folds or number of resampling iterations
-   \item \texttt{verboseIter}: A logical for printing a training log.
-   \item \texttt{returnData}: A logical for saving the data
-   \item \texttt{p}: For leave-group out cross-validation: the training percentage
-   \item \texttt{index}: a list with elements for each resampling iteration. Each list element is the sample rows used for training at that iteration. When these values are not specified, \texttt{caret} will generate them.
-   \item \texttt{selectionFunction}: In the previous examples, \texttt{train} selected the final model using classification accuracy. By default, the function chooses the model with the largest performance value (or smallest, for mean squared error in regression models). Other schemes for selecting model can be used.  Breiman et al (1984) suggested the ``one standard error rule'' for simple tree--based models. In this case, the model with the best performance value is identified and, using resampling, we can estimate the standard error of performance. The final model used was the simplest model within one standard error of the (empirically) best model. With simple trees this makes sense, since these models will start to overfit as they become more and more specific to the training data.
-   \item[] \texttt{train} allows the user to specify alternate rules for selecting the final model. The argument \texttt{selectionFunction}  can be used to supply a function to algorithmically determine the final model. There are three existing functions in the package: \texttt{best} is chooses the largest/smallest value, \texttt{oneSE} attempts to capture the spirit of Breiman et al (1984) and \texttt{tolerance} selects the least complex model within some percent tolerance of the best value. See \texttt{?best} for more details.
-
-  \item[] The main issue with these functions is related to ordering the models from simplest to complex. In some cases, this is easy (e.g. simple trees, partial least squares), but in most cases, the ordering of models is subjective. For example, is a boosted tree model using 100 iterations and a tree depth of 2 more complex than one with 50 iterations and a depth of 8? The package makes some choices regarding the orderings. In the case of boosted trees, the package assumes that increasing the number of iterations adds complexity at a faster rate than increasing the tree depth, so models are ordered on the number of iterations then ordered with depth. See \texttt{?best} for more examples for specific models..
-
-\end{itemize}
+There is additional functionality in \texttt{train} that is described in the next section.
 
 
-<<makePlots, results = hide, echo = FALSE>>=
-pdf(paste(getwd(), "/svm1.pdf", sep = ""), width = 5, height = 5)
-   trellis.par.set(caretTheme(), warn = FALSE)
-   print(plot(svmFit))
-dev.off()
-pdf(paste(getwd(), "/svm2.pdf", sep = ""), width = 5, height = 5)
-   trellis.par.set(caretTheme(), warn = FALSE)
-   print(plot(svmFit, xTrans = function(u) log(u, base = 10)))
-dev.off()
-pdf(paste(getwd(), "/gbm1.pdf", sep = ""), width = 5, height = 5)
-   trellis.par.set(caretTheme(), warn = FALSE)
-   print(plot(gbmFit))
-dev.off()
-pdf(paste(getwd(), "/gbm2.pdf", sep = ""), width = 5, height = 5)
-   trellis.par.set(caretTheme(), warn = FALSE)
-   print(plot(gbmFit, metric = "Kappa"))
-dev.off()
-pdf(paste(getwd(), "/gbm3.pdf", sep = ""), width = 5, height = 5)
-   trellis.par.set(caretTheme(), warn = FALSE)
-   print(plot(gbmFit, meric = "Kappa", plotType = "level"))
-dev.off()
-pdf(paste(getwd(), "/resampHist.pdf", sep = ""), width = 7, height = 3.5)
-   trellis.par.set(caretTheme(), warn = FALSE)
-   print(resampleHist(svmFit, type = "density", layout = c(2, 1), adjust = 1.5))
-dev.off()
-@
 
 
 \begin{longtable}{lllll}
@@ -287,6 +254,7 @@ dev.off()
 \endfoot
 \hline
 \endlastfoot
+\multicolumn{5}{c}{{{ \em ``Dual--Use Models''}}} \\ 
       Recursive Partitioning &
          \texttt{rpart} & 
             \texttt{rpart}       & 
@@ -320,12 +288,7 @@ dev.off()
          \texttt{gamboost} & 
             \texttt{mboost}       &          
             \texttt{mstop}\\      
- 
-      &      
-         \texttt{logitboost} & 
-            \texttt{caTools}       &          
-            \texttt{nIter}\\                
-                 
+                               
       Random Forests & 
          \texttt{rf} & 
             \texttt{randomForest}       & 
@@ -372,8 +335,11 @@ dev.off()
          \texttt{gaussprPoly} & 
             \texttt{kernlab}       & 
             \texttt{scale}, \texttt{degree} \\            
-      \:\: (polynomial kernel) & & &\\          
+      \:\: (polynomial kernel) & & &\\  
+    
       \\
+\multicolumn{5}{c}{{{ \em Regression Models}}} \\      
+    
       Linear Least Squares &
          \texttt{lm} & 
             \texttt{stats}       & 
@@ -388,7 +354,12 @@ dev.off()
       Bagged MARS &
          \texttt{bagEarth} & 
             \texttt{caret},  \texttt{earth}      & 
-            \texttt{degree}, \texttt{nprune} \\          
+            \texttt{degree}, \texttt{nprune} \\    
+            
+      M5 Rules &
+         \texttt{M5Rules} & 
+            \texttt{RWeka}    & 
+            \texttt{pruned}  \\             
       
       Elastic Net &
          \texttt{enet} & 
@@ -412,14 +383,25 @@ dev.off()
             \texttt{scale}, \texttt{degree} \\            
       \:\: (polynomial kernel) & & &\\               
 
+      Supervised Principal &
+         \texttt{superpc}  &
+         \texttt{superpc}  &
+         \texttt{n.components}, 
+         \texttt{threshold} \\
+      \:\: Components  & & &\\
       \\       
              
-
+\multicolumn{5}{c}{{{\em Classification Models}}} \\ 
       Linear Discriminant Analysis &
          \texttt{lda} & 
             \texttt{MASS}       &          
             None\\                     
-
+      Stabilised Linear &
+         \texttt{slda} & 
+            \texttt{ipred}       &          
+            None\\  
+      \:\: Discriminant Analysis & & &\\
+      
       Stepwise Diagonal &
         \texttt{sddaLDA}, &
         \texttt{SDDA} &
@@ -447,7 +429,23 @@ dev.off()
       Bagged FDA &
          \texttt{bagFDA} & 
             \texttt{caret},  \texttt{earth}       & 
-            \texttt{degree}, \texttt{nprune} \\      
+            \texttt{degree}, \texttt{nprune} \\   
+            
+ 
+      LogitBoost &      
+         \texttt{logitboost} & 
+            \texttt{caTools}       &          
+            \texttt{nIter}\\              
+            
+      Logistic Model Trees &
+         \texttt{LMT} & 
+            \texttt{RWeka}    & 
+            \texttt{iter}  \\  
+            
+      C4.5 decision trees &
+         \texttt{J48} & 
+            \texttt{RWeka}    & 
+            \texttt{C}  \\  
             
       Least Squares Support Vector  &
          \texttt{lssvmRadial} & 
@@ -514,12 +512,108 @@ dev.off()
    \end{center}
 \end{figure}   
 
-In the previous examples, \texttt{train} selected the final model using classification accuracy. By default, the function chooses the model with the largest performance value (or smallest, for mean squared error in regression models). Other schemes for selecting model can be used.  Breiman et al (1984) suggested the ``one standard error rule'' for simple tree--based models. In this case, the model with the best performance value is identified and, using resampling, we can estimate the standard error of performance. The final model used was the simplest model within one standard error of the (empirically) best model. With simple trees this makes sense, since these models will start to overfit as they become more and more specific to the training data.
+\clearpage
 
-\texttt{train} allows the user to specify alternate rules for selecting the final model. The \texttt{trainControl} function has an argument, \texttt{selectionFunction} that can be used to supply a function to algorithmically determine the final model. There are three existing functions in the package: \texttt{best} is chooses the largest/smallest value, \texttt{oneSE} attempts to capture the spirit of Breiman et al (1984) and \texttt{tolerance} selects the least complex model within some percent tolerance of the best value. See \texttt{?best} for more details.
+\section{Customizing the Tuning Process}
 
-The main issue with these functions is related to ordering the models from simplest to complex. In some cases, this is easy (e.g. simple trees, partial least squares), but in most cases, the ordering of models is subjective. For example, is a boosted tree model using 100 iterations and a tree depth of 2 more complex than one with 50 iterations and a depth of 8? The package makes some choices regarding the orderings. In the case of boosted trees, the package assumes that increasing the number of iterations adds complexity at a faster rate than increasing the tree depth, so models are ordered on the number of iterations then ordered with depth. See \texttt{?best} for more examples for specific models..
+There are a few ways to customize the process of selecting tuning/complexity parameters. First, as previously shown with the boosted tree code, you can choose specific values of the tuning parameter (instead of the defaults).
 
+Secondly, the user can change the metric used to determine the best settings. By default, RMSE and $R^2$ are computed for regression while accuracy and Kappa are computed for classification. Also by default, the parameter values are chosen using RMSE and accuracy, respectively  for regression and classification. The \texttt{metric} argument of the \texttt{train} function allows the user to control which the optimality criterion is used. For example, in problems where there are a low percentage of samples in one class, using \texttt{metric = "Kappa"} can improve quality of the final model.
+
+If none of these parameters are satisfactory, the user can also compute custom performance metrics. The \texttt{trainControl} function has a argument called \texttt{summaryFunction} that specifies a function for computing performance. The function should have these arguments:
+\begin{itemize}
+\item \texttt{data} is a reference for a data frame or matrix with columns called \texttt{obs} and \texttt{pred} for the observed and predicted outcome values (either numeric data for regression or character values for classification). Currently, class probabilities are not passed to the function. The values in data are the held--out predictions (and their associated reference values) for a single combination of tuning parameters.
+\item \texttt{lev} is a character string that has the outcome factor levels taken from the training data. For regression, a value of \texttt{NULL} is passed into the function.
+\item \texttt{model} is a character string for the model being used (i.e. the value passed to the \texttt{method} value of \texttt{train}).
+\end{itemize}
+The output to the function should be a vector of numeric summary metrics with non--null names. 
+
+As an example, classification accuracy in two--class problems can be decomposed into sensitivity and specificity. We can use these values to tune the parameters using the following function:
+<<summaryFunc>>=
+newSummary <- function (data, lev, model)
+  {
+    out <- c(sensitivity(data[, "pred"], data[, "obs"], lev[1]),
+      specificity(data[, "pred"], data[, "obs"], lev[2]))
+    
+    names(out) <- c("Sens", "Spec")
+    out
+  }
+@ 
+
+To rebuild the support vector machine model using this criterion, we can see the relationship between the tuning parameters and sensitivity/specificity via the following code:
+<<reTune>>=
+fitControl$summaryFunction <- newSummary
+set.seed(2)
+svmNew <- train(trainDescr, trainMDRR, method = "svmRadial", metric = "Spec", tuneLength = 4, trControl = fitControl)
+svmNew
+@ 
+Based on this model and the original SVM model, 60$\%$ accuracy can be achieved  by being very biased towards sensitivity.
+
+The third method for customizing the tuning process is to modify the algorithm that is used to select the ``best'' parameter values, given the performance numbers. By default, the \texttt{train} function chooses the model with the largest performance value (or smallest, for mean squared error in regression models). Other schemes for selecting model can be used.  Breiman et al (1984) suggested the ``one standard error rule'' for simple tree--based models. In this case, the model with the best performance value is identified and, using resampling, we can estimate the standard error of performance. The final model used was the simplest model within one standard error of the (empirically) best model. With simple trees this makes sense, since these models will start to overfit as they become more and more specific to the training data.
+
+\texttt{train} allows the user to specify alternate rules for selecting the final model. The argument \texttt{selectionFunction}  can be used to supply a function to algorithmically determine the final model. There are three existing functions in the package: \texttt{best} is chooses the largest/smallest value, \texttt{oneSE} attempts to capture the spirit of Breiman et al (1984) and \texttt{tolerance} selects the least complex model within some percent tolerance of the best value. See \texttt{?best} for more details.
+
+User--defined functions can be used, as long as they have the following arguments:
+\begin{itemize}
+  \item \texttt{x} is a data frame containing the tune parameters and their associated performance metrics. Each row corresponds to a different tuning parameter combination
+    \item \texttt{metric} a character string indicating which performance metric should be optimized (this is passed in directory from the \texttt{metric} argument of \texttt{train}. 
+      \item \texttt{maximize} is a single logical value indicating whether larger values of the performance metric are better (this is also directly passed from the call to \texttt{train}).
+  \end{itemize}
+  The function should output a single integer indicating which row in \texttt{x} is chosen.
+
+As an example, if we chose the previous SVM model on the basis of specificity, we would choose a cost value of 100, the most complex model. Lower cost values would produce approximately the same performance with less complex models (with the exception of cost = 0.1). The tolerance function could be used to find a less complex model based on $(x-x_{best})/x_{best}\times 100$, which is the percent difference. For example, to select cost values based on $2\%$ and 6$\%$ losses of performance:
+<<tolerance>>=
+whichTwoPct <- tolerance(svmNew$results, "Spec", 2, TRUE)  
+cat("best model within 2 pct of best:\n")
+svmNew$results[whichTwoPct,]
+
+whichSixPct <- tolerance(svmNew$results, "Spec", 6, TRUE)  
+cat("\n\nbest model within 6 pct of best:\n")
+svmNew$results[whichSixPct,]
+@ 
+
+  The main issue with these functions is related to ordering the models from simplest to complex. In some cases, this is easy (e.g. simple trees, partial least squares), but in most cases, the ordering of models is subjective. For example, is a boosted tree model using 100 iterations and a tree depth of 2 more complex than one with 50 iterations and a depth of 8? The package makes some choices regarding the orderings. In the case of boosted trees, the package assumes that increasing the number of iterations adds complexity at a faster rate than increasing the tree depth, so models are ordered on the number of iterations then ordered with depth. See \texttt{?best} for more examples for specific models.
+
+  Finally, the function \texttt{trainControl}, generates parameters that further control how models are resampled with possible values:
+  \begin{itemize}
+  \item \texttt{method}: The resampling method: \texttt{boot}, \texttt{cv}, \texttt{LOOCV}, \texttt{LGOCV}  and \texttt{oob}. The last value, out--of--bag estimates, can only be used by random forest, bagged trees, bagged earth, bagged flexible discriminant analysis, or conditional tree forest models. GBM models are not included (the \texttt{gbm} package maintainer has indicated that it would not be a good idea to choose tuning parameter values based on the model OOB error estimates with boosted trees). Also, for leave--one--out cross--validation, no uncertainty estimates are given for the resampled performance measures.
+  \item \texttt{number}: Either the number of folds or number of resampling iterations
+  \item \texttt{verboseIter}: A logical for printing a training log.
+  \item \texttt{returnData}: A logical for saving the data
+  \item \texttt{p}: For leave-group out cross-validation: the training percentage
+  \item \texttt{index}: a list with elements for each resampling iteration. Each list element is the sample rows used for training at that iteration. When these values are not specified, \texttt{caret} will generate them.
+  \item \texttt{summaryFunction}: previously  mentioned
+  \item \texttt{selectionFunction}: previously  mentioned    
+  \item \texttt{returnResamp}: a character string containing one of the following values: \texttt{"all"}, \texttt{"final"} or \texttt{"none"}. This specifies how much of the resampled performance measures to save. 
+  \end{itemize}
+
+
+<<makePlots, results = hide, echo = FALSE>>=
+pdf(paste(getwd(), "/svm1.pdf", sep = ""), width = 5, height = 5)
+   trellis.par.set(caretTheme(), warn = FALSE)
+   print(plot(svmFit))
+dev.off()
+pdf(paste(getwd(), "/svm2.pdf", sep = ""), width = 5, height = 5)
+   trellis.par.set(caretTheme(), warn = FALSE)
+   print(plot(svmFit, xTrans = function(u) log(u, base = 10)))
+dev.off()
+pdf(paste(getwd(), "/gbm1.pdf", sep = ""), width = 5, height = 5)
+   trellis.par.set(caretTheme(), warn = FALSE)
+   print(plot(gbmFit))
+dev.off()
+pdf(paste(getwd(), "/gbm2.pdf", sep = ""), width = 5, height = 5)
+   trellis.par.set(caretTheme(), warn = FALSE)
+   print(plot(gbmFit, metric = "Kappa"))
+dev.off()
+pdf(paste(getwd(), "/gbm3.pdf", sep = ""), width = 5, height = 5)
+   trellis.par.set(caretTheme(), warn = FALSE)
+   print(plot(gbmFit, meric = "Kappa", plotType = "level"))
+dev.off()
+pdf(paste(getwd(), "/resampHist.pdf", sep = ""), width = 7, height = 3.5)
+   trellis.par.set(caretTheme(), warn = FALSE)
+   print(resampleHist(svmFit, type = "density", layout = c(2, 1), adjust = 1.5))
+dev.off()
+@
 
 \section{Extracting Predictions and Class Probabilities}
 
@@ -531,6 +625,7 @@ For example, we can load the Boston Housing data:
 <<bhExample>>=
 library(mlbench)
 data(BostonHousing)
+# we could use the formula interface too
 bhDesignMatrix <-  model.matrix(medv ~. - 1, BostonHousing)
 @
 \end{small}

@@ -1,6 +1,7 @@
 \name{train}
 \alias{train}
 \alias{train.default}
+\alias{train.formula}
 \title{Fit Predictive Models over Different Tuning Parameters}
 \description{
   This function sets up a grid of tuning parameters for a number of classification and regression routines,
@@ -9,20 +10,31 @@
 \usage{
 train(x, ...)
 
-\method{train}{default}(x, y, method = "rf",  ..., 
-   metric = ifelse(is.factor(y), "Accuracy", "RMSE"),   
-   trControl = trainControl(), tuneGrid = NULL, 
-   tuneLength = 3)
+\method{train}{default}(x, y, 
+      method = "rf",  
+      ..., 
+      metric = ifelse(is.factor(y), "Accuracy", "RMSE"),   
+      maximize = ifelse(metric == "RMSE", FALSE, TRUE),
+      trControl = trainControl(), 
+      tuneGrid = NULL, 
+      tuneLength = 3)
+
+\method{train}{formula}(form, data, ..., subset, na.action, contrasts = NULL)
 }
 \arguments{
   \item{x}{a data frame containing training data where samples are in rows and features are in columns.}
   \item{y}{a numeric or factor vector containing the outcome for each sample.}
+\item{form}{A formula of the form \code{y ~ x1 + x2 + ...}}
+\item{data}{Data frame from which variables specified in \code{formula} are preferentially to be taken.}
+\item{subset}{An index vector specifying the cases to be used in the training sample. (NOTE: If given, this argument must be named.)}
+\item{na.action}{A function to specify the action to be taken if NAs are found. The default action is for the procedure to fail. An alternative is na.omit, which leads to rejection of cases with missing values on any required variable. (NOTE: If given, this argument must be named.)}
+\item{contrasts}{a list of contrasts to be used for some or all of the factors appearing as variables in the model formula.}
   \item{method}{a string specifying which classification or regression model to use. Possible values are: \code{lm}, \code{rda}, \code{lda}, \code{gbm}, \code{rf},  \code{nnet}, \code{multinom}, \code{gpls}, \code{lvq}, \code{rpart}, \code{knn}, \code{pls}, \code{pam}, \code{nb},  \code{earth}, \code{treebag},
-\code{svmpoly}, \code{svmradial}, \code{fda}, \code{bagEarth}, \code{bagFDA}, \code{glmboost}, \code{gamboost}, \code{blackboost},  \code{ada}, \code{ctree}, \code{cforest}, \code{sddaLDA}, \code{sddaQDA}, \code{enet} and \code{lasso}. See the Details section below.}  
+\code{svmpoly}, \code{svmradial}, \code{fda}, \code{bagEarth}, \code{bagFDA}, \code{glmboost}, \code{gamboost}, \code{blackboost},  \code{ada}, \code{ctree}, \code{cforest}, \code{sddaLDA}, \code{sddaQDA},  \code{LogitBoost},  \code{J48}, \code{M5Rules}, \code{slda}, \code{superpc}, \code{enet} and \code{lasso}. See the Details section below.}  
   \item{\ldots}{ arguments passed to the classification or regression routine (such as \code{\link[randomForest]{randomForest}}). Errors will occur if values
          for tuning parameters are passed here.}  
-  \item{metric}{a string that specifies what summary metric will be used to select the optimal model. Possible values are "RMSE" and "Rsquared" for 
-     regression and "Accuracy" and "Kappa" for classification.(NOTE: If given, this argument must be named.)}         
+  \item{metric}{a string that specifies what summary metric will be used to select the optimal model. By default, possible values are "RMSE" and "Rsquared" for regression and "Accuracy" and "Kappa" for classification. If custom performance metrics are used (via the \code{summaryFunction} argument in \code{\link{trainControl}}, the value of \code{metric} should match one of the arguments. If it does not, a warning is issued and the first metric given by the \code{summaryFunction} is used. (NOTE: If given, this argument must be named.)}         
+  \item{maximize}{a logical: should the metric be maximized or minimized?}
   \item{trControl}{a list of values that define how this function acts. See \code{\link{trainControl}}. (NOTE: If given, this argument must be named.)}
   \item{tuneGrid}{a data frame with possible tuning values. The columns are named the same as the tuning parameters in each
          method preceded by a period (e.g. .decay, .lambda). See the function \code{\link{createGrid}} in this package for more details. 
@@ -32,8 +44,6 @@ train(x, ...)
 }
 \details{
 \code{train} can be used to tune models by picking the complexity parameters that are associated with the optimal resampling statistics. For particular model, a grid of parameters (if any) is created and the model is trained on slightly different data for each candidate combination of tuning parameters. Across each data set, the performance of held-out samples is calculated and the mean and standard deviation is summarized for each combination. The combination with the optimal resampling statistic is chosen as the final model and the entire training set is used to fit a final model.
-
-Currently, the \code{train} function does not support model specification via a formula. It assumes that all of the predictors are numeric (perhaps generated by \code{\link[stats]{model.matrix}}).
 
 A variety of models are currently available. The table below enumerates the models and the values of the \code{method} argument, as well as the complexity parameters used by \code{train}.
 
@@ -63,15 +73,20 @@ Gaussian Processes (RBF)  \tab \code{guassprRadial} \tab \pkg{kernlab} \tab \cod
 Gaussian Processes (polynomial)  \tab \code{guassprPoly} \tab \pkg{kernlab} \tab \code{scale}, \code{degree}\cr 
 Linear least squares \tab \code{lm} \tab \pkg{stats} \tab None \cr 
 Multivariate adaptive regression splines \tab \code{earth} \tab \pkg{earth} \tab \code{degree}, \code{nprune} \cr
-Bagged MARS \tab \code{bagEarth} \tab \pkg{caret},  \pkg{earth}\tab \code{degree}, \code{nprune} \cr  
+Bagged MARS \tab \code{bagEarth} \tab \pkg{caret},  \pkg{earth}\tab \code{degree}, \code{nprune} \cr 
+M5 Rules \tab \code{M5Rules} \tab \pkg{RWeka} \tab \code{pruned} \cr 
 Elastic Net \tab \code{enet} \tab \pkg{elasticnet} \tab \code{lambda}, \code{fraction} \cr
 The Lasso \tab \code{enet} \tab \pkg{elasticnet} \tab \code{fraction} \cr
+Supervised Principal Components \tab \code{superpc} \tab \pkg{superpc} \tab \code{n.components}, \code{threshold} \cr 
 Linear discriminant analysis \tab \code{lda} \tab \pkg{MASS} \tab  None\cr 
+Stabilised Linear discriminant analysis \tab \code{slda} \tab \pkg{ipred} \tab  None\cr 
 Stepwise Diagonal Discriminant Analysis \tab \code{sddaLDA}, \code{sddaQDA} \tab \pkg{SDDA} \tab None \cr
 Logistic/multinomial regression \tab \code{multinom} \tab \pkg{nnet} \tab \code{decay}\cr 
 Regularized discriminant analysis \tab \code{rda} \tab \pkg{klaR} \tab \code{lambda}, \code{gamma} \cr
+Stabilised Linear Discriminant Analysis \tab \code{slda} \tab \pkg{ipred} \tab None\cr
 Flexible discriminant analysis (MARS) \tab \code{fda} \tab \pkg{mda}, \pkg{earth} \tab \code{degree}, \code{nprune} \cr
 Bagged FDA \tab \code{bagFDA} \tab \pkg{caret},  \pkg{earth} \tab \code{degree}, \code{nprune} \cr  
+C4.5 decision trees \tab \code{J48} \tab \pkg{RWeka} \tab \code{C}\cr
 k nearest neighbors \tab \code{knn3} \tab \pkg{caret} \tab \code{k} \cr 
 Nearest shrunken centroids \tab \code{pam} \tab \pkg{pamr} \tab \code{threshold} \cr  
 Naive Bayes \tab \code{nb} \tab \pkg{klaR} \tab \code{usekernel} \cr
@@ -100,40 +115,52 @@ The vignette entitled "caret Manual -- Model Building" has more details and exam
    \item{finalModel}{an fit object using the best parameters}
    \item{trainingData}{a data frame}
    \item{resample}{A data frame with columns for each performance
-     metric. Each row corresponds to each resample. If leave-group-out
+     metric. Each row corresponds to each resample. If leave-one-out
      cross-validation or out-of-bag estimation methods are requested,
-     this will be \code{NULL}}
+     this will be \code{NULL}. The \code{returnResamp} argument of \code{\link{trainControl}}
+     controls how much of the resampled results are saved.}
+  \item{perfNames}{a character vector of performance metrics that are produced by the summary function}
+  \item{maximize}{a logical recycled  from the function arguments.}
 }
 
-\author{Max Kuhn}
+\author{Max Kuhn (the guts of \code{train.formula} were based on Ripley's \code{nnet.formula})}
 
-\seealso{\code{\link{createGrid}}, \code{\link{createFolds}}}
+\seealso{\code{\link{trainControl}}, \code{\link{createGrid}}, \code{\link{createFolds}}}
 \examples{
 data(iris)
 TrainData <- iris[,1:4]
 TrainClasses <- iris[,5]
 
-knnFit1 <- train(TrainData, TrainClasses, "knn", tuneLength = 10,
-   trControl = trainControl(method = "cv"))
+knnFit1 <- train(TrainData, TrainClasses,
+                 "knn",
+                 tuneLength = 10,
+                 trControl = trainControl(method = "cv"))
 
-knnFit2 <- train(TrainData, TrainClasses, "knn", tuneLength = 10, 
-   trControl = trainControl(method = "boot"))
+knnFit2 <- train(TrainData, TrainClasses,
+                 "knn", tuneLength = 10, 
+                 trControl = trainControl(method = "boot"))
 
 
 library(MASS)
-nnetFit <- train(TrainData, TrainClasses, "nnet", 
-   tuneLength = 2, trace = FALSE, maxit = 100)
+nnetFit <- train(TrainData, TrainClasses,
+                 "nnet", 
+                 tuneLength = 2,
+                 trace = FALSE,
+                 maxit = 100)
+
 
 library(mlbench)
 data(BostonHousing)
 
-# for illustration, converting factors
-trainX <- model.matrix(medv ~ . - 1, BostonHousing)
-
-lmFit <- train(trainX, BostonHousing$medv, "lm")
+lmFit <- train(medv ~ . + rm:lstat,
+               data = BostonHousing, 
+               "lm")
 
 library(rpart)
-rpartFit <- train(trainX, BostonHousing$medv, "rpart", tuneLength = 9)
+rpartFit <- train(medv ~ .,
+                  data = BostonHousing,
+                  "rpart",
+                  tuneLength = 9)
 }
 
 \keyword{models}

@@ -3,12 +3,13 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
   if(any(colnames(newdata) == ".outcome")) newdata$.outcome <- NULL
   
   predictedValue <- switch(method,
-                           lda =, rda =, gpls =
+                           lda =, rda =, gpls =, slda =
                            {
                              switch(method,
-                                    lda = library(MASS),
-                                    rda = library(klaR),
-                                    gpls = library(gpls))
+                                    lda =  library(MASS),
+                                    rda =  library(klaR),
+                                    gpls = library(gpls),
+                                    slda = library(ipred))
                              out <- as.character(predict(modelFit, newdata)$class)
                              out
                            },
@@ -311,7 +312,7 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
                            },
                            
                            
-                           lm =
+                           lm =, lmStepAIC =
                            {
                              out <- predict(modelFit, newdata)
                              out
@@ -426,7 +427,7 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
                            {
                              library(caTools)
 
-                             out <- predict(modelFit, newdata, type="class")
+                             out <- caTools::predict.LogitBoost(modelFit, newdata, type="class")
                              
                              if(!is.null(param))
                                {
@@ -437,7 +438,7 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
                                  for(j in seq(along = param$.nIter))
                                    {
                                      tmp[,j] <- as.character(
-                                                             predict(
+                                                             caTools::predict.LogitBoost(
                                                                      modelFit,
                                                                      newdata,
                                                                      nIter = param$.nIter[j]))
@@ -447,7 +448,53 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
                                  
                                }
                              out
+                           },
+                           M5Rules =
+                           {
+                             library(RWeka)
+                             predict(modelFit , newdata)
+                           },
+                           J48 =, LMT =, JRip = 
+                           {
+                             library(RWeka)
+                             out <- as.character(predict(modelFit , newdata))
+                             out
+                           },
+                           superpc =
+                           {
+                             library(superpc)
+                             
+                             out <- superpc.predict(modelFit,
+                                                    modelFit$data,
+                                                    newdata = list(x=t(newdata)),
+                                                    n.components = modelFit$tuneValue$.n.components,
+                                                    threshold = modelFit$tuneValue$.threshold)$v.pred.1df
+                           
+                             
+                             if(!is.null(param))
+                               {
+                                 tmp <- data.frame(
+                                                   matrix(NA, nrow = nrow(newdata), ncol = nrow(param)),
+                                                   stringsAsFactors = FALSE)
+                                 
+                                 for(j in 1:nrow(param))
+                                   {
+                                     tmp[,j] <-  superpc.predict(
+                                                                 modelFit,
+                                                                 modelFit$data,
+                                                                 newdata = list(x=t(newdata)),
+                                                                 threshold = param$.threshold[j],
+                                                                 n.components = param$.n.components[j])$v.pred.1df
+                                   }
+                                 tmp <- cbind(out, tmp)
+                                 out <- as.data.frame(tmp)
+
+                                 
+                                 attr(out, "values") <- c(modelFit$tuneValue$.threshold, param$.threshold)
+                               }
+                             out
                            }
+                           
                            )
   predictedValue
 }

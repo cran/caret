@@ -5,8 +5,11 @@
  Print the results of a \code{\link{train}} object.
 }
 \usage{
-print.train(x, digits = min(3, getOption("digits") - 3),
-printCall = TRUE, details = FALSE, ...)
+\method{print}{train}(x, 
+      digits = min(3, getOption("digits") - 3), 
+      printCall = TRUE, 
+      details = FALSE, 
+      ...)
 }
 \arguments{
   \item{x}{an object of class  \code{\link{train}}.}

@@ -46,7 +46,8 @@
                    "lssvmPoly", "lssvmRadial",
                    "rvmRadial", "rvmPoly",
                    "gaussprRadial", "gaussprPoly",
-                   "sddaLDA", "sddaQDA", "glmnet"))
+                   "sddaLDA", "sddaQDA", "glmnet", "slda",
+                   "superpc"))
     {
       trainX <- data[,!(names(data) %in% ".outcome")]
       trainY <- data[,".outcome"] 
@@ -383,6 +384,11 @@
                        bagging(modFormula, data, ...)
                      },
                      lm = lm(modFormula, data, ...),
+                     lmStepAIC =
+                     {
+                       library(MASS)
+                       stepAIC(lm(modFormula, data), ...)
+                     },
                      lda = 
                      {
                        library(MASS)
@@ -676,7 +682,118 @@
                      logitBoost =
                      {
                        library(caTools)
-                       LogitBoost(as.matrix(trainX), trainY, nIter = tuneValue$.nIter)
+                       caTools::LogitBoost(as.matrix(trainX), trainY, nIter = tuneValue$.nIter)
+                     },
+                     J48 = 
+                     {
+                       library(RWeka)
+                       
+                       theDots <- list(...)
+                       
+                       if(any(names(theDots) == "control"))
+                         {
+                           theDots$control$C <- tuneValue$.C 
+                           ctl <- theDots$control
+                           theDots$control <- NULL
+                           
+                         } else ctl <- Weka_control(C = tuneValue$.C) 
+                       
+                       modelArgs <- c(
+                                      list(
+                                           formula = modFormula,
+                                           data = data,
+                                           control = ctl),
+                                      theDots)
+                       
+                       out <- do.call("J48", modelArgs) 
+                       out      
+                     },
+                     M5Rules = 
+                     {
+                       library(RWeka)
+                       
+                       theDots <- list(...)
+                       
+                       if(any(names(theDots) == "control"))
+                         {
+                           theDots$control$N <- ifelse(tuneValue$.pruned == "No", TRUE, FALSE)
+                           ctl <- theDots$control
+                           theDots$control <- NULL
+                           
+                         } else ctl <- Weka_control(N = ifelse(tuneValue$.pruned == "No", TRUE, FALSE)) 
+                       
+                       modelArgs <- c(
+                                      list(
+                                           formula = modFormula,
+                                           data = data,
+                                           control = ctl),
+                                      theDots)
+                       
+                       out <- do.call("M5Rules", modelArgs) 
+                       out      
+                     },
+                     LMT = 
+                     {
+                       library(RWeka)
+                       
+                       theDots <- list(...)
+                       
+                       if(any(names(theDots) == "control"))
+                         {
+                           theDots$control$I <- tuneValue$.iter
+                           ctl <- theDots$control
+                           theDots$control <- NULL
+                           
+                         } else ctl <- Weka_control(I = tuneValue$.iter) 
+                       
+                       modelArgs <- c(
+                                      list(
+                                           formula = modFormula,
+                                           data = data,
+                                           control = ctl),
+                                      theDots)
+                       
+                       out <- do.call("LMT", modelArgs) 
+                       out      
+                     },  
+                     JRip = 
+                     {
+                       library(RWeka)
+                       
+                       theDots <- list(...)
+                       
+                       if(any(names(theDots) == "control"))
+                         {
+                           theDots$control$N <- tuneValue$.NumOpt
+                           ctl <- theDots$control
+                           theDots$control <- NULL
+                           
+                         } else ctl <- Weka_control(N = tuneValue$.NumOpt) 
+                       
+                       modelArgs <- c(
+                                      list(
+                                           formula = modFormula,
+                                           data = data,
+                                           control = ctl),
+                                      theDots)
+                       
+                       out <- do.call("JRip", modelArgs) 
+                       out      
+                     },
+                     slda = 
+                     {
+                       library(ipred)
+                       slda(modFormula, data, ...)
+                     },
+                     superpc = 
+                     {
+                       library(superpc)      
+                       out <- superpc.train(list(x = t(trainX), y = trainY),
+                                            type = "regression",
+                                            ...)
+                       # prediction will need to source data, so save that too
+                       out$data <- list(x = t(trainX), y = trainY)
+                       out
                      }
                      )
   
@@ -686,12 +803,11 @@
 
   # for models using S4 classes, you can't easily append data, so 
   # exclude these and we'll use other methods to get this information
-  if(!(method %in% c("svmradial", "svmpoly",
-                     "svmRadial", "svmPoly",
-                     "rvmRadial", "rvmPoly",
-                     "lssvmRadial", "lssvmPoly",
-                     "gaussprRadial", "gaussprPoly",
-                     "ctree", "ctree2", "cforest")))
+  if(!(tolower(method) %in% tolower(c("svmRadial", "svmPoly",
+                                      "rvmRadial", "rvmPoly",
+                                      "lssvmRadial", "lssvmPoly",
+                                      "gaussprRadial", "gaussprPoly",
+                                      "ctree", "ctree2", "cforest"))))
     {
       modelFit$xNames <- xNames
       modelFit$problemType <- type

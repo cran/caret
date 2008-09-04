@@ -1,5 +1,8 @@
 "print.train" <-
-  function(x, digits = min(3, getOption("digits") - 3), printCall = TRUE, details = FALSE, ...)
+  function(x,
+           digits = min(3, getOption("digits") - 3),
+           printCall = TRUE,
+           details = FALSE, ...)
 {
   stringFunc <- function (x) 
     {
@@ -93,7 +96,7 @@
 
     } else optString <- ""
   
-  sdCols <- names(tuneAcc) %in% c("RMSESD", "RsquaredSD", "AccuracySD", "KappaSD")
+  sdCols <- grep("SD$", colnames(tuneAcc))
   sdCheck <- unlist(lapply(
                            tuneAcc[, sdCols, drop = FALSE],
                            function(u) all(is.na(u))))
@@ -131,7 +134,7 @@
                      x$control$selectionFunction,
                      best = paste(
                        " the",
-                       ifelse(x$metric == "RMSE", "smallest", "largest"),
+                       ifelse(x$maximize, "largest", "smallest"),
                        "value.\n"),
                      oneSE = " the one SE rule.\n",
                      tolerance = " a tolerance rule.\n"))
@@ -147,7 +150,8 @@
           cat("\n----------------------------------------------------------\n")
           cat("\nThe final model:\n\n")
           switch(x$method,
-                 lm =, nnet =, multinom =, pls =, earth =, 
+                 lm =, nnet =, multinom =, pls =, earth =,
+                 lmStepAIC =,
                  bagEarth =, bagFDA = print(summary(x$finalModel)),
                  rpart =, ctree =, ctree2=, cforest =,
                  glmboost =, gamboost =, blackboost =,
@@ -157,8 +161,8 @@
                  rvmRadial =, rvmPoly =,
                  lssvmRadial =, lssvmPoly =,
                  gaussprRadial =, gaussprPoly =,
-                 enet =, lasso =,
-                 lda =, rda =, pamr =, gpls = print(x$finalModel),
+                 enet =, lasso =, LMT =, JRip =,
+                 lda =, rda =, pamr =, gpls =, J48 = print(x$finalModel),
                  fda = 
                  {
                    print(x$finalModel)

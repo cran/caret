@@ -7,14 +7,14 @@
 Various funcitons for setting tuning parameters
 }
 \usage{
-best(x, metric)
-oneSE(x, metric, num)
-tolerance(x, metric, tol = 1.5)
+best(x, metric, maximize)
+oneSE(x, metric, num, maximize)
+tolerance(x, metric, tol = 1.5, maximize)
 }
 \arguments{
   \item{x}{a data frame of tuning parameters and model results, sorted from least complex models to the mst complex}
-  \item{metric}{a string that specifies what summary metric will be used to select the optimal model. Possible values are "RMSE" and "Rsquared" for 
-     regression and "Accuracy" and "Kappa" for classification.}
+  \item{metric}{a string that specifies what summary metric will be used to select the optimal model. By default, possible values are "RMSE" and "Rsquared" for regression and "Accuracy" and "Kappa" for classification. If custom performance metrics are used (via the \code{summaryFunction} argument in \code{\link{trainControl}}, the value of \code{metric} should match one of the arguments. If it does not, a warning is issued and the first metric given by the \code{summaryFunction} is used.}
+  \item{maximize}{a logical: should the metric be maximized or minimized?}
   \item{num}{the number of resamples (for \code{oneSE} only)}
   \item{tol}{the acceptable percent tolerance (for \code{tolerance} only)}
 }
@@ -59,9 +59,9 @@ test <- data.frame(
                    RMSE = c(3, 1.1, 1.02, 1, 2),
                    RMSESD = .4)
 
-best(test, "RMSE")
-oneSE(test, "RMSE", 10)
-tolerance(test, "RMSE", 3)
+best(test, "RMSE", maximize = FALSE)
+oneSE(test, "RMSE", maximize = FALSE, num = 10)
+tolerance(test, "RMSE", tol = 3, maximize = FALSE)
 
 ### usage example
 

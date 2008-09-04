@@ -1,4 +1,4 @@
-# I need to add to trainControl and train in all packages
+
 
 # This function sorts the tuning parameter matrix from
 # least complex models to most complex models
@@ -19,10 +19,14 @@ byComplexity <- function(x, model)
              x[order(x$n.trees, x$interaction.depth, x$shrinkage),] 
            },
            rf =, rfNWS =, rfLSF =, gpls =, pls =, PLS =, pam =, cforest =,
-           nb =, rpart =, ctree2 =, logitBoost=
+           nb =, rpart =, ctree2 =, logitBoost=, J48 =, LMT =
            {
              x[order(x[,1]),]
            },
+           M5Rules =, JRip =
+           {
+             x[order(x[,1], decreasing = TRUE),]
+           },           
            svmradial =, svmRadial =
            {
              # If the cost is high, the decision boundary will work hard to
@@ -55,7 +59,8 @@ byComplexity <- function(x, model)
            {
              x[order(x$degree, x$nprune),]
            },
-           treebag =, lda =, lm =, sddaLDA =, sddaQDA =
+           treebag =, lda =, lm =, sddaLDA =, sddaQDA =,
+           lmStepAIC =, slda =
            {
              x
            },
@@ -85,25 +90,31 @@ byComplexity <- function(x, model)
            {
              x[order(x$fraction),]
 
-           })
+           },
+           superpc =
+           {
+             x[order(x$threshold, x$n.components),]
+           }
+           )
 
   }
 
+## In these functions, x is the data fram of performance values and tuning parameters.
 
-best <- function(x, metric)
+best <- function(x, metric, maximize)
   {
 
-    bestIter <- if(metric != "RMSE") which.max(x[,metric])
+    bestIter <- if(maximize) which.max(x[,metric])
     else which.min(x[,metric])   
 
     bestIter
   }
 
-oneSE <- function(x, metric, num)
+oneSE <- function(x, metric, num, maximize)
   {
     index <- 1:nrow(x)
     
-    if(metric == "RMSE")
+    if(!maximize)
       {
         bestIndex <- which.min(x[,metric])  
         perf <- x[bestIndex,metric] + (x[bestIndex,paste(metric, "SD", sep = "")])/sqrt(num)
@@ -119,12 +130,12 @@ oneSE <- function(x, metric, num)
     bestIter
   }
 
-tolerance <- function(x, metric, tol = 1.5)
+tolerance <- function(x, metric, tol = 1.5, maximize)
   {
        
     index <- 1:nrow(x)
     
-    if(metric == "RMSE")
+    if(!maximize)
       {
         best <- min(x[,metric])  
         perf <- (x[,metric] - best)/best * 100
