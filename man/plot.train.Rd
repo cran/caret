@@ -6,10 +6,12 @@
       a line or level plot using the \code{lattice} library.
 }
 \usage{
-plot.train(x, plotType = "scatter",
-   metric = c("Accuracy", "RMSE"), 
+\method{plot}{train}(x, 
+   plotType = "scatter",
+   metric = x$perfNames[1],
    digits = getOption("digits") - 5, 
-   xTrans = NULL, ...)
+   xTrans = NULL, 
+   ...)
 }
 \arguments{
   \item{x}{an object of class \code{\link{train}}.}

@@ -35,11 +35,12 @@ probFunction <- function(method, modelFit, newdata)
   if(any(colnames(newdata) == ".outcome")) newdata$.outcome <- NULL
   
   classProb <- switch(method,
-                      lda =, rda =
+                      lda =, rda =, slda =
                       {
                         switch(method,
-                               lda = library(MASS),
-                               rda = library(klaR))
+                               lda =  library(MASS),
+                               rda =  library(klaR),
+                               slda = library(ipred))
                         
                         out <- predict(modelFit, newdata)$posterior
                         out
@@ -185,9 +186,17 @@ probFunction <- function(method, modelFit, newdata)
                       logitBoost =
                       {
                         library(caTools)
-                        out <- predict(modelFit, newdata, type = "raw")
+                        out <- caTools::predict(modelFit, newdata, type = "raw")
                         # I've seen them not be on [0, 1]
                         out <- t(apply(out, 1, function(x) x/sum(x)))
+                        out
+                      },
+                      J48 =, LMT =, JRip =
+                      {
+                        library(RWeka)
+                        out <- predict(modelFit,
+                                       newdata,
+                                       type = "probability")
                         out
                       }
                       )

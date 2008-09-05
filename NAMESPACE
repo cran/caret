@@ -1,4 +1,5 @@
 useDynLib(caret)
+import(lattice)
 
 export(
        createFolds, 
@@ -75,7 +76,10 @@ export(
        pcaNNet.default,
        predict.pcaNNet,
        predict.list,
-       predict.train
+       predict.train,
+       densityplot.train,
+       train.formula,
+       defaultSummary
        )
 
 S3method(confusionMatrix, default)
@@ -89,6 +93,7 @@ S3method(bagFDA,          default)
 S3method(preProcess,      default)
 S3method(pcaNNet,         default)
 
+S3method(train,   formula)
 S3method(pcaNNet, formula)
 
 S3method(varImp, train)
@@ -103,7 +108,10 @@ S3method(varImp, mvr)
 S3method(varImp, earth)
 S3method(varImp, RandomForest)
 
-
+S3method(densityplot,  train)
+S3method(histogram,  train)
+S3method(stripplot,  train)
+S3method(xyplot,  train)
 
 S3method(plot,  train)
 S3method(plot,  varImp.train)
