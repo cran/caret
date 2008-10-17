@@ -3,13 +3,14 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
   if(any(colnames(newdata) == ".outcome")) newdata$.outcome <- NULL
   
   predictedValue <- switch(method,
-                           lda =, rda =, gpls =, slda =
+                           lda =, rda =, gpls =, slda =, sda =
                            {
                              switch(method,
                                     lda =  library(MASS),
                                     rda =  library(klaR),
                                     gpls = library(gpls),
-                                    slda = library(ipred))
+                                    slda = library(ipred),
+                                    sda  = library(sparseLDA))
                              out <- as.character(predict(modelFit, newdata)$class)
                              out
                            },
@@ -312,7 +313,7 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
                            },
                            
                            
-                           lm =, lmStepAIC =
+                           lm =, lmStepAIC =, ppr =
                            {
                              out <- predict(modelFit, newdata)
                              out
@@ -493,8 +494,21 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
                                  attr(out, "values") <- c(modelFit$tuneValue$.threshold, param$.threshold)
                                }
                              out
+                           },
+                           penalized =
+                           {
+                             library(penalized)
+                             if(attributes(modelFit, "model")$model == "linear")
+                               {
+                                 out <- predict(modelFit, newdata)[, "mu"]
+                               } else {
+                                 out <- ifelse(predict(modelFit, newdata) > .5,
+                                               modelFit$obsLevel[1],
+                                               modelFit$obsLevel[1])
+                               }
+                             out
                            }
-                           
+                                                      
                            )
   predictedValue
 }

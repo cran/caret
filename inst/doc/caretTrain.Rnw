@@ -370,6 +370,12 @@ There is additional functionality in \texttt{train} that is described in the nex
          \texttt{lasso} & 
             \texttt{elasticnet}      & 
             \texttt{fraction} \\       
+
+      Projection Pursuit   &
+         \texttt{ppr} & 
+            \texttt{stats}       & 
+            \texttt{nterms} \\            
+      \:\: Regression & & &\\             
             
       Relevance Vector Machines  &
          \texttt{rvmRadial} & 

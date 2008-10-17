@@ -200,6 +200,12 @@
                       JRip = data.frame(.NumOpt = 1:len),
                       superpc = expand.grid(.n.components = 1:3,
                         .threshold = seq(.1, .9, length = len)),
+                      ppr = data.frame(.nterms = 1:len),
+                      sda = expand.grid(
+                        .NumVars = rfTune(data, len)[,1],
+                        .lambda = c(0, 10 ^ seq(-1, -4, length = len - 1))),
+                      penalized = expand.grid(.lambda1 = 2^((1:len) -1),
+                        .lambda2 = 2^((1:len) -1)),
                       lda =, lm =, treebag =, sddaLDA =, sddaQDA =,
                       lmStepAIC =, slda = data.frame(.parameter = "none"))
   trainGrid

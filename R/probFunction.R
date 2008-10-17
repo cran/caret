@@ -40,7 +40,8 @@ probFunction <- function(method, modelFit, newdata)
                         switch(method,
                                lda =  library(MASS),
                                rda =  library(klaR),
-                               slda = library(ipred))
+                               slda = library(ipred),
+                               sda  = library(sparseLDA))
                         
                         out <- predict(modelFit, newdata)$posterior
                         out
@@ -197,6 +198,14 @@ probFunction <- function(method, modelFit, newdata)
                         out <- predict(modelFit,
                                        newdata,
                                        type = "probability")
+                        out
+                      },
+                      penalized =
+                      {
+                        library(penalized)
+                        out <- predict(modelFit, newdata)
+                        out <- cbind(out, 1-out)
+                        dimnames(out)[[2]] <-  modelFit$obsLevels
                         out
                       }
                       )

@@ -47,7 +47,7 @@
                    "rvmRadial", "rvmPoly",
                    "gaussprRadial", "gaussprPoly",
                    "sddaLDA", "sddaQDA", "glmnet", "slda",
-                   "superpc"))
+                   "superpc", "ppr", "sda", "penalized"))
     {
       trainX <- data[,!(names(data) %in% ".outcome")]
       trainY <- data[,".outcome"] 
@@ -67,17 +67,26 @@
                      gbm =  
                      {
                        library(gbm)
-                       if(type == "Classification")
+                       theDots <- list(...)
+                       if(any(names(theDots) == "distribution"))
                          {
-                           modY <- gbmClasses
-                           modDist <- "bernoulli"
+                           modDist <- theDots$distribution
+                           theDots$distribution <- NULL
                          } else {
-                           modY <- trainY
-                           modDist <- "gaussian"
+                           modDist <- if(type == "Classification") "bernoulli" else "gaussian"
                          }
-                       out <- gbm.fit(trainX, modY, interaction.depth = tuneValue$.interaction.depth,
-                                      n.trees = tuneValue$.n.trees, shrinkage = tuneValue$.shrinkage, 
-                                      distribution = modDist, ...)
+                       
+                       modY <- if(type == "Classification") gbmClasses else trainY
+
+                       modArgs <- list(x = trainX,
+                                       y = modY,
+                                       interaction.depth = tuneValue$.interaction.depth,
+                                       n.trees = tuneValue$.n.trees,
+                                       shrinkage = tuneValue$.shrinkage, 
+                                       distribution = modDist)
+                       if(length(theDots) > 0) modArgs <- c(modArgs, theDots)
+                       
+                       do.call("gbm.fit", modArgs)
                      },
                      rf =
                      {
@@ -794,9 +803,33 @@
                        # prediction will need to source data, so save that too
                        out$data <- list(x = t(trainX), y = trainY)
                        out
+                     },
+                     ppr =
+                     {
+                       library(stats)
+                       ppr(as.matrix(trainX), trainY, nterms = tuneValue$.nterms, ...)
+                     },
+                     sda =
+                     {
+                       library(sparseLDA)
+                       sda(trainX, trainY, lambda = tuneValue$.lambda, stop = -tuneValue$.NumVars, ...)
+                     },
+                     penalized =
+                     {
+                       library(penalized)
+                       modType <- if(is.factor(trainY)) "logistic" else "linear"
+                       penalized(trainY, trainX,
+                                 model = modType,
+                                 lambda1 = tuneValue$.lambda1,
+                                 lambda2 = tuneValue$.lambda2,
+                                 ...)
                      }
                      )
   
+
+  ## In case the model needs to be saved to the file system and run later, we will
+  ## need to cache the model (per Kurt Hornik on 2008-10-05)
+  if(method %in% c("JRip", "LMT", "M5Rules", "J48")) .jcache(modelFit$classifier)
   
   #save a few items so we have a self contained set of information in the model. this will
   # also carry over to the finalModel if returnData = TRUE in train call
@@ -807,7 +840,8 @@
                                       "rvmRadial", "rvmPoly",
                                       "lssvmRadial", "lssvmPoly",
                                       "gaussprRadial", "gaussprPoly",
-                                      "ctree", "ctree2", "cforest"))))
+                                      "ctree", "ctree2", "cforest",
+                                      "penalized"))))
     {
       modelFit$xNames <- xNames
       modelFit$problemType <- type

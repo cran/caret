@@ -44,7 +44,42 @@ preProcess.default <- function(x, method = c("center", "scale"), thresh = 0.95, 
 predict.preProcess <- function(object, newdata, ...)
 {
 
-   dataNames <- colnames(newdata)
+  dataNames <- colnames(newdata)
+  ## For centering and scaling, we can be flexible if a column in the
+  ## original data set is not in newdata
+  if(!is.null(object$mean))
+    {
+      if(!all(names(object$mean) %in% dataNames))
+        {
+          if(all(dataNames %in% names(object$mean)))
+            {
+              object$mean <- object$mean[names(object$mean) %in% dataNames]
+              warning("newdata does not contain some variables")
+            } else {
+              vars <- dataNames[!(dataNames %in% names(object$mean))]
+              stop(paste("The following variables were not pre-processed:",
+                         paste(vars, collapse = ",")))
+            }
+        }
+    }
+  if(!is.null(object$std))
+    {
+      if(!all(names(object$std) %in% dataNames))
+        {
+          if(all(dataNames %in% names(object$std)))
+            {
+              object$std <- object$std[names(object$std) %in% dataNames]
+            }
+        }
+    }
+  if(!is.null(object$rotation))
+    {
+      if(!all(names(object$rotation) %in% dataNames))
+        {
+          stop("newdata does not contain some variables")
+        }
+    }
+   
    x <- newdata
    if(any(object$method == "center")) x <- sweep(x, 2, object$mean, "-")
    if(any(object$method %in% c("scale", "pca"))) x <- sweep(x, 2, object$std, "/")

@@ -122,7 +122,10 @@ modelLookup <- function(model = NULL)
                            "lmStepAIC",
                            "slda",
                            "superpc",
-                           "superpc"
+                           "superpc",
+                           "ppr",
+                           "sda", "sda",
+                           "penalized", "penalized"
                            ),
                          parameter = c(
                            "parameter",      
@@ -178,7 +181,10 @@ modelLookup <- function(model = NULL)
                            "NumOpt",
                            "parameter",
                            "parameter",
-                           "threshold", "n.components"
+                           "threshold", "n.components",
+                           "nterms",
+                           "NumVars", "lambda",
+                           "lambda1", "lambda2"
                            ),
                          label = I(c(
                            "none",      
@@ -234,7 +240,10 @@ modelLookup <- function(model = NULL)
                            "# Optimizations",
                            "none",
                            "none",
-                           "Threshold", "#Components"
+                           "Threshold", "#Components",
+                           "# Terms",
+                           "Number of Predictors", "Lambda",
+                           "L1 Penalty", "L2 Penalty"
                            )),
                          seq = c(
                            FALSE,
@@ -290,7 +299,10 @@ modelLookup <- function(model = NULL)
                            FALSE,
                            FALSE,
                            FALSE,
-                           TRUE,    TRUE       # superpc
+                           TRUE,    TRUE,       # superpc
+                           FALSE,
+                           FALSE,   FALSE,
+                           FALSE,    FALSE      ## penalized; see note in createModel
                            ),
                          forReg = c(
                            TRUE,
@@ -346,7 +358,10 @@ modelLookup <- function(model = NULL)
                            FALSE,
                            TRUE,
                            FALSE,
-                           TRUE,    TRUE       # superpc
+                           TRUE,    TRUE,       # superpc
+                           TRUE,
+                           FALSE,   FALSE,
+                           TRUE,    TRUE
                            ),               
                          forClass =          
                          c(
@@ -403,7 +418,10 @@ modelLookup <- function(model = NULL)
                            TRUE,
                            FALSE,
                            TRUE,
-                           FALSE,    FALSE
+                           FALSE,    FALSE,
+                           FALSE,
+                           TRUE,     TRUE,
+                           FALSE,    FALSE ## penalized has no way to pass the class levels in
                            ),
                          probModel = c(
                            TRUE,             #   bagged trees
@@ -459,8 +477,10 @@ modelLookup <- function(model = NULL)
                            TRUE,             #   JRip(1)
                            FALSE,            #   stepAIC(0)
                            TRUE,             #   slda(0)
-                           FALSE, FALSE      #   superpc(2)
-
+                           FALSE, FALSE,     #   superpc(2)
+                           FALSE,
+                           TRUE,  TRUE,      #   sda,
+                           FALSE, FALSE       #   penalized
                            ),
                          stringsAsFactors  = FALSE               
                          )         
@@ -649,13 +669,31 @@ tuneScheme <- function(model, grid, useOOB = FALSE)
                    loop$.fraction[loop$.lambda == uniqueLambda[i]] <- subFrac[which.max(subFrac)]
                    seqParam[[i]] <- data.frame(.fraction = subFrac[-which.max(subFrac)])
                  }         
-             },
+             },             
              lasso = 
              {
                grid <- grid[order(grid$.fraction, decreasing = TRUE),, drop = FALSE]
                loop <- grid[1,,drop = FALSE]
                seqParam <- list(grid[-1,,drop = FALSE])
              },
+             penalized = 
+             {
+               grid <- grid[order(grid$.lambda1, grid$.lambda2, decreasing = TRUE),, drop = FALSE]
+               
+               uniqueLambda2 <- unique(grid$.lambda2)
+               
+               loop <- data.frame(.lambda2 = uniqueLambda2)
+               loop$.lambda1 <- NA
+               
+               seqParam <- vector(mode = "list", length = length(uniqueLambda2))
+               
+               for(i in seq(along = uniqueLambda2))
+                 {
+                   subL1 <- grid[grid$.lambda2 == uniqueLambda2[i],".lambda2"]
+                   loop$.lambda1[loop$.lambda2 == uniqueLambda2[i]] <- subL1[which.max(subL1)]
+                   seqParam[[i]] <- data.frame(.lambda1 = subL1[-which.max(subL1)])
+                 }         
+             },             
              superpc =
              {
                largest <- which(grid$.n.components == max(grid$.n.components) &
