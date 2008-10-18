@@ -1,4 +1,70 @@
 -------------------
+Version: 3.45
+Date: 2008-10-17
+
+Added caching of RWeka objects to that they can be saved to the file system and
+used in other sessions. (changes per Kurt Hornik on 2008-10-05)
+
+-------------------
+Version: 3.44
+Date: 2008-10-15
+
+Added sda from the sparseLDA pacakge (not on CRAN). 
+
+Also, a bug was fixed where the ellipses were not passed into a few of the newer 
+models (such as penalized and ppr)
+
+-------------------
+Version: 3.43
+Date: 2008-10-03
+
+Added the penalized model from the penalized package. In caret, it is regression only
+although the package allows for classification via glm models. However, it does not
+allow the user to pass the classes in (just an indicator matrix). Becuase of this, it
+doesn't really work with the rest of the classification tools in the package.
+
+-------------------
+Version: 3.42
+Date: 2008-09-26
+
+Added a little more formatting to print.train
+
+-------------------
+Version: 3.41
+Date: 2008-09-19
+
+For gbm, let the user over-ride the default value of the distribution argument (brought
+us by Peter Tait via RHelp).
+
+-------------------
+Version: 3.40
+Date: 2008-09-18
+
+Changed predict.preProcess so that it doesn't crash if newdata does not have all of the
+variables used to originally pre-process *unless* PCA processing was requested.
+
+-------------------
+Version: 3.39
+Date: 2008-09-18
+
+Fixed bug in varImp.rpart when the model had only primary splits.
+
+Minor changes to the Affy normalization code
+
+Changed typo in predictors man page
+
+-------------------
+Version: 3.38
+Date: 2008-09-09
+
+Added a new class called predictors that returns the names of the predictors that were
+used in the final model.
+
+Also added ppr from the stats package.
+
+Minor update to the project web page to deal with IE issues
+
+-------------------
 Version: 3.37
 Date: 2008-09-04
 

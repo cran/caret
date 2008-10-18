@@ -19,7 +19,7 @@ byComplexity <- function(x, model)
              x[order(x$n.trees, x$interaction.depth, x$shrinkage),] 
            },
            rf =, rfNWS =, rfLSF =, gpls =, pls =, PLS =, pam =, cforest =,
-           nb =, rpart =, ctree2 =, logitBoost=, J48 =, LMT =
+           nb =, rpart =, ctree2 =, logitBoost=, J48 =, LMT =, ppr = 
            {
              x[order(x[,1]),]
            },
@@ -94,6 +94,14 @@ byComplexity <- function(x, model)
            superpc =
            {
              x[order(x$threshold, x$n.components),]
+           },
+           sda =
+           {
+             x[order(x$NumVars, x$lambda),]
+           },
+           penalized =
+           {
+             x[order(x$lambda1, x$lambda2),]
            }
            )
 

@@ -79,7 +79,8 @@ export(
        predict.train,
        densityplot.train,
        train.formula,
-       defaultSummary
+       defaultSummary,
+       predictors
        )
 
 S3method(confusionMatrix, default)
@@ -142,4 +143,42 @@ S3method(summary, bagEarth)
 S3method(summary, bagFDA)
 
 S3method(format, bagEarth)
+
+S3method(predictors, train)
+S3method(predictors, terms)
+S3method(predictors, formula)
+S3method(predictors, list)
+S3method(predictors, mvr)
+S3method(predictors, gbm)
+S3method(predictors, Weka_classifier)
+S3method(predictors, fda)
+S3method(predictors, earth)
+S3method(predictors, gausspr)
+S3method(predictors, ksvm)
+S3method(predictors, rvm)
+S3method(predictors, lssvm)
+S3method(predictors, gpls)
+S3method(predictors, knn3)
+S3method(predictors, LogitBoost)
+S3method(predictors, lda)
+S3method(predictors, rda)
+S3method(predictors, multinom)
+S3method(predictors, NaiveBayes)
+S3method(predictors, pamrtrained)
+S3method(predictors, superpc)
+S3method(predictors, randomForest)
+S3method(predictors, slda)
+S3method(predictors, rpart)
+S3method(predictors, regbagg)
+S3method(predictors, classbagg)
+S3method(predictors, lm)
+S3method(predictors, glmboost)
+S3method(predictors, blackboost)
+S3method(predictors, gamboost)
+S3method(predictors, BinaryTree)
+S3method(predictors, RandomForest)
+S3method(predictors, bagEarth)
+S3method(predictors, bagFDA)
+S3method(predictors, nnet)
+S3method(predictors, pcaNNet)
 

@@ -78,7 +78,7 @@
       finalTune <- x$bestTune
       names(finalTune) <- substring(names(finalTune), 2)
 
-      optValues <- paste(names(finalTune), "=", finalTune)
+      optValues <- paste(names(finalTune), "=", format(finalTune, digits = digits))
       optString <- paste(
                          "\nThe final ",
                          ifelse(numParam, "values", "value"),
@@ -162,7 +162,8 @@
                  lssvmRadial =, lssvmPoly =,
                  gaussprRadial =, gaussprPoly =,
                  enet =, lasso =, LMT =, JRip =,
-                 lda =, rda =, pamr =, gpls =, J48 = print(x$finalModel),
+                 lda =, rda =, pamr =, gpls =, J48 =,
+                 ppr = print(x$finalModel),
                  fda = 
                  {
                    print(x$finalModel)
