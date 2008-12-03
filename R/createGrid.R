@@ -201,12 +201,19 @@
                       superpc = expand.grid(.n.components = 1:3,
                         .threshold = seq(.1, .9, length = len)),
                       ppr = data.frame(.nterms = 1:len),
-                      sda = expand.grid(
+                      sparseLDA = expand.grid(
                         .NumVars = rfTune(data, len)[,1],
                         .lambda = c(0, 10 ^ seq(-1, -4, length = len - 1))),
                       penalized = expand.grid(.lambda1 = 2^((1:len) -1),
                         .lambda2 = 2^((1:len) -1)),
+                      spls = expand.grid(.K = 1:len, .eta = seq(.1, .9, length = len)),
+                      splsda = expand.grid(.K = 1:len, .eta = seq(.1, .9, length = len), .kappa = .5),
+                      sda = data.frame(.diagonal = FALSE),
+                      mda = data.frame(.subclasses = (1:len) + 1),
+                      pda = data.frame(.lambda = 1:len),
+                      pda2 = data.frame(.df = 2* (0:(len - 1) + 1)),
                       lda =, lm =, treebag =, sddaLDA =, sddaQDA =,
+                      glm =, qda =,
                       lmStepAIC =, slda = data.frame(.parameter = "none"))
   trainGrid
 }

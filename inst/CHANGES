@@ -1,4 +1,43 @@
 -------------------
+Version: 3.51
+Date: 2008-12-03
+
+Updated the man files and manuals.
+
+-------------------
+Version: 3.50
+Date: 2008-12-02
+
+Added qda, mda and pda.
+
+-------------------
+Version: 3.49
+Date: 2008-11-30
+
+Fixed bug in resampleHist. Also added a check in the train functions
+that error trapped with glm models and > 2 classes
+
+-------------------
+Version: 3.48
+Date: 2008-11-30
+
+Added glms. Also, added varImp.bagEarth to the namespace.
+
+-------------------
+Version: 3.47
+Date: 2008-11-24
+
+Added sda from the sda package. There was a naming conflict between 
+sda::sda and sparseLDA:::sda. The method value for sparseLDA was
+changed from "sda" to "sparseLDA".
+
+-------------------
+Version: 3.46
+Date: 2008-11-11
+
+Added spls from the spls package
+
+-------------------
 Version: 3.45
 Date: 2008-10-17
 

@@ -14,11 +14,17 @@ training and test data predictions and class probabilities.
 
 \method{predict}{train}(object, newdata = NULL, type = "raw", ...)
 
-extractPrediction(models, testX = NULL, testY = NULL, unkX = NULL, 
-   unkOnly = !is.null(unkX) & is.null(testX), verbose = FALSE)
+extractPrediction(models,
+                  testX = NULL, testY = NULL,
+                  unkX = NULL, 
+                  unkOnly = !is.null(unkX) & is.null(testX),
+                  verbose = FALSE)
 
-extractProb(models, testX = NULL,  testY = NULL,  unkX = NULL, 
-   unkOnly = !is.null(unkX) & is.null(testX),  verbose = FALSE)
+extractProb(models,
+            testX = NULL,  testY = NULL,
+            unkX = NULL, 
+            unkOnly = !is.null(unkX) & is.null(testX),
+            verbose = FALSE)
 }
 \arguments{
   \item{object}{For \code{predict.train}, an object of class \code{\link{train}}. For \code{predict.list}, a list of objects of class \code{\link{train}}. }
@@ -62,6 +68,8 @@ The two extraction functions can be used to get the predictions and observed out
   above (although the \code{pred} column is the predicted class)  
 }
 \author{Max Kuhn}
+
+\references{Kuhn (2008), ``Building Predictive Models in R Using the caret'' (\url{http://www.jstatsoft.org/v28/i05/})}
 
 \seealso{\code{\link{plotObsVsPred}}, \code{\link{plotClassProbs}}}
 

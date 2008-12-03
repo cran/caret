@@ -36,18 +36,18 @@ a list with elements
 
 }
 \author{Max Kuhn}
-
+\references{Kuhn (2008), ``Building Predictive Models in R Using the caret'' (\url{http://www.jstatsoft.org/v28/i05/})}
 \seealso{\code{\link{sensitivity}},   \code{\link{specificity}}, \code{\link{posPredValue}}, \code{\link{negPredValue}}, \code{\link{print.confusionMatrix}}, \code{\link[stats]{binom.test}}}
 \examples{
 numLlvs <- 4
-confusionMatrix(
-   factor(sample(rep(letters[1:numLlvs], 200), 50)),
-   factor(sample(rep(letters[1:numLlvs], 200), 50)))  
-   
+predClasses <- factor(sample(rep(letters[1:numLlvs], 200), 50))
+obsClasses <- factor(sample(rep(letters[1:numLlvs], 200), 50))
+confusionMatrix(predClasses, obsClasses)
+
 numLlvs <- 2
-confusionMatrix(
-   factor(sample(rep(letters[1:numLlvs], 200), 50)),
-   factor(sample(rep(letters[1:numLlvs], 200), 50)))     
+predClasses <- factor(sample(rep(letters[1:numLlvs], 200), 50))
+obsClasses <- factor(sample(rep(letters[1:numLlvs], 200), 50))
+confusionMatrix(predClasses, obsClasses)    
 }
 \keyword{utilities}
 

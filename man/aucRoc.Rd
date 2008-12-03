@@ -22,11 +22,13 @@ a scalar number
 \examples{
 set.seed(6)
 testData <- data.frame(
-   x = c(rnorm(200), rnorm(200) + 1),
-   group = factor(rep(letters[1:2], each = 200)))
-   
-densityplot(~testData$x, groups = testData$group, auto.key = TRUE)   
-   
+                       x = c(rnorm(200), rnorm(200) + 1),
+                       group = factor(rep(letters[1:2], each = 200)))
+
+densityplot(~testData$x,
+            groups = testData$group,
+            auto.key = TRUE)   
+
 rocValues <- roc(testData$x, testData$group)
 aucRoc(rocValues)
 }

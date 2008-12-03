@@ -36,38 +36,37 @@ a vector of integers corresponding to the rows of \code{b} that comprise the sub
 
 \seealso{\code{\link{dist}}}
 \examples{
+
 example <- function(pct = 1, obj = minDiss, ...)
 {
-	tmp <- matrix(rnorm(200 * 2), nrow = 200)
+  tmp <- matrix(rnorm(200 * 2), nrow = 200)
 
-	# start with 15 data points
-	start <- sample(1:dim(tmp)[1], 15)
-	base <- tmp[start,]
-	pool <- tmp[-start,]
-	
-	# select 9 for addition
-	newSamp <- maxDissim(
-		base, pool, 
-		n = 9, 
-		randomFrac = pct, obj = obj, ...)
-	
-	allSamp <- c(start, newSamp)
-	
-	plot(
-		tmp[-newSamp,], 
-		xlim = extendrange(tmp[,1]), ylim = extendrange(tmp[,2]), 
-		col = "darkgrey", 
-		xlab = "variable 1", ylab = "variable 2")
-	points(base, pch = 16, cex = .7)
-	
-	for(i in seq(along = newSamp))
-		points(
-			pool[newSamp[i],1], 
-			pool[newSamp[i],2], 
-			pch = paste(i), col = "darkred") 
+  ## start with 15 data points
+  start <- sample(1:dim(tmp)[1], 15)
+  base <- tmp[start,]
+  pool <- tmp[-start,]
+  
+  ## select 9 for addition
+  newSamp <- maxDissim(
+                       base, pool, 
+                       n = 9, 
+                       randomFrac = pct, obj = obj, ...)
+  
+  allSamp <- c(start, newSamp)
+  
+  plot(
+       tmp[-newSamp,], 
+       xlim = extendrange(tmp[,1]), ylim = extendrange(tmp[,2]), 
+       col = "darkgrey", 
+       xlab = "variable 1", ylab = "variable 2")
+  points(base, pch = 16, cex = .7)
+  
+  for(i in seq(along = newSamp))
+    points(
+           pool[newSamp[i],1], 
+           pool[newSamp[i],2], 
+           pch = paste(i), col = "darkred") 
 }
-
-
 
 par(mfrow=c(2,2))
 

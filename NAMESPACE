@@ -16,6 +16,7 @@ export(
        normalize2Reference, 
        train,
        varImp,
+       varImp.bagEarth,
        extractPrediction,
        findCorrelation,
        filterVarImp,
@@ -107,6 +108,7 @@ S3method(varImp, pamrtrained)
 S3method(varImp, lm)
 S3method(varImp, mvr)
 S3method(varImp, earth)
+S3method(varImp, bagEarth)
 S3method(varImp, RandomForest)
 
 S3method(densityplot,  train)
