@@ -255,6 +255,13 @@ There is additional functionality in \texttt{train} that is described in the nex
 \hline
 \endlastfoot
 \multicolumn{5}{c}{{{ \em ``Dual--Use Models''}}} \\ 
+
+      Generalized linear model &
+         \texttt{glm} & 
+            \texttt{stats}       & 
+            None \\  
+       
+
       Recursive Partitioning &
          \texttt{rpart} & 
             \texttt{rpart}       & 
@@ -263,7 +270,12 @@ There is additional functionality in \texttt{train} that is described in the nex
          \texttt{ctree} & 
             \texttt{party}       & 
             \texttt{mincriterion} \\   
-                  
+       &
+         \texttt{ctree2} & 
+            \texttt{party}       & 
+            \texttt{maxdepth} \\   
+            
+            
       Boosted Trees &
          \texttt{gbm} & 
             \texttt{gbm}       & 
@@ -313,7 +325,12 @@ There is additional functionality in \texttt{train} that is described in the nex
          \texttt{pls} & 
             \texttt{pls}, \texttt{caret}       & 
             \texttt{ncomp} \\      
-      
+
+      Sparse Partial Least Squares &
+         \texttt{spls} & 
+            \texttt{spls}      & 
+            \texttt{K}, \texttt{eta}, \texttt{kappa} \\   
+            
       Support Vector Machines  &
          \texttt{svmRadial} & 
             \texttt{kernlab}       & 
@@ -343,7 +360,7 @@ There is additional functionality in \texttt{train} that is described in the nex
       Linear Least Squares &
          \texttt{lm} & 
             \texttt{stats}       & 
-            None \\         
+            None \\  
       
       Multivariate Adaptive  &
          \texttt{earth}, \texttt{mars} & 
@@ -375,8 +392,14 @@ There is additional functionality in \texttt{train} that is described in the nex
          \texttt{ppr} & 
             \texttt{stats}       & 
             \texttt{nterms} \\            
-      \:\: Regression & & &\\             
+      \:\: Regression & & &\\                   
             
+      Penalized Linear Models  &
+         \texttt{penalized} & 
+            \texttt{penalized}       & 
+            \texttt{lambda1}, \texttt{lambda2} \\            
+      \:\: Regression Splines & & &\\
+      
       Relevance Vector Machines  &
          \texttt{rvmRadial} & 
             \texttt{kernlab}       & 
@@ -401,12 +424,31 @@ There is additional functionality in \texttt{train} that is described in the nex
       Linear Discriminant Analysis &
          \texttt{lda} & 
             \texttt{MASS}       &          
-            None\\                     
+            None\\
+            
+      Quadratic Discriminant  &
+         \texttt{qda} & 
+            \texttt{MASS}       &          
+            None\\  
+      \:\:  Analysis & & &\\               
+            
       Stabilised Linear &
          \texttt{slda} & 
             \texttt{ipred}       &          
             None\\  
+      \:\: Discriminant Analysis & & &\\            
+            
+      Shrinkage Linear &
+         \texttt{sda} & 
+            \texttt{sda}       &          
+            \texttt{diagonal}\\  
       \:\: Discriminant Analysis & & &\\
+      
+      Sparse Linear &
+         \texttt{sparseLDA} & 
+            \texttt{sparseLDA}       &          
+            \texttt{NumVars}, \texttt{lambda} \\  
+      \:\: Discriminant Analysis & & &\\      
       
       Stepwise Diagonal &
         \texttt{sddaLDA}, &
@@ -414,17 +456,27 @@ There is additional functionality in \texttt{train} that is described in the nex
         None \\
       \:\: Discriminant Analysis & \texttt{sddaQDA} & &\\
             
-      Logistic/Multinomial  &
-         \texttt{multinom} & 
-            \texttt{nnet}       & 
-            \texttt{decay}& \\   
-      \: \: Regression \\ 
-                     
       Regularized Discriminant  &
          \texttt{rda} & 
             \texttt{klaR}       & 
-            \texttt{lambda}, \texttt{gamma} & \\*
-      \: \: Analysis \\*
+            \texttt{lambda}, \texttt{gamma} & \\
+      \: \: Analysis \\
+      
+      Mixture Discriminant  &
+         \texttt{mda} & 
+            \texttt{mda}       & 
+            \texttt{subclasses} & \\
+      \: \: Analysis \\      
+                     
+      Penalized Discriminant  &
+         \texttt{pda} & 
+            \texttt{mda}       & 
+            \texttt{lambda} & \\
+      
+     \: \: Analysis &
+         \texttt{pda2} & 
+            \texttt{mda}       & 
+            \texttt{df} & \\     
       
       Flexible Discriminant  &
          \texttt{fda} & 
@@ -437,7 +489,12 @@ There is additional functionality in \texttt{train} that is described in the nex
             \texttt{caret},  \texttt{earth}       & 
             \texttt{degree}, \texttt{nprune} \\   
             
- 
+      Logistic/Multinomial  &
+         \texttt{multinom} & 
+            \texttt{nnet}       & 
+            \texttt{decay}& \\   
+      \: \: Regression \\ 
+      
       LogitBoost &      
          \texttt{logitboost} & 
             \texttt{caTools}       &          
@@ -562,7 +619,7 @@ The third method for customizing the tuning process is to modify the algorithm t
 User--defined functions can be used, as long as they have the following arguments:
 \begin{itemize}
   \item \texttt{x} is a data frame containing the tune parameters and their associated performance metrics. Each row corresponds to a different tuning parameter combination
-    \item \texttt{metric} a character string indicating which performance metric should be optimized (this is passed in directory from the \texttt{metric} argument of \texttt{train}. 
+    \item \texttt{metric} a character string indicating which performance metric should be optimized (this is passed in directly from the \texttt{metric} argument of \texttt{train}. 
       \item \texttt{maximize} is a single logical value indicating whether larger values of the performance metric are better (this is also directly passed from the call to \texttt{train}).
   \end{itemize}
   The function should output a single integer indicating which row in \texttt{x} is chosen.

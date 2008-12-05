@@ -43,6 +43,8 @@ parameters, this plot is created inside conditioning panels.
 }
 \author{Max Kuhn}
 
+\references{Kuhn (2008), ``Building Predictive Models in R Using the caret'' (\url{http://www.jstatsoft.org/v28/i05/})}
+
 \seealso{ \code{\link{train}} }
 \examples{
 data(iris)

@@ -15,7 +15,7 @@ applyProcessing(x, object)
   \item{center}{A boolean to center the data.}
   \item{scale}{A boolean to scale the data.}
   \item{na.remove}{Should \code{NA} values be removed?}
-  \item{object}{the results from a previous call to \link{processData}.}
+  \item{object}{the results from a previous call to \code{processData}.}
 }
 
 \details{
@@ -29,7 +29,6 @@ These functions are deprecated and have been replaced by the \code{\link{preProc
 
 \author{Max Kuhn}
 
-\seealso{\code{\link{applyProcessing}} }
 \examples{
 set.seed(115)
 xData <- matrix(rgamma(6 * 4, 5), 6)

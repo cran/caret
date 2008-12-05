@@ -10,8 +10,11 @@
   \code{k} groups.
 }
 \usage{
-createDataPartition(y, times = 1, p = 0.5, list = TRUE,
-   groups = min(5, length(y)))
+createDataPartition(y, 
+                    times = 1,
+                    p = 0.5,
+                    list = TRUE,
+                    groups = min(5, length(y)))
 createResample(y, times = 10, list = TRUE)
 createFolds(y, k = 10, list = TRUE, returnTrain = FALSE)
 }
@@ -42,7 +45,7 @@ createFolds(y, k = 10, list = TRUE, returnTrain = FALSE)
   training and test data
 }
 \value{
-   A list or matrix of row positions (e.g. 1, 15) corresponding to the \em{training}
+   A list or matrix of row position integers corresponding to the training
    data
 }
 \author{Max Kuhn}

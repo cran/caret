@@ -3,14 +3,13 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
   if(any(colnames(newdata) == ".outcome")) newdata$.outcome <- NULL
   
   predictedValue <- switch(method,
-                           lda =, rda =, gpls =, slda =, sda =
+                           lda =, rda =, gpls =, slda =, qda = 
                            {
                              switch(method,
-                                    lda =  library(MASS),
-                                    rda =  library(klaR),
-                                    gpls = library(gpls),
-                                    slda = library(ipred),
-                                    sda  = library(sparseLDA))
+                                    lda =, qda = library(MASS),
+                                    rda        = library(klaR),
+                                    gpls       = library(gpls),
+                                    slda       = library(ipred))
                              out <- as.character(predict(modelFit, newdata)$class)
                              out
                            },
@@ -504,11 +503,49 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
                                } else {
                                  out <- ifelse(predict(modelFit, newdata) > .5,
                                                modelFit$obsLevel[1],
-                                               modelFit$obsLevel[1])
+                                               modelFit$obsLevel[2])
                                }
                              out
+                           },
+                           spls =
+                           {
+                             library(spls)
+                             predict(modelFit, newdata)
+                           },
+                           splsda =
+                           {
+                             library(spls)
+                             as.character(predict(modelFit, newdata, type = "class"))
+                           },
+                           sda =
+                           {
+                             library(sda)
+                             if(!is.matrix(newdata)) newdata <- as.matrix(newdata)
+                             as.character(sda::predict.sda(modelFit, newdata)$yhat)
+                           },
+                           sparseLDA =
+                           {
+                             library(sparseLDA)
+                             as.character(sparseLDA:::predict.sda(modelFit, newdata)$class)
+                           },
+                           glm =
+                           {
+                             if(modelFit$problemType == "Classification")
+                               {
+                                 probs <-  predict(modelFit, newdata, type = "response")
+                                 out <- ifelse(probs < .5,
+                                               modelFit$obsLevel[1],
+                                               modelFit$obsLevel[2])
+                               } else {
+                                 out <- predict(modelFit, newdata, type = "response")
+                               }
+                             out
+                           },
+                           mda =, pda =, pda2 = 
+                           {
+                             library(mda)
+                             as.character(predict(modelFit, newdata))
                            }
-                                                      
                            )
   predictedValue
 }

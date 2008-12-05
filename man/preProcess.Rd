@@ -43,7 +43,11 @@ The function will throw an error of any variables in \code{x} has less than two 
 }
 
 \author{ Max Kuhn }
+
+\references{Kuhn (2008), ``Building Predictive Models in R Using the caret'' (\url{http://www.jstatsoft.org/v28/i05/})}
+
 \seealso{\code{\link[stats]{prcomp}}, \code{\link{spatialSign}}}
+
 \examples{
 data(BloodBrain)
 # one variable has one unique value

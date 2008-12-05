@@ -10,9 +10,11 @@
   splines (MARS) via the \code{earth} function}
 
 \usage{
-\method{bagEarth}{formula}(formula, data = NULL, B = 50, keepX = TRUE,
-   ..., subset, weights, na.action = na.omit) 
-\method{bagEarth}{default}(x, y, weights = NULL, B = 50, keepX = TRUE, ...)
+\method{bagEarth}{formula}(formula, data = NULL, B = 50,
+      summary = mean, keepX = TRUE,
+      ..., subset, weights, na.action = na.omit) 
+\method{bagEarth}{default}(x, y, weights = NULL, B = 50, 
+      summary = mean, keepX = TRUE, ...)
 }
 
 \arguments{
@@ -37,6 +39,8 @@
           given, this argument must be named.) }
    
   \item{B}{the numebr of bootstrap samples }  
+
+  \item{summary}{a function with a single argument specifying how the bagged predictions should be summarized }  
   
   \item{keepX}{a logical: should the original training data be kept?}  
   

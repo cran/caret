@@ -1,5 +1,5 @@
 plsda <- function (x, ...)
-   UseMethod("plsda")
+  UseMethod("plsda")
 
 
 
@@ -22,18 +22,18 @@ predict.plsda <- function(object, newdata = NULL, ncomp = NULL, type = "class", 
 
   if(is.null(object$probModel))
     {
-                                        # use softmax
+      ## use softmax
       switch(type,
 
              class =
              {
                if(length(dim(tmpPred)) < 3)
                  {
-                                        #only requested one component
+                   ##only requested one component
                    out <- object$obsLevels[apply(tmpPred, 1, which.max)]
                    out <- factor(out, levels = object$obsLevels)
                  } else {
-                                        # more than one component
+                   ## more than one component
                    tmpOut <- matrix("", nrow = dim(tmpPred)[1], ncol = dim(tmpPred)[3])
                    for(i in 1:dim(tmpPred)[3])
                      {
@@ -48,12 +48,12 @@ predict.plsda <- function(object, newdata = NULL, ncomp = NULL, type = "class", 
              },
              prob =
              {
-               # fix prob names
+               ## fix prob names
                if(length(dim(tmpPred)) < 3)
                  {
                    out <- t(apply(tmpPred, 1, function(data) exp(data)/sum(exp(data))))
                  } else {
-                                        # more than one component
+                   ## more than one component
                    out <- tmpPred * NA
                    for(i in 1:dim(tmpPred)[3])
                      {
@@ -62,7 +62,7 @@ predict.plsda <- function(object, newdata = NULL, ncomp = NULL, type = "class", 
                  }
              })
     } else {
-       # Bayes rule
+      ## Bayes rule
 
       library(klaR)
       tmp <- vector(mode = "list", length = length(ncomp))
@@ -123,7 +123,7 @@ plsda.default <- function(x, y, ncomp = 2, probMethod = "softmax", prior = NULL,
       if(!is.null(prior)) warning("Priors are ignored unless probMethod = \"Bayes\"")
     }
   
-  # from nnet.formula
+  ## from nnet.formula
   class.ind <- function(cl)
     {
       n <- length(cl)
@@ -174,21 +174,21 @@ plsda.default <- function(x, y, ncomp = 2, probMethod = "softmax", prior = NULL,
           probModel
         }
       train <- predict(out, as.matrix(tmpData$x), ncomp = 1:ncomp)
-      # Get the raw model predictions, but leave one behind since the
-      # final class probs sum to one
+      ## Get the raw model predictions, but leave one behind since the
+      ## final class probs sum to one
       train <- train[, -length(obsLevels),, drop = FALSE]
       
       out$probModel <- apply(train, 3, makeModels, y = oldY, pri = prior)
     } else out$probModel <- NULL 
   
-  #out$call <- funcCall
+  ##out$call <- funcCall
   class(out) <- c("plsda", class(out))
   out
 }
 
 print.plsda <- function (x, ...)
   {
-    # minor change to print.mvr
+    ## minor change to print.mvr
     switch(x$method,
            kernelpls =
            {

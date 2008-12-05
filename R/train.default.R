@@ -26,7 +26,7 @@ train.default <- function(x, y,
       ## important with multiclass systems where one or more classes have low sample sizes
       ## relative to the others
       classLevels <- levels(y)
-      if(length(classLevels) > 2 & (method %in% c("gbm", "glmboost", "ada", "gamboost", "blackboost", "penalized")))
+      if(length(classLevels) > 2 & (method %in% c("gbm", "glmboost", "ada", "gamboost", "blackboost", "penalized", "glm")))
         stop("This model is only implimented for two class problems")
       if(metric %in% c("RMSE", "Rsquared")) 
         stop(paste("Metric", metric, "not applicable for classification models"))

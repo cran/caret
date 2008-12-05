@@ -3,7 +3,7 @@ function(x, ...)
    UseMethod("bagEarth")
 
 "bagEarth.default" <-
-function(x, y, weights = NULL, B = 50, keepX = TRUE, ...)
+function(x, y, weights = NULL, B = 50, summary = mean, keepX = TRUE, ...)
 {
    library(earth)
    funcCall <- match.call(expand.dots = TRUE)
@@ -36,11 +36,18 @@ function(x, y, weights = NULL, B = 50, keepX = TRUE, ...)
    oob <- matrix(unlist(oobList), ncol = length(oobList[[1]]), byrow = TRUE)
    colnames(oob) <- names(oobList[[1]])
    if(keepX) x <- x else x <- NULL
-   structure(list(fit = btFits, B = B, oob = oob, call = funcCall, x = x), class = "bagEarth")
+   structure(
+             list(fit = btFits,
+                  B = B,
+                  oob = oob,
+                  summary = summary,
+                  call = funcCall,
+                  x = x),
+             class = "bagEarth")
 }
 
 "bagEarth.formula" <-
-function (formula, data = NULL, B = 50, keepX = TRUE, ..., subset, weights, na.action = na.omit) 
+function (formula, data = NULL, B = 50, summary = mean, keepX = TRUE, ..., subset, weights, na.action = na.omit) 
 {
    funcCall <- match.call(expand.dots = TRUE)
    
@@ -62,7 +69,7 @@ function (formula, data = NULL, B = 50, keepX = TRUE, ..., subset, weights, na.a
    xint <- match("(Intercept)", colnames(x), nomatch = 0)
    if (xint > 0)  x <- x[, -xint, drop = FALSE]
     
-   out <- bagEarth.default(x, y, w, B = B, keepX = keepX, ...)
+   out <- bagEarth.default(x, y, w, B = B, summary = summary, keepX = keepX, ...)
    out$call <- funcCall
    out
 }
@@ -73,7 +80,7 @@ function(object, newdata = NULL, ...)
    library(earth)
    getTrainPred <- function(x)
    {
-      byObs <- tapply(x$fitted.values, list(index = x$index), mean, rm.na = TRUE)      
+      byObs <- tapply(x$fitted.values, list(index = x$index), x$summary)      
       out <- vector(mode = "numeric", length = length(x$index)) * NA
       out[sort(unique(x$index))] <- byObs
       out
@@ -93,7 +100,7 @@ function(object, newdata = NULL, ...)
    }
 
    out <- matrix(unlist(pred), ncol = object$B)
-   apply(out, 1, mean, na.rm = TRUE)
+   apply(out, 1, object$summary, na.rm = TRUE)
 }
 
 print.bagEarth <- function (x, ...) 
