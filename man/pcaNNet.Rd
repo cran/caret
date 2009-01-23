@@ -9,7 +9,8 @@ Run PCA on a dataset, then use it in a neural network model
 }
 \usage{
 \method{pcaNNet}{default}(x, y, thresh = 0.99, ...)
-\method{pcaNNet}{formula}(formula, data, weights, ..., thresh = .99, subset, na.action, contrasts = NULL)
+\method{pcaNNet}{formula}(formula, data, weights, ..., 
+        thresh = .99, subset, na.action, contrasts = NULL)
 
 \method{predict}{pcaNNet}(object, newdata, type = c("raw", "class"), ...)
 }

@@ -1,6 +1,6 @@
 ipredStats <- function(x)
 {
-  # error check
+  ## error check
   if(is.null(x$X)) stop("to get OOB stats, keepX must be TRUE when calling the bagging function")
   
   foo <- function(object, y, x)
@@ -33,12 +33,11 @@ ipredStats <- function(x)
   out
 }
 
-
 rfStats <- function(x)
 {
   out <- switch(
                 x$type,
-                regression =   c(x$mse[length(x$mse)], x$rsq[length(x$rsq)]),
+                regression =   c(sqrt(max(x$mse[length(x$mse)], 0)), x$rsq[length(x$rsq)]),
                 classification = {
                   library(e1071)
                   c(
@@ -579,7 +578,7 @@ tuneScheme <- function(model, grid, useOOB = FALSE)
                 constant = names(grid), 
                 vary = NULL))
 
-  # I've included a pruning technique for models in teh mboost packages. This wouldn't
+  # I've included a pruning technique for models in the mboost packages. This wouldn't
   # easily lend itself to a sequential version, so use the basic approach if any 
   # prune = "yes"
   if(model %in% c("glmboost", "gamboost") && any(grid$.prune == "yes")) modelInfo$seq <- FALSE
@@ -764,6 +763,7 @@ tuneScheme <- function(model, grid, useOOB = FALSE)
   out
 }
 
+
 decoerce <- function(x, grid, dot = FALSE)
 {
   for(k in names(grid))
@@ -781,226 +781,13 @@ decoerce <- function(x, grid, dot = FALSE)
   x
 }  
 
+
 ## todo: make avaible to outside
-defaultSummary <- function(data, lev = NULL, model = NULL) postResample(data[,"pred"], data[,"obs"])
-
-## This function takes the raw predictions per parameter combination 
-## and creates the resampe statistics for each combination
-
-poolByResample <- function(x,                ## The obs and pred outcomes
-                           grid,             ## The grid of tuning parameters
-                           func,             ## The summary function
-                           perfNames = NULL, ## Names of the computed metrics
-                           lev,              ## Class levels (NULL if reg)
-                           modelName)        ## The model name ("lm", "rf" etc)
-{
-  k <- nrow(grid)
-  for(i in 1:k)
-    {
-      subGrid <- grid[i,,drop = FALSE]
-      subX <- merge(subGrid, x)
-      if(nrow(subX) > 0)
-        {
-          tmp <- by(subX,
-                    list(group = subX$group),
-                    func,
-                    lev = lev,
-                    model = modelName)
-          
-          ## Convert the results from a "by" object to something
-          ## that we can use (a matrix). If the summary
-          ## function has one output, this will convert it to an
-          ## 1xB matrix (B = #resamples). 
-          
-          resultsPerGroup <- t(sapply(tmp, function(u)u))
-
-          ## We always want an BxM matrix (M = #metrics).
-          if(length(perfNames) == 1)
-            {
-              resultsPerGroup <- t(resultsPerGroup)
-              colnames(resultsPerGroup) <- perfNames
-            }
-          
-          resultsPerGroup <- merge(subGrid, resultsPerGroup)
-          
-          out <- if(!exists("out")) resultsPerGroup else rbind(out, resultsPerGroup)
-        }
-    }
-  out
-}
-
-summarize <- function(x, grid)
-{
-  k <- nrow(grid)
-  out <- NULL
-  for(i in 1:k)
-    {
-      subGrid <- grid[i,,drop = FALSE]
-      subX <- merge(subGrid, x)
-      subX <- subX[,!(names(subX) %in% names(grid)), drop = FALSE]
-      perf <- mean(subX, na.rm = TRUE)
-      if(nrow(subX) > 1)
-        {
-          sdPerf <- sd(subX, na.rm = TRUE)
-          names(sdPerf) <- paste(names(sdPerf), "SD", sep = "")
-          perf <- c(perf, sdPerf)
-        }
-      tmpPerf <- if(i == 1) perf else rbind(tmpPerf, perf)
-    }
-  if(is.vector(tmpPerf)) 
-    {
-      out <- cbind(grid, as.data.frame(t(tmpPerf)))
-    } else {
-      rownames(tmpPerf) <- paste(1:nrow(tmpPerf))
-      out <- cbind(grid, as.data.frame(tmpPerf))
-    }
-  out
-}
-
-
-
-byResampleBasic <- function(ind, x, combo = NULL)
-{
-  isLoo <- all(nrow(x$data) - unlist(lapply(ind, length)) == 1)
-
-  predList <- lapply(ind, modelWrapperBasic, x = x)
-  obsList <- lapply(ind, function(index, x) x$data$.outcome[-index], x = x)
-  if(!isLoo)
-    {
-      numPreds <- unlist(lapply(predList, length))   
-      rGroup <- paste(
-                      "Resample", 
-                      rep(seq(along = predList), numPreds),
-                      sep = "")
-
-
-    } else {
-      rGroup <- rep("Resample1", length(obsList))
-    }
-  
-  vertical <- data.frame(
-                         pred = unlist(predList),
-                         obs = unlist(obsList),
-                         group = rGroup)
-  
-  out <- merge(combo, vertical)    
-  
-  out
-}
-
-modelWrapperBasic <- function(ind, x)
-{
-  trainData <- x$data
-  x$data <- x$data[ind,]
-  tmpModelFit <- do.call(createModel, x)
-
-  outBagData <- trainData[-ind, ]        
-  outBagData$.outcome <- NULL
-  
-  pred <- predictionFunction(x$method, tmpModelFit, outBagData)
-  # todo: To start computing auc ROC, we might want to return a list with
-  # probs and preds (where appropriate)
-  pred
-}
-
-byResampleSeq <- function(ind, x, seq, combo)
-{
-
-  isLoo <- all(nrow(x$data) - unlist(lapply(ind, length)) == 1)
-  
-  # allPred is a list where each element is the results from specific
-  # set of help back smaples (e.g. oob samples). In this case, the
-  # results are a data frame of values with columns corresponding
-  # to different settings for the sequential parameters.
-  allPred <- lapply(ind, modelWrapperSeq, x = x, seq)
-
-  # get seq parameter values
-  tmpVal <- x$tuneValue[, names(x$tuneValue) %in% names(seq), drop = FALSE]
-  seqVals <- rbind(tmpVal, seq) 
-  if(x$method == "ctree") seqVals <- seqVals[!duplicated(seqVals),,drop = FALSE]  
-  if(!isLoo)
-    {
-      obsList <- lapply(ind, function(index, x) x$data$.outcome[-index], x = x)
-      
-      # work across each value of the sequential parameter
-      out <- NULL
-      for(i in 1:ncol(allPred[[1]]))
-        {
-          predList <- lapply(allPred, function(u, i) u[,i], i = i)
-          numPreds <- unlist(lapply(predList, length))   
-          
-          vertical <- data.frame(
-                                 pred = unlist(predList),
-                                 obs = unlist(obsList),
-                                 group = paste("Resample", rep(seq(along = predList), times = numPreds), sep = ""))
-          
-          tmpResults <- merge(seqVals[i,,drop=FALSE], vertical)
-          if(!is.null(combo)) tmpResults <- merge(combo, tmpResults)
-          out <- if(is.null(out)) tmpResults else rbind(out, tmpResults)
-          
-        }
-    } else {
-      # work across each value of the sequential parameter
-      out <- NULL
-      for(i in 1:ncol(allPred[[1]]))
-        {   
-          predValues <- unlist(lapply(allPred, function(u, i) u[,i], i = i))
-          obsValues <- lapply(ind, function(index, x) x$data$.outcome[-index], x = x)
-          
-          if(is.factor(x$data$.outcome)) predValues <- factor(as.character(predValues, levels = levels(x$data$.outcome)))
-          
-          vertical <- data.frame(
-                                 pred = predValues,
-                                 obs = unlist(obsValues),
-                                 group = "Resample1")
-          
-          tmpResults <- merge(seqVals[i,,drop=FALSE], vertical)
-          if(!is.null(combo)) tmpResults <- merge(combo, tmpResults)
-          out <- if(is.null(out)) tmpResults else rbind(out, tmpResults)
-        }
-    }
-  out
-}
-
-
-modelWrapperSeq <- function(ind, x, seq)
-{
-  # also attach param values
-  trainData <- x$data
-  x$data <- x$data[ind,]
-  tmpModelFit <- do.call(createModel, x)
-
-  outBagData <- trainData[-ind, ]        
-  oobY <- outBagData$.outcome
-  outBagData$.outcome <- NULL
-  
-  # pass param values here too   
-  pred <- predictionFunction(x$method, tmpModelFit, outBagData, seq)
-
-  pred  
-}
-
-if (!exists("seq_along")) seq_along <- function(x) seq(along = x)
-
-
-iterPrint <- function(x, iter)
-{
-  tmp <- format(x$loop) #[, x$constant, drop = FALSE])
-  tmp <- tmp[iter,,drop = FALSE]
-  loopVars <- substring(names(tmp), 2)
-  tmpString1 <- paste(loopVars, "=", tmp, sep = "")
-  tmpString2 <- paste(tmpString1, collapse = ", ")
-  cat("Model ", iter, ": ", tmpString2, sep = "")
-  if(!is.null(x$vary))
-    {
-      seqVars <- substring(x$vary, 2)
-      if(any(seqVars %in% loopVars))
-        {
-          cat("\n collapsing over other values of", paste(seqVars, collapse = ", "))
-        } else cat("\n collapsing over ", paste(seqVars, collapse = ", "))
-    }
-  cat("\n")
-}
+defaultSummary <- function(data, lev = NULL, model = NULL)
+  {
+    if(is.character(data$obs)) data$obs <- factor(data$obs, levels = lev)
+    postResample(data[,"pred"], data[,"obs"])
+  }
 
 ## make this object oriented
 getClassLevels <- function(x) 
@@ -1009,10 +796,12 @@ getClassLevels <- function(x)
                                         "rvmRadial", "rvmPoly",
                                         "lssvmRadial", "lssvmPoly",
                                         "gaussprRadial", "gaussprPoly",
-                                        "ctree", "ctree2", "cforest")))
+                                        "ctree", "ctree2", "cforest",
+                                        "penalized")))
        
       {
         obsLevels <- switch(tolower(x$method),
+                            penalized = NULL,
                             svmradial =, svmpoly =,
                             rvmradial =, rvmpoly =,
                             lssvmradial =, lssvmpoly =, 
@@ -1033,5 +822,328 @@ getClassLevels <- function(x)
     obsLevels
   }
 
-## todo: do we need to add the other kernlab models to the function above?
-## there is an error in test cases for predict.train
+
+##########################################################################################################
+
+## splitIndicies takes a number of tasks (n) and divides it into k groups
+## of roughly equal size. The result is an integer vector of task groups
+
+splitIndicies <- function(n, k)
+  {
+    out <- rep(1:k, n%/%k)
+    if(n %% k > 0)  out <- c(out, sample(1:k, n %% k))
+    sort(out)
+  }
+
+## workerData takes a series of model specifications (in the loop object) and a set
+## of resampling index vectors (in the list called index) and creates a single list that
+## will be used to build models. This will allow the computations to be setup across several
+## different workers. For example, if we wish to fit 5 different RDA classification models
+## across 50 bootstrap samples using 10 workers, workerData produces a list of 10x5 = 50
+## elements (each element does the work for 10 bootstrap samples).
+
+## The workers can use lapply to do the computations across different computers or processors
+## as specified.
+
+## Note that the number of workers is need so that we can minimize the number of copies of the
+## raw data. We only need one per worker.
+
+workerData <- function(data, index, loop, method, lvls, workers = 1, caretVerbose, ...)
+  {
+
+    if(loop$scheme != "oob")
+      {
+        ## Here we want to split the number of total tasks (B times M where B=#resamples and
+        ## M=#models) into W times M groups (W=#workers).
+
+        ## Each worker's "task" will potentially be one model specification* done across one
+        ## or more resampled data set. In this way, only one copy of the data is made per worker
+        ##
+        ## * with the excpetion being "sequential" models with one specification of "fixed" model
+        ##   parameters that yeild multiple models
+        
+        subsets <- vector(mode = "list",
+                          length = nrow(loop$loop) * workers)
+
+        subsets <- lapply(subsets,
+                          function(x, m, l, d)
+                          list(data = NULL,                ##  constant but will be added later
+                               index = NULL,
+                               method = m,                  ## constant across the workers
+                               fixed = NULL,
+                               obsLevels = l,               ## constant across the workers
+                               seq = NULL,
+                               worker = NULL,
+                               caretVerbose = caretVerbose, ## constant across the workers
+                               dots = d),                   ## constant across the workers
+                          m = method,
+                          l = lvls,
+                          d = list(...))
+
+        workLoads <- splitIndicies(length(index), workers)
+        
+        iter <- 0
+        for(i in 1:nrow(loop$loop))
+          {
+            for(j in 1:workers)
+              {
+                iter <- iter + 1
+                subsets[[iter]]$index <- index[workLoads == j]
+                subsets[[iter]]$fixed <- loop$loop[i,,drop = FALSE]
+                subsets[[iter]]$worker <- paste("W", j, sep = "")
+                if(!is.null(loop$seq)) subsets[[iter]]$seq <- loop$seq[[i]]
+              }
+          }
+
+        ## I don't see any way around this in general
+        ## I did this last to try to save time on the previous steps
+        subsets <- lapply(subsets,
+                          function(x, d) {x$data <- d; x},
+                          d = data)
+
+      } else {
+        ## Here we will make all make a list element for all M combos since
+        ## the same data set will be used for each. This is memory inefficent
+        ## compared to the non-OOB strategy (since we create more copies of
+        ## the data than needed), but it let's us fit the code into a common
+        ## computational scheme.
+
+        ## Currently, this assumes that there are no sequential models where
+        ## we would compute OOB error rates.
+        
+        subsets <- vector(mode = "list",
+                          length = nrow(loop$loop))
+
+        subsets <- lapply(subsets,
+                          function(x, m, l, d)
+                          list(data = NULL,
+                               method = m,
+                               fixed = NULL,
+                               obsLevels = l,
+                               caretVerbose = caretVerbose,
+                               dots = d),
+                          m = method,
+                          l = lvls,
+                          d = list(...))
+        iter <- 0
+        for(i in 1:nrow(loop$loop))
+          {
+            for(j in 1:workers)
+              {
+                iter <- iter + 1
+                subsets[[iter]]$fixed <- loop$loop[i,,drop = FALSE]
+              }
+          }
+
+        subsets <- lapply(subsets,
+                          function(x, d) {x$data <- d; x},
+                          d = data)
+      }
+    subsets
+  }
+
+
+## workerTasks is a function to fit multiple models across multiple datasets. It needs
+## a list of objects produced by the workerData function and returns a data frame of
+## predictions for the held-out data.
+
+## It returns the predictions instead of the summaries because summaries cannot be done
+## by the workers in a few cases (such as leave-one-out cv). Also, it returns a data frame
+## instead of a matrix because the columns may not be of the same mode. For example, we also
+## return an indicator for which resample data set the prediction is for and also the model
+## specification for each prediction. In general, these columns would not be the same format.
+## todo: In the future, I plan to (optionally) add the ability to return class probabilites if the
+## use asks for them.
+
+workerTasks <- function(x)
+  {
+    ## If this function is being executed remotly, check to see if the package is loaded
+    if(!("caret" %in% loadedNamespaces())) library(caret)
+
+
+    ## This function recreates the model specifications
+    expand <- function(fixed, seq)
+      {
+        if(is.null(seq)) return(fixed)
+
+        isSeq <- names(fixed) %in% names(seq)
+        out <- fixed
+        for(i in 1:nrow(seq))
+          {
+            tmp <- fixed
+            tmp[,isSeq] <- seq[i,]
+            out <- rbind(out, tmp)
+          }
+        out
+      }
+
+    if(x$caretVerbose)
+      {
+        modelInfo <- paste(gsub("^\\.", "", names(x$fixed)),
+                           format(x$fixed),
+                           sep = "=")
+        cat("Fitting:",
+            paste(modelInfo, collapse = ", "),
+            "\n")
+      } 
+
+    numResamples <- length(x$index)
+
+    if(numResamples == 0 & x$method %in% c("rf", "treebag", "cforest", "bagEarth", "bagFDA"))
+      {
+        args <- list(data = x$data,
+                     method = x$method,
+                     tuneValue = x$fixed,
+                     obsLevels = x$obsLevels)
+        if(length(x$dots) > 0) args <- c(args, x$dots)
+
+        modelObj <- do.call(createModel, args)
+
+        ## NOTE: in the case of oob resampling, we return the summarized performance
+        ## instead of the predicted values
+        out <- switch(
+                      class(modelObj)[1],
+                      randomForest = rfStats(modelObj),
+                      RandomForest = cforestStats(modelObj),
+                      bagEarth =, bagFDA = bagEarthStats(modelObj),
+                      regbagg =, classbagg = ipredStats(modelObj))
+        
+      } else {
+        
+        for(i in 1:numResamples)
+          {
+
+            
+            args <- list(data = x$data[x$index[[i]],],
+                         method = x$method,
+                         tuneValue = x$fixed,
+                         obsLevels = x$obsLevels)
+            if(length(x$dots) > 0) args <- c(args, x$dots)
+
+            modelObj <- do.call(createModel,
+                                args)
+
+            holdBack <-  x$data[-x$index[[i]],]
+            observed <- holdBack$.outcome
+            holdBack$.outcome <- NULL
+            predicted <- caret:::predictionFunction(x$method,
+                                                    modelObj,
+                                                    holdBack,
+                                                    x$seq)
+
+            if(is.null(x$seq))
+              {
+                tmp <- data.frame(obs = observed,
+                                  pred = predicted,
+                                  Resample = paste(x$worker, "R", i, sep = ""))
+                if(names(tmp)[2] != "pred") names(tmp)[2] <- "pred"
+                tmp <- merge(tmp, x$fixed)
+                out <- if(i > 1) rbind(out, tmp) else tmp
+              } else {
+                ## We want to merge in the model information. For sequential models, this
+                ## means merging the fixed and sequential parameters. First we rename the
+                ## columns of predicted for merging.
+                
+                names(predicted) <- paste("mod", 1:ncol(predicted))
+
+                ## param will be a data frame with the appropriate fixed and sequential
+                ## factors
+                param <- expand(x$fixed, x$seq)
+                if(x$method == "ctree") param <- param[!duplicated(param),, drop = FALSE]
+                param$ind <-  paste("mod", 1:ncol(predicted))
+
+                ## Stack the predictions then merge on the model indicators
+                tmp <- merge(stack(predicted), param)
+                tmp$Resample <- paste(x$resample, i, sep = "")
+                tmp$obs <-  rep(observed, ncol(predicted))
+                tmp$ind <- NULL
+                names(tmp)[names(tmp) == "values"] <- "pred"
+                out <- if(i == 1) tmp else rbind(out, tmp)                
+              }
+            
+            rm(tmp)
+          }
+
+        if(is.character(observed) | is.factor(observed))
+          {
+            out$obs <- as.character(out$obs)
+            out$pred <- as.character(out$pred)
+          }
+      }
+
+    out
+  }
+
+
+getPerformance <- function(x, groups, func, levels, mod, loo = FALSE)
+  {
+
+    if(!loo) groups <- c(groups, "Resample")
+
+    if(length(levels) > 1 && !any(is.na(levels)))
+      {
+        x$obs  <- factor(as.character(x$obs), levels = levels)
+        x$pred <- factor(as.character(x$pred), levels = levels)
+      }
+
+    x$parameterGroup <- factor(
+                               apply(x[, groups, drop = FALSE],
+                                     1,
+                                     function(x) paste(x, collapse = "--")))
+
+    splitUp <- split(x, x$parameterGroup)
+
+    perf <- lapply(splitUp, func, lev = levels, model = mod)
+    perf <- do.call("rbind", perf)
+
+    groupValues <- lapply(splitUp, function(x, y) x[1,y,drop = FALSE], y = groups)
+    groupValues <- do.call("rbind", groupValues)
+
+    result1 <- cbind(groupValues, perf)
+    result1$parameterGroup <- NULL
+    result1$Resample <- NULL
+
+    if(!loo)
+      {
+        groups <- groups[groups != "Resample"]
+        result1$parameterGroup <- factor(
+                                         apply(result1[, groups, drop = FALSE],
+                                               1,
+                                               function(x) paste(x, collapse = "--")))
+
+        splitUp <- split(result1, result1$parameterGroup)
+
+        meanFunc <- function(x, y)
+          {
+            x <- x[, !(colnames(x) %in% c(y, "parameterGroup")), drop = FALSE]
+            mean(x, na.rm = TRUE)
+          }
+        means <- lapply(splitUp, meanFunc, y = groups)
+        means <- do.call("rbind", means)
+
+                sdFunc <- function(x, y)
+          {
+            x <- x[, !(colnames(x) %in% c(y, "parameterGroup")), drop = FALSE]
+            sd(x, na.rm = TRUE)
+          }
+        sds <- lapply(splitUp, sdFunc, y = groups)
+        sds <- do.call("rbind", sds)
+        colnames(sds) <- paste( colnames(sds), "SD", sep = "")
+
+        groupValues <- lapply(splitUp, function(x, y) x[1,y,drop = FALSE], y = groups)
+        groupValues <- do.call("rbind", groupValues)
+        colnames(groupValues) <- gsub("^\\.", "", colnames(groupValues))
+        
+        out <- cbind(groupValues, means, sds)
+        rownames(out) <- 1:nrow(out)
+        return(list(values = result1, results = out))
+      } else {
+        rownames(result1) <- 1:nrow(result1)
+        isParam <- colnames(groupValues) %in% groups
+        colnames(result1) <- gsub("^\\.", "", colnames(result1))
+        return(list(values = NULL, results = result1))
+      }
+    stop("error in pooling performance")
+
+  }
+

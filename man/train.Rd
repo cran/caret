@@ -29,7 +29,7 @@ train(x, ...)
 \item{subset}{An index vector specifying the cases to be used in the training sample. (NOTE: If given, this argument must be named.)}
 \item{na.action}{A function to specify the action to be taken if NAs are found. The default action is for the procedure to fail. An alternative is na.omit, which leads to rejection of cases with missing values on any required variable. (NOTE: If given, this argument must be named.)}
 \item{contrasts}{a list of contrasts to be used for some or all of the factors appearing as variables in the model formula.}
-  \item{method}{a string specifying which classification or regression model to use. Possible values are: \code{ada}, \code{bagEarth}, \code{bagFDA}, \code{blackboost}, \code{cforest}, \code{ctree}, \code{ctree2}, \code{earth}, \code{enet}, \code{fda}, \code{gamboost}, \code{gaussprPoly}, \code{gaussprRadial}, \code{gbm}, \code{glm}, \code{glmboost}, \code{gpls}, \code{J48}, \code{JRip}, \code{knn}, \code{lasso}, \code{lda}, \code{lm}, \code{lmStepAIC}, \code{LMT}, \code{logitBoost}, \code{lssvmPoly}, \code{lssvmRadial}, \code{lvq}, \code{M5Rules}, \code{mda}, \code{multinom}, \code{nb}, \code{nnet}, \code{pam}, \code{pcaNNet}, \code{pda},  \code{pda2},\code{penalized}, \code{pls}, \code{ppr}, \code{qda}, \code{rda}, \code{rf}, \code{rpart}, \code{rvmPoly}, \code{rvmRadial}, \code{sda}, \code{sddaLDA}, \code{sddaQDA}, \code{slda}, \code{sparseLDA}, \code{spls}, \code{splsda}, \code{superpc}, \code{svmPoly}, \code{svmRadial} and \code{treebag}. See the Details section below.}  
+  \item{method}{a string specifying which classification or regression model to use. Possible values are: \code{ada}, \code{bagEarth}, \code{bagFDA}, \code{blackboost}, \code{cforest}, \code{ctree}, \code{ctree2}, \code{earth}, \code{enet}, \code{fda}, \code{gamboost}, \code{gaussprPoly}, \code{gaussprRadial}, \code{gbm}, \code{glm}, \code{glmboost}, \code{gpls}, \code{J48}, \code{JRip}, \code{knn}, \code{lasso}, \code{lda}, \code{lm}, \code{lmStepAIC}, \code{LMT}, \code{logitBoost}, \code{lssvmPoly}, \code{lssvmRadial}, \code{lvq}, \code{M5Rules}, \code{mda}, \code{multinom}, \code{nb}, \code{nnet}, \code{pam}, \code{pcaNNet}, \code{pda}, \code{pda2}, \code{penalized}, \code{pls}, \code{ppr}, \code{qda}, \code{rda}, \code{rf}, \code{rpart}, \code{rvmPoly}, \code{rvmRadial}, \code{sda}, \code{sddaLDA}, \code{sddaQDA}, \code{slda}, \code{sparseLDA}, \code{spls}, \code{splsda}, \code{superpc}, \code{svmPoly}, \code{svmRadial} and \code{treebag}. See the Details section below.}  
   \item{\ldots}{ arguments passed to the classification or regression routine (such as \code{\link[randomForest]{randomForest}}). Errors will occur if values
          for tuning parameters are passed here.}  
   \item{metric}{a string that specifies what summary metric will be used to select the optimal model. By default, possible values are "RMSE" and "Rsquared" for regression and "Accuracy" and "Kappa" for classification. If custom performance metrics are used (via the \code{summaryFunction} argument in \code{\link{trainControl}}, the value of \code{metric} should match one of the arguments. If it does not, a warning is issued and the first metric given by the \code{summaryFunction} is used. (NOTE: If given, this argument must be named.)}         
@@ -109,6 +109,8 @@ By default, the function \code{\link{createGrid}} is used to define the candidat
 In some cases, models may require control arguments. These can be passed via the three dots argument. Note that some models can specify tuning parameters in the control objects. If specified, these values will be superseded by those given in the \code{\link{createGrid}} argument. 
 
 The vignette entitled "caret Manual -- Model Building" has more details and examples related to this function.
+
+\code{train} can be used with "explicit parallelism", where different resamples (e.g. cross-validation group) can be split up and run on multiple machines or processors. By default, \code{train} will use a single processor on the host machine. To use more, the \code{computeFunction} and \code{computeArgs} arguments in \code{\link{trainControl}} can be used. \code{computeFunction} is used to pass a function that takes arguments named \code{X} and \code{FUN}. Internally, \code{train} will pass the data and modeling functions through using these arguments. By default, \code{train} uses \code{\link[base]{lapply}}. Alternatively, any function that emulates \code{\link[base]{lapply}} but distributes jobs across multiple machines/processors can be used. Arguments to such a function can be passed (if needed) via the \code{computeArgs} argument in \code{\link{trainControl}}. Examples are given below using the \pkg{Rmpi} package (via \pkg{snow}) and NetworkSpaces (via the \pkg{nws} package).
 }
 
 
@@ -138,6 +140,9 @@ The vignette entitled "caret Manual -- Model Building" has more details and exam
 
 \seealso{\code{\link{trainControl}}, \code{\link{createGrid}}, \code{\link{createFolds}}}
 \examples{
+#######################################
+## Classification Example
+
 data(iris)
 TrainData <- iris[,1:4]
 TrainClasses <- iris[,5]
@@ -159,6 +164,8 @@ nnetFit <- train(TrainData, TrainClasses,
                  trace = FALSE,
                  maxit = 100)
 
+#######################################
+## Regression Example
 
 library(mlbench)
 data(BostonHousing)
@@ -172,6 +179,91 @@ rpartFit <- train(medv ~ .,
                   data = BostonHousing,
                   "rpart",
                   tuneLength = 9)
+
+#######################################
+## Example with a custom metric
+
+madSummary <- function (data,
+                        lev = NULL,
+                        model = NULL) 
+{
+  out <- mad(data$obs - data$pred, 
+             na.rm = TRUE)  
+  names(out) <- "MAD"
+  out
+}
+
+robustControl <- trainControl(summaryFunction = madSummary)
+marsGrid <- expand.grid(.degree = 1,
+                        .nprune = (1:10) * 2)
+
+earthFit <- train(medv ~ .,
+                  data = BostonHousing, 
+                  "earth",
+                  tuneGrid = marsGrid,
+                  metric = "MAD",
+                  maximize = FALSE,
+                  trControl = robustControl)
+
+#######################################
+## Parallel Processing Example via MPI
+
+\dontrun{
+
+## A function to emulate lapply in parallel
+mpiClacs <- function(X, FUN, ...)
+  {
+    theDots <- list(...)
+    parLapply(theDots$cl, X, FUN)
+  }
+
+library(snow)
+cl <- makeCluster(5, "MPI")
+
+## 50 bootstrap models distributed across 5 workers
+mpiControl <- trainControl(workers = 5,
+                           number = 50,
+                           computeFunction = mpiClacs,
+                           computeArgs = list(cl = cl))
+set.seed(1)
+usingMPI <-  train(medv ~ .,
+                   data = BostonHousing, 
+                   "glmboost",
+                   trControl = mpiControl)
+
+stopCluster(cl)
+}
+
+#######################################
+## Parallel Processing Example via NWS
+\dontrun{
+
+nwsClacs <- function(X, FUN, ...)
+  {
+    theDots <- list(...)
+    eachElem(theDots$sObj,
+             fun = FUN,
+             elementArgs = list(X))
+  }
+
+library(nws)
+sObj <- sleigh(workerCount = 5)
+
+nwsControl <- trainControl(workers = 5,
+                           number = 50,
+                           computeFunction = nwsClacs,
+                           computeArgs = list(sObj = sObj))
+set.seed(1)
+usingNWS <-  train(medv ~ .,
+                   data = BostonHousing, 
+                   "glmboost",
+                   trControl = nwsControl)
+
+close(sObj)
+
+}
+
+
 }
 
 \keyword{models}

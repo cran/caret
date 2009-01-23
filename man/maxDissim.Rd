@@ -31,7 +31,7 @@ This algorithm tends to select points on the edge of the data mainstream and wil
 \value{
 a vector of integers corresponding to the rows of \code{b} that comprise the sub-sample. 
 }
-\references{Willett, P. (1999), "Dissimilarity-Based Algorithms for Selecting Structurally Diverse Sets of Compounds," {\it Journal of Computational Biology}, 6, 447-457.}
+\references{Willett, P. (1999), "Dissimilarity-Based Algorithms for Selecting Structurally Diverse Sets of Compounds," \emph{Journal of Computational Biology}, 6, 447-457.}
 \author{Max Kuhn  \email{max.kuhn@pfizer.com}}
 
 \seealso{\code{\link{dist}}}

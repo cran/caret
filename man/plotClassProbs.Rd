@@ -33,14 +33,17 @@ inTrain <- sample(1:dim(iris)[1], 100)
 trainData <- iris[inTrain,]
 testData <- iris[-inTrain,]
 
-rpartFit <- train(trainData[, -5], trainData[, 5], "rpart", tuneLength = 15)
+rpartFit <- train(trainData[, -5], trainData[, 5], "rpart", 
+                  tuneLength = 15)
 ldaFit <- train(trainData[, -5], trainData[, 5], "lda")
 predProbs <- extractProb(list(ldaFit, rpartFit),
-   testX = testData[, -5], testY = testData[, 5])
+                         testX = testData[, -5], 
+                         testY = testData[, 5])
 
 plotClassProbs(predProbs)
 plotClassProbs(predProbs[predProbs$model == "lda",])
-plotClassProbs(predProbs[predProbs$model == "lda" & predProbs$dataType == "Test",])
+plotClassProbs(predProbs[predProbs$model == "lda" & 
+                         predProbs$dataType == "Test",])
 
 }
 

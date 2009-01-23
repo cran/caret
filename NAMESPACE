@@ -32,6 +32,10 @@ export(
        plot.train,
        sensitivity,
        specificity,
+       sensitivity.default,
+       specificity.default,
+       sensitivity.table,
+       specificity.table,       
        roc,
        aucRoc,   
        extractProb,
@@ -42,6 +46,10 @@ export(
        confusionMatrix,
        posPredValue,
        negPredValue,
+       posPredValue.default,
+       negPredValue.default,
+       posPredValue.table,
+       negPredValue.table,       
        nearZeroVar,
        resampleHist,
        dotPlot,
@@ -94,6 +102,11 @@ S3method(bagEarth,        default)
 S3method(bagFDA,          default)
 S3method(preProcess,      default)
 S3method(pcaNNet,         default)
+S3method(sensitivity,     default)
+S3method(specificity,     default)
+S3method(posPredValue,    default)
+S3method(negPredValue,    default)
+
 
 S3method(train,   formula)
 S3method(pcaNNet, formula)
@@ -183,4 +196,18 @@ S3method(predictors, bagEarth)
 S3method(predictors, bagFDA)
 S3method(predictors, nnet)
 S3method(predictors, pcaNNet)
+
+S3method(confusionMatrix, table)
+
+S3method(sensitivity, table)
+S3method(specificity, table)
+
+S3method(posPredValue,    table)
+S3method(negPredValue,    table)
+
+S3method(posPredValue,    matrix)
+S3method(negPredValue,    matrix)
+
+S3method(as.table,  confusionMatrix)
+S3method(as.matrix, confusionMatrix)
 

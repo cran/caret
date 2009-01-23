@@ -11,6 +11,18 @@ library(randomForest)
 data(BloodBrain)
 data(mdrr)
 
+getInfo <- function(what = "Suggests")
+{
+  text <- packageDescription("caret")[what][[1]]
+  text <- gsub("\n", ", ", text, fixed = TRUE)
+  text <- gsub(">=", "$\\\\ge$", text, fixed = TRUE)
+  eachPkg <- strsplit(text, ", ", fixed = TRUE)[[1]]
+  
+  out <- paste("\\\\texttt{", eachPkg[order(tolower(eachPkg))], "}", sep = "")
+  paste(out, collapse = ", ")
+}
+
+
 
 ###################################################
 ### chunk number 2: oilData

@@ -72,14 +72,6 @@
 	
 \section{Introduction}
 
-
-The \texttt{caret} package (short for {\bf{\color{blue}{c}}}lassification {\bf{\color{blue}{a}}}nd {\bf{\color{blue}{re}}}gression {\bf{\color{blue}{t}}}raining) contains functions to streamline the model training process for complex regression and classification problems. The package utilizes a number of R packages but tries not to load them all at package start-up\footnote{By adding formal package dependencies, the package startup time can be greatly decreased}. The package ``suggests'' field includes \texttt{gbm}, \texttt{pls}, \texttt{gam}, \texttt{mlbench}, \texttt{rpart}, \texttt{ellipse}, \texttt{ipred}, \texttt{klaR}, \texttt{randomForest}, \texttt{gpls}, \texttt{pamr}, \texttt{kernlab}, \texttt{mda}, \texttt{mgcv}, \texttt{nnet}, \texttt{class}, \texttt{MASS}, \texttt{mboost}, \texttt{earth}, \texttt{party} and \texttt{ada}. \texttt{caret} loads packages as needed and assumes that they are installed. Install \texttt{caret} using 
-\begin{Verbatim}
-install.packages(caret, dependencies = c("Depends", "Suggests"))
-\end{Verbatim}
-to ensure that all the needed packages are installed.
-
-
 <<loadLibs, results = hide, echo = FALSE>>=
 library(caret)
 library(kernlab)
@@ -90,7 +82,25 @@ library(pls)
 library(randomForest)
 data(BloodBrain)
 data(mdrr)
+
+getInfo <- function(what = "Suggests")
+{
+  text <- packageDescription("caret")[what][[1]]
+  text <- gsub("\n", ", ", text, fixed = TRUE)
+  text <- gsub(">=", "$\\\\ge$", text, fixed = TRUE)
+  eachPkg <- strsplit(text, ", ", fixed = TRUE)[[1]]
+  
+  out <- paste("\\\\texttt{", eachPkg[order(tolower(eachPkg))], "}", sep = "")
+  paste(out, collapse = ", ")
+}
+
 @
+
+The \texttt{caret} package (short for {\bf{\color{blue}{c}}}lassification {\bf{\color{blue}{a}}}nd {\bf{\color{blue}{re}}}gression {\bf{\color{blue}{t}}}raining) contains functions to streamline the model training process for complex regression and classification problems. The package utilizes a number of R packages but tries not to load them all at package start-up\footnote{By adding formal package dependencies, the package startup time can be greatly decreased}. The package ``suggests'' field includes: \Sexpr{getInfo("Suggests")}. \texttt{caret} loads packages as needed and assumes that they are installed. Install \texttt{caret} using 
+\begin{Verbatim}
+install.packages(caret, dependencies = c("Depends", "Suggests"))
+\end{Verbatim}
+to ensure that all the needed packages are installed.
 
 
 \section{Example Data}

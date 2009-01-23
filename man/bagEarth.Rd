@@ -11,15 +11,15 @@
 
 \usage{
 \method{bagEarth}{formula}(formula, data = NULL, B = 50,
-      summary = mean, keepX = TRUE,
-      ..., subset, weights, na.action = na.omit) 
+         summary = mean, keepX = TRUE,
+         ..., subset, weights, na.action = na.omit) 
 \method{bagEarth}{default}(x, y, weights = NULL, B = 50, 
-      summary = mean, keepX = TRUE, ...)
+         summary = mean, keepX = TRUE, ...)
 }
 
 \arguments{
 
-  \item{formula}{A formula of the form 'y ~ x1 + x2 + ...' }
+  \item{formula}{A formula of the form \code{y ~ x1 + x2 + ...} }
 
   \item{x}{matrix or data frame of 'x' values for examples.} 
 
@@ -71,7 +71,7 @@ A list with elements
 library(mda)
 library(earth)
 data(trees)
-fit1 <-  earth(trees[,-3], trees[,3])
+fit1 <- earth(trees[,-3], trees[,3])
 fit2 <- bagEarth(trees[,-3], trees[,3], B = 10)
 }
 

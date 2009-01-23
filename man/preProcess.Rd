@@ -10,7 +10,8 @@ Pre-processing transformation (centering, scaling etc) can be estimated from the
 \usage{
 preProcess(x, ...)
 
-\method{preProcess}{default}(x, method = c("center", "scale"), thresh = 0.95, na.remove = TRUE, ...)
+\method{preProcess}{default}(x, method = c("center", "scale"), 
+           thresh = 0.95, na.remove = TRUE, ...)
 
 \method{predict}{preProcess}(object, newdata, ...)
 }

@@ -12,13 +12,13 @@
 \usage{
 bagFDA(x, ...)
 \method{bagFDA}{formula}(formula, data = NULL, B = 50, keepX = TRUE,
-   ..., subset, weights, na.action = na.omit)
+       ..., subset, weights, na.action = na.omit)
 \method{bagFDA}{default}(x, y, weights = NULL, B = 50, keepX = TRUE, ...)
 }
 
 \arguments{
 
-  \item{formula}{A formula of the form 'y ~ x1 + x2 + ...' }
+  \item{formula}{A formula of the form \code{y ~ x1 + x2 + ...} }
 
   \item{x}{matrix or data frame of 'x' values for examples.} 
 
@@ -78,8 +78,8 @@ testData  <- Glass[-inTrain, ]
 
 baggedFit <- bagFDA(Type ~ ., trainData)
 baggedMat <- table(
-   predict(baggedFit, testData[, -10]),
-   testData[, 10])
+                   predict(baggedFit, testData[, -10]),
+                   testData[, 10])
    
 print(baggedMat)
 
