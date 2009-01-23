@@ -7,7 +7,10 @@ trainControl <- function(
                          p = .75,
                          summaryFunction = defaultSummary,
                          selectionFunction = "best",
-                         index = NULL)
+                         index = NULL,
+                         workers = 1,
+                         computeFunction = lapply,
+                         computeArgs = NULL)
 {
   if(is.null(selectionFunction)) stop("null selectionFunction values not allowed")
   if(!(returnResamp %in% c("all", "final", "none"))) stop("incorrect value of returnResamp")
@@ -20,6 +23,11 @@ trainControl <- function(
        p = p,
        summaryFunction = summaryFunction,
        selectionFunction = selectionFunction,
-       index = index)
+       index = index,
+       workers = workers,
+       computeFunction = computeFunction,
+       computeArgs = computeArgs)
 }
+
+
 

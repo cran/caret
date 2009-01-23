@@ -6,7 +6,7 @@ a print method for \code{confusionMatrix}
 }
 \usage{
 \method{print}{confusionMatrix}(x, digits = max(3, getOption("digits") - 3),
-   printStats = TRUE, ...)
+      printStats = TRUE, ...)
 }
 \arguments{
   \item{x}{an object of class \code{confusionMatrix}}

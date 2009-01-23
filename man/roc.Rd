@@ -26,8 +26,8 @@ roc(data, class, dataGrid = TRUE, gridLength = 100, positive = levels(class)[1])
 \examples{
 set.seed(6)
 testData <- data.frame(
-   x = c(rnorm(200), rnorm(200) + 1),
-   group = factor(rep(letters[1:2], each = 200)))
+                       x = c(rnorm(200), rnorm(200) + 1),
+                       group = factor(rep(letters[1:2], each = 200)))
    
 densityplot(~testData$x, groups = testData$group, auto.key = TRUE)   
    

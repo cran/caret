@@ -34,7 +34,7 @@ User--defined functions can also be used. The argument \code{selectionFunction} 
 \value{
 an row index 
 }
-\references{Breiman, Friedman, Olshen, and Stone. (1984) {\it Classification and Regression Trees}. Wadsworth.}
+\references{Breiman, Friedman, Olshen, and Stone. (1984) \emph{Classification and Regression Trees}. Wadsworth.}
 \author{Max Kuhn}
 \note{
 In many cases, it is not very clear how to order the models on simplicity. For simple trees and other models (such as PLS), this is straightforward. However, for others it is not.

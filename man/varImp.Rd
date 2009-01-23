@@ -66,21 +66,21 @@ For models that do not have corresponding \code{varImp} methods, see
 Otherwise:
 
 
-   \item Linear Models: the absolute value of the t--statistic
+ \bold{Linear Models}: the absolute value of the t--statistic
    for each model parameter is used.
 
-   \item Random Forest: \code{varImp.randomForest} and
+ \bold{Random Forest}: \code{varImp.randomForest} and
    \code{varImp.RandomForest} are wrappers around the importance functions from the
    \pkg{randomForest} and \pkg{party} packages, respectively.
    
-   \item Partial Least Squares: the variable importance measure here is based on 
+   \bold{Partial Least Squares}: the variable importance measure here is based on 
    weighted sums of the absolute regression coefficients. The weights are a function of
    the reduction of the sums of squares across the number of PLS components and are 
    computed separately for each outcome. Therefore, the contribution of the coefficients
   are weighted proportionally to the reduction in the sums of squares.
   
    
-  \item Recursive Partitioning: The reduction in the loss function
+  \bold{Recursive Partitioning}: The reduction in the loss function
   (e.g. mean squared error) attributed to each variable at each split is 
   tabulated and the sum is returned. Also, since there may be candidate variables
   that are important but are not used in a split, the top competing variables are
@@ -88,12 +88,12 @@ Otherwise:
   argument in \code{rpart.control}. This method does not currently provide
   class--specific measures of importance when the response is a factor.
   
-  \item Bagged Trees: The same methodology as a single tree is applied to 
+  \bold{Bagged Trees}: The same methodology as a single tree is applied to 
   all bootstrapped trees and the total importance is returned
 
-  \item Boosted Trees: \code{varImp.gbm} is a wrapper around the function from that package (see the \pkg{gbm} package vignette)
+  \bold{Boosted Trees}: \code{varImp.gbm} is a wrapper around the function from that package (see the \pkg{gbm} package vignette)
   
-  \item Multivariate Adaptive Regression Splines: MARS models 
+  \bold{ Multivariate Adaptive Regression Splines}: MARS models 
         include a backwards elimination feature selection routine that
         looks at reductions in the generalized cross-validation (GCV)
         estimate of error. The \code{varImp} function tracks the changes in
@@ -120,7 +120,7 @@ Otherwise:
         counts the number of subsets where the variable is used (in the final, 
         pruned model). 
    
-  \item Nearest shrunken centroids: The difference between the class centroids and the overall centroid is used to measure the variable influence (see \code{pamr.predict}). The larger the difference between   the class centroid and the overall center of the data, the larger the separation between the classes. The training set predictions must be supplied when an object of class \code{pamrtrained} is given to \code{varImp}. 
+  \bold{Nearest shrunken centroids}: The difference between the class centroids and the overall centroid is used to measure the variable influence (see \code{pamr.predict}). The larger the difference between   the class centroid and the overall center of the data, the larger the separation between the classes. The training set predictions must be supplied when an object of class \code{pamrtrained} is given to \code{varImp}. 
 
   
 

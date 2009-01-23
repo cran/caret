@@ -16,6 +16,12 @@ train.default <- function(x, y,
   funcCall <- match.call(expand.dots = TRUE)
   
   modelType <- if(is.factor(y)) "Classification"  else "Regression"
+
+  ## There is a table (actually a data frame) that is produced by modelLookup with
+  ## (multiple) rows for each model. There is one row per model parameter and columns
+  ## for whether the model is used for regression, classification, the parameter name
+  ## and label and whether the model can be fit sequentially (i.e. multiple models can
+  ## be derived from the same R object).
   modelInfo <- modelLookup(method)
   
   if(modelType == "Classification")
@@ -27,7 +33,7 @@ train.default <- function(x, y,
       ## relative to the others
       classLevels <- levels(y)
       if(length(classLevels) > 2 & (method %in% c("gbm", "glmboost", "ada", "gamboost", "blackboost", "penalized", "glm")))
-        stop("This model is only implimented for two class problems")
+        stop("This model is only implemented for two class problems")
       if(metric %in% c("RMSE", "Rsquared")) 
         stop(paste("Metric", metric, "not applicable for classification models"))
     } else {
@@ -39,7 +45,8 @@ train.default <- function(x, y,
   
   if(trControl$method == "oob" & !(method %in% c("rf", "treebag", "cforest", "bagEarth", "bagFDA")))
     stop("for oob error rates, model bust be one of: rf, cforest, bagEarth, bagFDA or treebag")
-  
+
+  ## If they don't exist, make the data partitions for the resampling iterations.
   if(is.null(trControl$index)) trControl$index <- switch(
                                                          tolower(trControl$method),
                                                          oob = NULL,
@@ -49,7 +56,7 @@ train.default <- function(x, y,
                                                          test = createDataPartition(y, 1, trControl$p),
                                                          lgocv = createDataPartition(y, trControl$number, trControl$p))
   
-  ## Combine the features and classes into one df, as needed by ipred.
+  ## Combine the features and classes into one df
   trainData <- as.data.frame(x)
 
   ## Check mode for some models
@@ -58,14 +65,14 @@ train.default <- function(x, y,
       isFactor <- lapply(trainData, is.factor)
       isCharacter <- lapply(trainData, is.character)
       if(any(unlist(isFactor))   | any(unlist(isCharacter)))  
-        stop("All predictors must be numeric for this model") 
+        stop("All predictors must be numeric for this model. Use the formula interface: train(formula, data)") 
     }
 
   ## Add the outcome to the data passed into the functions
   trainData$.outcome <- y
 
   ## If no default training grid is specified, get one. We have to pass in the formula
-  ## and data for some models (rpart, pam, etc - see manual fo rmore details)
+  ## and data for some models (rpart, pam, etc - see manual for more details)
   if(is.null(tuneGrid)) tuneGrid <- createGrid(method, tuneLength, trainData)
 
   ##------------------------------------------------------------------------------------------------------------------------------------------------------#
@@ -74,27 +81,17 @@ train.default <- function(x, y,
   ## We only save the predictions at this point, not the models (and in the case of method = "oob" we 
   ## only save the prediction summaries at this stage.
   
-  ## trainInfo will hold teh infomration about how we should loop to train the model and what types
-  ## of parameters are used. If method = "oob", we need to setip a container for the resamplng 
-  ## summary statistics 
+  ## trainInfo will hold the information about how we should loop to train the model and what types
+  ## of parameters are used. 
   
   trainInfo <- tuneScheme(method, tuneGrid, trControl$method == "oob")
   paramCols <- paste(".", trainInfo$model$parameter, sep = "")
 
   if(trainInfo$scheme == "oob")
     {
-      ## For oob performance, we will make a container for the results
-      ## In other cases, it will be created on the fly after the predictions are made
-      if(modelType == "Regression")
-        {
-          performance <- data.frame(matrix(NA, ncol = 4, nrow = dim(trainInfo$loop)[1]))   
-          names(performance) <- c("RMSE", "Rsquared", "RMSESD", "RsquaredSD")      
-        } else {
-          performance <- data.frame(matrix(NA, ncol = 4, nrow = dim(trainInfo$loop)[1]))   
-          names(performance) <- c("Accuracy", "Kappa", "AccuracySD", "KappaSD")
-        }
-      perfNames <- c("Accuracy", "Kappa")
+      perfNames <- if(modelType == "Regression") c("RMSE", "Rsquared") else  c("Accuracy", "Kappa")    
     } else {
+      ## get phoney performance to obtain the names of the outputs
       testOutput <- data.frame(pred = sample(y, min(10, length(y))),
                                obs = sample(y, min(10, length(y))))
       perfNames <- names(trControl$summaryFunction(testOutput,
@@ -115,98 +112,60 @@ train.default <- function(x, y,
                     sep = ""))
     }
 
-  results <- NULL
-  for(j in 1:nrow(trainInfo$loop))
-    {
 
-      if(trControl$verboseIter)
-        {
-          iterPrint(trainInfo, j)            
-          flush.console() 
-        }
-      
-      argList <- list(
-                      data = trainData,
-                      method = method,
-                      tuneValue = trainInfo$loop[j,, drop = FALSE],
-                      obsLevels = classLevels)
-      argList <- append(argList, list(...))         
-      
-      
-      switch(
-             trainInfo$scheme,
-             basic = 
-             {
-               thisIter <- byResampleBasic(
-                                           trControl$index,
-                                           argList,
-                                           trainInfo$loop[j, trainInfo$constant,drop = FALSE]) 
-               results <- rbind(results, thisIter)
-             },
-             seq = 
-             {
-               thisIter <- byResampleSeq(
-                                         trControl$index,
-                                         argList,
-                                         trainInfo$seqParam[[j]],
-                                         trainInfo$loop[j, trainInfo$constant,drop = FALSE])           
-               results <- rbind(results, thisIter)
-             },
-             oob =
-             {
-               tmpModelFit <- do.call(createModel, argList)      
-               tmpPerf <- switch(
-                                 class(tmpModelFit)[1],
-                                 randomForest = rfStats(tmpModelFit),
-                                 RandomForest = cforestStats(tmpModelFit),
-                                 bagEarth =, bagFDA = bagEarthStats(tmpModelFit),
-                                 regbagg =, classbagg = ipredStats(tmpModelFit))
-               performance[j, names(performance) %in% names(tmpPerf)] <- tmpPerf           
-               
-               
-             })     
-    }   
- 
-  paramNames <- substring(names(tuneGrid), 2)
+  ## Now, we setup arguments to lapply (or similar functions) executed via do.call
+  ## workerData will split up the data need for the jobs
+  argList <- list(X = workerData(trainData,
+                    trControl$index,
+                    trainInfo, method,
+                    classLevels,
+                    trControl$workers,
+                    trControl$verboseIter,
+                    ...),
+                  FUN = workerTasks)
+
+  ## Append the extra objects needed to do the work (See the parallel examples in
+  ## ?train to see examples
+  if(!is.null(trControl$computeArgs)) argList <- c(argList, trControl$computeArgs)
+
+  ## Get the predictions (or summaries for OOB)
+  listOutput <- do.call(trControl$computeFunction, argList)
+
+  if(trControl$method != "oob")
+    {
+      results <- do.call("rbind", listOutput)
+    } else {
+      performance <- cbind(trainInfo$loop, do.call("rbind", listOutput))
+      colnames(performance) <- gsub("^\\.", "", colnames(performance))
+    }
+
+  paramNames <- names(tuneGrid)
+  paramNames <- gsub("^\\.", "", paramNames)
+
+  ## Now take the predictions and boil them down to performance matrics per tuning
+  ## parameter and resampling combo.
   if(trControl$method != "oob")
     {     
-      perResample <- poolByResample(results,
-                                    tuneGrid,
-                                    trControl$summaryFunction,
-                                    perfNames,
-                                    classLevels,
-                                    method)
-      performance <- summarize(perResample, tuneGrid)
-
-      ## There are some cases where every resampled model
-      ## failed for the tuning parameter(s). Catch these.
-      goodResults <- complete.cases(performance)
-      if(any(!goodResults))
-        {
-          if(trControl$verboseIter) cat(paste("These were", sum(!goodResults), "combinations with invalid results\n\n")) 
-          performance <- performance[goodResults,]
-        }
-
-      pNames <- names(performance)
-      pNames[pNames %in% names(tuneGrid)] <- paramNames
-      names(performance) <- pNames
-      
-    } else {
-      tmpLoop <- trainInfo$loop
-      names(tmpLoop) <- substring(names(tmpLoop), 2)
-      performance <- cbind(tmpLoop, performance)  
+      resampleResults <- getPerformance(results,
+                                        paramCols,
+                                        trControl$summaryFunction,
+                                        classLevels,
+                                        method,
+                                        trControl$method == "LOOCV")
+      perResample <- resampleResults$values
+      performance <- resampleResults$results
     }
   
   perfCols <- names(performance)
   perfCols <- perfCols[!(perfCols %in% paramNames)]
 
-  ## Sort the tuning parameters form least complex to most complex
+  ## Sort the tuning parameters from least complex to most complex
   performance <- byComplexity(performance, method)
 
   ## select the optimal set
-
   selectClass <- class(trControl$selectionFunction)[1]
 
+  ## Select the "optimal" tuning parameter.
   if(selectClass == "function")
     {
       bestIter <- trControl$selectionFunction(
@@ -232,10 +191,13 @@ train.default <- function(x, y,
                                  maximize = maximize))
       }
   }
-  
+
+
+  ## Based on the optimality criterion, select the tuning parameter(s)
   bestTune <- performance[bestIter, trainInfo$model$parameter, drop = FALSE]
   names(bestTune) <- paste(".", names(bestTune), sep = "") 
-  
+
+  ## Save some or all of the resampling summary metrics
   if(trControl$method != "oob")
     {
       
@@ -257,7 +219,8 @@ train.default <- function(x, y,
       byResample <- NULL        
     } 
 
-  ## $eorder rows of performance
+
+  ## Reorder rows of performance
   orderList <- list()
   for(i in seq(along = trainInfo$model$parameter))
     {
@@ -266,9 +229,7 @@ train.default <- function(x, y,
   names(orderList) <- trainInfo$model$parameter
   performance <- performance[do.call("order", orderList),]      
   
-  
-  ##------------------------------------------------------------------------------------------------------------------------------------------------------#
-
+  ## Make the final model based on the tuning results
   finalModel <- createModel(
                             trainData, 
                             method = method, 

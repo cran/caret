@@ -46,10 +46,10 @@ print.confusionMatrix <- function(x, digits = max(3, getOption("digits") - 3), p
          print(out, quote = FALSE)
          
          cat("\nStatistics by Class:\n\n")
-         print(x$byClass, digits = digits)
+         print(t(x$byClass), digits = digits)
          
       } else {
-      
+
          overallText <- c(
                       overallText,
                       "",
@@ -63,13 +63,25 @@ print.confusionMatrix <- function(x, digits = max(3, getOption("digits") - 3), p
                                 overallNames == "",
                                 "",
                                 paste(overallNames, ":"))
+
+         overallNames <- c(overallNames,
+                           "",
+                           "'Postive' Class :")
+         overallText <- c(overallText,
+                          "",
+                          x$positive)
+         
          out <- cbind(
                       format(overallNames, justify = "right"),
                       overallText)
          colnames(out) <- rep("", ncol(out))
          rownames(out) <- rep("", nrow(out))
+
+
+         out <- rbind(out, rep("", 2))
          
          print(out, quote = FALSE)
+
       }
 
         

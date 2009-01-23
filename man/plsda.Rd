@@ -20,7 +20,7 @@ plsda(x, ...)
   \item{ncomp}{the number of components to include in the model. Predictions can be made for models with values less than \code{ncomp}. }
   \item{probMethod}{either "softmax" or "Bayes" (see Details)}
   \item{prior}{a vector or prior probabilities for the classes (only used for \code{probeMethod = "Bayes"}}
-  \item{\dots}{arguments to pass to \code{\link[pls]{plsr}} (code{plsda} only)}
+  \item{\dots}{arguments to pass to \code{\link[pls]{plsr}} (\code{plsda} only)}
   \item{object}{an object produced by \code{plsda}}
   \item{newdata}{a matrix or data frame of predictors}
   \item{type}{either \code{"class"}, \code{"prob"} or \code{"raw"} to produce the predicted class, class probabilities  or the raw model scores, respectively.}  
@@ -30,9 +30,11 @@ If a factor is supplied, the appropriate indicator matrix is created by \code{pl
 
 A multivariate PLS model is fit to the indicator matrix using the \code{\link[pls]{plsr}} function. 
 
-Two prediciton methods can be used:
-  \item{the softmax function}{The softmax functions transforms the model predictions to "probability-like" values (e.g. on  [0, 1] and sum to 1). The class with the largest class probability is the predicted class }  
-  \item{Bayes rule }{Bayes rule can be applied to the model predictions to form posterior probabilities. Here, the model predictions for the training set are used along with the training set outcomes to create conditional distributions for each class. When new samples are predicted, the raw model predictions are run through these conditional distributions to produce a posterior probability for each class (along with the prior). This process is repeated \code{ncomp} times for every possible PLS model. The \code{\link[klaR]{NaiveBayes}} function is used with \code{usekernel = TRUE} for the posterior probability calculations.}
+Two prediciton methods can be used in \code{plsda}.
+
+  The \bold{softmax function} transforms the model predictions to "probability-like" values (e.g. on  [0, 1] and sum to 1). The class with the largest class probability is the predicted class.
+
+   Also, \bold{Bayes rule} can be applied to the model predictions to form posterior probabilities. Here, the model predictions for the training set are used along with the training set outcomes to create conditional distributions for each class. When new samples are predicted, the raw model predictions are run through these conditional distributions to produce a posterior probability for each class (along with the prior). This process is repeated \code{ncomp} times for every possible PLS model. The \code{\link[klaR]{NaiveBayes}} function is used with \code{usekernel = TRUE} for the posterior probability calculations.
 
 }
 \value{

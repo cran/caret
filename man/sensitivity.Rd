@@ -1,9 +1,21 @@
 \name{sensitivity}
 \alias{sensitivity}
+\alias{sensitivity.default}
+\alias{sensitivity.table}
+\alias{sensitivity.matrix}
 \alias{specificity}
-\alias{negPredValue}
+\alias{specificity.default}
+\alias{specificity.table}
+\alias{specificity.matrix}
 \alias{posPredValue}
-\title{Calculate Sensitivity, Specificity and predictive values}
+\alias{posPredValue.default}
+\alias{posPredValue.table}
+\alias{posPredValue.matrix}
+\alias{negPredValue}
+\alias{negPredValue.default}
+\alias{negPredValue.table}
+\alias{negPredValue.matrix}
+\title{Calculate sensitivity, specificity and predictive values}
 \description{
  These functions calculate the sensitivity, specificity or predictive values of a measurement system compared to a 
   reference results (the truth or a gold standard). The measurement and "truth" 
@@ -21,19 +33,59 @@
  of  negative positives that are actually negative.
 }
 \usage{
-sensitivity(data, reference, positive = levels(reference)[1])
-specificity(data, reference, negative = levels(reference)[2])
-posPredValue(data, reference, positive = levels(reference)[1])
-negPredValue(data, reference, negative = levels(reference)[2])
+sensitivity(data, ...)
+\method{sensitivity}{default}(data, reference, positive = levels(reference)[1], ...)
+\method{sensitivity}{table}(data, positive = rownames(data)[1], ...)
+\method{sensitivity}{matrix}(data, positive = rownames(data)[1], ...)
+
+specificity(data, ...)
+\method{specificity}{default}(data, reference, negative = levels(reference)[-1], ...)
+\method{specificity}{table}(data, negative = rownames(data)[-1], ...)
+\method{specificity}{matrix}(data, negative = rownames(data)[-1], ...)
+
+posPredValue(data, ...)
+\method{posPredValue}{default}(data, reference, positive = levels(reference)[1], 
+             prevalence = NULL, ...)
+\method{posPredValue}{table}(data, positive = rownames(data)[1], prevalence = NULL, ...)
+\method{posPredValue}{matrix}(data, positive = rownames(data)[1], prevalence = NULL, ...)
+
+negPredValue(data, ...)
+\method{negPredValue}{default}(data, reference, negative = levels(reference)[2], 
+             prevalence = NULL, ...)
+\method{negPredValue}{table}(data, negative = rownames(data)[-1], prevalence = NULL, ...)
+\method{negPredValue}{matrix}(data, negative = rownames(data)[-1], prevalence = NULL, ...)
+
 }
 
 \arguments{
-  \item{data}{a factor containing the discrete measurements}
+  \item{data}{for the default functions, a factor containing the discrete measurements. For the \code{table} or \code{matrix} functions, a table or matric object, respectively.}
   \item{reference}{a factor containing the reference values}
   \item{positive}{a character string that defines the factor level corresponding to 
   the "positive" results}
   \item{negative}{a character string that defines the factor level corresponding to 
   the "negative" results}  
+  \item{prevalence}{a numeric value for the rate of the "positive" class of the data}
+  \item{...}{not currently used}
+}
+
+\details{
+Suppose a 2x2 table with notation
+
+ \tabular{rcc}{
+                    \tab Reference \tab          \cr
+         Predicted  \tab Event     \tab No Event \cr
+         Event      \tab A         \tab B        \cr
+         No Event   \tab C         \tab D        \cr
+       }
+
+The formulas used here are:
+\deqn{Sensitivity = A/(A+C)}
+\deqn{Specificity = D/(B+D)}
+\deqn{Prevalence = (A+C)/(A+B+C+D)}
+\deqn{PPV = (sensitivity * Prevalence)/((sensitivity*Prevalence) + ((1-specificity)*(1-Prevalence)))}
+\deqn{NPV = (specificity * (1-Prevalence))/(((1-sensitivity)*Prevalence) + ((specificity)*(1-Prevalence)))}
+
+See the references for discusions of the statistics.
 }
 
 \value{
@@ -41,72 +93,79 @@ negPredValue(data, reference, negative = levels(reference)[2])
 }
 
 \author{Max Kuhn}
+\references{Kuhn, M. (2008), ``Building predictive models in R using the caret package, '' \emph{Journal of Statistical Software}, (\url{http://www.jstatsoft.org/v28/i05/}).
+
+Altman,  D.G., Bland,  J.M. (1994) ``Diagnostic tests 1: sensitivity and specificity,'' \emph{British Medical Journal}, vol 308, 1552.
+
+Altman,  D.G., Bland,  J.M. (1994) ``Diagnostic tests 2: predictive values,'' \emph{British Medical Journal}, vol 309, 102. 
+}
+\seealso{\code{\link{confusionMatrix}}}
 
 \examples{
-data01 <- factor(c("A", "B", "B", "B"))
-data02 <- factor(c("A", "B", "B", "B"))
+###################
+## 2 class example
 
-ref01 <- factor(c("B", "B", "B", "B"))
-ref02 <- factor(c("B", "A", "B", "B"))
+lvs <- c("normal", "abnormal")
+truth <- factor(rep(lvs, times = c(86, 258)),
+                levels = rev(lvs))
+pred <- factor(
+               c(
+                 rep(lvs, times = c(54, 32)),
+                 rep(lvs, times = c(27, 231))),               
+               levels = rev(lvs))
 
+xtab <- table(pred, truth)
 
-table(data01, ref01)
-sensitivity(data01, ref01)
-posPredValue(data01, ref01)
+sensitivity(pred, truth)
+sensitivity(xtab)
+posPredValue(pred, truth)
+posPredValue(pred, truth, prevalence = 0.25)
 
-table(data02, ref02)
-sensitivity(data02, ref02)
-posPredValue(data02, ref02)
-
-data03 <- factor(c("A", "B", "B", "B"))
-data04 <- factor(c("B", "B", "B", "B"))
-
-ref03 <- factor(c("B", "B", "B", "B"), levels = c("A", "B"))
-ref04 <- factor(c("B", "A", "B", "B"))
-
-
-table(data03, ref03)
-specificity(data03, ref03)
-negPredValue(data03, ref03)
-
-table(data04, ref04)
-specificity(data04, ref04)
-negPredValue(data04, ref04)
+specificity(pred, truth)
+negPredValue(pred, truth)
+negPredValue(xtab)
+negPredValue(pred, truth, prevalence = 0.25)
 
 
-\dontshow{
+prev <- seq(0.001, .99, length = 20)
+npvVals <- ppvVals <- prev  * NA
+for(i in seq(along = prev))
+  {
+    ppvVals[i] <- posPredValue(pred, truth, prevalence = prev[i])
+    npvVals[i] <- negPredValue(pred, truth, prevalence = prev[i])
+  }
 
-   if(!isTRUE(all.equal(sensitivity(data01, ref01), .75))) stop("error in sensitivity test 1")
+plot(prev, ppvVals,
+     ylim = c(0, 1),
+     type = "l",
+     ylab = "",
+     xlab = "Prevalence (i.e. prior)")
+points(prev, npvVals, type = "l", col = "red")
+abline(h=sensitivity(pred, truth), lty = 2)
+abline(h=specificity(pred, truth), lty = 2, col = "red")
+legend(.5, .5,
+       c("ppv", "npv", "sens", "spec"),
+       col = c("black", "red", "black", "red"),
+       lty = c(1, 1, 2, 2))
 
-   if(!isTRUE(all.equal(sensitivity(data02, ref02), 0))) stop("error in sensitivity test 2")
+###################
+## 3 class example
 
-   ref03 <- factor(c("B", "B", "B", "B"))
+library(MASS)
 
-   if(!is.na(sensitivity(data02, ref03, "A"))) stop("error in sensitivity test3")
-      
-   options(show.error.messages = FALSE)
-   test1 <-try(sensitivity(data02, as.character(ref03)))
-   if(grep("Error", test1) != 1)
-      stop("error in sensitivity calculation - allowed non-factors")
-   options(show.error.messages = TRUE)
-   
-   
-   ref03 <- factor(c("B", "B", "B", "B"), levels = c("A", "B"))
-   
-   if(!isTRUE(all.equal(specificity(data03, ref03), .75))) stop("error in specificity test 1")
+fit <- lda(Species ~ ., data = iris)
+model <- predict(fit)$class
 
-   if(!isTRUE(all.equal(specificity(data04, ref04), 1.00))) stop("error in specificity test 2")
+irisTabs <- table(model, iris$Species)
 
-   if(!is.na(specificity(data01, ref01, "A"))) stop("error in specificity test3")
-      
-   options(show.error.messages = FALSE)
-   test1 <-try(specificity(data04, as.character(ref03)))
-   if(grep("Error", test1) != 1)
-      stop("error in specificity calculation - allowed non-factors")
-   options(show.error.messages = TRUE)
-      
-}
+## When passing factors, an error occurs with more
+## than two levels
+\dontrun{sensitivity(model, iris$Species)}
 
+## When passing a table, more than two levels can
+## be used
+sensitivity(irisTabs, "versicolor")
+specificity(irisTabs, c("setosa", "virginica"))
 
 }
 \keyword{manip}

@@ -7,11 +7,11 @@
 }
 \usage{
 \method{plot}{train}(x, 
-   plotType = "scatter",
-   metric = x$perfNames[1],
-   digits = getOption("digits") - 5, 
-   xTrans = NULL, 
-   ...)
+     plotType = "scatter",
+     metric = x$perfNames[1],
+     digits = getOption("digits") - 5, 
+     xTrans = NULL, 
+     ...)
 }
 \arguments{
   \item{x}{an object of class \code{\link{train}}.}
@@ -53,12 +53,12 @@ TrainClasses <- iris[,5]
 
 library(e1071)
 rpartFit <- train(TrainData, TrainClasses, "rpart", 
-   tuneLength=15)
+                  tuneLength=15)
 plot(rpartFit, scales = list(x = list(rot = 90)))
 
 library(klaR)
 rdaFit <- train(TrainData, TrainClasses, "rda", 
-   control = trainControl(method = "cv"))
+                control = trainControl(method = "cv"))
 plot(rdaFit, plotType = "line", auto.key = TRUE)
  }
    

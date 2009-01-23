@@ -12,7 +12,10 @@ trainControl(
              p = 0.75, 
              summaryFunction = defaultSummary,
              selectionFunction = "best",
-             index = NULL)
+             index = NULL,
+             workers = 1,
+             computeFunction = lapply,
+             computeArgs = NULL)
 }
 \arguments{
   \item{method}{The resampling method: \code{boot}, \code{cv},
@@ -26,6 +29,9 @@ trainControl(
   \item{summaryFunction}{a function to compute performance metrics across resamples. The arguments to the function should be the same as those in \code{\link{defaultSummary}}.}
   \item{selectionFunction}{the function used to select the optimal tuning parameter. This can be a name of the function or the funciton itself. See \code{\link{best}} for details and other options.}
   \item{index}{a list with elements for each resampling iteration. Each list element is the sample rows used for training at that iteration.}
+  \item{workers}{an integer that specifies how many machines/processors will be used}
+  \item{computeFunction}{a function that is \code{\link[base]{lapply}} or emulates \code{lapply}. It must have arguments \code{X}, \code{FUN} and \code{...}. \code{computeFunction} can be used to build models in parallel. See the examples in \code{link{train}}.}
+  \item{computeArgs}{Extra arguments to pass into the \code{...} slore in \code{computeFunction}. See the examples in \code{link{train}}.}
 }
 
 \value{

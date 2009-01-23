@@ -1,4 +1,46 @@
 -------------------
+Version: 4.05
+Date: 2009-01-23
+
+Updated again for more stringent R CMD check tests in R-devel 2.9
+
+-------------------
+Version: 4.04
+Date: 2009-01-22
+
+Updated for more stringent R CMD check tests in R-devel 2.9
+
+-------------------
+Version: 4.03
+Date: 2009-01-20
+
+Significant internal changes were made to how the models are fit. Now, the 
+function used to compute the models is passed in as a parameter (defaulting to 
+lapply). In this way, users can use their own parallel processing software 
+without new versions of caret. Examples are given in ?train.
+
+Also, fixed a bug where the MSE (instead of RMSE) was reported for 
+random forest OOB resampling
+
+There are more examples in ?train.
+
+Changes to confusionMatrix, sensitivity, specificity and the 
+predicitive value functions:
+
+  - each was made more generic with defult and table methods
+  - confusionMatrix "extractor" functions for matrices and tables 
+    were added
+  - the pos/neg predicted value computations were changed to incorporate 
+    prevalence
+  - prevalence was added as an option to several functions 
+  - detection rate and prevalence statistics were added to confusionMatrix
+  - the examples were expanded in the help files
+
+This verison of caret will break compatability with caretLSF and 
+caretNWS. However, these packages will not be needed now and will be 
+depricated.
+
+-------------------
 Version: 3.51
 Date: 2008-12-03
 

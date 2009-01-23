@@ -74,7 +74,7 @@ byComplexity <- function(x, model)
            },
            ada =
            {
-             x[order(x$iter, x$maxdepth, x$.nu),]
+             x[order(x$iter, x$maxdepth, x$nu),]
            },
            ctree =
            {

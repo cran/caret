@@ -16,8 +16,6 @@ ipredStats(x)
 rfStats(x)
 bagEarthStats(x)
 cforestStats(x)
-byResampleBasic(ind, x, combo = NULL)
-byResampleSeq(ind, x, seq, combo)
 }
 \author{Max Kuhn, but \code{caretTheme} uses an expanded grid of the "Blues" palette designed by Cynthia Brewer and Mark Harrower}
 

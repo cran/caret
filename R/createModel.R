@@ -3,8 +3,8 @@
   function(data, method, tuneValue, obsLevels, ...)
 {
 
-                                        # pam and will crash if there is a resample with <2 observations
-                                        # in a class. We will detect this and remove those classes.
+  ## pam and will crash if there is a resample with <2 observations
+  ## in a class. We will detect this and remove those classes.
   if(method %in% c("pam"))
     {
       yDist <- table(data$.outcome)
@@ -17,26 +17,24 @@
 
   type <- if(is.factor(data$.outcome)) "Classification" else "Regression"
 
-                                        # whenever possible, instead of using formulas, we will use matrix interfaces to 
-                                        # call models. For data sets with a lot of factors, the terms 
-                                        # object created using formulas gets huge and the same thing can 
-                                        # usually be accomplished with the non-formula interface
+  ## whenever possible, instead of using formulas, we will use matrix interfaces to 
+  ## call models. For data sets with a lot of factors, the terms 
+  ## object created using formulas gets huge and the same thing can 
+  ## usually be accomplished with the non-formula interface
 
   modFormula <- as.formula(".outcome ~ .")
 
-                                        # We refactor the class labels. Some methods bark/crash when there are
-                                        # factor levels that do not have values represented in the data (nnet produces
-                                        # a warning and randomForest throws an error). 
-  if(type == "Classification") data$.outcome <- factor(data$.outcome)
+  ## We refactor the class labels. Some methods bark/crash when there are
+  ## factor levels that do not have values represented in the data (nnet produces
+  ## a warning and randomForest throws an error). 
+  if(type == "Classification") data$.outcome <- factor(as.character(data$.outcome), levels = obsLevels)
 
-                                        # Later, when we assign predictions, we will convert perdicitons to 
-                                        # character and then create factors from them with levels originally
-                                        # found in the object obsLevels.
+  ## Later, when we assign predictions, we will convert predictions to 
+  ## character and then create factors from them with levels originally
+  ## found in the object obsLevels.
 
-                                        # Some routines dont have formula inputs (or dont handle them well)
-                                        # so extract the feature matrix and class factor.
-                                        # for svm, we can use the formula interface, but we can't save predicted
-                                        # probabilites, so we will use the svm(x, y) interface
+  ## Some routines dont have formula inputs (or dont handle them well)
+  ## so extract the feature matrix and class factor.
   if(method %in% c("glmboost", "blackboost", "gamboost", "earth", "earthTest",
                    "bagFDA", "bagEarth", "lda", "enet", "lasso",
                    "lvq", "pls", "plsTest", "gbm", "pam", "rf", "logitBoost",
@@ -68,6 +66,10 @@
                      gbm =  
                      {
                        library(gbm)
+                       ## train will figure out whether we are doing classification or reggression
+                       ## from the class of the outcome and automatically specify the value of
+                       ## 'distribution' in the control file. If the user wants to over-ride this,
+                       ## this next bit will allow this.
                        theDots <- list(...)
                        if(any(names(theDots) == "distribution"))
                          {
@@ -96,15 +98,15 @@
                      },
                      rfNWS =
                      {
-                                        # The following is sneaky. I'm trying to avoid having this package
-                                        # listed in the description file since it is commercial package and
-                                        # not on cran.
+                       ## The following is sneaky. I'm trying to avoid having this package
+                       ## listed in the description file since it is commercial package and
+                       ## not on cran.
                        do.call("library", list("randomForestNWS"))
                        randomForestNWS(trainX, trainY, mtry = tuneValue$.mtry, ...)
                      },
                      rfLSF =
                      {
-                                        # See above
+                       ## See above
                        do.call("library", list("caretLSF"))
                        rfLSF(trainX, trainY, mtry = tuneValue$.mtry, ...)
                      },                     
@@ -159,9 +161,9 @@
                      rvmPoly = 
                      {
                        library(kernlab)
-                                        # As of version 0.9-5 of kernlab, there was a small inconsistency
-                                        # between methods on how to specific kernels. Unlike ksvm, we specify
-                                        # them here via kpar (same for polynomial kernels)
+                       ## As of version 0.9-5 of kernlab, there was a small inconsistency
+                       ## between methods on how to specify kernels. Unlike ksvm, we specify
+                       ## them here via kpar (same for polynomial kernels)
 
                        out <- rvm(
                                   as.matrix(trainX),
@@ -320,13 +322,7 @@
 
                        out
                      },
-                     
-                     PLS = 
-                     {    
-                       library(pls)
-                       out <- PLS(trainX, trainY, ncomp = tuneValue$.ncomp, ...)
-                       out
-                     },         
+                              
                      pam = 
                      {
                        library(pamr)      
@@ -347,7 +343,6 @@
                        
                        theDots <- list(...)
                        theDots$keepxy <- TRUE 
-                                        #                       theDots$pmethod <- "none"        
                        
                        modelArgs <- c(
                                       list(
@@ -413,7 +408,7 @@
                      {
                        library(mboost)
                        
-                                        #check for control list and over-write mstop
+                       ##check for control list and over-write mstop
                        theDots <- list(...)
                        if(any(names(theDots) == "control"))
                          {
@@ -435,7 +430,6 @@
                                            control = ctl),
                                       theDots)
                        
-                                        # need to do do.call
                        out <- do.call("glmboost", modelArgs)
                        
                        if(tuneValue$.prune == "yes")
@@ -443,9 +437,9 @@
                            out <- if(is.factor(trainY)) out[mstop(AIC(out, "classical"))] else out[mstop(AIC(out))]
                          }
                        
-                                        # for easier printing (and tracebacks), we'll try to make the calls shorter
-                                        # by adding dummy object names instead of the long obkect definitions that
-                                        # currently exist
+                       ## for easier printing (and tracebacks), we'll try to make the calls shorter
+                       ## by adding dummy object names instead of the long obkect definitions that
+                       ## currently exist
                        
                        out$call["x"] <- "xData"         
                        out$call["y"] <- "yData"         
@@ -457,7 +451,6 @@
                      {
                        library(mboost)
                        
-                                        #check for control list and over-write mstop
                        theDots <- list(...)
                        if(any(names(theDots) == "control"))
                          {
@@ -479,17 +472,13 @@
                                            control = ctl),
                                       theDots)
                        
-                                        # need to do do.call
+                       
                        out <- do.call("gamboost", modelArgs)
                        
                        if(tuneValue$.prune == "yes")
                          {
                            tmp <- if(is.factor(trainY)) try(out[mstop(AIC(out, "classical"))], silent = TRUE) else try(out[mstop(AIC(out))], silent = TRUE)
                          }
-
-                                        # for easier printing (and tracebacks), we'll try to make the calls shorter
-                                        # by adding dummy object names instead of the long obkect definitions that
-                                        # currently exist
                        
                        out$call["x"] <- "xData"         
                        out$call["y"] <- "yData"  
@@ -500,8 +489,6 @@
                      blackboost = 
                      {
                        library(mboost)
-                       
-                                        #check for control lists and over-write mstop and maxdepth
                        
                        theDots <- list(...)
                        
@@ -537,10 +524,6 @@
                        
                        out <- do.call("blackboost", modelArgs)
 
-                                        # for easier printing (and tracebacks), we'll try to make the calls shorter
-                                        # by adding dummy object names instead of the long obkect definitions that
-                                        # currently exist
-                       
                        out$call["x"] <- "xData"         
                        out$call["y"] <- "yData"  
                        
@@ -573,10 +556,6 @@
                        
                        out <- do.call("ada", modelArgs)
                        
-                                        # for easier printing (and tracebacks), we'll try to make the calls shorter
-                                        # by adding dummy object names instead of the long object definitions that
-                                        # currently exist
-                       
                        out$call["x"] <- "xData"         
                        out$call["y"] <- "yData"  
                        
@@ -591,7 +570,7 @@
                        
                        if(any(names(theDots) == "control"))
                          {
-                           theDots$control$mincriterion <- tuneValue$.mincriterion 
+                           theDots$control@gtctrl@mincriterion <- tuneValue$.mincriterion 
                            ctl <- theDots$control
                            theDots$control <- NULL
                            
@@ -616,8 +595,8 @@
                        
                        if(any(names(theDots) == "control"))
                          {
-                           theDots$control$maxdepth <- tuneValue$.maxdepth
-                           theDots$control$mincriterion <- 0
+                           theDots$control@tgctrl@maxdepth <- tuneValue$.maxdepth
+                           theDots$control@gtctrl@mincriterion <- 0
                            ctl <- theDots$control
                            theDots$control <- NULL
                            
@@ -644,7 +623,7 @@
                        
                        if(any(names(theDots) == "control"))
                          {
-                           theDots$control$mtry <- tuneValue$.mtry 
+                           theDots$control@gtctrl@mtry <- as.integer(tuneValue$.mtry) 
                            ctl <- theDots$control
                            theDots$control <- NULL
                            
@@ -666,18 +645,18 @@
                        lmbda <- if(method == "lasso") 1 else tuneValue$.lambda
                        enet(as.matrix(trainX), trainY, lambda = lmbda) 
                      },
-                                        #                     glmnet =
-                                        #                     {
-                                        #                       library(glmnet)
-                                        #                       numLev <- if(is.character(trainY) | is.factor(trainY)) length(levels(trainY)) else NA
-                                        #                       if(!is.na(numLev))
-                                        #                         {
-                                        #                           fam <- ifelse(numLev > 2, "multinomial", "binomial")
-                                        #                         } else fam <- "gaussian"
-                                        #                       glmnet(as.matrix(x), y, alpha = tuneValue$.alpha, family = fam, ...)
-                                        #
-                                        #
-                                        #                     },
+                     ##                     glmnet =
+                     ##                     {
+                     ##                       library(glmnet)
+                     ##                       numLev <- if(is.character(trainY) | is.factor(trainY)) length(levels(trainY)) else NA
+                     ##                       if(!is.na(numLev))
+                     ##                         {
+                     ##                           fam <- ifelse(numLev > 2, "multinomial", "binomial")
+                     ##                         } else fam <- "gaussian"
+                     ##                       glmnet(as.matrix(x), y, alpha = tuneValue$.alpha, family = fam, ...)
+                     ##
+                     ##
+                     ##                     },
                      
                      sddaLDA = 
                      {
@@ -801,7 +780,7 @@
                        out <- superpc.train(list(x = t(trainX), y = trainY),
                                             type = "regression",
                                             ...)
-                                        # prediction will need to source data, so save that too
+                       ## prediction will need to source data, so save that too
                        out$data <- list(x = t(trainX), y = trainY)
                        out
                      },
@@ -886,11 +865,11 @@
   ## need to cache the model (per Kurt Hornik on 2008-10-05)
   if(method %in% c("JRip", "LMT", "M5Rules", "J48")) .jcache(modelFit$classifier)
   
-                                        #save a few items so we have a self contained set of information in the model. this will
-                                        # also carry over to the finalModel if returnData = TRUE in train call
+  ##save a few items so we have a self contained set of information in the model. this will
+  ## also carry over to the finalModel if returnData = TRUE in train call
 
-                                        # for models using S4 classes, you can't easily append data, so 
-                                        # exclude these and we'll use other methods to get this information
+  ## for models using S4 classes, you can't easily append data, so 
+  ## exclude these and we'll use other methods to get this information
   if(!(tolower(method) %in% tolower(c("svmRadial", "svmPoly",
                                       "rvmRadial", "rvmPoly",
                                       "lssvmRadial", "lssvmPoly",
