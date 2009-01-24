@@ -187,7 +187,7 @@ probFunction <- function(method, modelFit, newdata)
                       logitBoost =
                       {
                         library(caTools)
-                        out <- caTools::predict(modelFit, newdata, type = "raw")
+                        out <- caTools::predict.LogitBoost(modelFit, newdata, type = "raw")
                                         # I've seen them not be on [0, 1]
                         out <- t(apply(out, 1, function(x) x/sum(x)))
                         out
@@ -208,7 +208,7 @@ probFunction <- function(method, modelFit, newdata)
                         dimnames(out)[[2]] <-  modelFit$obsLevels
                         out
                       },
-                      splsda =
+                      spls =
                       {
                         library(spls)
                         if(!is.matrix(newdata)) newdata <- as.matrix(newdata)

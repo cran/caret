@@ -125,8 +125,7 @@ modelLookup <- function(model = NULL)
                            "ppr",
                            "sparseLDA", "sparseLDA",
                            "penalized", "penalized",
-                           "spls", "spls",
-                           "splsda", "splsda", "splsda",
+                           "spls", "spls", "spls",
                            "sda",
                            "glm",
                            "mda",
@@ -192,8 +191,7 @@ modelLookup <- function(model = NULL)
                            "nterms",
                            "NumVars", "lambda",
                            "lambda1", "lambda2",
-                           "K", "eta",
-                           "K", "eta", "Kappa",
+                           "K", "eta", "kappa",
                            "diagonal",
                            "parameter",
                            "subclasses",
@@ -259,7 +257,6 @@ modelLookup <- function(model = NULL)
                            "# Terms",
                            "Number of Predictors", "Lambda",
                            "L1 Penalty", "L2 Penalty",
-                           "#Components", "Threshold",
                            "#Components", "Threshold", "Kappa",
                            "Diagonalize",
                            "none",
@@ -326,7 +323,6 @@ modelLookup <- function(model = NULL)
                            FALSE,
                            FALSE,   FALSE,
                            FALSE,    FALSE,     ## penalized; see note in createModel,
-                           FALSE,    FALSE,
                            FALSE,    FALSE,    FALSE,
                            FALSE,
                            FALSE,              ## glm
@@ -393,8 +389,7 @@ modelLookup <- function(model = NULL)
                            TRUE,
                            FALSE,   FALSE,
                            TRUE,    TRUE,
-                           TRUE,    TRUE,
-                           FALSE,   FALSE,   FALSE,
+                           TRUE,    TRUE,   TRUE,
                            FALSE,
                            TRUE,                 ## glm
                            FALSE,
@@ -461,7 +456,6 @@ modelLookup <- function(model = NULL)
                            FALSE,
                            TRUE,     TRUE,
                            FALSE,    FALSE, ## penalized has no way to pass the class levels in
-                           FALSE,    FALSE,
                            TRUE,     TRUE,    TRUE,
                            TRUE,
                            TRUE,      ## glm
@@ -528,7 +522,6 @@ modelLookup <- function(model = NULL)
                            FALSE,
                            TRUE,  TRUE,      #   sparseLDA,
                            FALSE, FALSE,     #   penalized
-                           FALSE, FALSE,     #   spls (2),
                            TRUE,  TRUE, TRUE,#   splsda (3)
                            TRUE,             #   sda
                            TRUE,             #   glm

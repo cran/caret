@@ -487,12 +487,12 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
                            spls =
                            {
                              library(spls)
-                             predict(modelFit, newdata)
-                           },
-                           splsda =
-                           {
-                             library(spls)
-                             as.character(predict(modelFit, newdata, type = "class"))
+                             if(length(modelFit$obsLevels) < 2)
+                               {
+                                 predict(modelFit, newdata)
+                               } else {
+                                 as.character(predict(modelFit, newdata, type = "class"))
+                               }
                            },
                            sda =
                            {

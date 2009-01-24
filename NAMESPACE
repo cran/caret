@@ -89,7 +89,10 @@ export(
        densityplot.train,
        train.formula,
        defaultSummary,
-       predictors
+       predictors,
+       splsda,
+       splsda.default,
+       predict.splsda
        )
 
 S3method(confusionMatrix, default)
@@ -98,6 +101,7 @@ S3method(enumLC,          default)
 S3method(train,           default)
 S3method(PLS,             default)
 S3method(plsda,           default)
+S3method(splsda,          default)
 S3method(bagEarth,        default)
 S3method(bagFDA,          default)
 S3method(preProcess,      default)
@@ -137,6 +141,7 @@ S3method(print, varImp.train)
 S3method(print, confusionMatrix)
 S3method(print, knn3)
 S3method(print, plsda)
+S3method(print, splsda)
 S3method(print, bagEarth)
 S3method(print, bagFDA)
 S3method(print, summary.bagEarth)
@@ -146,6 +151,7 @@ S3method(print, pcaNNet)
 
 S3method(predict, PLS)
 S3method(predict, plsda)
+S3method(predict, splsda)
 S3method(predict, knn3)
 S3method(predict, bagEarth)
 S3method(predict, bagFDA)

@@ -1,4 +1,12 @@
 -------------------
+Version: 4.06
+Date: 2009-01-24
+
+Added code for sparse PLS classification.
+
+Fix a bug in prediction for caTools::LogitBoost
+
+-------------------
 Version: 4.05
 Date: 2009-01-23
 

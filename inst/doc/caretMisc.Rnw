@@ -561,6 +561,9 @@ The advantage to using Bayes rule is that the full training set is used to direc
  
 For the MDRR data set, we can fit two PLS models using each technique and predict the class probabilities for the test set. Figure \ref{f:plsProbs}  shows the results.
 
+Similar to \texttt{plsda}, \texttt{caret} also contains a function \texttt{splsda} that allows for classification using sparse PLS. A dummy 
+matrix is created for each class and used with the \texttt{spls} function in the \texttt{spls} package. The same approach to estimating class probabilities is used for \texttt{plsda} and \texttt{splsda}.
+
 <<plsProb, echo = FALSE, results = hide>>=
 bTime <- system.time(Bayes <- plsda(trainDescr, trainMDRR, ncomp = 5, probMethod = "Bayes"))[3]
 sTime <- system.time(softmax <- plsda(trainDescr, trainMDRR, ncomp = 5))[3]
