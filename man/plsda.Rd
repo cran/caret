@@ -2,9 +2,12 @@
 \alias{plsda.default}
 \alias{predict.plsda}
 \alias{plsda}
-\title{Partial Least Squares Discriminant Analysis}
+\alias{splsda.default}
+\alias{predict.splsda}
+\alias{splsda}
+\title{Partial Least Squares and Sparse Partial Least Squares Discriminant Analysis}
 \description{
-\code{plsda} is used to fit PLS models for classification.
+\code{plsda} is used to fit standard PLS models for classification while \code{splsda} performs sparse PLS that embeds feature selection and regularization for the same purpose.
 }
 \usage{
 plsda(x, ...)
@@ -12,6 +15,12 @@ plsda(x, ...)
 \method{plsda}{default}(x,  y, ncomp = 2, probMethod = "softmax", prior = NULL, ...)
 
 \method{predict}{plsda}(object, newdata = NULL, ncomp = NULL, type = "class", ...)
+
+splsda(x, ...)
+
+\method{splsda}{default}(x, y, probMethod = "softmax", prior = NULL, ...)
+
+\method{predict}{splsda}(object, newdata = NULL, type = "class", ...)
 }
 
 \arguments{
@@ -20,17 +29,17 @@ plsda(x, ...)
   \item{ncomp}{the number of components to include in the model. Predictions can be made for models with values less than \code{ncomp}. }
   \item{probMethod}{either "softmax" or "Bayes" (see Details)}
   \item{prior}{a vector or prior probabilities for the classes (only used for \code{probeMethod = "Bayes"}}
-  \item{\dots}{arguments to pass to \code{\link[pls]{plsr}} (\code{plsda} only)}
+  \item{\dots}{arguments to pass to \code{\link[pls]{plsr}} or \code{\link[spls]{spls}}. For \code{splsda}, this is the method for passing tuning parameters specifications (e.g. \code{K}, \code{eta} or \code{kappa})}
   \item{object}{an object produced by \code{plsda}}
   \item{newdata}{a matrix or data frame of predictors}
   \item{type}{either \code{"class"}, \code{"prob"} or \code{"raw"} to produce the predicted class, class probabilities  or the raw model scores, respectively.}  
 }
 \details{
-If a factor is supplied, the appropriate indicator matrix is created by \code{plsda}.
+If a factor is supplied, the appropriate indicator matrix is created.
 
-A multivariate PLS model is fit to the indicator matrix using the \code{\link[pls]{plsr}} function. 
+A multivariate PLS model is fit to the indicator matrix using the \code{\link[pls]{plsr}} or  \code{\link[spls]{spls}} function. 
 
-Two prediciton methods can be used in \code{plsda}.
+Two prediciton methods can be used.
 
   The \bold{softmax function} transforms the model predictions to "probability-like" values (e.g. on  [0, 1] and sum to 1). The class with the largest class probability is the predicted class.
 
@@ -38,15 +47,17 @@ Two prediciton methods can be used in \code{plsda}.
 
 }
 \value{
-For \code{plsda}, an object of class "plsda" and "mvr". The predict
-method produces either a vector, matrix or three-dimensional array,
+For \code{plsda}, an object of class "plsda" and "mvr". For \code{splsda}, an object of class \code{splsda}. 
+
+The predict
+methods produce either a vector, matrix or three-dimensional array,
 depending on the values of \code{type} of \code{ncomp}. For example,
 specifying more than one value of \code{ncomp} with \code{type =
   "class"} with produce a three dimensional array but the default
 specification would produce a factor vector.
 }
 
-\seealso{\code{\link[pls]{plsr}}}
+\seealso{\code{\link[pls]{plsr}}, \code{\link[spls]{spls}}}
 \examples{
 data(mdrr)
 set.seed(1)
@@ -85,11 +96,21 @@ histogram(
           | testMDRR, xlab = "Active Prob", xlim = c(-.1,1.1))
 
 
-# different sized objects are returned
+## different sized objects are returned
 length(predict(useBayes, testDescr))
 dim(predict(useBayes, testDescr, ncomp = 1:3))
 dim(predict(useBayes, testDescr, type = "prob"))
 dim(predict(useBayes, testDescr, type = "prob", ncomp = 1:3))
+
+## using spls
+
+splsFit <- splsda(trainDescr, trainMDRR, 
+                  K = 5, eta = .9,
+                  probMethod = "Bayes")
+
+confusionMatrix(
+                predict(splsFit, testDescr),
+                testMDRR)
 }
 
 

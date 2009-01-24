@@ -44,7 +44,7 @@
                    "lssvmPoly", "lssvmRadial",
                    "rvmRadial", "rvmPoly",
                    "gaussprRadial", "gaussprPoly",
-                   "sddaLDA", "sddaQDA", "glmnet", "slda", "spls", "splsda",
+                   "sddaLDA", "sddaQDA", "glmnet", "slda", "spls", 
                    "qda",
                    "superpc", "ppr", "sda", "penalized", "sparseLDA"))
     {
@@ -813,13 +813,14 @@
                      spls =
                      {
                        library(spls)
-                       spls(trainX, trainY, K = tuneValue$.K, eta = tuneValue$.eta, ...)
-                     },
-                     splsda =
-                     {
-                       library(spls)
-                       splsda(trainX, trainY, K = tuneValue$.K, eta = tuneValue$.eta,
-                              kappa = tuneValue$.kappa, ...)
+                       if(is.factor(trainY))
+                         {
+                           splsda(trainX, trainY, K = tuneValue$.K, eta = tuneValue$.eta,
+                                  kappa = tuneValue$.kappa, ...)
+                         } else {
+                           spls(trainX, trainY, K = tuneValue$.K, eta = tuneValue$.eta,
+                                kappa = tuneValue$.kappa, ...)
+                         }
                      },
                      glm = 
                      {
