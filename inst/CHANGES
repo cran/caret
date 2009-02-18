@@ -1,4 +1,16 @@
 -------------------
+Version: 4.08
+Date: 2009-02-18
+
+Updated train and bagEarth to allow earth for classification models
+
+-------------------
+Version: 4.07
+Date: 2009-01-25
+
+Added glmnet models
+
+-------------------
 Version: 4.06
 Date: 2009-01-24
 

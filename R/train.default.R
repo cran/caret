@@ -32,7 +32,7 @@ train.default <- function(x, y,
       ## important with multiclass systems where one or more classes have low sample sizes
       ## relative to the others
       classLevels <- levels(y)
-      if(length(classLevels) > 2 & (method %in% c("gbm", "glmboost", "ada", "gamboost", "blackboost", "penalized", "glm")))
+      if(length(classLevels) > 2 & (method %in% c("gbm", "glmboost", "ada", "gamboost", "blackboost", "penalized", "glm", "earth")))
         stop("This model is only implemented for two class problems")
       if(metric %in% c("RMSE", "Rsquared")) 
         stop(paste("Metric", metric, "not applicable for classification models"))
@@ -240,7 +240,11 @@ train.default <- function(x, y,
   ## Remove this and check for other places it is reference
   ## replaced by tuneValue
   if(method == "pls") finalModel$bestIter <- bestTune
-  
+
+  ## To use predict.train and automatically use the optimal lambda,
+  ## we need to save it
+  if(method == "glmnet") finalModel$lambdaOpt <- bestTune$.lambda
+
   outData <- if(trControl$returnData) trainData else NULL
   
   ## In the case of pam, the data will need to be saved differently

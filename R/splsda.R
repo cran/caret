@@ -88,7 +88,7 @@ splsda.default <- function(x, y, probMethod = "softmax", prior = NULL, ...)
           probModel$x <- NULL
           probModel
         }
-      train <- predict(out, as.matrix(tmpData$x), ncomp = 1:ncomp)
+      train <- predict(out, as.matrix(tmpData$x))
       ## Get the raw model predictions, but leave one behind since the
       ## final class probs sum to one
       train <- train[, -length(obsLevels), drop = FALSE]

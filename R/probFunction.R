@@ -122,6 +122,16 @@ probFunction <- function(method, modelFit, newdata)
                         out <- predict(modelFit, newdata, type = "raw")$posterior
                         out
                       },
+ 
+                      earth =, bagEarth =
+                      {
+                        library(mda)
+                        library(earth)
+                        out <- predict(modelFit, newdata, type= "prob")
+                        out
+                      },
+
+                      
                       fda =
                       {
                         library(mda)

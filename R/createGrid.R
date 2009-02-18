@@ -192,7 +192,7 @@
                       lasso = expand.grid(.fraction = seq(.1, .9, length = len)),
                       glmnet = expand.grid(
                         .alpha = seq(0.1, 1, length = len),
-                        .lambda = seq(.1, 1, length = 3 * len)),
+                        .lambda = seq(.1, 3, length = 3 * len)),
                       logitBoost = data.frame(.nIter =  floor((1:len) * 50)),
                       J48 = data.frame(.C = 0.25),
                       M5Rules = data.frame(.pruned = c("Yes", "No")),
