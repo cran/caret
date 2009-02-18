@@ -645,18 +645,16 @@
                        lmbda <- if(method == "lasso") 1 else tuneValue$.lambda
                        enet(as.matrix(trainX), trainY, lambda = lmbda) 
                      },
-                     ##                     glmnet =
-                     ##                     {
-                     ##                       library(glmnet)
-                     ##                       numLev <- if(is.character(trainY) | is.factor(trainY)) length(levels(trainY)) else NA
-                     ##                       if(!is.na(numLev))
-                     ##                         {
-                     ##                           fam <- ifelse(numLev > 2, "multinomial", "binomial")
-                     ##                         } else fam <- "gaussian"
-                     ##                       glmnet(as.matrix(x), y, alpha = tuneValue$.alpha, family = fam, ...)
-                     ##
-                     ##
-                     ##                     },
+                     glmnet =
+                     {
+                       library(glmnet)
+                       numLev <- if(is.character(trainY) | is.factor(trainY)) length(levels(trainY)) else NA
+                       if(!is.na(numLev))
+                         {
+                           fam <- ifelse(numLev > 2, "multinomial", "binomial")
+                         } else fam <- "gaussian"
+                       glmnet(as.matrix(trainX), trainY, alpha = tuneValue$.alpha, family = fam, ...)
+                     },
                      
                      sddaLDA = 
                      {

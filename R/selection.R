@@ -107,7 +107,8 @@ byComplexity <- function(x, model)
            {
              x[order(-x$eta, x$K),]
            },
-           sda = x[order(x$diagonal),]
+           sda = x[order(x$diagonal),],
+           glmnet = x[order(-x$lambda, x$alpha),]
            )
 
   }

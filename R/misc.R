@@ -131,7 +131,8 @@ modelLookup <- function(model = NULL)
                            "mda",
                            "pda",
                            "pda2",
-                           "qda"
+                           "qda",
+                           "glmnet", "glmnet"
                            ),
                          parameter = c(
                            "parameter",      
@@ -197,7 +198,8 @@ modelLookup <- function(model = NULL)
                            "subclasses",
                            "lambda",
                            "df",
-                           "parameter"
+                           "parameter",
+                           "lambda", "alpha"
                            ),
                          label = I(c(
                            "none",      
@@ -263,7 +265,9 @@ modelLookup <- function(model = NULL)
                            "#Subclasses Per Class",
                            "Shrinkage Penalty Coefficient",
                            "Degrees of Freedom",
-                           "none"
+                           "none",
+                           "Regularization Parameter",
+                           "Mixing Percentage"
                            )),
                          seq = c(
                            FALSE,
@@ -329,7 +333,8 @@ modelLookup <- function(model = NULL)
                            FALSE,
                            FALSE,
                            FALSE,
-                           FALSE
+                           FALSE,
+                           TRUE,  FALSE
                            ),
                          forReg = c(
                            TRUE,
@@ -395,7 +400,8 @@ modelLookup <- function(model = NULL)
                            FALSE,
                            FALSE,
                            FALSE,
-                           FALSE
+                           FALSE,
+                           TRUE,  TRUE
                            ),               
                          forClass =          
                          c(
@@ -436,10 +442,10 @@ modelLookup <- function(model = NULL)
                            TRUE, 
                            TRUE, 
                            TRUE, 
-                           FALSE,   FALSE, 
+                           TRUE,   TRUE, 
                            FALSE,   FALSE,          
                            FALSE,   FALSE,          
-                           FALSE,   FALSE,         
+                           TRUE,   TRUE,         
                            TRUE,    TRUE,
                            TRUE,    TRUE,
                            FALSE,   FALSE,
@@ -462,7 +468,8 @@ modelLookup <- function(model = NULL)
                            TRUE,
                            TRUE,
                            TRUE,
-                           TRUE
+                           TRUE,
+                           TRUE,  TRUE
                            ),
                          probModel = c(
                            TRUE,             #   bagged trees
@@ -502,10 +509,10 @@ modelLookup <- function(model = NULL)
                            TRUE,             #   pam (1) 
                            TRUE,             #   knn (1) 
                            TRUE,             #   nb (1) 
-                           FALSE, FALSE,     #   earth (2)
+                           TRUE,  TRUE,      #   earth (2)
                            FALSE, FALSE,     #   earthTest (2)         
                            FALSE, FALSE,     #   mars (2)       
-                           FALSE, FALSE,     #   bagEarth (2)        
+                           TRUE,  TRUE,      #   bagEarth (2)        
                            TRUE, TRUE,       #   fda (2)
                            TRUE, TRUE,       #   bagFDA (2)
                            FALSE, FALSE,     #   enet (2)
@@ -528,7 +535,8 @@ modelLookup <- function(model = NULL)
                            TRUE,             #   mda
                            TRUE,
                            TRUE,
-                           TRUE
+                           TRUE,
+                           TRUE, TRUE        # glmnet
                             ),
                          stringsAsFactors  = FALSE               
                          )         
@@ -748,6 +756,20 @@ tuneScheme <- function(model, grid, useOOB = FALSE)
                                 grid$.threshold == max(grid$.threshold))
                loop <- grid[largest,, drop = FALSE]
                seqParam <- list(grid[-largest,, drop = FALSE])
+             },
+             glmnet =
+             {  
+               uniqueAlpha <- unique(grid$.alpha)
+               
+               loop <- data.frame(.alpha = uniqueAlpha)
+               loop$.lambda <- NA
+               
+               seqParam <- vector(mode = "list", length = length(uniqueAlpha))
+               
+               for(i in seq(along = uniqueAlpha))
+                 {
+                   seqParam[[i]] <- data.frame(.lambda = subset(grid, subset = .alpha == uniqueAlpha[i])$.lambda)
+                 } 
              }
              )
       out <- list(scheme = "seq", loop = loop, seqParam = seqParam, model = modelInfo, constant = constant, vary = vary)
@@ -1043,6 +1065,10 @@ workerTasks <- function(x)
                 ## factors
                 param <- expand(x$fixed, x$seq)
                 if(x$method == "ctree") param <- param[!duplicated(param),, drop = FALSE]
+
+                ## For glmnet, we fit all the lambdas but x$fixed has an NA
+                if(x$method == "glmnet") param <- param[complete.cases(param),, drop = FALSE]
+                
                 param$ind <-  paste("mod", 1:ncol(predicted))
 
                 ## Stack the predictions then merge on the model indicators

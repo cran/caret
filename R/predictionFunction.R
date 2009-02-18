@@ -262,27 +262,43 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
                            mars =, earth =
                            {
                              library(earth)
-                             out <- predict(modelFit, newdata)
+                             if(modelFit$problemType == "Classification")
+                               {
+                                 out <- as.character(predict(modelFit, newdata,  type = "class"))
+                               } else {
+                                 out <- predict(modelFit, newdata)
+                               }
+
                              if(!is.null(param))
                                {
                                  tmp <- data.frame(
                                                    matrix(NA, nrow = nrow(newdata), ncol = nrow(param)+1),
                                                    stringsAsFactors = FALSE)
-                                 tmp[,1] <- out[,1]
+                                 tmp[,1] <- if(is.matrix(out)) out[,1] else out
                                  for(j in seq(along = param$.nprune))
                                    {
                                      prunedFit <- update(modelFit, nprune = param$.nprune[j])
-                                     tmp[,j+1]  <- predict(prunedFit, newdata)[,1]
+                                     if(modelFit$problemType == "Classification")
+                                       {
+                                         tmp[,j+1]  <-  as.character(predict(prunedFit, newdata,  type = "class"))
+                                       } else {
+                                         tmp[,j+1]  <-  predict(prunedFit, newdata)[,1]
+                                       }
                                    }
                                  out <- tmp
                                }
                              out
                            },
                            
-                           bagEarth =
+                           bagEarth = 
                            {
                              library(earth)
-                             out <- predict(modelFit, newdata)
+                             if(modelFit$problemType == "Regression")
+                               {
+                                 out <- predict(modelFit, newdata)
+                               } else {
+                                 out <- as.character(predict(modelFit, newdata, type = "class"))
+                               }
                              out
                            },
                            
@@ -522,6 +538,42 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
                            {
                              library(mda)
                              as.character(predict(modelFit, newdata))
+                           },
+                           glmnet =
+                           {
+                             
+                             library(glmnet)
+                             if(!is.matrix(newdata)) newdata <- as.matrix(newdata)
+
+                             if(!is.null(param))
+                               {
+                              
+                                 if(length(modelFit$obsLevels) < 2)
+                                   {
+                                     out <- as.data.frame(predict(modelFit, newdata, s = param$.lambda))
+                                   } else {
+                                     tmp <- predict(modelFit, newdata, s = param$.lambda, type = "class")
+                                     if(length(modelFit$obsLevels) == 2)
+                                       {
+                                         tmp <- apply(tmp, 1, function(x, y) y[x], y = modelFit$obsLevels)
+                                         out <- as.data.frame(t(tmp), stringsAsFactors = FALSE)
+                                       } else {
+                                         out <- as.data.frame(tmp, stringsAsFactors = FALSE)
+                                       }
+                                   }
+                               } else {
+                                 
+                                 if(is.null(modelFit$lambdaOpt))
+                                   stop("optimal lambda not saved by train; needs a single lambda value")
+                                 if(length(modelFit$obsLevels) < 2)
+                                   {
+                                     out <- predict(modelFit, newdata, s = modelFit$lambdaOpt)[,1]
+                                   } else {
+                                     out <- predict(modelFit, newdata, s = modelFit$lambdaOpt, type = "class")[,1]
+                                     if(length(modelFit$obsLevels) == 2) out <- modelFit$obsLevels[out]
+                                   }
+                               }
+                             out
                            }
                            )
   predictedValue

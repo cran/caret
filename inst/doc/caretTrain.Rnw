@@ -261,7 +261,6 @@ There is additional functionality in \texttt{train} that is described in the nex
             \texttt{stats}       & 
             None \\  
        
-
       Recursive Partitioning &
          \texttt{rpart} & 
             \texttt{rpart}       & 
@@ -274,7 +273,6 @@ There is additional functionality in \texttt{train} that is described in the nex
          \texttt{ctree2} & 
             \texttt{party}       & 
             \texttt{maxdepth} \\   
-            
             
       Boosted Trees &
          \texttt{gbm} & 
@@ -315,7 +313,23 @@ There is additional functionality in \texttt{train} that is described in the nex
          \texttt{treebag} & 
             \texttt{ipred}       & 
             None \\                         
-                        
+   
+      Multivariate Adaptive  &
+         \texttt{earth}, \texttt{mars} & 
+            \texttt{earth}       & 
+            \texttt{degree}, \texttt{nprune} \\            
+      \:\: Regression Splines & & &\\
+            
+      Bagged MARS &
+         \texttt{bagEarth} & 
+            \texttt{caret},  \texttt{earth}      & 
+            \texttt{degree}, \texttt{nprune} \\ 
+            
+      Elastic Net (glm) &               
+         \texttt{glmnet} & 
+            \texttt{glmnet}       &       
+            \texttt{alpha}, \texttt{lambda} \\ 
+            
       Neural Networks &               
          \texttt{nnet} & 
             \texttt{nnet}       &       
@@ -355,24 +369,13 @@ There is additional functionality in \texttt{train} that is described in the nex
       \:\: (polynomial kernel) & & &\\  
     
       \\
-\multicolumn{5}{c}{{{ \em Regression Models}}} \\      
+\multicolumn{5}{c}{{{ \em Regression Only Models}}} \\      
     
       Linear Least Squares &
          \texttt{lm} & 
             \texttt{stats}       & 
             None \\  
-      
-      Multivariate Adaptive  &
-         \texttt{earth}, \texttt{mars} & 
-            \texttt{earth}       & 
-            \texttt{degree}, \texttt{nprune} \\            
-      \:\: Regression Splines & & &\\
-            
-      Bagged MARS &
-         \texttt{bagEarth} & 
-            \texttt{caret},  \texttt{earth}      & 
-            \texttt{degree}, \texttt{nprune} \\    
-            
+                   
       M5 Rules &
          \texttt{M5Rules} & 
             \texttt{RWeka}    & 
@@ -420,7 +423,7 @@ There is additional functionality in \texttt{train} that is described in the nex
       \:\: Components  & & &\\
       \\       
              
-\multicolumn{5}{c}{{{\em Classification Models}}} \\ 
+\multicolumn{5}{c}{{{\em Classification Only Models}}} \\ 
       Linear Discriminant Analysis &
          \texttt{lda} & 
             \texttt{MASS}       &          
