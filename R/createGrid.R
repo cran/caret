@@ -1,9 +1,9 @@
 "createGrid" <-
   function(method, len = 3, data = NULL)
 {
-# rpart needs its own function since we fit an initial model,
-# read off the possible complexity parameters and use
-# those values to devleop the grid. 
+  ## rpart needs its own function since we fit an initial model,
+  ## read off the possible complexity parameters and use
+  ## those values to devleop the grid. 
   rpartTune <- function(data, len)
     {
       library(rpart)
@@ -30,7 +30,7 @@
   rbfTune <- function(data, len, center = TRUE)
     {
       library(kernlab)
-      # this was changed to follow what kernlab does inside of ksvm and rvm:
+      ## this was changed to follow what kernlab does inside of ksvm and rvm:
       sigmaEstimate <- try(
                            sigest(.outcome ~ ., data, na.action = na.omit, scaled = FALSE),
                            silent = TRUE)
@@ -66,8 +66,8 @@
     }   
 
 
-# We should not have mtry be larger than the number of features
-# in the data.
+  ## We should not have mtry be larger than the number of features
+  ## in the data.
   rfTune <- function(data, len)
     {
       library(randomForest)
@@ -115,8 +115,8 @@
       data.frame(.mtry = tuneSeq)
     }   
   
-# We fit an initial model to get the range thresholds for these data and
-# create the grid from these.
+  ## We fit an initial model to get the range thresholds for these data and
+  ## create the grid from these.
   pamTune <- function(data, len)
     {
       library(pamr)
@@ -128,14 +128,39 @@
                             .threshold = seq(
                               from = min(initialThresh),
                               to = max(initialThresh), length = len))
-      # pamr.train prints out cv iterations without a line break
+      ## pamr.train prints out cv iterations without a line break
       cat("\n")         
       tuneSeq
     }
+
+  larsTune <- function(data, len)
+    {
+      p <- dim(data)[2] - 1 
+      if(p <= len)
+        { 
+          tuneSeq <- floor(seq(2, to = p, length = p))
+        } else {
+          if(p < 500 ) tuneSeq <- floor(seq(2, to = p, length = len))
+          else tuneSeq <- floor(2^seq(1, to = log(p, base = 2), length = len))
+        }
+      if(any(table(tuneSeq) > 1))
+        {
+          tuneSeq <- unique(tuneSeq)
+          cat(
+              "note: only",
+              length(tuneSeq),
+              "unique complexity parameters in default grid.",
+              "Truncating the grid to",
+              length(tuneSeq), ".\n\n")      
+        }
+      data.frame(.step = tuneSeq)
+    }
+
+  
   trainGrid <- switch(method,
                       nnet =, pcaNNet = expand.grid(
-                        .size = ((1:len) * 2) - 1, 
-                        .decay = c(0, 10 ^ seq(-1, -4, length = len - 1))),
+                                .size = ((1:len) * 2) - 1, 
+                                .decay = c(0, 10 ^ seq(-1, -4, length = len - 1))),
                       rda = expand.grid(
                         .gamma = seq(0, 1, length = len), 
                         .lambda =  seq(0, 1, length = len)),
@@ -156,20 +181,20 @@
                       earthTest =, mars =,
                       fda = expand.grid(.degree = 1, .nprune = marsSeq(data, len)),    
                       svmradial =, svmRadial = expand.grid(
-                        .sigma = rbfTune(data, len),
-                        .C = 10 ^((1:len) - 2)),   
+                                     .sigma = rbfTune(data, len),
+                                     .C = 10 ^((1:len) - 2)),   
                       svmpoly =, svmPoly = expand.grid(
-                        .degree = seq(1, min(len, 3)),      
-                        .scale = 10 ^((1:len) - 4),
-                        .C = 10 ^((1:len) - 2)),
-                      # For 4 different data sets using rvm, I've seen that the default sigma
-                      # causes numerical issue in chol.default (leading minor is not
-                      # positive definite), so we'll use the high value form sigest
+                                   .degree = seq(1, min(len, 3)),      
+                                   .scale = 10 ^((1:len) - 4),
+                                   .C = 10 ^((1:len) - 2)),
+                                        # For 4 different data sets using rvm, I've seen that the default sigma
+                                        # causes numerical issue in chol.default (leading minor is not
+                                        # positive definite), so we'll use the high value form sigest
                       rvmRadial = data.frame(.sigma = rbfTune(data, len, FALSE)),
                       lssvmRadial =, gaussprRadial = data.frame(.sigma = rbfTune(data, len)),  
                       rvmPoly =, lssvmPoly =, gaussprPoly = expand.grid(
-                        .degree = seq(1, min(len, 3)),      
-                        .scale = 10 ^((1:len) - 4)),
+                                                .degree = seq(1, min(len, 3)),      
+                                                .scale = 10 ^((1:len) - 4)),
                       glmboost = data.frame(
                         .mstop = floor((1:len) * 50), 
                         .prune = "no"),  
@@ -193,6 +218,9 @@
                       glmnet = expand.grid(
                         .alpha = seq(0.1, 1, length = len),
                         .lambda = seq(.1, 3, length = 3 * len)),
+                      relaxo = expand.grid(
+                        .phi = seq(0.1, 0.9, length = len),
+                        .lambda = 10^seq(-1, 3, length = 3 * len)),
                       logitBoost = data.frame(.nIter =  floor((1:len) * 50)),
                       J48 = data.frame(.C = 0.25),
                       M5Rules = data.frame(.pruned = c("Yes", "No")),
@@ -211,8 +239,11 @@
                       mda = data.frame(.subclasses = (1:len) + 1),
                       pda = data.frame(.lambda = 1:len),
                       pda2 = data.frame(.df = 2* (0:(len - 1) + 1)),
+                                            lars = expand.grid(.fraction = seq(0.05, 1, length = len)),
+                      lars2 = larsTune(data, len),
+                      PART = data.frame(.threshold = 0.25, .pruned = "yes"), 
                       lda =, lm =, treebag =, sddaLDA =, sddaQDA =,
-                      glm =, qda =,
+                      glm =, qda =, OneR =,                     
                       lmStepAIC =, slda = data.frame(.parameter = "none"))
   trainGrid
 }

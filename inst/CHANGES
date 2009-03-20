@@ -1,4 +1,23 @@
 -------------------
+Version: 4.10
+Date: 2009-03-20
+
+Added OneR and PART form RWeka
+
+-------------------
+Version: 4.09
+Date: 2009-03-20
+
+- Fixed error in documentation for confusionMatrix:
+
+  old:     Detection Prevalence = \frac{A}{A+B}
+  correct: Detection Prevalence = \frac{A+B}{A+B+C+D}
+
+  The underlying code was correct.
+
+- Added lars (fraction and step as parameters)
+
+-------------------
 Version: 4.08
 Date: 2009-02-18
 
