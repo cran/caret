@@ -49,7 +49,7 @@ The formulas used here are:
 \deqn{PPV = (sensitivity * Prevalence)/((sensitivity*Prevalence) + ((1-specificity)*(1-Prevalence)))}
 \deqn{NPV = (specificity * (1-Prevalence))/(((1-sensitivity)*Prevalence) + ((specificity)*(1-Prevalence)))}
 \deqn{Detection Rate =  A/(A+B+C+D)}
-\deqn{Detection Prevalence =  A/(A+B)}
+\deqn{Detection Prevalence =  (A+B)/(A+B+C+D)}
 
 See the references for discusions of the first five formulas.
 

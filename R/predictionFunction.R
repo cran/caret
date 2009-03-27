@@ -450,7 +450,7 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
                              library(RWeka)
                              predict(modelFit , newdata)
                            },
-                           J48 =, LMT =, JRip = 
+                           J48 =, LMT =, JRip =, OneR =, PART = 
                            {
                              library(RWeka)
                              out <- as.character(predict(modelFit , newdata))
@@ -547,7 +547,7 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
 
                              if(!is.null(param))
                                {
-                              
+                                 
                                  if(length(modelFit$obsLevels) < 2)
                                    {
                                      out <- as.data.frame(predict(modelFit, newdata, s = param$.lambda))
@@ -573,10 +573,93 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
                                      if(length(modelFit$obsLevels) == 2) out <- modelFit$obsLevels[out]
                                    }
                                }
+                           },
+                           relaxo =
+                           {
+                             library(relaxo)
+                             out <- predict(modelFit,
+                                            as.matrix(newdata),
+                                            lambda = modelFit$tuneValue$.lambda,
+                                            phi = modelFit$tuneValue$.phi)
+
+                             if(!is.null(param))
+                               {
+                                 tmp <- data.frame(
+                                                   matrix(NA, nrow = nrow(newdata), ncol = nrow(param)+1),
+                                                   stringsAsFactors = FALSE)
+                                 tmp[,1] <- out
+                                 for(j in seq(along = param$.lambda))
+                                   {
+                                     tmp[,j+1]  <-  predict(modelFit,
+                                                            as.matrix(newdata),
+                                                            lambda = param$.lambda[j],
+                                                            phi = modelFit$tuneValue$.phi)
+                                     
+                                   }
+                                 out <- tmp
+                               }
+
+                             out
+                           },
+                           lars =
+                           {
+                             library(lars)
+                             out <- predict(modelFit,
+                                            as.matrix(newdata),
+                                            type = "fit",
+                                            mode = "fraction",
+                                            s = modelFit$tuneValue$.fraction)$fit
+
+                             if(!is.null(param))
+                               {
+                                 tmp <- data.frame(
+                                                   matrix(NA, nrow = nrow(newdata), ncol = nrow(param)+1),
+                                                   stringsAsFactors = FALSE)
+                                 tmp[,1] <- out
+                                 for(j in seq(along = param$.fraction))
+                                   {
+                                     tmp[,j+1]  <-  predict(modelFit,
+                                                            as.matrix(newdata),
+                                                            type = "fit",
+                                                            mode = "fraction",
+                                                            s = param$.fraction[j])$fit
+                                   }
+                                 out <- tmp
+                               }
+
+                             out
+                           },
+                           lars2 =
+                           {
+                             library(lars)
+                             out <- predict(modelFit,
+                                            as.matrix(newdata),
+                                            type = "fit",
+                                            mode = "step",
+                                            s = modelFit$tuneValue$.step)$fit
+
+                             if(!is.null(param))
+                               {
+                                 tmp <- data.frame(
+                                                   matrix(NA, nrow = nrow(newdata), ncol = nrow(param)+1),
+                                                   stringsAsFactors = FALSE)
+                                 tmp[,1] <- out
+                                 for(j in seq(along = param$.step))
+                                   {
+                                     tmp[,j+1]  <-  predict(modelFit,
+                                                            as.matrix(newdata),
+                                                            type = "fit",
+                                                            mode = "step",
+                                                            s = param$.step[j])$fit
+                                   }
+                                 out <- tmp
+                               }
+
                              out
                            }
-                           )
-  predictedValue
+                         
+  )
+predictedValue
 }
 
 

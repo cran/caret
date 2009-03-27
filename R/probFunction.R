@@ -202,7 +202,7 @@ probFunction <- function(method, modelFit, newdata)
                         out <- t(apply(out, 1, function(x) x/sum(x)))
                         out
                       },
-                      J48 =, LMT =, JRip =
+                      J48 =, LMT =, JRip =, OneR =, PART = 
                       {
                         library(RWeka)
                         out <- predict(modelFit,

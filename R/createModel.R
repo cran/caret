@@ -45,7 +45,7 @@
                    "rvmRadial", "rvmPoly",
                    "gaussprRadial", "gaussprPoly",
                    "sddaLDA", "sddaQDA", "glmnet", "slda", "spls", 
-                   "qda",
+                   "qda", "relaxo", "lars", "lars2",
                    "superpc", "ppr", "sda", "penalized", "sparseLDA"))
     {
       trainX <- data[,!(names(data) %in% ".outcome")]
@@ -856,13 +856,70 @@
                      {
                        library(MASS)
                        qda(trainX, trainY, ...)
-                     }              
+                     },
+                     relaxo =
+                     {
+                       library(relaxo)
+                       relaxo(as.matrix(trainX), trainY, phi = tuneValue$.phi, ...)
+                     },
+                     lars =, lars2 =
+                     {
+                       library(lars)
+                       lars(as.matrix(trainX), trainY, ...)
+                     },
+                     OneR = 
+                     {
+                       library(RWeka)
+                       
+                       theDots <- list(...)
+                       
+                       if(any(names(theDots) == "control"))
+                         {
+                           ctl <- theDots$control                        
+                         } else ctl <- Weka_control() 
+                       
+                       modelArgs <- c(
+                                      list(
+                                           formula = modFormula,
+                                           data = data,
+                                           control = ctl),
+                                      theDots)
+                       
+                       out <- do.call("OneR", modelArgs) 
+                       out      
+                     },                       
+                     PART = 
+                     {
+                       library(RWeka)
+                       
+                       theDots <- list(...)
+                       
+                       if(any(names(theDots) == "control"))
+                         {
+                           theDots$control$U <- ifelse(tuneValue$.pruned == "No", TRUE, FALSE)
+                           theDots$control$C <- tuneValue$.threshold
+                           ctl <- theDots$control
+                           theDots$control <- NULL
+                           
+                         } else ctl <- Weka_control(N = ifelse(tuneValue$.pruned == "No", TRUE, FALSE),
+                                                    C = tuneValue$.threshold) 
+                       
+                       modelArgs <- c(
+                                      list(
+                                           formula = modFormula,
+                                           data = data,
+                                           control = ctl),
+                                      theDots)
+                       
+                       out <- do.call("PART", modelArgs) 
+                       out      
+                     }                    
                      )
   
 
   ## In case the model needs to be saved to the file system and run later, we will
   ## need to cache the model (per Kurt Hornik on 2008-10-05)
-  if(method %in% c("JRip", "LMT", "M5Rules", "J48")) .jcache(modelFit$classifier)
+  if(method %in% c("JRip", "LMT", "M5Rules", "J48", "OneR", "PART")) .jcache(modelFit$classifier)
   
   ##save a few items so we have a self contained set of information in the model. this will
   ## also carry over to the finalModel if returnData = TRUE in train call

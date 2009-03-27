@@ -380,7 +380,16 @@ There is additional functionality in \texttt{train} that is described in the nex
          \texttt{M5Rules} & 
             \texttt{RWeka}    & 
             \texttt{pruned}  \\             
-      
+
+     Least Angle   Regression&
+         \texttt{lars} & 
+            \texttt{lars}       & 
+            \texttt{fraction} \\   
+         &
+         \texttt{lars2} & 
+            \texttt{lars}       & 
+            \texttt{step} \\            
+                
       Elastic Net &
          \texttt{enet} & 
             \texttt{elasticnet}      & 
@@ -499,7 +508,7 @@ There is additional functionality in \texttt{train} that is described in the nex
       \: \: Regression \\ 
       
       LogitBoost &      
-         \texttt{logitboost} & 
+         \texttt{logitBoost} & 
             \texttt{caTools}       &          
             \texttt{nIter}\\              
             
@@ -512,6 +521,17 @@ There is additional functionality in \texttt{train} that is described in the nex
          \texttt{J48} & 
             \texttt{RWeka}    & 
             \texttt{C}  \\  
+            
+      Single Rule &
+         \texttt{OneR} & 
+            \texttt{RWeka}    & 
+            None  \\  
+            
+      PART &
+         \texttt{PART} & 
+            \texttt{RWeka}    & 
+            \texttt{threshold}, \texttt{pruned}   \\  
+            
             
       Least Squares Support Vector  &
          \texttt{lssvmRadial} & 
@@ -826,7 +846,7 @@ Prevalence &= \frac{A+C}{A+B+C+D}\notag \\
 PPV &= \frac{sensitivity \times prevalence}{((sensitivity \times prevalence) + ((1-specificity) \times(1-prevalence))}\notag \\
 NPV &= \frac{specificity \times (1-prevalence)}{((1-sensitivity) \times prevalence) + ((specificity) \times(1-prevalence))}\notag \\
 Detection\: Rate &=  \frac{A}{A+B+C+D}\notag \\
-Detection\: Prevalence &=  \frac{A}{A+B}\notag 
+Detection\: Prevalence &=  \frac{A + B}{A+B+C+D}\notag 
 \end{align}
 
 When there are three or more classes, \texttt{confusionMatrix} will show the confusion matrix and a set of ``one--versus--all'' results. For example, in a three class problem, the sensitivity of the first class is calculated against all the samples in the second and third classes (and so on).
