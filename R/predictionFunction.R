@@ -66,10 +66,10 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
                            },
                            
                            svmradial =, svmpoly =,
-                           svmRadial =, svmPoly =,
-                           rvmRadial =, rvmPoly =,
-                           lssvmRadial =, lssvmPoly =,
-                           gaussprRadial =, gaussprPoly =
+                           svmRadial =, svmPoly =, svmLinear =,
+                           rvmRadial =, rvmPoly =, rvmLinear =,
+                           lssvmRadial =, lssvmPoly =, lssvmLinear =,
+                           gaussprRadial =, gaussprPoly =, gaussprLinear =
                            {
                              library(kernlab)
                              if(is.character(lev(modelFit)))
@@ -84,7 +84,12 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
                            
                            knn =
                            {
-                             out <- as.character(predict(modelFit, newdata, type="class"))
+                             if(modelFit$problemType == "Classification")
+                               {
+                                 out <- as.character(predict(modelFit, newdata, type="class"))
+                               } else {
+                                 out <- predict(modelFit, newdata)
+                               }
                              out
                            },
                            
@@ -303,8 +308,9 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
                            },
                            
                            
-                           lm =, lmStepAIC =, ppr =
+                           lm =, lmStepAIC =, ppr =, rlm =
                            {
+                             library(MASS)
                              out <- predict(modelFit, newdata)
                              out
                            },

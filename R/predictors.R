@@ -158,6 +158,11 @@ predictors.knn3 <- function(x, ...)
     colnames(x$learn$X)
   }
 
+predictors.knnreg <- function(x, ...)
+  {
+    colnames(x$learn$X)
+  }
+
 predictors.LogitBoost <- function(x, ...)
   {
     if("Weka_classifier" %in% class(x))
@@ -173,6 +178,11 @@ predictors.LogitBoost <- function(x, ...)
   }
 
 predictors.lda <- function(x, ...)
+{
+    if(hasTerms(x)) predictors(x$terms) else colnames(x$means)
+}
+
+predictors.qda <- function(x, ...)
 {
     if(hasTerms(x)) predictors(x$terms) else colnames(x$means)
 }
@@ -347,4 +357,81 @@ predictors.ppr <- function(x, ...)
     x$xnames
   }
 
+predictors.spls <- function(x, ...)
+  {
+    colnames(x$x)[x$A]
+  }
 
+predictors.glm <- function(x, ...)
+{
+    predictors(x$terms)
+}
+
+predictors.mda <- function(x, ...)
+{
+    predictors(x$terms)
+}
+
+
+predictors.glmnet <- function(x, lambda = NULL, ...)
+{
+  library(glmnet)
+    if(is.null(lambda))
+      {
+        if(!is.null(x$lambdaOpt))
+          {
+            lambda <- x$lambdaOpt
+          } else stop("must supply a vaue of lambda")
+      }
+    out <- coef(x, s = lambda)[,1]
+    out <- names(out)[out != 0]
+    out[out != "(Intercept)"]
+}
+
+predictors.penfit <- function(x, ...)
+  {
+    library(penalized)
+    out <- coef(x, "all")
+    out <- names(out)[out != 0]
+    out[out != "(Intercept)"]
+  }
+
+predictors.lars <- function(x, s = NULL, ...)
+{
+  library(lars)
+  if(is.null(s))
+    {
+      if(!is.null(x$tuneValue))
+        {
+          s <- x$tuneValue$.fraction
+        } else stop("must supply a vaue of s")
+      out <- predict(x, s = s,
+                     type = "coefficients",
+                     mode = "fraction")$coefficients
+
+    } else {
+      out <- predict(x, s = s, ...)$coefficients
+
+    }
+  names(out)[out != 0]
+}
+
+predictors.enet <- function(x, s = NULL, ...)
+{
+  library(elasticnet)
+  if(is.null(s))
+    {
+      if(!is.null(x$tuneValue))
+        {
+          s <- x$tuneValue$.fraction
+        } else stop("must supply a vaue of s")
+      out <- predict(x, s = s,
+                     type = "coefficients",
+                     mode = "fraction")$coefficients
+
+    } else {
+      out <- predict(x, s = s, ...)$coefficients
+
+    }
+  names(out)[out != 0]
+}

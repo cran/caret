@@ -13,7 +13,7 @@
 \alias{varImp.mvr}
 \alias{varImp.bagEarth}
 \alias{varImp.RandomForest}
-
+\alias{varImp.rfe}
 
 \title{Calculation of variable importance for regression and classification models}
 
@@ -35,6 +35,7 @@ A generic method for calculating variable importance for objects produced by
 \method{varImp}{mvr}(object, ...)
 \method{varImp}{bagEarth}(object, ...)
 \method{varImp}{RandomForest}(object, normalize = TRUE, ...)
+\method{varImp}{rfe}(object, drop = FALSE, ...)
 }
 
 \arguments{
@@ -51,7 +52,8 @@ A generic method for calculating variable importance for objects produced by
    \item{data}{the training set predictors (\code{pamr} models only)}        
    \item{value}{the statistic that will be used to calculate importance:
      either \code{gcv}, \code{nsubsets}, or \code{rss}}
-   \item{normalize}{a logical: should the importance values be divided by their standard deviations}
+   \item{normalize}{a logical: should the importance values be divided by their standard deviations?}
+   \item{drop}{a logical: should variables not included in the final set be calculated?}
 }
 
 \value{

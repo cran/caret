@@ -39,9 +39,12 @@ byComplexity <- function(x, model)
            {
              x[order(x$degree, x$C, x$scale),]
            },
+           svmLinear =
+           {
+             x[order(x$C),]
+           },           
            rvmRadial=, lssvmRadial =, gaussprRadial =
            {
-  
              x[order(-x$sigma),]
            },
            rvmPoly =, lssvmPoly =, gaussprPoly =
@@ -61,7 +64,9 @@ byComplexity <- function(x, model)
              x[order(x$degree, x$nprune),]
            },
            treebag =, lda =, lm =, sddaLDA =, sddaQDA =,
-           lmStepAIC =, slda =, glm =, qda =, OneR =
+           lmStepAIC =, slda =, glm =, qda =, OneR =,
+           rvmLinear =, lssvmLinear =, gaussprLinear =,
+           rlm =
            {
              x
            },

@@ -40,12 +40,12 @@
                    "lvq", "pls", "plsTest", "gbm", "pam", "rf", "logitBoost",
                    "ada", "knn", "PLS", "rfNWS", "rfLSF", "pcaNNet",
                    "mars", "rda",  "gpls", "svmpoly", "svmradial",
-                   "svmPoly", "svmRadial",
-                   "lssvmPoly", "lssvmRadial",
-                   "rvmRadial", "rvmPoly",
-                   "gaussprRadial", "gaussprPoly",
+                   "svmPoly", "svmRadial", "svmLinear",
+                   "lssvmPoly", "lssvmRadial", "lssvmLinear",
+                   "rvmRadial", "rvmPoly", "rvmLinear",
+                   "gaussprRadial", "gaussprPoly", "gaussprLinear",
                    "sddaLDA", "sddaQDA", "glmnet", "slda", "spls", 
-                   "qda", "relaxo", "lars", "lars2",
+                   "qda", "relaxo", "lars", "lars2", "rlm",
                    "superpc", "ppr", "sda", "penalized", "sparseLDA"))
     {
       trainX <- data[,!(names(data) %in% ".outcome")]
@@ -158,6 +158,28 @@
                          }
                        out         
                      },
+                     svmLinear = 
+                     {      
+                       library(kernlab)      
+                       if(type == "Classification")
+                         {
+                           out <- ksvm(
+                                       as.matrix(trainX),
+                                       trainY,
+                                       kernel = vanilladot(),
+                                       C = tuneValue$.C,
+                                       prob.model = TRUE,
+                                       ...)
+                         } else {
+                           out <- ksvm(
+                                       as.matrix(trainX),
+                                       trainY,
+                                       kernel = vanilladot(),
+                                       C = tuneValue$.C,
+                                       ...)
+                         }
+                       out         
+                     },                     
                      rvmPoly = 
                      {
                        library(kernlab)
@@ -189,6 +211,16 @@
 
                        out         
                      },
+                     rvmLinear = 
+                     {      
+                       library(kernlab)
+                       out <- rvm(
+                                  as.matrix(trainX),
+                                  trainY,
+                                  kernel = vanilladot(),
+                                  ...)
+                       out         
+                     },                     
                      lssvmPoly = 
                      {
                        library(kernlab)
@@ -216,6 +248,18 @@
 
                        out         
                      },
+                     lssvmLinear = 
+                     {
+                       library(kernlab)
+
+                       out <- lssvm(
+                                    as.matrix(trainX),
+                                    trainY,
+                                    kernel = vanilladot(),
+                                    ...)
+
+                       out            
+                     },                     
                      gaussprPoly = 
                      {
                        library(kernlab)
@@ -257,7 +301,26 @@
                                           ...)
                          }
                        out         
-                     },                     
+                     },
+                     gaussprLinear = 
+                     {      
+                       library(kernlab)      
+                       if(type == "Classification")
+                         {
+                           out <- gausspr(
+                                          as.matrix(trainX),
+                                          trainY,
+                                          kernel = vanilladot(),
+                                          ...)
+                         } else {
+                           out <- gausspr(
+                                          as.matrix(trainX),
+                                          trainY,
+                                          kernel = vanilladot(),
+                                          ...)
+                         }
+                       out         
+                     },                           
                      nnet =
                      {      
                        library(nnet)      
@@ -330,7 +393,12 @@
                      },         
                      knn =
                      {
-                       knn3(as.matrix(trainX), trainY, k = tuneValue$.k, ...)
+                       if(type == "Classification")
+                         {
+                           knn3(as.matrix(trainX), trainY, k = tuneValue$.k, ...)
+                         } else {
+                           knnreg(as.matrix(trainX), trainY, k = tuneValue$.k, ...)
+                         }
                      },
                      nb =
                      {
@@ -913,7 +981,12 @@
                        
                        out <- do.call("PART", modelArgs) 
                        out      
-                     }                    
+                     },
+                     rlm =
+                     {
+                       library(MASS)
+                       rlm(modFormula, data = data, ...)
+                     }                     
                      )
   
 
@@ -926,10 +999,10 @@
 
   ## for models using S4 classes, you can't easily append data, so 
   ## exclude these and we'll use other methods to get this information
-  if(!(tolower(method) %in% tolower(c("svmRadial", "svmPoly",
-                                      "rvmRadial", "rvmPoly",
-                                      "lssvmRadial", "lssvmPoly",
-                                      "gaussprRadial", "gaussprPoly",
+  if(!(tolower(method) %in% tolower(c("svmRadial", "svmPoly", "svmLinear",
+                                      "rvmRadial", "rvmPoly", "rvmLinear",
+                                      "lssvmRadial", "lssvmPoly", "lssvmLinear",
+                                      "gaussprRadial", "gaussprPoly", "gaussprLinear",
                                       "ctree", "ctree2", "cforest",
                                       "penalized"))))
     {

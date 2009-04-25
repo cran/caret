@@ -72,31 +72,8 @@
 	
 \section{Introduction}
 
-<<loadLibs, results = hide, echo = FALSE>>=
-library(caret)
-library(kernlab)
-library(gbm)
-library(ipred)
-library(grid)
-library(pls)
-library(randomForest)
-data(BloodBrain)
-data(mdrr)
 
-getInfo <- function(what = "Suggests")
-{
-  text <- packageDescription("caret")[what][[1]]
-  text <- gsub("\n", ", ", text, fixed = TRUE)
-  text <- gsub(">=", "$\\\\ge$", text, fixed = TRUE)
-  eachPkg <- strsplit(text, ", ", fixed = TRUE)[[1]]
-  
-  out <- paste("\\\\texttt{", eachPkg[order(tolower(eachPkg))], "}", sep = "")
-  paste(out, collapse = ", ")
-}
-
-@
-
-The \texttt{caret} package (short for {\bf{\color{blue}{c}}}lassification {\bf{\color{blue}{a}}}nd {\bf{\color{blue}{re}}}gression {\bf{\color{blue}{t}}}raining) contains functions to streamline the model training process for complex regression and classification problems. The package utilizes a number of R packages but tries not to load them all at package start-up\footnote{By adding formal package dependencies, the package startup time can be greatly decreased}. The package ``suggests'' field includes: \Sexpr{getInfo("Suggests")}. \texttt{caret} loads packages as needed and assumes that they are installed. Install \texttt{caret} using 
+The \texttt{caret} package (short for {\bf{\color{blue}{c}}}lassification {\bf{\color{blue}{a}}}nd {\bf{\color{blue}{re}}}gression {\bf{\color{blue}{t}}}raining) contains functions to streamline the model training process for complex regression and classification problems. The package utilizes a number of R packages but tries not to load them all at package start-up\footnote{By adding formal package dependencies, the package startup time can be greatly decreased}. The package ``suggests'' field includes: \texttt{ada}, \texttt{affy}, \texttt{caTools}, \texttt{class}, \texttt{e1071,}, \texttt{earth ($\ge$ 2.2-3)}, \texttt{elasticnet}, \texttt{ellipse}, \texttt{gbm}, \texttt{glmnet}, \texttt{gpls}, \texttt{grid}, \texttt{ipred}, \texttt{kernlab}, \texttt{klaR}, \texttt{lars}, \texttt{MASS}, \texttt{mboost}, \texttt{mda}, \texttt{mgcv}, \texttt{mlbench}, \texttt{nnet}, \texttt{pamr,}, \texttt{party}, \texttt{penalized}, \texttt{pls}, \texttt{proxy}, \texttt{randomForest}, \texttt{relaxo}, \texttt{rpart}, \texttt{RWeka ($\ge$ 0.3-14)}, \texttt{sda}, \texttt{SDDA}, \texttt{sparseLDA ($\ge$ 0.1-1)}, \texttt{spls}, \texttt{superpc}. \texttt{caret} loads packages as needed and assumes that they are installed. Install \texttt{caret} using 
 \begin{Verbatim}
 install.packages(caret, dependencies = c("Depends", "Suggests"))
 \end{Verbatim}
@@ -110,7 +87,7 @@ There are a few data sets included in \texttt{caret}. The first three are comput
 \subsection{Blood--Brain Barrier Data}
 
 
-\href{http://www.springerlink.com/content/72j377175n536768/?p=f546488cc8fa4ec7a3d4911eb20adb3c&pi=0} {Mente and Lombardo (2005)} developed models to predict the log of the ratio of the concentration of a compound in the brain and the concentration in blood. For each compound, they computed three sets of molecular descriptors: MOE 2D, rule--of--five and Charge Polar Surface Area (CPSA). In all, \Sexpr{dim(bbbDescr)[2]} descriptors were calculated.  Included in this package are \Sexpr{dim(bbbDescr)[1]} non--proprietary literature compounds. The vector \texttt{logBBB} contains the log concentration ratio and the data fame \texttt{bbbDescr} contains the descriptor values.
+\href{http://www.springerlink.com/content/72j377175n536768/?p=f546488cc8fa4ec7a3d4911eb20adb3c&pi=0} {Mente and Lombardo (2005)} developed models to predict the log of the ratio of the concentration of a compound in the brain and the concentration in blood. For each compound, they computed three sets of molecular descriptors: MOE 2D, rule--of--five and Charge Polar Surface Area (CPSA). In all, 134 descriptors were calculated.  Included in this package are 208 non--proprietary literature compounds. The vector \texttt{logBBB} contains the log concentration ratio and the data fame \texttt{bbbDescr} contains the descriptor values.
 
 \subsection{COX-2 Activity Data}
 
@@ -150,11 +127,23 @@ Using \texttt{data(tecator)} loads a 215 $\times$ 100 matrix of absorbance spect
 \href{http://dx.doi.org/10.1016/j.chemolab.2004.04.011}{Brodnjak-Voncina et al. (2005)} describe a set of data where seven fatty acid compositions were used to classify commercial oils as either pumpkin (labeled \texttt{A}), sunflower (\texttt{B}), peanut (\texttt{C}), olive (\texttt{D}), soybean (\texttt{E}), rapeseed (\texttt{F}) and corn (\texttt{G}). There were 96 data points contained in their Table 1 with known results. The breakdown of the classes is given in below:
 
 \begin{small}
-<<oilData>>=
-data(oil)
-dim(fattyAcids)
-table(oilType)
-@
+\begin{Schunk}
+\begin{Sinput}
+> data(oil)
+> dim(fattyAcids)
+\end{Sinput}
+\begin{Soutput}
+[1] 96  7
+\end{Soutput}
+\begin{Sinput}
+> table(oilType)
+\end{Sinput}
+\begin{Soutput}
+oilType
+ A  B  C  D  E  F  G 
+37 26  3  7 11 10  2 
+\end{Soutput}
+\end{Schunk}
 \end{small}
 
 As a note, the paper states on page 32 that there are 37 unknown samples while the table on pages 33 and 34 shows that there are 34 unknowns. 
@@ -171,9 +160,17 @@ In some situations, the data generating mechanism can create predictors that onl
 
 Similarly, predictors might have only a handful of unique values that occur with very low frequencies. For example, in the drug resistance data, the \verb+nR11+ descriptor (number of 11-membered rings) data have a few unique numeric values that are highly unbalanced:
  
-<<nzvDescr>>=
-data.frame(table(mdrrDescr$nR11))
-@
+\begin{Schunk}
+\begin{Sinput}
+> data.frame(table(mdrrDescr$nR11))
+\end{Sinput}
+\begin{Soutput}
+  Var1 Freq
+1    0  501
+2    1    4
+3    2   23
+\end{Soutput}
+\end{Schunk}
 
 The concern here that these predictors may become zero--variance predictors when the data are split into cross--validation/bootstrap sub--samples or that a few samples may have an undue influence on the model. These ``near--zero--variance" predictors may need to be identified and eliminated prior to modeling.
 
@@ -190,16 +187,27 @@ We would not want to falsely identify data that have low granularity but are eve
 Looking at the MDRR data, the \texttt{nearZeroVar} function can be used to identify near zero--variance variables (the \texttt{saveMetrics} argument can be used to show the details and usually defaults to \texttt{FALSE}):
 
 \begin{small}
-<<nzvEx>>=
-nzv <- nearZeroVar(mdrrDescr, saveMetrics= TRUE)
-nzv[nzv$nzv,][1:10,]
-@
+\begin{Schunk}
+\begin{Sinput}
+> nzv <- nearZeroVar(mdrrDescr, saveMetrics = TRUE)
+> nzv[nzv$nzv, ][1:10, ]
+\end{Sinput}
+\begin{Soutput}
+       freqRatio percentUnique zeroVar  nzv
+nTB     23.00000     0.3787879   FALSE TRUE
+nBR    131.00000     0.3787879   FALSE TRUE
+nI     527.00000     0.3787879   FALSE TRUE
+nR03   527.00000     0.3787879   FALSE TRUE
+nR08   527.00000     0.3787879   FALSE TRUE
+nR11    21.78261     0.5681818   FALSE TRUE
+nR12    57.66667     0.3787879   FALSE TRUE
+D.Dr03 527.00000     0.3787879   FALSE TRUE
+D.Dr07 123.50000     5.8712121   FALSE TRUE
+D.Dr08 527.00000     0.3787879   FALSE TRUE
+\end{Soutput}
+\end{Schunk}
 \end{small}
 
-<<nzvReduce, results = hide, echo = FALSE>>=
-nzv <- nearZeroVar(mdrrDescr)
-filteredDescr <- mdrrDescr[, -nzv]
-@
 
 By default, \texttt{nearZeroVar(data)} will return the positions of the variables that are flagged to be problematic.
 
@@ -223,21 +231,30 @@ Given a correlation matrix, the \texttt{findCorrelation} function uses the follo
 	}
 \end{algorithm}
 
-<<tmpCorr, echo = FALSE, results = hide>>=
-descrCor <- abs(cor(filteredDescr))
-@
 
-For the previous MDRR data, there are \Sexpr{sum(descrCor[upper.tri(descrCor)] > .999)} descriptors that are almost perfectly correlated (|correlation| > 0.999), such as the total information index of atomic composition (\texttt{IAC}) and the total information content index (neighborhood symmetry of 0-order) (\texttt{TIC0}) (correlation = 1). The code chunk below shows the effect of removing descriptors with absolute correlations above 0.75.
+For the previous MDRR data, there are 65 descriptors that are almost perfectly correlated (|correlation| > 0.999), such as the total information index of atomic composition (\texttt{IAC}) and the total information content index (neighborhood symmetry of 0-order) (\texttt{TIC0}) (correlation = 1). The code chunk below shows the effect of removing descriptors with absolute correlations above 0.75.
 
 \begin{small}
-<<corr>>=
-descrCor <- cor(filteredDescr)
-summary(descrCor[upper.tri(descrCor)])
-highlyCorDescr <- findCorrelation(descrCor, cutoff = .75)
-filteredDescr <- filteredDescr[,-highlyCorDescr]
-descrCor2 <- cor(filteredDescr)
-summary(descrCor2[upper.tri(descrCor2)])
-@
+\begin{Schunk}
+\begin{Sinput}
+> descrCor <- cor(filteredDescr)
+> summary(descrCor[upper.tri(descrCor)])
+\end{Sinput}
+\begin{Soutput}
+    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+-0.99610 -0.05373  0.25010  0.26080  0.65530  1.00000 
+\end{Soutput}
+\begin{Sinput}
+> highlyCorDescr <- findCorrelation(descrCor, cutoff = 0.75)
+> filteredDescr <- filteredDescr[, -highlyCorDescr]
+> descrCor2 <- cor(filteredDescr)
+> summary(descrCor2[upper.tri(descrCor2)])
+\end{Sinput}
+\begin{Soutput}
+    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+-0.70730 -0.05378  0.04418  0.06692  0.18860  0.74460 
+\end{Soutput}
+\end{Schunk}
 \end{small}
 
 \subsection{Linear Dependencies}
@@ -245,28 +262,73 @@ summary(descrCor2[upper.tri(descrCor2)])
 The function \texttt{findLinearCombos} uses the QR decomposition of a matrix to enumerate sets of linear combinations (if they exist). For example, consider the following matrix that is could have been produced by a less--than--full--rank parameterizations of a two--way experimental layout:
 
 \begin{small}
-<<linearCombData>>=
-ltfrDesign <- matrix(0, nrow=6, ncol=6)
-ltfrDesign[,1] <- c(1, 1, 1, 1, 1, 1)
-ltfrDesign[,2] <- c(1, 1, 1, 0, 0, 0)
-ltfrDesign[,3] <- c(0, 0, 0, 1, 1, 1)
-ltfrDesign[,4] <- c(1, 0, 0, 1, 0, 0)
-ltfrDesign[,5] <- c(0, 1, 0, 0, 1, 0)
-ltfrDesign[,6] <- c(0, 0, 1, 0, 0, 1)
-ltfrDesign
-@
+\begin{Schunk}
+\begin{Sinput}
+> ltfrDesign <- matrix(0, nrow = 6, ncol = 6)
+> ltfrDesign[, 1] <- c(1, 1, 1, 1, 1, 1)
+> ltfrDesign[, 2] <- c(1, 1, 1, 0, 0, 0)
+> ltfrDesign[, 3] <- c(0, 0, 0, 1, 1, 1)
+> ltfrDesign[, 4] <- c(1, 0, 0, 1, 0, 0)
+> ltfrDesign[, 5] <- c(0, 1, 0, 0, 1, 0)
+> ltfrDesign[, 6] <- c(0, 0, 1, 0, 0, 1)
+> ltfrDesign
+\end{Sinput}
+\begin{Soutput}
+     [,1] [,2] [,3] [,4] [,5] [,6]
+[1,]    1    1    0    1    0    0
+[2,]    1    1    0    0    1    0
+[3,]    1    1    0    0    0    1
+[4,]    1    0    1    1    0    0
+[5,]    1    0    1    0    1    0
+[6,]    1    0    1    0    0    1
+\end{Soutput}
+\end{Schunk}
 \end{small}
 
 Note that columns two and three add up to the first column. Similarly, columns four, five and six add up the first column. \texttt{findLinearCombos} will return a list that enumerates these dependencies. For each linear combination, it will incrementally remove columns from the matrix and test to see if the dependencies have been resolved. \texttt{findLinearCombos} will also return a vector of column positions can be removed to eliminate the linear dependencies:
 
 \newpage
 \begin{small}
-<<linearComb>>=
-comboInfo <- findLinearCombos(ltfrDesign)
-comboInfo
-ltfrDesign[, -comboInfo$remove]
-findLinearCombos(ltfrDesign[, -comboInfo$remove])
-@
+\begin{Schunk}
+\begin{Sinput}
+> comboInfo <- findLinearCombos(ltfrDesign)
+> comboInfo
+\end{Sinput}
+\begin{Soutput}
+$linearCombos
+$linearCombos[[1]]
+[1] 3 1 2
+
+$linearCombos[[2]]
+[1] 6 1 4 5
+
+
+$remove
+[1] 3 6
+\end{Soutput}
+\begin{Sinput}
+> ltfrDesign[, -comboInfo$remove]
+\end{Sinput}
+\begin{Soutput}
+     [,1] [,2] [,3] [,4]
+[1,]    1    1    1    0
+[2,]    1    1    0    1
+[3,]    1    1    0    0
+[4,]    1    0    1    0
+[5,]    1    0    0    1
+[6,]    1    0    0    0
+\end{Soutput}
+\begin{Sinput}
+> findLinearCombos(ltfrDesign[, -comboInfo$remove])
+\end{Sinput}
+\begin{Soutput}
+$linearCombos
+list()
+
+$remove
+NULL
+\end{Soutput}
+\end{Schunk}
 \end{small}
 
 These types of dependencies can arise when large numbers of binary chemical fingerprints are used to describe the structure of a molecule.
@@ -279,20 +341,19 @@ The \texttt{preProcess} class can be used for many operations on predictors, inc
 
 In the example below, the half of the MDRR data are used to estimate the location and scale of the predictors. The function \texttt{preProcess} doesn't actually pre--process the data. \texttt{predict.preProcess} is used to pre--process this and other data sets.
 \begin{small}
-<<centerScale>>=
-set.seed(96)
-inTrain <- sample(seq(along = mdrrClass), length(mdrrClass)/2)
-
-training <- filteredDescr[inTrain,]
-test <- filteredDescr[-inTrain,]
-trainMDRR <- mdrrClass[inTrain]
-testMDRR <- mdrrClass[-inTrain]
-
-preProcValues <- preProcess(training, method = c("center", "scale"))
-
-trainDescr <- predict(preProcValues, training)
-testDescr <- predict(preProcValues, test)
-@
+\begin{Schunk}
+\begin{Sinput}
+> set.seed(96)
+> inTrain <- sample(seq(along = mdrrClass), length(mdrrClass)/2)
+> training <- filteredDescr[inTrain, ]
+> test <- filteredDescr[-inTrain, ]
+> trainMDRR <- mdrrClass[inTrain]
+> testMDRR <- mdrrClass[-inTrain]
+> preProcValues <- preProcess(training, method = c("center", "scale"))
+> trainDescr <- predict(preProcValues, training)
+> testDescr <- predict(preProcValues, test)
+\end{Sinput}
+\end{Schunk}
 \end{small}
 
 \subsection{Transforming Predictors}
@@ -305,11 +366,7 @@ This transformation can also be applied using the \texttt{preProcess} class.
 
 \begin{figure}[p]
    \begin{center}		
-<<splomBefore, echo = FALSE, fig = TRUE>>=
-plotSubset <- data.frame(scale(mdrrDescr[, c("nC", "X4v")]))
-trellis.par.set(caretTheme(), warn = FALSE)
-print(xyplot(nC ~ X4v, plotSubset, groups = mdrrClass, auto.key = list(columns = 2)))
-@
+\includegraphics{caretMisc-splomBefore}
       \caption{A plot of two descriptors from the MDRR training set (centered and scaled)}
       \label{f:descSplom}         
    \end{center}
@@ -317,10 +374,7 @@ print(xyplot(nC ~ X4v, plotSubset, groups = mdrrClass, auto.key = list(columns =
 
 \begin{figure}[p]
    \begin{center}		
-<<splomAfter, echo = FALSE, fig = TRUE>>=
-trellis.par.set(caretTheme(), warn = FALSE)
-print(xyplot(nC ~ X4v, spatialSign(plotSubset), groups = mdrrClass, auto.key = list(columns = 2)))
-@
+\includegraphics{caretMisc-splomAfter}
       \caption{A plot of the two descriptors from the MDRR training set after the spatial sign transformation}
       \label{f:descSplomTrans}         
    \end{center}
@@ -331,13 +385,28 @@ print(xyplot(nC ~ X4v, spatialSign(plotSubset), groups = mdrrClass, auto.key = l
 
 The function \texttt{createDataPartition} can be used to create balanced splits of the data. If the \texttt{y} argument to this function is a factor, the random sampling occurs within each class and should preserve the overall class distribution of the data. For example, to create a single 80$\%$$\backslash$20$\%$ split of the MDRR data:
 \begin{small}
-<<mbrrSplit1>>=
-set.seed(3456)
-set1index <- createDataPartition(mdrrClass, p = .8, list = FALSE, times = 1)
-set1 <- mdrrClass[set1index]
-round(table(set1)/length(set1), 2)
-round(table(mdrrClass)/length(mdrrClass), 2)
-@
+\begin{Schunk}
+\begin{Sinput}
+> set.seed(3456)
+> set1index <- createDataPartition(mdrrClass, p = 0.8, list = FALSE, 
++     times = 1)
+> set1 <- mdrrClass[set1index]
+> round(table(set1)/length(set1), 2)
+\end{Sinput}
+\begin{Soutput}
+set1
+  Active Inactive 
+    0.57     0.43 
+\end{Soutput}
+\begin{Sinput}
+> round(table(mdrrClass)/length(mdrrClass), 2)
+\end{Sinput}
+\begin{Soutput}
+mdrrClass
+  Active Inactive 
+    0.56     0.44 
+\end{Soutput}
+\end{Schunk}
 The \texttt{list = FALSE} returns the data in an integer vector. This function also has an argument, \texttt{times}, that can create multiple splits at once; the data indices are returned in a list of integer vectors. Similarly, \texttt{createResample} can be used to make simple bootstrap samples and \texttt{createFolds} can be used to generate balanced cross--validation groupings from a set of data.
 \end{small}
 
@@ -345,94 +414,6 @@ Also, the function \texttt{maxDissim} can be used to create sub--samples using a
 
 As an example, Figure \ref{f:diss} shows a scatter plot of two chemical descriptors for the Cox2 data. Using an initial random sample of 5 compounds, we can select 20 more compounds from the data so that the new compounds are most dissimilar from the initial 5 that were specified. The panels in Figure \ref{f:diss} show the results using several combinations of distance metrics and scoring functions. For these data, the distance measure has less of an impact than the scoring method for determining which compounds are most dissimilar.
 
-<<diss, echo = FALSE, results = hide>>=
-pdf(paste(getwd(), "/diss.pdf", sep = ""), width = 7, height = 9.5)
-
-data(cox2)
-
-testing <- scale(cox2Descr[, c(102, 30)])
-set.seed(1)
-startSet <- sample(1:dim(testing)[1], 5)
-samplePool <- testing[-startSet,]
-start <- testing[startSet,]
-
-
-par(mfrow=c(3,2))
-
-plot(testing[,1], testing[,2], xlab = "Total positive partial charge", ylab = "Predicted Skin Permeability")
-title("Original Data")
-
-subsetSize <- 20
-
-########################################################
-
-newSamp <- maxDissim(start, samplePool, n = subsetSize)
-
-plot(samplePool[,1], samplePool[,2], type = "n", xlab = "Total positive partial charge", ylab = "Predicted Skin Permeability")
-points(samplePool[-newSamp,1], samplePool[-newSamp,2], col = "grey")
-
-text(samplePool[newSamp,1], samplePool[newSamp,2], paste(1:subsetSize), col = "blue", cex = 1.2)
-title("Euclidean Dist with MaxMin")
-
-text(start[,1], start[,2], rep("S", dim(start)[1]), col = "red", cex = 1.2)
-
-
-########################################################
-
-newSamp <- maxDissim(start, samplePool, n = subsetSize, obj = sumDiss)
-
-plot(samplePool[,1], samplePool[,2], type = "n", xlab = "Total positive partial charge", ylab = "Predicted Skin Permeability")
-points(samplePool[-newSamp,1], samplePool[-newSamp,2], col = "grey")
-
-text(samplePool[newSamp,1], samplePool[newSamp,2], paste(1:subsetSize), col = "blue", cex = 1.2)
-title("Euclidean Dist with MaxSum")
-
-text(start[,1], start[,2], rep("S", dim(start)[1]), col = "red", cex = 1.2)
-
-########################################################
-
-newSamp <- maxDissim(start, samplePool, n = subsetSize, obj = sumDiss, randomFrac = 0.05)
-
-plot(samplePool[,1], samplePool[,2], type = "n", xlab = "Total positive partial charge", ylab = "Predicted Skin Permeability")
-points(samplePool[-newSamp,1], samplePool[-newSamp,2], col = "grey")
-
-text(samplePool[newSamp,1], samplePool[newSamp,2], paste(1:subsetSize), col = "blue", cex = 1.2)
-title("Euclidean Dist with MaxSum and 5% Sampling")
-
-text(start[,1], start[,2], rep("S", dim(start)[1]), col = "red", cex = 1.2)
-
-
-
-########################################################
-
-
-newSamp <- maxDissim(start, samplePool, n = subsetSize, method = "Manhattan")
-
-plot(samplePool[,1], samplePool[,2], type = "n", xlab = "Total positive partial charge", ylab = "Predicted Skin Permeability")
-points(samplePool[-newSamp,1], samplePool[-newSamp,2], col = "grey")
-
-text(samplePool[newSamp,1], samplePool[newSamp,2], paste(1:subsetSize), col = "blue", cex = 1.2)
-title("Manhattan Dist with MaxMin")
-
-text(start[,1], start[,2], rep("S", dim(start)[1]), col = "red", cex = 1.2)
-
-
-########################################################
-
-
-newSamp <- maxDissim(start, samplePool, n = subsetSize, method = "Manhattan", obj = sumDiss)
-
-plot(samplePool[,1], samplePool[,2], type = "n", xlab = "Total positive partial charge", ylab = "Predicted Skin Permeability")
-points(samplePool[-newSamp,1], samplePool[-newSamp,2], col = "grey")
-
-text(samplePool[newSamp,1], samplePool[newSamp,2], paste(1:subsetSize), col = "blue", cex = 1.2)
-title("Manhattan Dist with MaxSum")
-
-text(start[,1], start[,2], rep("S", dim(start)[1]), col = "red", cex = 1.2)
-
-
-dev.off()
-@
 
 \begin{figure}[p]
    \begin{center}	
@@ -448,38 +429,6 @@ The \texttt{featurePlot} function is a wrapper for different \texttt{lattice} pl
 
 For example, Figures \ref{f:classEllipse}, \ref{f:densityPlot}, \ref{f:boxPlot} and \ref{f:scatPlot} shows the default plot for continuous outcomes generated using the \texttt{featurePlot} function. 
 
-<<featurePlot, echo = FALSE, results = hide>>=
-exDescr <- c("Wap", "G.N..N.", "SEigp")
-mdrrPreProc1 <- apply(mdrrDescr[,exDescr] , 2, processData)
-
-mdrrProc <- applyProcessing(mdrrDescr[,exDescr], mdrrPreProc1)
-
-pdf(paste(getwd(), "/fp1.pdf", sep = ""), width = 7, height = 7)
-   trellis.par.set(caretTheme(), warn = FALSE)
-   print(featurePlot(mdrrProc, mdrrClass, "ellipse"))
-dev.off()
-
-pdf(paste(getwd(), "/fp2.pdf", sep = ""), width = 7, height = 3.5)
-   trellis.par.set(caretTheme(), warn = FALSE)
-   print(featurePlot(mdrrProc, mdrrClass, 
-      "density", scales = list(x = list(relation="free"), 
-      y = list(relation="free")), adjust = 1.5, pch = "|", layout = c(3,1), 
-      auto.key = list(columns = 3)))
-dev.off()
-
-pdf(paste(getwd(), "/fp3.pdf", sep = ""), width = 7, height = 3.5)
-   trellis.par.set(caretTheme(), warn = FALSE)
-   print(featurePlot(mdrrProc, mdrrClass, "boxplot", 
-      scales = list(y = list(relation="free")), layout = c(3,1)))
-dev.off()
-
-pdf(paste(getwd(), "/fp4.pdf", sep = ""), width = 7, height = 3.5)
-   data(BloodBrain)
-   trellis.par.set(caretTheme(), warn = FALSE)
-   exDescr <- c("psa_npsa", "clogp", "vsa_acc")   
-   print(featurePlot(bbbDescr[,exDescr], logBBB, layout = c(3,1)))
-dev.off()
-@
 
 \begin{figure}[hb]
    \begin{center}	
@@ -567,38 +516,11 @@ For the MDRR data set, we can fit two PLS models using each technique and predic
 Similar to \texttt{plsda}, \texttt{caret} also contains a function \texttt{splsda} that allows for classification using sparse PLS. A dummy 
 matrix is created for each class and used with the \texttt{spls} function in the \texttt{spls} package. The same approach to estimating class probabilities is used for \texttt{plsda} and \texttt{splsda}.
 
-<<plsProb, echo = FALSE, results = hide>>=
-bTime <- system.time(Bayes <- plsda(trainDescr, trainMDRR, ncomp = 5, probMethod = "Bayes"))[3]
-sTime <- system.time(softmax <- plsda(trainDescr, trainMDRR, ncomp = 5))[3]
-
-bProbs <- as.data.frame(predict(Bayes, as.matrix(testDescr), type = "prob"))
-bProbs$method <- "Bayes Rule"
-bProbs$obs <- testMDRR
-sProbs <- as.data.frame(predict(softmax, as.matrix(testDescr), type = "prob"))
-sProbs$method <- "Softmax"
-sProbs$obs <- testMDRR
-names(sProbs) <- names(bProbs)
-both <- rbind(bProbs, sProbs)
-
-bPerf <- confusionMatrix(predict(Bayes, as.matrix(testDescr)),
-                         testMDRR)
-sPerf <- confusionMatrix(predict(softmax, as.matrix(testDescr)),
-                         testMDRR)
-                                 
-pdf(paste(getwd(), "/plsProbs.pdf", sep = ""), width = 7, height = 5)
-   trellis.par.set(caretTheme(), warn = FALSE)
-print(
-      histogram(
-                ~Active|method*obs, data = both, 
-                xlab = "Active Probability",
-                as.table = TRUE))
-dev.off()
-@ 
 
 \begin{figure}
    \begin{center}		
       \includegraphics[clip, width = .9\textwidth]{plsProbs}
-\caption{A comparison of two methods for computing class probabilities for PLS classification models on the MDRR data. Using a 5 component PLS model, the test set sample class probabilities were predicted using either the softmax function or Bayes rule. The histograms show the distributions of the active class probabilities for both methods and the true class of the samples. While Bayes rule takes more time to compute (\Sexpr{round(bTime, 2)} seconds compared to \Sexpr{round(sTime, 3)} seconds for softmax), the probabilities using Bayes rule appear more appropriate since they encompass the full scale. The softmax probabilities are close to the middle of the distribution and rarely show high confidence in the predicted class. Both techniques show approximately the same accuracy (\Sexpr{round(bPerf$overall[1], 2)} for Bayes and \Sexpr{round(sPerf$overall[1], 2)} for softmax) and Kappa values (\Sexpr{round(bPerf$overall[2], 2)} for Bayes and \Sexpr{round(sPerf$overall[2], 2)} for softmax).}
+\caption{A comparison of two methods for computing class probabilities for PLS classification models on the MDRR data. Using a 5 component PLS model, the test set sample class probabilities were predicted using either the softmax function or Bayes rule. The histograms show the distributions of the active class probabilities for both methods and the true class of the samples. While Bayes rule takes more time to compute (1.36 seconds compared to 0.015 seconds for softmax), the probabilities using Bayes rule appear more appropriate since they encompass the full scale. The softmax probabilities are close to the middle of the distribution and rarely show high confidence in the predicted class. Both techniques show approximately the same accuracy (0.79 for Bayes and 0.77 for softmax) and Kappa values (0.56 for Bayes and 0.52 for softmax).}
       \label{f:plsProbs}       
    \end{center}
 \end{figure}  
@@ -622,27 +544,29 @@ In cases where there are more predictors within a class than samples, the \textt
 \texttt{predict.classDist} is then used to generate the class distances. By default, the distances are logged, but this can be changed via the \texttt{trans} argument to \texttt{predict.classDist}.
 
 As an example, we can used the Fisher/Anderson iris data. 
-<<classDist>>=
-inTrain <- seq(1, 150, 6)
-centroids <- classDist(iris[inTrain, 1:4], iris$Species[inTrain])
-distances <- predict(centroids, iris[-inTrain, 1:4])
-head(distances)
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> inTrain <- seq(1, 150, 6)
+> centroids <- classDist(iris[inTrain, 1:4], iris$Species[inTrain])
+> distances <- predict(centroids, iris[-inTrain, 1:4])
+> head(distances)
+\end{Sinput}
+\begin{Soutput}
+  dist.setosa dist.versicolor dist.virginica
+2   2.0414919        5.399257       5.062646
+3   0.3929024        5.475529       4.964052
+4   0.6155916        5.335095       4.778670
+5   1.3192459        5.736292       5.043468
+6   2.3251196        5.736759       5.054561
+8  -2.6255384        5.613625       4.965432
+\end{Soutput}
+\end{Schunk}
 Figure \ref{F:classDist} shows a scatterplot matrix of the class distances for the held--out samples. 
 
 For data sets with numerical outcomes, the data can be split into groups based on quantiles of the data (more fine granularity can be achieved with the \texttt{groups} argument to the \texttt{classDist} function).
 
 \begin{figure}
    \begin{center}		
-<<classDistPlot, echo = FALSE, results = hide>>=
-pdf("classDist.pdf", width = 5, height = 7)
-   trellis.par.set(caretTheme())
-   print(
-         splom(distances, 
-               groups = iris$Species[-inTrain],
-               auto.key = list(columns = 3)))
-dev.off()
-@
       \includegraphics[clip]{classDist}
       \caption{Class distances for the help--out samples for the Fisher/Anderson iris computed using the \texttt{classDist} function. The distances have been logged.}
       \label{F:classDist} 
@@ -654,10 +578,17 @@ For example, in the Fisher/Anderson iris data there are four predictors and a cl
 
 \section{Session Information}
 
-<<<session, echo=FALSE, results=tex>>=
-toLatex(sessionInfo())
-@ 
-
+\begin{itemize}
+  \item R version 2.9.0 (2009-04-17), \verb|x86_64-apple-darwin9.6.0|
+  \item Locale: \verb|en_US.UTF-8/en_US.UTF-8/C/C/en_US.UTF-8/en_US.UTF-8|
+  \item Base packages: base, datasets, graphics, grDevices, grid,
+    methods, splines, stats, tools, utils
+  \item Other packages: caret~4.11, class~7.2-46, e1071~1.5-19,
+    ellipse~0.3-5, gbm~1.6-3, ipred~0.8-6, kernlab~0.9-8, klaR~0.5-8,
+    lattice~0.17-22, MASS~7.2-46, mlbench~1.1-5, nnet~7.2-46,
+    pls~2.1-0, proxy~0.4-1, randomForest~4.5-30, rpart~3.1-43,
+    survival~2.35-4
+\end{itemize}
 \section{References}
 
 \begin{description}

@@ -176,10 +176,11 @@
                       pam = pamTune(data, len),
                       knn = data.frame(.k = (5:((2 * len)+4))[(5:((2 * len)+4))%%2 > 0]),
                       nb = data.frame(.usekernel = c(TRUE, FALSE)),
-                      multinom = data.frame(.decay = c(0, 10 ^ seq(-4, 0, length = len - 1))),
+                      multinom = data.frame(.decay = c(0, 10 ^ seq(-4, -1, length = len - 1))),
                       bagEarth =, bagFDA =, earth =,
                       earthTest =, mars =,
-                      fda = expand.grid(.degree = 1, .nprune = marsSeq(data, len)),    
+                      fda = expand.grid(.degree = 1, .nprune = marsSeq(data, len)),
+                      svmLinear = data.frame(.C = 10 ^((1:len) - 2)), 
                       svmradial =, svmRadial = expand.grid(
                                      .sigma = rbfTune(data, len),
                                      .C = 10 ^((1:len) - 2)),   
@@ -243,7 +244,8 @@
                       lars2 = larsTune(data, len),
                       PART = data.frame(.threshold = 0.25, .pruned = "yes"), 
                       lda =, lm =, treebag =, sddaLDA =, sddaQDA =,
-                      glm =, qda =, OneR =,                     
+                      glm =, qda =, OneR =, rlm =,
+                      rvmLinear =, lssvmLinear =, gaussprLinear =,
                       lmStepAIC =, slda = data.frame(.parameter = "none"))
   trainGrid
 }

@@ -38,6 +38,7 @@
 \alias{predictors.superpc}
 \alias{predictors.terms}
 \alias{predictors.train}
+\alias{predictors.rfe}
 \title{ List predictors used in the model}
 \description{
 This class uses a model fit to determine which predictors were used in the final model.
@@ -120,6 +121,8 @@ predictors(x, ...)
 \method{predictors}{bagFDA}(x,  ...)
 
 \method{predictors}{ppr}(x,  ...)
+
+\method{predictors}{rfe}(x,  ...)
 }
 
 \arguments{
