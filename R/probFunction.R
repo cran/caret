@@ -7,17 +7,17 @@ probFunction <- function(method, modelFit, newdata)
   
   if(method %in% c(
                    "svmradial", "svmpoly",
-                   "svmRadial", "svmPoly",
-                   "gaussprRadial", "gaussprPoly",
-                   "lssvmRadial",
+                   "svmRadial", "svmPoly", "svmLinear",
+                   "gaussprRadial", "gaussprPoly", "gaussprLinear",
+                   "lssvmRadial", "lssvmLinear",
                    "ctree", "ctree2",  "cforest"))
     {
       
       obsLevels <- switch(method,
-                          svmradial =, svmpoly =,
-                          svmRadial =, svmPoly =,
-                          gaussprRadial =, gaussprPoly =,
-                          lssvmRadial =
+                          svmradial =, svmpoly =, 
+                          svmRadial =, svmPoly =, svmLinear =,
+                          gaussprRadial =, gaussprPoly =, gaussprLinear =,
+                          lssvmRadial =, lssvmLinear =
                           {
                             library(kernlab)
                             lev(modelFit)

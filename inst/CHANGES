@@ -1,8 +1,25 @@
 -------------------
+Version: 4.11
+Date: 2009-04-25
+
+Added 
+
+  - linear kernels for svm, rvm and Gaussian processes
+  - rlm from MASS
+  - a knn regression model, knnreg
+  - a set of functions (class "classDist") to computes the class 
+    centroids and covariance matrix for a training set for 
+    determining Mahalanobis distances of samples to each class 
+    centroid 
+  - a set of functions (rfe) for doing recursive feature selection 
+    (aka backwards selection). A new vignette was added for more 
+    details
+
+-------------------
 Version: 4.10
 Date: 2009-03-20
 
-Added OneR and PART form RWeka
+Added OneR and PART from RWeka
 
 -------------------
 Version: 4.09

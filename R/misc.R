@@ -138,7 +138,12 @@ modelLookup <- function(model = NULL)
                            "lars2",
                            "OneR",
                            "PART",
-                           "PART"
+                           "PART",
+                           "rlm",
+                           "svmLinear",
+                           "rvmLinear",
+                           "lssvmLinear",
+                           "gaussprLinear"
                            ),
                          parameter = c(
                            "parameter",      
@@ -211,7 +216,12 @@ modelLookup <- function(model = NULL)
                            "step",
                            "parameter",
                            "threshold",
-                           "pruned"
+                           "pruned",
+                           "parameter",
+                           "C",
+                           "parameter",
+                           "parameter",
+                           "parameter"
                            ),
                          label = I(c(
                            "none",      
@@ -286,7 +296,12 @@ modelLookup <- function(model = NULL)
                            "#Steps",
                            "none",
                            "Confidence Threshold",
-                           "Pruning"
+                           "Pruning",
+                           "none",
+                           "C",
+                           "none",
+                           "none",
+                           "none"
                            )),
                          seq = c(
                            FALSE,
@@ -317,7 +332,7 @@ modelLookup <- function(model = NULL)
                            FALSE,   FALSE,   # lssvm
                            FALSE,
                            FALSE,   FALSE,   # gausspr
-                           FALSE,
+                           FALSE,#
                            FALSE, 
                            FALSE, 
                            TRUE, 
@@ -358,7 +373,12 @@ modelLookup <- function(model = NULL)
                            TRUE,
                            TRUE,
                            FALSE,
-                           FALSE, FALSE
+                           FALSE, FALSE,
+                           FALSE,               ## rlm
+                           FALSE,
+                           FALSE,
+                           FALSE,
+                           FALSE
                            ),
                          forReg = c(
                            TRUE,
@@ -396,7 +416,7 @@ modelLookup <- function(model = NULL)
                            TRUE, 
                            TRUE, 
                            FALSE, 
-                           FALSE, 
+                           TRUE, 
                            FALSE, 
                            TRUE,    TRUE, 
                            TRUE,    TRUE,           
@@ -430,7 +450,12 @@ modelLookup <- function(model = NULL)
                            TRUE,
                            TRUE,
                            FALSE,
-                           FALSE,  FALSE
+                           FALSE,  FALSE,
+                           TRUE,               ## rlm
+                           TRUE,               ## svm linear
+                           TRUE,               ## rvn linear
+                           FALSE,              ## ls svm linear
+                           TRUE                ## gaussian linear           
                            ),               
                          forClass =          
                          c(
@@ -503,7 +528,12 @@ modelLookup <- function(model = NULL)
                            FALSE,
                            FALSE,
                            TRUE,
-                           TRUE,  TRUE
+                           TRUE,  TRUE,
+                           FALSE,              ## rlm
+                           TRUE,               ## svm linear
+                           FALSE,              ## rvm linear
+                           TRUE,               ## ls svm linear
+                           TRUE                ## gaussian linear   
                            ),
                          probModel = c(
                            TRUE,             #   bagged trees
@@ -575,8 +605,13 @@ modelLookup <- function(model = NULL)
                            FALSE,             # lars
                            FALSE,             # lars2
                            TRUE,              # OneR
-                           TRUE, TRUE         # PART
-                            ),
+                           TRUE, TRUE,        # PART
+                           FALSE,              ## rlm
+                           TRUE,               ## svm linear
+                           FALSE,              ## rvm linear
+                           FALSE,              ## ls svm linear
+                           TRUE                ## gaussian linear 
+                           ),
                          stringsAsFactors  = FALSE               
                          )         
   
@@ -875,20 +910,20 @@ defaultSummary <- function(data, lev = NULL, model = NULL)
 ## make this object oriented
 getClassLevels <- function(x) 
   {
-    if(tolower(x$method) %in% tolower(c("svmRadial", "svmPoly",
-                                        "rvmRadial", "rvmPoly",
-                                        "lssvmRadial", "lssvmPoly",
-                                        "gaussprRadial", "gaussprPoly",
+    if(tolower(x$method) %in% tolower(c("svmRadial", "svmPoly", "svmLinear",
+                                        "rvmRadial", "rvmPoly", "rvmLinear",
+                                        "lssvmRadial", "lssvmPoly", "lssvmLinear",
+                                        "gaussprRadial", "gaussprPoly", "gaussprLinear",
                                         "ctree", "ctree2", "cforest",
                                         "penalized")))
        
       {
         obsLevels <- switch(tolower(x$method),
                             penalized = NULL,
-                            svmradial =, svmpoly =,
-                            rvmradial =, rvmpoly =,
-                            lssvmradial =, lssvmpoly =, 
-                            gaussprpadial =, gaussprpoly =
+                            svmradial =, svmpoly =, svmlinear =, 
+                            rvmradial =, rvmpoly =, svmlinear =,
+                            lssvmradial =, lssvmpoly =,  lssvmlinear =,
+                            gaussprpadial =, gaussprpoly =, gaussprlinear =
                             {
                               library(kernlab)
                               lev(x$finalModel)
