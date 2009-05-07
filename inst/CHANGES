@@ -1,4 +1,11 @@
 -------------------
+Version: 4.12
+Date: 2009-05-07
+
+Added additional error check to confusionMatrix and fixed an
+absurd typo in print.confusionMatrix
+
+-------------------
 Version: 4.11
 Date: 2009-04-25
 

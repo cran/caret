@@ -13,6 +13,7 @@ confusionMatrix.default <- function(data, reference,
   library(e1071)
   if(!is.factor(data)) data <- factor(data)
   if(!is.factor(reference)) reference <- factor(reference)
+  if(!is.character(positive) & !is.null(positive)) stop("positive argument must be character")
 
   if(length(levels(data)) != length(levels(reference)))
     stop("the data and reference factors must have the same number of levels")
@@ -39,6 +40,7 @@ confusionMatrix.table <- function(data, positive = NULL, prevalence = NULL, ...)
   if(length(dim(data)) != 2) stop("the table must have two dimensions")
   if(!all.equal(nrow(data), ncol(data))) stop("the table must nrow = ncol")
   if(!all.equal(rownames(data), colnames(data))) stop("the table must the same classes in the same order")
+  if(!is.character(positive) & !is.null(positive)) stop("positive argument must be character")
   
   classLevels <- rownames(data)
   numLevels <- length(classLevels)
