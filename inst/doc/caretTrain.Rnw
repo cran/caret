@@ -81,7 +81,7 @@ library(grid)
 library(randomForest)
 data(BloodBrain)
 data(mdrr)
-load("rfeExamples.RData")
+
 @
 
 \section{Model Training and Parameter Tuning}\label{S:train}

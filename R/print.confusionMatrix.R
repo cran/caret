@@ -66,7 +66,7 @@ print.confusionMatrix <- function(x, digits = max(3, getOption("digits") - 3), p
 
          overallNames <- c(overallNames,
                            "",
-                           "'Postive' Class :")
+                           "'Positive' Class :")
          overallText <- c(overallText,
                           "",
                           x$positive)
