@@ -66,7 +66,7 @@ byComplexity <- function(x, model)
            treebag =, lda =, lm =, sddaLDA =, sddaQDA =,
            lmStepAIC =, slda =, glm =, qda =, OneR =,
            rvmLinear =, lssvmLinear =, gaussprLinear =,
-           rlm =
+           rlm =, vbmpRadial =
            {
              x
            },

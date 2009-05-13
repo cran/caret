@@ -102,8 +102,8 @@
                            function(u) all(is.na(u))))
   if(any(sdCheck))
     {
-      rmCols <- which(sdCols)[sdCheck]
-      tuneAcc <- tuneAcc[, -rmCols]	
+      rmCols <- names(sdCheck)[sdCheck]
+      tuneAcc <- tuneAcc[, !(names(tuneAcc) %in% rmCols)]	
     }
   
   

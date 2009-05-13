@@ -564,7 +564,12 @@ There is additional functionality in \texttt{train} that is described in the nex
             \texttt{RWeka}    & 
             \texttt{NumOpt}   \\
             
-            
+      Bayesian Multinomial  
+      & \texttt{vbmpRadial} 
+      & \texttt{vbmp} 
+      & \texttt{estimateTheta} \\
+      \:\: Probit Model \\
+      
       Least Squares Support Vector  &
          \texttt{lssvmRadial} & 
             \texttt{kernlab}       & 
@@ -641,6 +646,10 @@ The output to the function should be a vector of numeric summary metrics with no
 
 As an example, classification accuracy in two--class problems can be decomposed into sensitivity and specificity. We can use these values to tune the parameters using the following function:
 <<summaryFunc>>=
+
+
+
+
 newSummary <- function (data, lev, model)
   {
     out <- c(sensitivity(data[, "pred"], data[, "obs"], lev[1]),
