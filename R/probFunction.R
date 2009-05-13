@@ -243,7 +243,14 @@ probFunction <- function(method, modelFit, newdata)
                       {
                         library(mda)
                         predict(modelFit, newdata, type = "posterior")
-                      }                     
+                      },
+                      vbmpRadial =
+                      {
+                        library(vbmp)
+                        probs <- predictCPP(modelFit, newdata)
+                        colnames(probs) <- obsLevels
+                        probs
+                      }
                       )
 
   if(!is.data.frame(classProb)) classProb <- as.data.frame(classProb)

@@ -662,6 +662,13 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
                                }
 
                              out
+                           },
+                           vbmpRadial =
+                           {
+                             library(vbmp)
+                             probs <- predictCPP(modelFit, newdata)
+                             out <- modelFit$obsLevels[apply(probs, 1, which.max)]
+                             out
                            }
                          
   )

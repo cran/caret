@@ -1,4 +1,23 @@
 -------------------
+Version: 4.15
+Date: 2009-05-13
+
+Fixed bug in createFolds when the smallest y value is more than 25%
+of the data
+
+-------------------
+Version: 4.14
+Date: 2009-05-13
+
+Fixed bug in print.train
+
+-------------------
+Version: 4.13
+Date: 2009-05-12
+
+Added vbmp from vbmp package
+
+-------------------
 Version: 4.12
 Date: 2009-05-07
 

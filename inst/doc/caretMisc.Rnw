@@ -98,7 +98,7 @@ getInfo <- function(what = "Suggests")
 
 The \texttt{caret} package (short for {\bf{\color{blue}{c}}}lassification {\bf{\color{blue}{a}}}nd {\bf{\color{blue}{re}}}gression {\bf{\color{blue}{t}}}raining) contains functions to streamline the model training process for complex regression and classification problems. The package utilizes a number of R packages but tries not to load them all at package start-up\footnote{By adding formal package dependencies, the package startup time can be greatly decreased}. The package ``suggests'' field includes: \Sexpr{getInfo("Suggests")}. \texttt{caret} loads packages as needed and assumes that they are installed. Install \texttt{caret} using 
 \begin{Verbatim}
-install.packages(caret, dependencies = c("Depends", "Suggests"))
+install.packages("caret", dependencies = c("Depends", "Suggests"))
 \end{Verbatim}
 to ensure that all the needed packages are installed.
 

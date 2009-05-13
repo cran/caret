@@ -45,7 +45,7 @@
                    "rvmRadial", "rvmPoly", "rvmLinear",
                    "gaussprRadial", "gaussprPoly", "gaussprLinear",
                    "sddaLDA", "sddaQDA", "glmnet", "slda", "spls", 
-                   "qda", "relaxo", "lars", "lars2", "rlm",
+                   "qda", "relaxo", "lars", "lars2", "rlm", "vbmpRadial",
                    "superpc", "ppr", "sda", "penalized", "sparseLDA"))
     {
       trainX <- data[,!(names(data) %in% ".outcome")]
@@ -986,7 +986,29 @@
                      {
                        library(MASS)
                        rlm(modFormula, data = data, ...)
-                     }                     
+                     },
+                     vbmpRadial =
+                     {
+                       library(vbmp)
+                       theDots <- list(...)
+                       if(any(names(theDots) == "control"))
+                         {
+                           theDots$control$bThetaEstimate <- ifelse(tuneValue$.estimateTheta == "Yes", TRUE, FALSE)
+                           ctl <- theDots$control
+                           theDots$control <- NULL
+                         } else ctl <- list(bThetaEstimate = ifelse(tuneValue$.estimateTheta == "Yes", TRUE, FALSE))                        
+                       if(any(names(theDots) == "theta"))
+                         {
+                           theta <- theDots$theta
+                           theDots$theta <- NULL
+                         } else theta <- runif(ncol(trainX))
+
+                       vbmp(trainX, as.numeric(trainY),
+                            theta = theta,
+                            control = ctl,
+                            X.TEST = trainX[1,],
+                            t.class.TEST  = as.numeric(trainY)[1])
+                     }
                      )
   
 

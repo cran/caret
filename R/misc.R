@@ -143,7 +143,8 @@ modelLookup <- function(model = NULL)
                            "svmLinear",
                            "rvmLinear",
                            "lssvmLinear",
-                           "gaussprLinear"
+                           "gaussprLinear",
+                           "vbmpRadial"
                            ),
                          parameter = c(
                            "parameter",      
@@ -221,7 +222,8 @@ modelLookup <- function(model = NULL)
                            "C",
                            "parameter",
                            "parameter",
-                           "parameter"
+                           "parameter",
+                           "estimateTheta"
                            ),
                          label = I(c(
                            "none",      
@@ -301,7 +303,8 @@ modelLookup <- function(model = NULL)
                            "C",
                            "none",
                            "none",
-                           "none"
+                           "none",
+                           "Theta Estimated"
                            )),
                          seq = c(
                            FALSE,
@@ -375,6 +378,7 @@ modelLookup <- function(model = NULL)
                            FALSE,
                            FALSE, FALSE,
                            FALSE,               ## rlm
+                           FALSE,
                            FALSE,
                            FALSE,
                            FALSE,
@@ -455,7 +459,8 @@ modelLookup <- function(model = NULL)
                            TRUE,               ## svm linear
                            TRUE,               ## rvn linear
                            FALSE,              ## ls svm linear
-                           TRUE                ## gaussian linear           
+                           TRUE,               ## gaussian linear
+                           FALSE
                            ),               
                          forClass =          
                          c(
@@ -533,7 +538,8 @@ modelLookup <- function(model = NULL)
                            TRUE,               ## svm linear
                            FALSE,              ## rvm linear
                            TRUE,               ## ls svm linear
-                           TRUE                ## gaussian linear   
+                           TRUE,               ## gaussian linear
+                           TRUE
                            ),
                          probModel = c(
                            TRUE,             #   bagged trees
@@ -610,7 +616,8 @@ modelLookup <- function(model = NULL)
                            TRUE,               ## svm linear
                            FALSE,              ## rvm linear
                            FALSE,              ## ls svm linear
-                           TRUE                ## gaussian linear 
+                           TRUE,               ## gaussian linear
+                           TRUE
                            ),
                          stringsAsFactors  = FALSE               
                          )         
