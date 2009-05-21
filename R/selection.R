@@ -103,7 +103,7 @@ byComplexity <- function(x, model)
            },
            sparseLDA =
            {
-             x[order(x$NumVars, x$lambda),]
+             x[order(x$NumVars, -x$lambda),]
            },
            relaxo =
            {
@@ -117,6 +117,10 @@ byComplexity <- function(x, model)
            {
              x[order(-x$eta, x$K),]
            },
+           smda =
+           {
+             x[order(x$NumVars, x$R, -x$lambda),]
+           },           
            PART = x[order(x$pruned, -x$threshold),],
            sda = x[order(x$diagonal),],
            glmnet = x[order(-x$lambda, x$alpha),]

@@ -244,6 +244,10 @@
                       lars2 = larsTune(data, len),
                       PART = data.frame(.threshold = 0.25, .pruned = "yes"),
                       vbmpRadial = data.frame(.estimateTheta = "yes"),
+                      smda = expand.grid(
+                        .NumVars = rfTune(data, len)[,1],
+                        .R = (1:len) + 1,
+                        .lambda = c(0, 10 ^ seq(-1, -4, length = len - 1))),
                       lda =, lm =, treebag =, sddaLDA =, sddaQDA =,
                       glm =, qda =, OneR =, rlm =,
                       rvmLinear =, lssvmLinear =, gaussprLinear =,

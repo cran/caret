@@ -250,6 +250,16 @@ probFunction <- function(method, modelFit, newdata)
                         probs <- predictCPP(modelFit, newdata)
                         colnames(probs) <- obsLevels
                         probs
+                      },
+                      glmnet =
+                      {
+                        probs <- predict(modelFit,
+                                        as.matrix(newdata),
+                                        s = modelFit$lambdaOpt,
+                                        type = "response")
+                        probs <- cbind(1-probs, probs)
+                        colnames(probs) <- modelFit$obsLevels
+                        probs
                       }
                       )
 

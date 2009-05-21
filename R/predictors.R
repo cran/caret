@@ -435,3 +435,17 @@ predictors.enet <- function(x, s = NULL, ...)
     }
   names(out)[out != 0]
 }
+
+predictors.sda <- function(x, ...)
+  {
+    out <- x$varNames
+    if(is.null(out)) out <- varIndex
+    out
+  }
+
+predictors.smda <- function(x, ...)
+  {
+    out <- x$varNames
+    if(is.null(out)) out <- varIndex
+    out
+  }
