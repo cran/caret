@@ -44,7 +44,7 @@
                    "lssvmPoly", "lssvmRadial", "lssvmLinear",
                    "rvmRadial", "rvmPoly", "rvmLinear",
                    "gaussprRadial", "gaussprPoly", "gaussprLinear",
-                   "sddaLDA", "sddaQDA", "glmnet", "slda", "spls", 
+                   "sddaLDA", "sddaQDA", "glmnet", "slda", "spls", "smda",
                    "qda", "relaxo", "lars", "lars2", "rlm", "vbmpRadial",
                    "superpc", "ppr", "sda", "penalized", "sparseLDA"))
     {
@@ -717,11 +717,28 @@
                      {
                        library(glmnet)
                        numLev <- if(is.character(trainY) | is.factor(trainY)) length(levels(trainY)) else NA
-                       if(!is.na(numLev))
+
+                       theDots <- list(...)
+                       
+                       if(all(names(theDots) != "family"))
                          {
-                           fam <- ifelse(numLev > 2, "multinomial", "binomial")
-                         } else fam <- "gaussian"
-                       glmnet(as.matrix(trainX), trainY, alpha = tuneValue$.alpha, family = fam, ...)
+                           if(!is.na(numLev))
+                             {
+                               fam <- ifelse(numLev > 2, "multinomial", "binomial")
+                             } else fam <- "gaussian"
+                           
+                           theDots$family <- fam   
+                         } 
+                       
+                       modelArgs <- c(
+                                      list(
+                                           x = as.matrix(trainX),
+                                           y = trainY,
+                                           alpha = tuneValue$.alpha),
+                                      theDots)
+                       
+                       out <- do.call("glmnet", modelArgs) 
+                       out 
                      },
                      
                      sddaLDA = 
@@ -860,6 +877,15 @@
                        library(sparseLDA)
                        sparseLDA:::sda(trainX, trainY, lambda = tuneValue$.lambda, stop = -tuneValue$.NumVars, ...)
                      },
+                     smda =
+                     {
+                       library(sparseLDA)
+                       smda(trainX, trainY,
+                            Rj = tuneValue$.R,
+                            lambda = tuneValue$.lambda,
+                            stop = -tuneValue$.NumVars,
+                            ...)
+                     },                     
                      sda =
                      {
                        library(sda)

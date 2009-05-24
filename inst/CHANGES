@@ -1,4 +1,15 @@
 -------------------
+Version: 4.16
+Date: 2009-05-21
+
+Fixed bugs in extractProb (for glmnet) and filterVarImp.
+
+For glmnet, the user can now pass in their own value of family to 
+train (otherwise train will set it depending on the mode of the 
+outcome). However, glmnet doesn't have much support for families at
+this time, so you can't change links or try other distributions. 
+
+-------------------
 Version: 4.15
 Date: 2009-05-13
 

@@ -254,7 +254,8 @@ S3method(predictors, glmnet)
 S3method(predictors, qda)
 S3method(predictors, penfit)
 S3method(predictors, lars)
-
+S3method(predictors, sda)
+S3method(predictors, smda)
 S3method(confusionMatrix, table)
 
 S3method(sensitivity, table)

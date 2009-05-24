@@ -527,6 +527,11 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
                              library(sparseLDA)
                              as.character(sparseLDA:::predict.sda(modelFit, newdata)$class)
                            },
+                           smda =
+                           {
+                             library(sparseLDA)
+                             as.character(predict(modelFit, newdata)$class)
+                           },                           
                            glm =
                            {
                              if(modelFit$problemType == "Classification")
