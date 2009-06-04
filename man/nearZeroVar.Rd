@@ -37,7 +37,7 @@ If \code{saveMetrics = FALSE}, a vector of integers corresponding to the column 
 
 }
 
-\author{Max Kuhn}
+\author{Max Kuhn, speed improvements by Allan Engelhardt}
 
 \examples{
 nearZeroVar(iris[, -5], saveMetrics = TRUE)
