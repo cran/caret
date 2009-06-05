@@ -103,23 +103,23 @@ function(object, newdata = NULL, type = "class", ...)
    if(is.null(newdata) & !is.null(object$x)) newdata <- object$x
    
    if(is.null(newdata))
-   {
-      pred <- lapply(object$fit, getTrainPred)
-   } else {
-      # the incorrect syntax in the prediciton function is ment to handle older and new versions
-      # of the mda package that switched arguments
-      pred <- lapply(
-         object$fit, 
-         function(x, y)
-         {
-            as.character(predict(x, newdata = y, type = "class"))
-         },
-         y = newdata)
-      tmp <- matrix(unlist(pred), ncol = length(pred))
-      votes <- t(apply(tmp, 1, function(x, L) table(factor(x, levels = L))/length(x), L = object$levels))
-      highProb <- apply(votes, 1, which.max)
-      predClass <- factor(colnames(votes)[highProb], levels = object$levels)
-   }
+     {
+       pred <- lapply(object$fit, getTrainPred)
+     } else {
+       ## the incorrect syntax in the prediciton function is ment to handle older and new versions
+       ## of the mda package that switched arguments
+       pred <- lapply(
+                      object$fit, 
+                      function(x, y)
+                      {
+                        as.character(predict(x, newdata = y, type = "class"))
+                      },
+                      y = newdata)
+       tmp <- matrix(unlist(pred), ncol = length(pred))
+       votes <- t(apply(tmp, 1, function(x, L) table(factor(x, levels = L))/length(x), L = object$levels))
+       highProb <- apply(votes, 1, which.max)
+       predClass <- factor(colnames(votes)[highProb], levels = object$levels)
+     }
    switch(type, class = predClass, probs = votes)
    
 }

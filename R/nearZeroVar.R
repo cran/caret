@@ -1,4 +1,4 @@
-nearZeroVar <- function(x, freqCut = 95/5, uniqueCut = 10, saveMetrics = FALSE)
+nearZeroVarOld <- function(x, freqCut = 95/5, uniqueCut = 10, saveMetrics = FALSE)
 {
    if(is.vector(x)) x <- matrix(x, ncol = 1)
    freqRatio <- apply(
@@ -33,5 +33,34 @@ nearZeroVar <- function(x, freqCut = 95/5, uniqueCut = 10, saveMetrics = FALSE)
       names(out) <- NULL
    }
    out
-}
+ }
 
+nearZeroVar <- function (x, freqCut = 95/5, uniqueCut = 10, 
+                         saveMetrics = FALSE)
+{
+  if (is.vector(x)) x <- matrix(x, ncol = 1)
+  freqRatio <- apply(x, 2, function(data)
+                     {
+                       t <- table(data, useNA = "no")
+                       if (length(t) <= 1) {
+                         return(0);
+                       }
+                       w <- which.max(t);
+                       return(max(t, na.rm=TRUE)/max(t[-w], na.rm=TRUE))
+                     })
+  lunique <- apply(x, 2, function(data) length(unique(data[!is.na(data)])))
+  percentUnique <- 100 * lunique / apply(x, 2, length)
+  zeroVar <- (lunique == 1) | apply(x, 2, function(data) all(is.na(data)))
+  if (saveMetrics)
+    {
+      out <- data.frame(freqRatio = freqRatio,
+                        percentUnique = percentUnique,
+                        zeroVar = zeroVar,
+                        nzv = (freqRatio > freqCut & percentUnique <= uniqueCut) | zeroVar)
+    }
+  else {
+    out <- which((freqRatio > freqCut & percentUnique <= uniqueCut) | zeroVar)
+    names(out) <- NULL
+  }
+  out
+}

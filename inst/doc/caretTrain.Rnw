@@ -471,10 +471,10 @@ There is additional functionality in \texttt{train} that is described in the nex
             None\\  
       \:\:  Analysis & & &\\               
             
-      Stabilised Linear &
+      Stabilized Linear &
          \texttt{slda} & 
             \texttt{ipred}       &          
-            None\\  
+            \texttt{diagonal}\\  
       \:\: Discriminant Analysis & & &\\            
             
       Shrinkage Linear &
@@ -506,7 +506,13 @@ There is additional functionality in \texttt{train} that is described in the nex
             \texttt{mda}       & 
             \texttt{subclasses} & \\
       \: \: Analysis \\      
-                     
+
+      Sparse Mixture &
+         \texttt{smda} & 
+            \texttt{sparseLDA}       &          
+            \texttt{NumVars}, \texttt{R}, \texttt{lambda} \\  
+      \:\: Discriminant Analysis & & &\\    
+      
       Penalized Discriminant  &
          \texttt{pda} & 
             \texttt{mda}       & 
