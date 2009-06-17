@@ -1,4 +1,4 @@
-format.bagEarth <- function(x, file = "", ...) 
+format.bagEarth <- function(x, file = "", cat = TRUE, ...) 
 {
   library(earth)
 
@@ -13,6 +13,6 @@ format.bagEarth <- function(x, file = "", ...)
                  x$B,
                  "\n")
   
-  cat(allEq, file = file)
+  if(cat) cat(allEq, file = file) else return(allEq)  
 }
 

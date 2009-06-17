@@ -5,7 +5,7 @@
 Return a string representing the \sQuote{bagEarth} expression.
 }
 \usage{
-\method{format}{bagEarth}(x, file = "",\dots)
+\method{format}{bagEarth}(x, file = "", cat = TRUE, \dots)
 }
 \arguments{
   \item{x}{
@@ -13,6 +13,9 @@ Return a string representing the \sQuote{bagEarth} expression.
     This is the only required argument.
   }
   \item{file}{A connection, or a character string naming the file to print to. If "" (the default), the output prints to the standard output connection. See \code{link[base]{cat}}.}
+
+  \item{cat}{a logical; should the equation be printed?}
+
   \item{\dots}{
      Arguments to \code{\link[earth]{format.earth}}.
   }

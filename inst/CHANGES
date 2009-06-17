@@ -1,4 +1,20 @@
 -------------------
+Version: 4.18
+Date: 2009-06-17
+
+Fixed bug in new nearZeroVar and updated format.earth so that it
+does not autmatically print the formula
+
+
+-------------------
+Version: 4.17
+Date: 2009-06-04
+
+Added a new version of nearZeroVar from Allan Engelhardt that is
+much faster
+
+
+-------------------
 Version: 4.16
 Date: 2009-05-21
 
