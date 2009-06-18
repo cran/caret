@@ -41,7 +41,7 @@ nearZeroVar <- function (x, freqCut = 95/5, uniqueCut = 10,
   if (is.vector(x)) x <- matrix(x, ncol = 1)
   freqRatio <- apply(x, 2, function(data)
                      {
-                       t <- table(data, useNA = "no")
+                       t <- table(data[!is.na(data)]) #, useNA = "no")
                        if (length(t) <= 1) {
                          return(0);
                        }
