@@ -24,6 +24,14 @@
 
   modFormula <- as.formula(".outcome ~ .")
 
+
+  ## We don't want the model weights (if any) to enter the model as predictors
+  if(any(colnames(data) == ".modelWeights"))
+    {
+      modelWeights <- data$.modelWeights
+      data$.modelWeights <- NULL
+    } else modelWeights <- NULL
+  
   ## We refactor the class labels. Some methods bark/crash when there are
   ## factor levels that do not have values represented in the data (nnet produces
   ## a warning and randomForest throws an error). 
@@ -36,7 +44,7 @@
   ## Some routines dont have formula inputs (or dont handle them well)
   ## so extract the feature matrix and class factor.
   if(method %in% c("glmboost", "blackboost", "gamboost", "earth", "earthTest",
-                   "bagFDA", "bagEarth", "lda", "enet", "lasso",
+                   "bagFDA", "bagEarth", "lda", "enet", "lasso", "nnet",
                    "lvq", "pls", "plsTest", "gbm", "pam", "rf", "logitBoost",
                    "ada", "knn", "PLS", "rfNWS", "rfLSF", "pcaNNet",
                    "mars", "rda",  "gpls", "svmpoly", "svmradial",
@@ -78,7 +86,9 @@
                          } else {
                            modDist <- if(type == "Classification") "bernoulli" else "gaussian"
                          }
-                       
+
+                       ## check to see if weights were passed in (and availible)
+                       if(!is.null(modelWeights)) theDots$w <- modelWeights                      
                        modY <- if(type == "Classification") gbmClasses else trainY
 
                        modArgs <- list(x = trainX,
@@ -87,6 +97,7 @@
                                        n.trees = tuneValue$.n.trees,
                                        shrinkage = tuneValue$.shrinkage, 
                                        distribution = modDist)
+
                        if(length(theDots) > 0) modArgs <- c(modArgs, theDots)
                        
                        do.call("gbm.fit", modArgs)
@@ -323,13 +334,40 @@
                      },                           
                      nnet =
                      {      
-                       library(nnet)      
-                       nnet(modFormula, data,  size = tuneValue$.size, decay = tuneValue$.decay, ...)
+                       library(nnet)
+                       if(!is.null(modelWeights))
+                         {
+                           out <- nnet(modFormula,
+                                       data = data,
+                                       weights = modelWeights,                                       
+                                       size = tuneValue$.size,
+                                       decay = tuneValue$.decay,
+                                       ...)
+                         } else out <- nnet(modFormula,
+                                            data = data,
+                                            size = tuneValue$.size,
+                                            decay = tuneValue$.decay,
+                                            ...)
+                       out
                      },
                      pcaNNet =
-                     {      
-                       library(nnet)      
-                       pcaNNet(trainX, trainY, size = tuneValue$.size, decay = tuneValue$.decay, ...)
+                     {
+                       ## todo: this needs to be tested
+                       library(nnet)
+                       if(!is.null(modelWeights))
+                         {
+                           out <- pcaNNet(modFormula,
+                                          data = data,
+                                          weights = modelWeights,                                       
+                                          size = tuneValue$.size,
+                                          decay = tuneValue$.decay,
+                                          ...)
+                         } else out <- pcaNNet(modFormula,
+                                               data = data,
+                                               size = tuneValue$.size,
+                                               decay = tuneValue$.decay,
+                                               ...)
+                       out
                      },                       
                      gpls = 
                      {      
@@ -354,6 +392,9 @@
                            theDots$control <- NULL
                            
                          } else ctl <- rpart.control(maxdepth = tuneValue$.maxdepth, xval = 0)   
+
+                       ## check to see if weights were passed in (and availible)
+                       if(!is.null(modelWeights)) theDots$weights <- modelWeights    
                        
                        modelArgs <- c(
                                       list(
@@ -361,7 +402,7 @@
                                            data = data,
                                            control = ctl),
                                       theDots)
-                       
+                         
                        out <- do.call("rpart", modelArgs)
                        out
                      }, 
@@ -456,11 +497,29 @@
                        library(ipred)
                        bagging(modFormula, data, ...)
                      },
-                     lm = lm(modFormula, data, ...),
+                     lm =
+                     {
+                       if(!is.null(modelWeights))
+                         {
+                           out <- lm(modFormula,
+                                     data = data,
+                                     weights = modelWeights,
+                                     ...)
+                         } else out <- lm(modFormula, data, ...)
+                       out
+                     },
                      lmStepAIC =
                      {
                        library(MASS)
-                       stepAIC(lm(modFormula, data), ...)
+                       if(!is.null(modelWeights))
+                         {
+                           out <- stepAIC(
+                                          lm(modFormula,
+                                             data = data,
+                                             weights = modelWeights),
+                                          ...)
+                         } else out <- stepAIC(lm(modFormula, data), ...)
+                       out                       
                      },
                      lda = 
                      {
@@ -470,7 +529,18 @@
                      multinom = 
                      {
                        library(nnet)
-                       multinom(modFormula, data, decay = tuneValue$.decay, ...)     
+                       if(!is.null(modelWeights))
+                         {
+                           out <- multinom(modFormula,
+                                           data,
+                                           weights = modelWeights,                                       
+                                           decay = tuneValue$.decay,
+                                           ...)
+                         } else out <- multinom(modFormula,
+                                                data,
+                                                decay = tuneValue$.decay,
+                                                ...)
+                       out    
                      },
                      glmboost = 
                      {
@@ -490,6 +560,9 @@
                          {
                            theDots$family <- if(is.factor(trainY)) Binomial() else GaussReg()              
                          }
+
+                       ## pass in any model weights
+                       if(!is.null(modelWeights)) theDots$weights <- modelWeights                       
                        
                        modelArgs <- c(
                                       list(
@@ -497,7 +570,7 @@
                                            y = trainY,
                                            control = ctl),
                                       theDots)
-                       
+
                        out <- do.call("glmboost", modelArgs)
                        
                        if(tuneValue$.prune == "yes")
@@ -532,6 +605,9 @@
                          {
                            theDots$family <- if(is.factor(trainY)) Binomial() else GaussReg()              
                          }    
+
+                       ## pass in any model weights
+                       if(!is.null(modelWeights)) theDots$weights <- modelWeights  
                        
                        modelArgs <- c(
                                       list(
@@ -539,7 +615,7 @@
                                            y = trainY,
                                            control = ctl),
                                       theDots)
-                       
+                      
                        
                        out <- do.call("gamboost", modelArgs)
                        
@@ -580,6 +656,9 @@
                          {
                            theDots$family <- if(is.factor(trainY)) Binomial() else GaussReg()              
                          }  
+
+                       ## pass in any model weights
+                       if(!is.null(modelWeights)) theDots$weights <- modelWeights
                        
                        modelArgs <- c(
                                       list(
@@ -587,8 +666,7 @@
                                            y = trainY,
                                            control = ctl,
                                            tree_controls = treeCtl),
-                                      theDots)
-                       
+                                      theDots)                     
                        
                        out <- do.call("blackboost", modelArgs)
 
@@ -643,6 +721,9 @@
                            theDots$control <- NULL
                            
                          } else ctl <- ctree_control(mincriterion = tuneValue$.mincriterion)          
+
+                       ## pass in any model weights
+                       if(!is.null(modelWeights)) theDots$weights <- modelWeights
                        
                        modelArgs <- c(
                                       list(
@@ -671,6 +752,8 @@
                          } else ctl <- ctree_control(
                                                      maxdepth = tuneValue$.maxdepth,
                                                      mincriterion = 0)          
+                       ## pass in any model weights
+                       if(!is.null(modelWeights)) theDots$weights <- modelWeights
                        
                        modelArgs <- c(
                                       list(
@@ -678,6 +761,7 @@
                                            data = data,
                                            control = ctl),
                                       theDots)
+                     
                        
                        out <- do.call("ctree", modelArgs)
                        out        
@@ -695,7 +779,10 @@
                            ctl <- theDots$control
                            theDots$control <- NULL
                            
-                         } else ctl <- cforest_control(mtry = tuneValue$.mtry)          
+                         } else ctl <- cforest_control(mtry = tuneValue$.mtry)
+                       
+                       ## pass in any model weights
+                       if(!is.null(modelWeights)) theDots$weights <- modelWeights
                        
                        modelArgs <- c(
                                       list(
@@ -710,7 +797,7 @@
                      enet =, lasso =
                      {
                        library(elasticnet)
-                       lmbda <- if(method == "lasso") 1 else tuneValue$.lambda
+                       lmbda <- if(method == "lasso") 0 else tuneValue$.lambda
                        enet(as.matrix(trainX), trainY, lambda = lmbda) 
                      },
                      glmnet =
@@ -728,7 +815,10 @@
                              } else fam <- "gaussian"
                            
                            theDots$family <- fam   
-                         } 
+                         }
+                       
+                       ## pass in any model weights
+                       if(!is.null(modelWeights)) theDots$weights <- modelWeights
                        
                        modelArgs <- c(
                                       list(
@@ -870,7 +960,17 @@
                      ppr =
                      {
                        library(stats)
-                       ppr(as.matrix(trainX), trainY, nterms = tuneValue$.nterms, ...)
+                       if(!is.null(modelWeights))
+                         {
+                           out <- ppr(as.matrix(trainX),
+                                      trainY,
+                                      weights = modelWeights,
+                                      nterms = tuneValue$.nterms,
+                                      ...)
+                         } else {
+                           out <- ppr(as.matrix(trainX), trainY, nterms = tuneValue$.nterms, ...)
+                         }
+                       out
                      },
                      sparseLDA =
                      {
@@ -922,12 +1022,15 @@
                          {
                            theDots$family <- if(is.factor(data$.outcome)) binomial() else gaussian()              
                          }
+
+                       ## pass in any model weights
+                       if(!is.null(modelWeights)) theDots$weights <- modelWeights
                        
                        modelArgs <- c(
                                       list(formula = modFormula,
                                            data = data),
                                       theDots)
-                       
+     
                        out <- do.call("glm", modelArgs)
                        out
                      },
@@ -939,12 +1042,42 @@
                      pda =
                      {
                        library(mda)
-                       fda(modFormula, data = data, method = gen.ridge, lambda = tuneValue$.lambda, ...)
+                       if(!is.null(modelWeights))
+                         {
+                           out <- fda(modFormula,
+                                      data = data,
+                                      method = gen.ridge,
+                                      weights = modelWeights,
+                                      lambda = tuneValue$.lambda,
+                                      ...)
+                         } else {
+                           out <- fda(modFormula,
+                                      data = data,
+                                      method = gen.ridge,
+                                      lambda = tuneValue$.lambda,
+                                      ...)
+                         }
+                       out                    
                      },
                      pda2 =
                      {
                        library(mda)
-                       fda(modFormula, data = data, method = gen.ridge, df = tuneValue$.df, ...)
+                       if(!is.null(modelWeights))
+                         {
+                           out <- fda(modFormula,
+                                      data = data,
+                                      method = gen.ridge,
+                                      weights = modelWeights,
+                                      df = tuneValue$.df,
+                                      ...)
+                         } else {
+                           out <- fda(modFormula,
+                                      data = data,
+                                      method = gen.ridge,
+                                      df = tuneValue$.df,
+                                      ...)
+                         }
+                       out                         
                      },                     
                      qda =
                      {
@@ -1011,7 +1144,13 @@
                      rlm =
                      {
                        library(MASS)
-                       rlm(modFormula, data = data, ...)
+                       if(!is.null(modelWeights))
+                         {
+                           out <- rlm(modFormula, data = data, weights = modelWeights, ...)
+                         } else {
+                           out <- rlm(modFormula, data = data, ...)
+                         }
+                       out                        
                      },
                      vbmpRadial =
                      {

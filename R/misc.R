@@ -1158,6 +1158,8 @@ workerTasks <- function(x)
             holdBack <-  x$data[-x$index[[i]],]
             observed <- holdBack$.outcome
             holdBack$.outcome <- NULL
+            if(any(colnames(holdBack) == ".modelWeights")) holdBack$.modelWeights <- NULL
+            
             predicted <- caret:::predictionFunction(x$method,
                                                     modelObj,
                                                     holdBack,
