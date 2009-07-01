@@ -1,4 +1,15 @@
 -------------------
+Version: 4.19
+Date: 2009-06-30
+
+Weights argument was added to train for models that accept weights
+
+Also, a bug was fixed for lasso regression (wrong lambda 
+specification) and other for prediction in naive Bayes models
+with a single predictor.
+
+
+-------------------
 Version: 4.18
 Date: 2009-06-17
 

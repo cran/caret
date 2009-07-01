@@ -13,19 +13,21 @@ train(x, ...)
 \method{train}{default}(x, y, 
       method = "rf",  
       ..., 
+      weights = NULL,
       metric = ifelse(is.factor(y), "Accuracy", "RMSE"),   
       maximize = ifelse(metric == "RMSE", FALSE, TRUE),
       trControl = trainControl(), 
       tuneGrid = NULL, 
       tuneLength = 3)
 
-\method{train}{formula}(form, data, ..., subset, na.action, contrasts = NULL)
+\method{train}{formula}(form, data, ..., weights, subset, na.action, contrasts = NULL)
 }
 \arguments{
   \item{x}{a data frame containing training data where samples are in rows and features are in columns.}
   \item{y}{a numeric or factor vector containing the outcome for each sample.}
 \item{form}{A formula of the form \code{y ~ x1 + x2 + ...}}
 \item{data}{Data frame from which variables specified in \code{formula} are preferentially to be taken.}
+  \item{weights}{a numeric vector of case weights. This argument will only affect models that allow case weights.}
 \item{subset}{An index vector specifying the cases to be used in the training sample. (NOTE: If given, this argument must be named.)}
 \item{na.action}{A function to specify the action to be taken if NAs are found. The default action is for the procedure to fail. An alternative is na.omit, which leads to rejection of cases with missing values on any required variable. (NOTE: If given, this argument must be named.)}
 \item{contrasts}{a list of contrasts to be used for some or all of the factors appearing as variables in the model formula.}

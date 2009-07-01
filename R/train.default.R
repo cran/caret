@@ -5,7 +5,8 @@
 
 train.default <- function(x, y, 
                           method = "rf", 
-                          ..., 
+                          ...,
+                          weights = NULL,
                           metric = ifelse(is.factor(y), "Accuracy", "RMSE"),
                           maximize = ifelse(metric == "RMSE", FALSE, TRUE),
                           trControl = trainControl(),
@@ -72,6 +73,7 @@ train.default <- function(x, y,
 
   ## Add the outcome to the data passed into the functions
   trainData$.outcome <- y
+  if(!is.null(weights)) trainData$.modelWeights <- weights
 
   ## If no default training grid is specified, get one. We have to pass in the formula
   ## and data for some models (rpart, pam, etc - see manual for more details)
@@ -117,13 +119,15 @@ train.default <- function(x, y,
 
   ## Now, we setup arguments to lapply (or similar functions) executed via do.call
   ## workerData will split up the data need for the jobs
-  argList <- list(X = workerData(trainData,
-                    trControl$index,
-                    trainInfo, method,
-                    classLevels,
-                    trControl$workers,
-                    trControl$verboseIter,
-                    ...),
+  argList <- list(X =
+                  workerData(
+                             trainData,
+                             trControl$index,
+                             trainInfo, method,
+                             classLevels,
+                             trControl$workers,
+                             trControl$verboseIter,
+                             ...),
                   FUN = workerTasks)
 
   ## Append the extra objects needed to do the work (See the parallel examples in
@@ -274,7 +278,7 @@ train.default <- function(x, y,
             class = "train")
 }
 
-train.formula <- function (form, data, ..., subset, na.action, contrasts = NULL) 
+train.formula <- function (form, data, ..., weights, subset, na.action, contrasts = NULL) 
 {
   m <- match.call(expand.dots = FALSE)
   if (is.matrix(eval.parent(m$data))) m$data <- as.data.frame(data)
@@ -287,7 +291,8 @@ train.formula <- function (form, data, ..., subset, na.action, contrasts = NULL)
   xint <- match("(Intercept)", colnames(x), nomatch = 0)
   if (xint > 0)  x <- x[, -xint, drop = FALSE]
   y <- model.response(m)
-  res <- train(x, y, ...)
+  w <- as.vector(model.weights(m))
+  res <- train(x, y, weights = w, ...)
   res$terms <- Terms
   res$coefnames <- colnames(x)
   res$call <- match.call()

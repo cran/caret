@@ -232,6 +232,7 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
                            nb =
                            {
                              library(klaR)
+                             if(is.vector(newdata)) newdata <- as.data.frame(newdata)
                              out <- as.character(predict(modelFit , newdata)$class)
                              out
                            },

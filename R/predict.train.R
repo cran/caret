@@ -38,7 +38,7 @@ predict.train <- function(object, newdata = NULL, type = "raw", ...)
       if(!is.null(object$trainingData))
         {            
           newdata <- if(object$method == "pam") object$finalModel$xData else object$trainingData
-          newdata$.outcome <-NULL
+          ##newdata$.outcome <-NULL
         } else stop("please specify data via newdata")
     }
 
