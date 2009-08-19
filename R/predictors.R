@@ -362,6 +362,11 @@ predictors.spls <- function(x, ...)
     colnames(x$x)[x$A]
   }
 
+predictors.mvr <- function(x, ...)
+  {
+    rownames(x$coeff)
+  }
+
 predictors.glm <- function(x, ...)
 {
     predictors(x$terms)

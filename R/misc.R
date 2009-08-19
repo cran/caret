@@ -145,7 +145,8 @@ modelLookup <- function(model = NULL)
                            "lssvmLinear",
                            "gaussprLinear",
                            "vbmpRadial",
-                           "smda", "smda", "smda"
+                           "smda", "smda", "smda",
+                           "pcr"
                            ),
                          parameter = c(
                            "parameter",      
@@ -225,7 +226,8 @@ modelLookup <- function(model = NULL)
                            "parameter",
                            "parameter",
                            "estimateTheta",
-                           "NumVars", "R", "lambda"
+                           "NumVars", "R", "lambda",
+                           "ncomp"
                            ),
                          label = I(c(
                            "none",      
@@ -307,7 +309,8 @@ modelLookup <- function(model = NULL)
                            "none",
                            "none",
                            "Theta Estimated",
-                          "# Predictors",  "# Subclasses", "Lambda"
+                          "# Predictors",  "# Subclasses", "Lambda",
+                           "#Components"
                            )),
                          seq = c(
                            FALSE,
@@ -386,7 +389,8 @@ modelLookup <- function(model = NULL)
                            FALSE,
                            FALSE,
                            FALSE,
-                           FALSE, FALSE, FALSE
+                           FALSE, FALSE, FALSE,
+                           TRUE
                            ),
                          forReg = c(
                            TRUE,
@@ -465,7 +469,8 @@ modelLookup <- function(model = NULL)
                            FALSE,              ## ls svm linear
                            TRUE,               ## gaussian linear
                            FALSE,
-                           FALSE, FALSE, FALSE
+                           FALSE, FALSE, FALSE,
+                           TRUE                ## PCR
                            ),               
                          forClass =          
                          c(
@@ -545,7 +550,8 @@ modelLookup <- function(model = NULL)
                            TRUE,               ## ls svm linear
                            TRUE,               ## gaussian linear
                            TRUE,
-                           TRUE, TRUE, TRUE
+                           TRUE, TRUE, TRUE,
+                           FALSE
                            ),
                          probModel = c(
                            TRUE,             #   bagged trees
@@ -624,7 +630,8 @@ modelLookup <- function(model = NULL)
                            FALSE,              ## ls svm linear
                            TRUE,               ## gaussian linear
                            TRUE,
-                           FALSE, FALSE, FALSE ## not yet
+                           FALSE, FALSE, FALSE, ## not yet
+                           FALSE             ## pcr
                            ),
                          stringsAsFactors  = FALSE               
                          )         
@@ -708,7 +715,7 @@ tuneScheme <- function(model, grid, useOOB = FALSE)
                loop <- grid[1,,drop = FALSE]
                seqParam <- list(grid[-1,,drop = FALSE])
              },             
-             pls = 
+             pcr =, pls = 
              {
                grid <- grid[order(grid$.ncomp, decreasing = TRUE),, drop = FALSE]
                loop <- grid[1,,drop = FALSE]
