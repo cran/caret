@@ -172,7 +172,7 @@
                       gpls = data.frame(.K.prov =seq(1, len) ),
                       lvq = data.frame(.k =seq(4, 3+len) ),
                       rpart = rpartTune(data, len),
-                      pls =, plsTest =,PLS = data.frame(.ncomp = seq(1, min(dim(data)[2] - 1, len), by = 1)),
+                      pcr =, pls =, plsTest =,PLS = data.frame(.ncomp = seq(1, min(dim(data)[2] - 1, len), by = 1)),
                       pam = pamTune(data, len),
                       knn = data.frame(.k = (5:((2 * len)+4))[(5:((2 * len)+4))%%2 > 0]),
                       nb = data.frame(.usekernel = c(TRUE, FALSE)),

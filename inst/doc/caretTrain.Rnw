@@ -394,7 +394,12 @@ There is additional functionality in \texttt{train} that is described in the nex
          \texttt{lm} & 
             \texttt{stats}       & 
             None \\  
-            
+
+       Principal Component Regression &
+         \texttt{pcr} & 
+            \texttt{pls}       & 
+            \texttt{ncomp}  \\  
+           
       Robust Linear Regression &
          \texttt{rlm} & 
             \texttt{MASS}       & 

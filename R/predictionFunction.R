@@ -158,7 +158,7 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
                              out
                            },
 
-                           pls =,
+                           pcr=, pls =,
                            {
                              library(pls)
                              

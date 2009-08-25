@@ -426,6 +426,18 @@
 
                        out
                      },
+
+                     pcr = 
+                     {
+
+                       library(pls)
+                       
+                       out <- pcr(modFormula,
+                                  data = data,
+                                  ncomp = tuneValue$.ncomp, ...)
+
+                       out
+                     },                     
                               
                      pam = 
                      {
