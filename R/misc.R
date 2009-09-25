@@ -146,7 +146,8 @@ modelLookup <- function(model = NULL)
                            "gaussprLinear",
                            "vbmpRadial",
                            "smda", "smda", "smda",
-                           "pcr"
+                           "pcr",
+                           "obliqueTree", "obliqueTree"
                            ),
                          parameter = c(
                            "parameter",      
@@ -227,7 +228,8 @@ modelLookup <- function(model = NULL)
                            "parameter",
                            "estimateTheta",
                            "NumVars", "R", "lambda",
-                           "ncomp"
+                           "ncomp",
+                           "oblique.splits", "variable.selection"
                            ),
                          label = I(c(
                            "none",      
@@ -310,7 +312,8 @@ modelLookup <- function(model = NULL)
                            "none",
                            "Theta Estimated",
                           "# Predictors",  "# Subclasses", "Lambda",
-                           "#Components"
+                           "#Components",
+                           "Oblique Splits", "Variable Selection Method"
                            )),
                          seq = c(
                            FALSE,
@@ -390,7 +393,8 @@ modelLookup <- function(model = NULL)
                            FALSE,
                            FALSE,
                            FALSE, FALSE, FALSE,
-                           TRUE
+                           TRUE,
+                           FALSE, FALSE
                            ),
                          forReg = c(
                            TRUE,
@@ -470,7 +474,8 @@ modelLookup <- function(model = NULL)
                            TRUE,               ## gaussian linear
                            FALSE,
                            FALSE, FALSE, FALSE,
-                           TRUE                ## PCR
+                           TRUE,               ## PCR
+                           FALSE, FALSE
                            ),               
                          forClass =          
                          c(
@@ -551,7 +556,8 @@ modelLookup <- function(model = NULL)
                            TRUE,               ## gaussian linear
                            TRUE,
                            TRUE, TRUE, TRUE,
-                           FALSE
+                           FALSE,
+                           TRUE, TRUE
                            ),
                          probModel = c(
                            TRUE,             #   bagged trees
@@ -631,7 +637,8 @@ modelLookup <- function(model = NULL)
                            TRUE,               ## gaussian linear
                            TRUE,
                            FALSE, FALSE, FALSE, ## not yet
-                           FALSE             ## pcr
+                           FALSE,              ## pcr
+                           TRUE, TRUE
                            ),
                          stringsAsFactors  = FALSE               
                          )         

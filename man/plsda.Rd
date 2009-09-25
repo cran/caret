@@ -29,7 +29,7 @@ splsda(x, ...)
   \item{ncomp}{the number of components to include in the model. Predictions can be made for models with values less than \code{ncomp}. }
   \item{probMethod}{either "softmax" or "Bayes" (see Details)}
   \item{prior}{a vector or prior probabilities for the classes (only used for \code{probeMethod = "Bayes"}}
-  \item{\dots}{arguments to pass to \code{\link[pls]{plsr}} or \code{\link[spls]{spls}}. For \code{splsda}, this is the method for passing tuning parameters specifications (e.g. \code{K}, \code{eta} or \code{kappa})}
+  \item{\dots}{arguments to pass to \code{\link[pls:mvr]{plsr}} or \code{\link[spls]{spls}}. For \code{splsda}, this is the method for passing tuning parameters specifications (e.g. \code{K}, \code{eta} or \code{kappa})}
   \item{object}{an object produced by \code{plsda}}
   \item{newdata}{a matrix or data frame of predictors}
   \item{type}{either \code{"class"}, \code{"prob"} or \code{"raw"} to produce the predicted class, class probabilities  or the raw model scores, respectively.}  
@@ -37,7 +37,7 @@ splsda(x, ...)
 \details{
 If a factor is supplied, the appropriate indicator matrix is created.
 
-A multivariate PLS model is fit to the indicator matrix using the \code{\link[pls]{plsr}} or  \code{\link[spls]{spls}} function. 
+A multivariate PLS model is fit to the indicator matrix using the \code{\link[pls:mvr]{plsr}} or  \code{\link[spls]{spls}} function. 
 
 Two prediciton methods can be used.
 
@@ -57,7 +57,7 @@ specifying more than one value of \code{ncomp} with \code{type =
 specification would produce a factor vector.
 }
 
-\seealso{\code{\link[pls]{plsr}}, \code{\link[spls]{spls}}}
+\seealso{\code{\link[pls:mvr]{plsr}}, \code{\link[spls]{spls}}}
 \examples{
 data(mdrr)
 set.seed(1)

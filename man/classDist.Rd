@@ -71,7 +71,7 @@ would be \code{dist.11.11}, \code{dist.22.22}, etc.
 Max Kuhn
 }
 
-\seealso{\code{\link[stats]{Mahalanobis}}}
+\seealso{\code{\link[stats]{mahalanobis}}}
 \examples{
 trainSet <- sample(1:150, 100)
 

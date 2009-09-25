@@ -21,7 +21,7 @@ A set of lattice functions are provided to plot the resampled performance estima
   \item{x}{ An object produced by  \code{\link{rfe}} }
   \item{data}{This argument is not used }
   \item{metric}{A character string specifying  the single performance metric that will be plotted }
-  \item{\dots}{arguments to pass to either  \code{\link[lattice]{histogram}}, \code{\link[lattice]{densityplot}}, \code{\link[lattice]{xyplot}} or \code{\link[lattice]{stripplot}}}
+  \item{\dots}{arguments to pass to either  \code{\link[lattice:histogram]{histogram}}, \code{\link[lattice:histogram]{densityplot}}, \code{\link[lattice:xyplot]{xyplot}} or \code{\link[lattice:xyplot]{stripplot}}}
 }
 
 \details{
@@ -33,7 +33,7 @@ If leave-one-out or out-of-bag resampling was specified, plots cannot be produce
 \value{A lattice plot object}
 \author{Max Kuhn}
 
-\seealso{\code{\link{rfe}}, \code{\link{rfeControl}}, \code{\link[lattice]{histogram}}, \code{\link[lattice]{densityplot}}, \code{\link[lattice]{xyplot}}, \code{\link[lattice]{stripplot}}}
+\seealso{\code{\link{rfe}}, \code{\link{rfeControl}}, \code{\link[lattice:histogram]{histogram}}, \code{\link[lattice:histogram]{densityplot}}, \code{\link[lattice:xyplot]{xyplot}}, \code{\link[lattice:xyplot]{stripplot}}}
 
 \examples{
 \dontrun{

@@ -120,7 +120,8 @@ byComplexity <- function(x, model)
            smda =
            {
              x[order(x$NumVars, x$R, -x$lambda),]
-           },           
+           },
+           obliqueTree = x[order(x$variable.selection),],
            PART = x[order(x$pruned, -x$threshold),],
            sda = x[order(x$diagonal),],
            glmnet = x[order(-x$lambda, x$alpha),],

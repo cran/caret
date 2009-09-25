@@ -1,4 +1,17 @@
 -------------------
+Version: 4.22
+Date: 2009-09-23
+
+Many Rd changes to work with updated parser.
+
+
+-------------------
+Version: 4.21
+Date: 2009-09-18
+
+Re-saved data in more compressed format
+
+-------------------
 Version: 4.20
 Date: 2009-07-19
 
@@ -21,7 +34,7 @@ Version: 4.18
 Date: 2009-06-17
 
 Fixed bug in new nearZeroVar and updated format.earth so that it
-does not autmatically print the formula
+does not automatically print the formula
 
 
 -------------------
@@ -154,7 +167,7 @@ There are more examples in ?train.
 Changes to confusionMatrix, sensitivity, specificity and the 
 predicitive value functions:
 
-  - each was made more generic with defult and table methods
+  - each was made more generic with default and table methods
   - confusionMatrix "extractor" functions for matrices and tables 
     were added
   - the pos/neg predicted value computations were changed to incorporate 
@@ -163,9 +176,9 @@ predicitive value functions:
   - detection rate and prevalence statistics were added to confusionMatrix
   - the examples were expanded in the help files
 
-This verison of caret will break compatability with caretLSF and 
+This version of caret will break compatibility with caretLSF and 
 caretNWS. However, these packages will not be needed now and will be 
-depricated.
+deprecated.
 
 -------------------
 Version: 3.51
@@ -217,7 +230,7 @@ used in other sessions. (changes per Kurt Hornik on 2008-10-05)
 Version: 3.44
 Date: 2008-10-15
 
-Added sda from the sparseLDA pacakge (not on CRAN). 
+Added sda from the sparseLDA package (not on CRAN). 
 
 Also, a bug was fixed where the ellipses were not passed into a few of the newer 
 models (such as penalized and ppr)
@@ -228,7 +241,7 @@ Date: 2008-10-03
 
 Added the penalized model from the penalized package. In caret, it is regression only
 although the package allows for classification via glm models. However, it does not
-allow the user to pass the classes in (just an indicator matrix). Becuase of this, it
+allow the user to pass the classes in (just an indicator matrix). Because of this, it
 doesn't really work with the rest of the classification tools in the package.
 
 -------------------

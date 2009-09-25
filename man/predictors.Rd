@@ -127,16 +127,16 @@ predictors(x, ...)
 
 \arguments{
   \item{x}{ a model object, list or terms}
-  \item{newdata}{ for \code{\link[pamr]{pamrtrained}} and \code{\link[superpc]{superpc}}: the training data }
-  \item{threshold}{for \code{\link[pamr]{pamrtrained}} and \code{\link[superpc]{superpc}}: the feature selection threshold}
-  \item{n.components}{for \code{\link[superpc]{superpc}}: the number of PCA components used}
-  \item{surrogate}{a logical for \code{\link[rpart]{rpart}}, \code{\link[ipred]{ipredbagg}},  \code{\link[ipred]{bagging}}, \code{\link[party]{BinaryTree}} and \code{\link[party]{RandomForest}}: should variables used as surrogate splits also be returned?}
+  \item{newdata}{ for \code{\link[pamr]{pamr.train}} and \code{\link[superpc]{superpc.train}}: the training data }
+  \item{threshold}{for \code{\link[pamr]{pamr.train}} and \code{\link[superpc]{superpc.train}}: the feature selection threshold}
+  \item{n.components}{for \code{\link[superpc]{superpc.train}}: the number of PCA components used}
+  \item{surrogate}{a logical for \code{\link[rpart]{rpart}}, \code{\link[ipred:bagging]{ipredbagg}},  \code{\link[party]{ctree}} and \code{\link[party]{cforest}}: should variables used as surrogate splits also be returned?}
   \item{\dots}{ not currently used }
 }
 \details{
-For \code{\link[randomForest]{randomForest}}, \code{\link[party]{RandomForest}}, \code{\link[party]{BinaryTree}}, \code{\link[rpart]{rpart}}, \code{\link[ipred]{ipredbagg}},  \code{\link[ipred]{bagging}},  \code{\link[earth]{earth}},  \code{\link[mda]{fda}},  \code{\link[pamr]{pamrtrained}},   \code{\link[superpc]{superpc}},  \code{\link{bagEarth}} and  \code{\link{bagFDA}}, an attempt was made to report the predictors that were actually used in the final model. 
+For \code{\link[randomForest]{randomForest}}, \code{\link[party]{cforest}}, \code{\link[party]{ctree}}, \code{\link[rpart]{rpart}}, \code{\link[ipred:bagging]{ipredbagg}},  \code{\link[ipred]{bagging}},  \code{\link[earth]{earth}},  \code{\link[mda]{fda}},  \code{\link[pamr]{pamr.train}},   \code{\link[superpc]{superpc.train}},  \code{\link{bagEarth}} and  \code{\link{bagFDA}}, an attempt was made to report the predictors that were actually used in the final model. 
 
-In cases where the predictors cannot be determined, \code{NA} is returned. For example, \code{\link[nnet]{nnet.default}} may retrun missing values form \code{predictors}.
+In cases where the predictors cannot be determined, \code{NA} is returned. For example, \code{\link[nnet]{nnet}} may retrun missing values form \code{predictors}.
 }
 \value{
 a character string of predictors or \code{NA}.

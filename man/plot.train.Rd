@@ -19,7 +19,7 @@
   \item{plotType}{a string describing the type of plot (\code{"scatter"}, \code{"level"} or \code{"line"})}
   \item{digits}{an integer specifying the number of significant digits used to label the parameter value.}
   \item{xTrans}{a fuction that will be used to scale the x-axis in scatter plots.}
-  \item{\dots}{specifications to be passed to \code{\link[lattice]{levelplot}} or \code{\link[lattice]{bwplot}} (for line plots). 
+  \item{\dots}{specifications to be passed to \code{\link[lattice]{levelplot}} or \code{\link[lattice:xyplot]{bwplot}} (for line plots). 
    These values should not be axis labels, panel functions, or titles. }
 }
 \details{

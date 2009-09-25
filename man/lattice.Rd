@@ -22,7 +22,7 @@ A set of lattice functions are provided to plot the resampled performance estima
   \item{x}{ An object produced by  \code{\link{train}} }
   \item{data}{This argument is not used }
   \item{metric}{A character string specifying  the single performance metric that will be plotted }
-  \item{\dots}{arguments to pass to either  \code{\link[lattice]{histogram}}, \code{\link[lattice]{densityplot}}, \code{\link[lattice]{xyplot}} or \code{\link[lattice]{stripplot}}}
+  \item{\dots}{arguments to pass to either  \code{\link[lattice:histogram]{histogram}}, \code{\link[lattice:histogram]{densityplot}}, \code{\link[lattice:xyplot]{xyplot}} or \code{\link[lattice:xyplot]{stripplot}}}
 }
 \details{
 By default, only the resampling results for the optimal model are saved in the \code{train} object. The function \code{\link{trainControl}} can be used to save all the results (see the example below).
@@ -36,7 +36,7 @@ Using \code{horizontal = FALSE} in \code{stripplot} works.
 \value{A lattice plot object}
 \author{Max Kuhn}
 
-\seealso{\code{\link{train}}, \code{\link{trainControl}}, \code{\link[lattice]{histogram}}, \code{\link[lattice]{densityplot}}, \code{\link[lattice]{xyplot}}, \code{\link[lattice]{stripplot}}}
+\seealso{\code{\link{train}}, \code{\link{trainControl}}, \code{\link[lattice:histogram]{histogram}}, \code{\link[lattice:histogram]{densityplot}}, \code{\link[lattice:xyplot]{xyplot}}, \code{\link[lattice:xyplot]{stripplot}}}
 \examples{
 library(mlbench)
 data(BostonHousing)
