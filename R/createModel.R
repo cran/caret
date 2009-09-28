@@ -54,7 +54,8 @@
                    "gaussprRadial", "gaussprPoly", "gaussprLinear",
                    "sddaLDA", "sddaQDA", "glmnet", "slda", "spls", "smda",
                    "qda", "relaxo", "lars", "lars2", "rlm", "vbmpRadial",
-                   "superpc", "ppr", "sda", "penalized", "sparseLDA"))
+                   "superpc", "ppr", "sda", "penalized", "sparseLDA",
+                   "obliqueTree"))
     {
       trainX <- data[,!(names(data) %in% ".outcome")]
       trainY <- data[,".outcome"] 

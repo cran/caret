@@ -675,8 +675,7 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
                              probs <- predictCPP(modelFit, newdata)
                              out <- modelFit$obsLevels[apply(probs, 1, which.max)]
                              out
-                           }
-                         
+                           }                         
   )
 predictedValue
 }

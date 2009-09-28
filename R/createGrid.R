@@ -248,6 +248,9 @@
                         .NumVars = rfTune(data, len)[,1],
                         .R = (1:len) + 1,
                         .lambda = c(0, 10 ^ seq(-1, -4, length = len - 1))),
+                      obliqueTree = expand.grid(
+                        .oblique.splits = c("only", "on", "off"),
+                        .variable.selection = c("none", "model.selection.aic", "lasso.aic")),
                       lda =, lm =, treebag =, sddaLDA =, sddaQDA =,
                       glm =, qda =, OneR =, rlm =,
                       rvmLinear =, lssvmLinear =, gaussprLinear =,

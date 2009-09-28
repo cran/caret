@@ -68,7 +68,7 @@ knn3Train(train, test, cl, k=1, l=0, prob = TRUE, use.all=TRUE)
 }
 
 \author{\code{\link[class]{knn}} by  W. N. Venables and B. D. Ripley and 
-\code{\link[class]{ipredknn}} by 
+\code{\link[ipred]{ipredknn}} by 
 Torsten.Hothorn <Torsten.Hothorn@rzmail.uni-erlangen.de>,
 modifications by Max Kuhn and Andre Williams }
 

@@ -26,8 +26,7 @@ A character representation of the bagged earth object.
 \seealso{
   \code{\link[earth]{earth}}
 }
-\note{
-}
+
 \examples{
 a <- bagEarth(Volume ~ ., data = trees, B= 3)
 cat(format(a))

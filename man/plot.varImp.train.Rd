@@ -13,7 +13,7 @@ This function produces lattice plots of objects with class "varImp.train". More 
 \arguments{
   \item{x}{an object with class \code{varImp}. }
   \item{top}{a scalar numeric that specifies the number of variables to be displayed (in order of importance)}
-  \item{\dots}{arguments to pass to the lattice plot function (\code{\link[lattice]{dotplot}} and \code{\link{panel.needle}})}
+  \item{\dots}{arguments to pass to the lattice plot function (\code{\link[lattice:xyplot]{dotplot}} and \code{\link{panel.needle}})}
 }
 \details{
 For models where there is only one importance value, such a regression

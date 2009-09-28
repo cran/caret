@@ -1,4 +1,4 @@
-\name{rfe}
+\name{caretFuncs}
 \alias{caretFuncs}
 \alias{lmFuncs}
 \alias{rfFuncs}
@@ -34,6 +34,7 @@ nbFuncs
   \item{maximize}{a logical; should the metric be maximized? }
   \item{tol}{a scalar to denote the acceptable difference in optimal performance 
              (see Details below) }
+  \item{y}{a list of data frames with variables \code{Overall} and \code{var}}
   \item{size}{an integer for the number of variables to retain}
 }
 \details{
