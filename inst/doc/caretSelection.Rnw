@@ -171,7 +171,7 @@ While this will provide better estimates of performance, it is more computationa
 	  				
       } % end resample
     }
-    \vspace*{3pt} Calculate the performance profile over the $S_i$ using the held--back samples \vspace*{3pt}\;
+    \vspace*{3pt} Calculate the performance profile over the $S_i$ using the held--back samples \nllabel{A:summary}\vspace*{3pt}\;
     
     \vspace*{3pt} Determine the appropriate number of predictors \nllabel{A:selectSize}\vspace*{3pt}\;
     
@@ -281,6 +281,10 @@ dev.off()
 \subsection{Helper Functions}\label{S:helpers}
 
 To use feature elimination for an arbitrary model, a set of functions must be passed to \texttt{rfe} for each of the steps in Algorithm  \ref{A:rfe2}. This section defines those functions and uses the existing random forest functions as an illustrative example.
+
+\subsubsection{The \texttt{summary} Function}
+
+The \texttt{summary} function takes the observed and predicted values and computes one or more performance metrics (see line \ref{A:summary}). The input is a data frame with columns \texttt{obs} and \texttt{pred}. The output should be a named vector of numeric variables. Note that the \texttt{metric} argument of the \texttt{rfe} function should reference one of the names of the output of \texttt{summary}.
 
 \subsubsection{The \texttt{fit} Function}
 

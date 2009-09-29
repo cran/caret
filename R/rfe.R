@@ -71,14 +71,17 @@ rfeIter <- function(x, y,
 rfe <- function (x, ...) UseMethod("rfe")
 
 "rfe.default" <-
-  function(x, y, sizes = 2^(2:4), rfeControl = rfeControl(), ...)
+  function(x, y,
+           sizes = 2^(2:4),
+           metric = ifelse(is.factor(y), "Accuracy", "RMSE"),
+           maximize = ifelse(metric == "RMSE", FALSE, TRUE),
+           rfeControl = rfeControl(), ...)
 {
   funcCall <- match.call(expand.dots = TRUE)
   require(caret)
 
   numFeat <- ncol(x)
 
-  if(is.null(rfeControl$metric)) rfeControl$metric <- ifelse(is.factor(y), "Accuracy", "RMSE")
   if(is.null(rfeControl$index))
     rfeControl$index <- switch(tolower(rfeControl$method),
                                cv = createFolds(y, rfeControl$number, returnTrain = TRUE),
@@ -91,6 +94,13 @@ rfe <- function (x, ...) UseMethod("rfe")
   sizeValues <- sort(unique(sizes))
   sizeValues <- sizeValues[sizeValues <= ncol(x)]
 
+
+  ## check summary function and metric
+  test <- rfeControl$functions$summary(data.frame(obs = y, pred = sample(y)))
+  if(!(metric %in% names(test))) stop("the specified metric is not produced by the summary function")
+  perfNames <- names(test)
+
+  
   selectedVars <- vector(mode = "list", length = length(rfeControl$index))
 
   ### todo: do this over lapply for possible parallelization
@@ -126,15 +136,10 @@ rfe <- function (x, ...) UseMethod("rfe")
 
   subsets <- sort(unique(rfePred$subset), decreasing = TRUE)
 
-  externPerf <- matrix(NA, ncol = 5, nrow = length(subsets))
-  if(!is.factor(y))
-    {
-      colnames(externPerf)[2:5] <- c("RMSE", "Rsquared", "RMSESD", "RsquaredSD")   
-      
-    } else {
-      colnames(externPerf)[2:5] <- c("Accuracy", "Kappa", "AccuracySD", "KappaSD")
-    }
-  colnames(externPerf)[1] <- "Variables"
+  externPerf <- matrix(NA, ncol = 2* length(perfNames) + 1, nrow = length(subsets))
+  colnames(externPerf) <- c("Variables",
+                            perfNames,
+                            paste(perfNames, "SD", sep = ""))
   
   
   for(i in seq(along = subsets))
@@ -147,7 +152,7 @@ rfe <- function (x, ...) UseMethod("rfe")
       byResample <- split(dataSubset, dataSubset$resampleIter)
       resampleResults <- lapply(
                                 byResample,
-                                function(u) postResample(u$pred, u$obs))
+                                rfeControl$functions$summary)
       resampleResults <- t(as.data.frame(resampleResults))
       
       externPerf[i, -1] <-  c(apply(resampleResults, 2, mean, na.rm = TRUE),
@@ -164,8 +169,8 @@ rfe <- function (x, ...) UseMethod("rfe")
   externPerf <- externPerf[order(externPerf[,"Variables"]),]
   
   bestSubset <- rfeControl$functions$selectSize(x = externPerf,
-                                                metric = rfeControl$metric,
-                                                maximize = if(rfeControl$metric == "RMSE") FALSE else TRUE)
+                                                metric = metric,
+                                                maximize = maximize)
 
   bestVar <- rfeControl$functions$selectVar(selectedVars, bestSubset)  
 
@@ -207,6 +212,8 @@ rfe <- function (x, ...) UseMethod("rfe")
                  call = funcCall,
                  control = rfeControl,
                  resample = resamples,
+                 metric = metric,
+                 maximize = maximize,
                  dots = list(...)),
             class = "rfe")
 }
@@ -276,7 +283,7 @@ print.rfe <- function(x, top = 5, digits = max(3, getOption("digits") - 3), ...)
 
 plot.rfe <- function (x,
                       plotType = "size",
-                      metric = c("Accuracy", "RMSE"),
+                      metric = x$metric,
                       digits = getOption("digits") - 5,
                       xTrans = NULL,
                       ...)
@@ -306,7 +313,6 @@ plot.rfe <- function (x,
 ######################################################################
 
 rfeControl <- function(functions = NULL,
-                       metric = NULL, 
                        rerank = FALSE,
                        method = "boot",
                        saveDetails = FALSE,
@@ -318,7 +324,6 @@ rfeControl <- function(functions = NULL,
 {
   list(
        functions = if(is.null(functions)) caretFuncs else functions,
-       metric = metric,
        rerank = rerank,
        method = method,
        saveDetails = saveDetails,
@@ -365,7 +370,7 @@ pickVars <- function(y, size)
   }
 
 
-caretFuncs <- list(
+caretFuncs <- list(summary = defaultSummary,
                    fit = function(x, y, first, last, ...) train(x, y, ...),
                    pred = function(object, x)
                    {
@@ -399,7 +404,7 @@ caretFuncs <- list(
 
 
 ## write a better imp sort function
-ldaFuncs <- list(
+ldaFuncs <- list(summary = defaultSummary,
                  fit = function(x, y, first, last, ...)
                  {
                    library(MASS)
@@ -427,7 +432,7 @@ ldaFuncs <- list(
                  )
   
 
-treebagFuncs <- list(
+treebagFuncs <- list(summary = defaultSummary,
                      fit = function(x, y, first, last, ...)
                      {
                        library(ipred)
@@ -450,7 +455,7 @@ treebagFuncs <- list(
                      selectVar = pickVars)
   
 
-rfFuncs <-  list(
+rfFuncs <-  list(summary = defaultSummary,
                 fit = function(x, y, first, last, ...)
                 {
                   library(randomForest)
@@ -490,7 +495,7 @@ rfFuncs <-  list(
                 selectVar = pickVars)
   
 
-lmFuncs <- list(
+lmFuncs <- list(summary = defaultSummary,
                 fit = function(x, y, first, last, ...)
                 {
                   tmp <- as.data.frame(x)
@@ -518,7 +523,7 @@ lmFuncs <- list(
                 selectVar = pickVars)
   
 
-nbFuncs <- list(
+nbFuncs <- list(summary = defaultSummary,
                 fit = function(x, y, first, last, ...)
                 {
                   library(klaR)
@@ -558,7 +563,7 @@ nbFuncs <- list(
 
 densityplot.rfe <- function(x,
                             data = NULL,
-                            metric = x$control$metric,
+                            metric = x$metric,
                             ...)
   {
     if (!is.null(match.call()$data))
@@ -577,7 +582,7 @@ densityplot.rfe <- function(x,
 
 histogram.rfe <- function(x,
                           data = NULL,
-                          metric = x$control$metric,
+                          metric = x$metric,
                           ...)
   {
     if (!is.null(match.call()$data))
@@ -596,7 +601,7 @@ histogram.rfe <- function(x,
 
 stripplot.rfe <- function(x,
                           data = NULL,
-                          metric = x$control$metric,
+                          metric = x$metric,
                           ...)
   {
     if (!is.null(match.call()$data))
@@ -623,7 +628,7 @@ stripplot.rfe <- function(x,
 
 xyplot.rfe <- function(x,
                        data = NULL,
-                       metric = x$control$metric,
+                       metric = x$metric,
                        ...)
   {
     if (!is.null(match.call()$data))

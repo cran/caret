@@ -1,4 +1,11 @@
 -------------------
+Version: 4.24
+Date: 2009-09-29
+
+Added the ability to use custom metrics with rfe()
+
+
+-------------------
 Version: 4.22
 Date: 2009-09-23
 
