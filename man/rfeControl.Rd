@@ -6,7 +6,6 @@ This function generates a control object that can be used to specify the details
 }
 \usage{
 rfeControl(functions = NULL,
-           metric = NULL, 
            rerank = FALSE,
            method = "boot",
            saveDetails = FALSE,
@@ -18,8 +17,6 @@ rfeControl(functions = NULL,
 }
 \arguments{
   \item{functions}{a list of functions for model fitting, prediction and variable importance (see Details below)}
-  \item{metric}{a string that specifies what summary metric will be used to select the optimal model. Possible values are "RMSE" and "Rsquared" for 
-     regression and "Accuracy" and "Kappa" for classification.} 
   \item{rerank}{a logical: should variable importance be re-calculated each time features are removed? }
   \item{method}{The external resampling method: \code{boot}, \code{cv},
     \code{LOOCV} or  \code{LGOCV} (for repeated training/test splits}

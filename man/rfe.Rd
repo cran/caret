@@ -11,6 +11,8 @@ rfe(x, ...)
 
 \method{rfe}{default}(x, y, 
     sizes = 2^(2:4), 
+    metric = ifelse(is.factor(y), "Accuracy", "RMSE"),
+    maximize = ifelse(metric == "RMSE", FALSE, TRUE),
     rfeControl = rfeControl(), 
     ...)
 
@@ -27,6 +29,8 @@ rfeIter(x, y,
   \item{testX}{a matrix or data frame of test set predictors. This must have the same column names as \code{x}}
   \item{testY}{a vector of test set outcomes }
   \item{sizes}{a numeric vector of integers corresponding to the number of features that should be retained}
+  \item{metric}{a string that specifies what summary metric will be used to select the optimal model. By default, possible values are "RMSE" and "Rsquared" for regression and "Accuracy" and "Kappa" for classification. If custom performance metrics are used (via the \code{functions} argument in \code{\link{rfeControl}}, the value of \code{metric} should match one of the arguments.}         
+  \item{maximize}{a logical: should the metric be maximized or minimized?}
   \item{rfeControl}{a list of options, including functions for fitting and prediction. See the package vignette or \code{\link{rfeControl}} for examples}
   \item{\dots}{options to pass to the model fitting function}
 }

@@ -9,13 +9,13 @@
 A set of lattice functions are provided to plot the resampled performance estimates (e.g. classification accuracy, RMSE) over different subset sizes.
 }
 \usage{
-\method{histogram}{rfe}(x, data = NULL, metric = x$control$metric, ...)
+\method{histogram}{rfe}(x, data = NULL, metric = x$metric, ...)
 
-\method{densityplot}{rfe}(x, data = NULL, metric = x$control$metric, ...)
+\method{densityplot}{rfe}(x, data = NULL, metric = x$metric, ...)
 
-\method{xyplot}{rfe}(x, data = NULL, metric = x$control$metric, ...)
+\method{xyplot}{rfe}(x, data = NULL, metric = x$metric, ...)
 
-\method{stripplot}{rfe}(x, data = NULL, metric = x$control$metric, ...)
+\method{stripplot}{rfe}(x, data = NULL, metric = x$metric, ...)
 }
 \arguments{
   \item{x}{ An object produced by  \code{\link{rfe}} }
