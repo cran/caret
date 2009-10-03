@@ -1,4 +1,11 @@
 -------------------
+Version: 4.25
+Date: 2009-10-03
+
+Added parallel processing functionality for rfe()
+
+
+-------------------
 Version: 4.24
 Date: 2009-09-29
 

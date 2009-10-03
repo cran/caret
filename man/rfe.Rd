@@ -126,6 +126,60 @@ testResults <- do.call("rbind", testResults)
 testResults <- cbind(testResults, Variables)
 plot(testResults[,3], testResults[,1])
 }
+
+#######################################
+## Parallel Processing Example via MPI
+
+\dontrun{
+
+## A function to emulate lapply in parallel
+mpiClacs <- function(X, FUN, ...)
+  {
+    theDots <- list(...)
+    parLapply(theDots$cl, X, FUN)
+  }
+
+library(snow)
+cl <- makeCluster(5, "MPI")
+
+set.seed(1)
+lmProfile <- rfe(x, logBBB,
+                 sizes = c(2:25, 30, 35, 40, 45, 50, 55, 60, 65),
+                 rfeControl = rfeControl(functions = lmFuncs, 
+                                         number = 200,
+                                         workers = 5,
+                                         computeFunction = mpiClacs,
+                                         computeArgs = list(cl = cl)))
+
+stopCluster(cl)
+}
+
+#######################################
+## Parallel Processing Example via NWS
+\dontrun{
+
+nwsClacs <- function(X, FUN, ...)
+  {
+    theDots <- list(...)
+    eachElem(theDots$sObj,
+             fun = FUN,
+             elementArgs = list(X))
+  }
+
+library(nws)
+sObj <- sleigh(workerCount = 5)
+
+set.seed(1)
+lmProfile <- rfe(x, logBBB,
+                 sizes = c(2:25, 30, 35, 40, 45, 50, 55, 60, 65),
+                 rfeControl = rfeControl(functions = lmFuncs, 
+                                         number = 200,
+                                         workers = 5,
+                                         computeFunction = nwsClacs,
+                                         computeArgs = list(sObj = sObj)))
+close(sObj)
+
+}
 }
 
 \keyword{models}

@@ -68,6 +68,63 @@ rfeIter <- function(x, y,
 ######################################################################
 ######################################################################
 
+## This function will be executed to do the RFE iterations over
+## different resampling iterations.
+
+## The input is a single list that has elelemnts for:
+##
+## - indices:  a list of indices for which samples are in the training
+##             set. This can include more than one resampling iteration
+## - x: the full data set of predictors
+## - y: the full set of outcomes
+## - cntl: output from rfeControl
+## - sizes: a vector of number of predictors
+
+rfeWrapper <- function(X)
+  {
+    ## iterate over the resampling iterations
+    index <- X$index
+    X$index <- NULL
+    out <- vector(mode = "list", length = length(index))
+    for(i in seq(along = index))
+      {
+        out[[i]] <- do.call("rfeChunk",
+                            c(list(inTrain= index[[i]]), X))
+      }
+    out
+  }
+
+######################################################################
+######################################################################
+
+rfeChunk <- function(inTrain, x, y, cntl, sizes, ...)
+  {
+    j <- which(unlist(lapply(cntl$index, function(x, y) all(x == y), y = inTrain)))
+    if(length(j) == 0) stop("can't figure out which resample iteration this is")
+
+    if(cntl$verbose) cat("\nExternal resampling iter:\t", j, "\n")
+    flush.console()
+    
+    inTrainX <- x[inTrain, ]
+    outTrainX <- x[-inTrain, ]
+    inTrainY <- y[inTrain]
+    outTrainY <- y[-inTrain]      
+    rfeResults <- rfeIter(inTrainX, inTrainY,
+                          outTrainX, outTrainY,
+                          sizes,
+                          cntl,
+                          ...)
+    
+    rfeResults$pred$resampleIter <- rep(j, nrow(rfeResults$pred))
+
+    out <- list(pred = rfeResults$pred,
+                selectedVars = rfeResults$finalVariables)
+    out
+  }
+
+######################################################################
+######################################################################
+
 rfe <- function (x, ...) UseMethod("rfe")
 
 "rfe.default" <-
@@ -103,34 +160,41 @@ rfe <- function (x, ...) UseMethod("rfe")
   
   selectedVars <- vector(mode = "list", length = length(rfeControl$index))
 
-  ### todo: do this over lapply for possible parallelization
-  for(j in seq(along = rfeControl$index))
-    {
-      if(rfeControl$verbose) cat("\nExternal resampling iter:\t", j, "\n")
-      flush.console()
+### todo: do this over lapply for possible parallelization
 
-      inTrain <- rfeControl$index[[j]]
-      
-      inTrainX <- x[inTrain, ]
-      outTrainX <- x[-inTrain, ]
-      inTrainY <- y[inTrain]
-      outTrainY <- y[-inTrain]
+  ## need to setup lists for each worker (!= each task)
 
-      rfeResults <- rfeIter(inTrainX, inTrainY, outTrainX, outTrainY, sizeValues, rfeControl, ...)
+  tmp <- repList(
+                 list(x = x,
+                      y = y,
+                      cntl = rfeControl,
+                      sizes = sizeValues,
+                      ...),
+                 rfeControl$workers) ## define this var
 
-      rfeResults$pred$resampleIter <- rep(j, nrow(rfeResults$pred))
-      
-      selectedVars[[j]] <- rfeResults$finalVariables
-      
-      if(j == 1)
-        {
-          rfePred <- rfeResults$pred
-        } else {
-          rfePred <- rbind(rfePred, rfeResults$pred)
-        }
-      
+  indexSplit <- splitIndicies(length(rfeControl$index),
+                              rfeControl$workers)
+  for(i in seq(along = tmp)) tmp[[i]]$index <- rfeControl$index[indexSplit == i]
+  
+  ## Now, we setup arguments to lapply (or similar functions) executed via do.call
+  ## workerData will split up the data need for the jobs
+  argList <- list(X = tmp,
+                  FUN = rfeWrapper)
 
-    } ## subset size loop
+  ## Append the extra objects needed to do the work (See the parallel examples in
+  ## ?train to see examples
+  if(!is.null(rfeControl$computeArgs)) argList <- c(argList, rfeControl$computeArgs)
+ 
+  rfeResults <- do.call(rfeControl$computeFunction, argList)
+  
+  rfePred <- lapply(rfeResults,
+                    function(x) lapply(x,
+                                       function(y) y$pred))[[1]]
+  rfePred <- do.call("rbind", rfePred)
+
+  selectedVars <- lapply(rfeResults,
+                    function(x) lapply(x,
+                                       function(y) y$selectedVars))[[1]]
 
   #########################################################################
 
@@ -181,22 +245,22 @@ rfe <- function (x, ...) UseMethod("rfe")
                                   ...)
 
   resamples <- switch(rfeControl$returnResamp,
-                       none = NULL, 
-                       all = {
-                         out <- resamples
-                         colnames(out)[ncol(out)] <- "Variables"
-                         rownames(out) <- NULL
-                         out
-                       },
-                       final = {
-                         out <- resamples[resamples[,ncol(resamples)]  == bestSubset,,drop = FALSE]
-                         colnames(out)[ncol(out)] <- "Variables"
-                         rownames(out) <- NULL
-                         out
-                       })
+                      none = NULL, 
+                      all = {
+                        out <- resamples
+                        colnames(out)[ncol(out)] <- "Variables"
+                        rownames(out) <- NULL
+                        out
+                      },
+                      final = {
+                        out <- resamples[resamples[,ncol(resamples)]  == bestSubset,,drop = FALSE]
+                        colnames(out)[ncol(out)] <- "Variables"
+                        rownames(out) <- NULL
+                        out
+                      })
 
 
-  #########################################################################
+#########################################################################
   ## Now, based on probability or static ranking, figure out the best vars
   ## and the best subset size and fit final model
   
@@ -320,7 +384,10 @@ rfeControl <- function(functions = NULL,
                        verbose = TRUE,
                        returnResamp = "all",
                        p = .75,
-                       index = NULL)
+                       index = NULL,
+                       workers = 1,
+                       computeFunction = lapply,
+                       computeArgs = NULL)
 {
   list(
        functions = if(is.null(functions)) caretFuncs else functions,
@@ -331,7 +398,10 @@ rfeControl <- function(functions = NULL,
        returnResamp = returnResamp,
        verbose = verbose,
        p = p,
-       index = index)
+       index = index,
+       workers = workers,
+       computeFunction = computeFunction,
+       computeArgs = computeArgs)
 }
 
 ######################################################################
@@ -400,7 +470,7 @@ caretFuncs <- list(summary = defaultSummary,
                    selectSize = pickSizeBest,
                    selectVar = pickVars
                    )
-  
+
 
 
 ## write a better imp sort function
@@ -430,7 +500,7 @@ ldaFuncs <- list(summary = defaultSummary,
                  selectSize = pickSizeBest,
                  selectVar = pickVars
                  )
-  
+
 
 treebagFuncs <- list(summary = defaultSummary,
                      fit = function(x, y, first, last, ...)
@@ -453,47 +523,47 @@ treebagFuncs <- list(summary = defaultSummary,
                      },
                      selectSize = pickSizeBest,
                      selectVar = pickVars)
-  
+
 
 rfFuncs <-  list(summary = defaultSummary,
-                fit = function(x, y, first, last, ...)
-                {
-                  library(randomForest)
-                  randomForest(x, y, importance = first, ...)
-                },
-                pred = function(object, x)
-                {
-                  predict(object, x)
-                },
-                rank = function(object, x, y)
-                {
-                  vimp <- varImp(object)
+                 fit = function(x, y, first, last, ...)
+                 {
+                   library(randomForest)
+                   randomForest(x, y, importance = first, ...)
+                 },
+                 pred = function(object, x)
+                 {
+                   predict(object, x)
+                 },
+                 rank = function(object, x, y)
+                 {
+                   vimp <- varImp(object)
 
-                  if(is.factor(y))
-                    {
-                      if(all(levels(y) %in% colnames(vimp)))
-                        {
-                          avImp <- apply(vimp[, levels(y), drop = TRUE],
-                                         1,
-                                         mean)
-                          vimp$Overall <- avImp
-                        }
+                   if(is.factor(y))
+                     {
+                       if(all(levels(y) %in% colnames(vimp)))
+                         {
+                           avImp <- apply(vimp[, levels(y), drop = TRUE],
+                                          1,
+                                          mean)
+                           vimp$Overall <- avImp
+                         }
 
-                    }
-                  
-                  vimp <- vimp[
-                               order(
-                                     vimp$Overall,
-                                     decreasing = TRUE)
-                               ,,
-                               drop = FALSE]
-                  
-                  vimp$var <- rownames(vimp)                  
-                  vimp
-                },
-                selectSize = pickSizeBest,
-                selectVar = pickVars)
-  
+                     }
+                   
+                   vimp <- vimp[
+                                order(
+                                      vimp$Overall,
+                                      decreasing = TRUE)
+                                ,,
+                                drop = FALSE]
+                   
+                   vimp$var <- rownames(vimp)                  
+                   vimp
+                 },
+                 selectSize = pickSizeBest,
+                 selectVar = pickVars)
+
 
 lmFuncs <- list(summary = defaultSummary,
                 fit = function(x, y, first, last, ...)
@@ -521,7 +591,7 @@ lmFuncs <- list(summary = defaultSummary,
                 },
                 selectSize = pickSizeBest,
                 selectVar = pickVars)
-  
+
 
 nbFuncs <- list(summary = defaultSummary,
                 fit = function(x, y, first, last, ...)
@@ -554,7 +624,7 @@ nbFuncs <- list(summary = defaultSummary,
                 },
                 selectSize = pickSizeBest,
                 selectVar = pickVars)
-  
+
 
 ######################################################################
 ######################################################################
@@ -666,5 +736,5 @@ varImp.rfe <- function(object, drop = FALSE, ...)
     out[order(-out$Overall),,drop = FALSE]
 
   }
-  
+
 

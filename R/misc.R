@@ -1299,3 +1299,14 @@ getPerformance <- function(x, groups, func, levels, mod, loo = FALSE)
 
   }
 
+## This makes a list of copies of another list
+
+
+repList <- function(x, times = 3, addIndex = FALSE)
+  { 
+    out <- vector(mode = "list", length = times)
+    out <- lapply(out, function(a, b) b, b = x)
+    if(addIndex) for(i in seq(along = out)) out[[i]]$.index <- i
+    out
+  }
+
