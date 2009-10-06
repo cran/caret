@@ -13,7 +13,10 @@ rfeControl(functions = NULL,
            verbose = TRUE,
            returnResamp = "all",
            p = .75,
-           index = NULL)
+           index = NULL,
+           workers = 1,
+           computeFunction = lapply,
+           computeArgs = NULL)
 }
 \arguments{
   \item{functions}{a list of functions for model fitting, prediction and variable importance (see Details below)}
@@ -26,6 +29,9 @@ rfeControl(functions = NULL,
   \item{returnResamp}{A character string indicating how much of the resampled summary metrics should be saved. Values can be ``final'', ``all'' or ``none''}
   \item{p}{For leave-group out cross-validation: the training percentage}
   \item{index}{a list with elements for each external resampling iteration. Each list element is the sample rows used for training at that iteration.}
+  \item{workers}{an integer that specifies how many machines/processors will be used}
+  \item{computeFunction}{a function that is \code{\link[base]{lapply}} or emulates \code{lapply}. It must have arguments \code{X}, \code{FUN} and \code{...}. \code{computeFunction} can be used to build models in parallel. See the examples in \code{link{rfe}}.}
+  \item{computeArgs}{Extra arguments to pass into the \code{...} slore in \code{computeFunction}. See the examples in \code{link{rfe}}.}
 }
 \details{
 Backwards selection requires function to be specified for some operations. 
