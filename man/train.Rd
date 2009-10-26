@@ -229,7 +229,7 @@ earthFit <- train(medv ~ .,
 \dontrun{
 
 ## A function to emulate lapply in parallel
-mpiClacs <- function(X, FUN, ...)
+mpiCalcs <- function(X, FUN, ...)
   {
     theDots <- list(...)
     parLapply(theDots$cl, X, FUN)
@@ -241,7 +241,7 @@ cl <- makeCluster(5, "MPI")
 ## 50 bootstrap models distributed across 5 workers
 mpiControl <- trainControl(workers = 5,
                            number = 50,
-                           computeFunction = mpiClacs,
+                           computeFunction = mpiCalcs,
                            computeArgs = list(cl = cl))
 set.seed(1)
 usingMPI <-  train(medv ~ .,
@@ -256,7 +256,7 @@ stopCluster(cl)
 ## Parallel Processing Example via NWS
 \dontrun{
 
-nwsClacs <- function(X, FUN, ...)
+nwsCalcs <- function(X, FUN, ...)
   {
     theDots <- list(...)
     eachElem(theDots$sObj,
@@ -269,7 +269,7 @@ sObj <- sleigh(workerCount = 5)
 
 nwsControl <- trainControl(workers = 5,
                            number = 50,
-                           computeFunction = nwsClacs,
+                           computeFunction = nwsCalcs,
                            computeArgs = list(sObj = sObj))
 set.seed(1)
 usingNWS <-  train(medv ~ .,

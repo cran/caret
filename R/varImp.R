@@ -2,7 +2,3 @@
 function(object, ...){
    UseMethod("varImp")
 }
-
-
-
-

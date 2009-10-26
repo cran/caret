@@ -1,4 +1,12 @@
 -------------------
+Version: 4.26
+Date: 2009-10-26
+
+Fixed a bug in caretFunc() that led to NaN variable rankings, so that
+the first k terms were always selected.
+
+
+-------------------
 Version: 4.25
 Date: 2009-10-03
 

@@ -454,16 +454,21 @@ caretFuncs <- list(summary = defaultSummary,
                    rank = function(object, x, y)
                    {
                      vimp <- varImp(object, scale = FALSE)$importance
-                     vimp <- vimp[
-                                  order(vimp[,1], decreasing = TRUE)
-                                  ,,drop = FALSE]
-                     if(all(levels(y) %in% colnames(vimp)))
+                     if(object$modelType == "Regression")
                        {
-                         avImp <- apply(vimp[, levels(y), drop = TRUE],
-                                        1,
-                                        mean)
-                         vimp$Overall <- avImp
-                       }
+                         vimp <- vimp[
+                                      order(vimp[,1], decreasing = TRUE)
+                                      ,,drop = FALSE]
+                       } else {
+                         if(all(levels(y) %in% colnames(vimp)))
+                           {
+                             avImp <- apply(vimp[, levels(y), drop = TRUE],
+                                            1,
+                                            mean)
+                             vimp$Overall <- avImp
+                           } else stop("need importance columns for each class")
+                         
+                       } 
                      vimp$var <- rownames(vimp)
                      vimp
                    },
