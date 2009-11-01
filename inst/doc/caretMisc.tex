@@ -73,7 +73,7 @@
 \section{Introduction}
 
 
-The \texttt{caret} package (short for {\bf{\color{blue}{c}}}lassification {\bf{\color{blue}{a}}}nd {\bf{\color{blue}{re}}}gression {\bf{\color{blue}{t}}}raining) contains functions to streamline the model training process for complex regression and classification problems. The package utilizes a number of R packages but tries not to load them all at package start-up\footnote{By adding formal package dependencies, the package startup time can be greatly decreased}. The package ``suggests'' field includes: \texttt{ada}, \texttt{affy}, \texttt{caTools}, \texttt{class}, \texttt{e1071,}, \texttt{earth ($\ge$ 2.2-3)}, \texttt{elasticnet}, \texttt{ellipse}, \texttt{gbm}, \texttt{glmnet}, \texttt{gpls}, \texttt{grid}, \texttt{ipred}, \texttt{kernlab}, \texttt{klaR}, \texttt{lars}, \texttt{MASS}, \texttt{mboost}, \texttt{mda}, \texttt{mgcv}, \texttt{mlbench}, \texttt{nnet}, \texttt{pamr,}, \texttt{party}, \texttt{penalized}, \texttt{pls}, \texttt{proxy}, \texttt{randomForest}, \texttt{relaxo}, \texttt{rpart}, \texttt{RWeka ($\ge$ 0.3-14)}, \texttt{sda}, \texttt{SDDA}, \texttt{sparseLDA ($\ge$ 0.1-1),}, \texttt{spls}, \texttt{superpc}, \texttt{vbmp}. \texttt{caret} loads packages as needed and assumes that they are installed. Install \texttt{caret} using 
+The \texttt{caret} package (short for {\bf{\color{blue}{c}}}lassification {\bf{\color{blue}{a}}}nd {\bf{\color{blue}{re}}}gression {\bf{\color{blue}{t}}}raining) contains functions to streamline the model training process for complex regression and classification problems. The package utilizes a number of R packages but tries not to load them all at package start-up\footnote{By adding formal package dependencies, the package startup time can be greatly decreased}. The package ``suggests'' field includes: \texttt{ada}, \texttt{affy}, \texttt{caTools}, \texttt{class}, \texttt{e1071,}, \texttt{earth ($\ge$ 2.2-3)}, \texttt{elasticnet}, \texttt{ellipse}, \texttt{gbm}, \texttt{glmnet}, \texttt{gpls}, \texttt{grid}, \texttt{ipred}, \texttt{kernlab}, \texttt{klaR}, \texttt{lars}, \texttt{MASS}, \texttt{mboost}, \texttt{mda}, \texttt{mgcv}, \texttt{mlbench}, \texttt{nnet}, \texttt{nodeHarvest}, \texttt{pamr,}, \texttt{party}, \texttt{penalized}, \texttt{pls}, \texttt{proxy}, \texttt{randomForest}, \texttt{relaxo}, \texttt{rpart}, \texttt{RWeka ($\ge$ 0.3-14)}, \texttt{sda}, \texttt{SDDA}, \texttt{sparseLDA ($\ge$ 0.1-1),}, \texttt{spls}, \texttt{superpc}, \texttt{vbmp}. \texttt{caret} loads packages as needed and assumes that they are installed. Install \texttt{caret} using 
 \begin{Verbatim}
 install.packages("caret", dependencies = c("Depends", "Suggests"))
 \end{Verbatim}
@@ -520,7 +520,7 @@ matrix is created for each class and used with the \texttt{spls} function in the
 \begin{figure}
    \begin{center}		
       \includegraphics[clip, width = .9\textwidth]{plsProbs}
-\caption{A comparison of two methods for computing class probabilities for PLS classification models on the MDRR data. Using a 5 component PLS model, the test set sample class probabilities were predicted using either the softmax function or Bayes rule. The histograms show the distributions of the active class probabilities for both methods and the true class of the samples. While Bayes rule takes more time to compute (1.47 seconds compared to 0.013 seconds for softmax), the probabilities using Bayes rule appear more appropriate since they encompass the full scale. The softmax probabilities are close to the middle of the distribution and rarely show high confidence in the predicted class. Both techniques show approximately the same accuracy (0.79 for Bayes and 0.77 for softmax) and Kappa values (0.56 for Bayes and 0.52 for softmax).}
+\caption{A comparison of two methods for computing class probabilities for PLS classification models on the MDRR data. Using a 5 component PLS model, the test set sample class probabilities were predicted using either the softmax function or Bayes rule. The histograms show the distributions of the active class probabilities for both methods and the true class of the samples. While Bayes rule takes more time to compute (1.16 seconds compared to 0.009 seconds for softmax), the probabilities using Bayes rule appear more appropriate since they encompass the full scale. The softmax probabilities are close to the middle of the distribution and rarely show high confidence in the predicted class. Both techniques show approximately the same accuracy (0.79 for Bayes and 0.77 for softmax) and Kappa values (0.56 for Bayes and 0.52 for softmax).}
       \label{f:plsProbs}       
    \end{center}
 \end{figure}  
@@ -578,16 +578,15 @@ For example, in the Fisher/Anderson iris data there are four predictors and a cl
 
 \section{Session Information}
 
-\begin{itemize}
-  \item R version 2.9.2 (2009-08-24), \verb|x86_64-apple-darwin9.8.0|
+\begin{itemize}\raggedright
+  \item R version 2.10.0 RC (2009-10-18 r50160), \verb|x86_64-apple-darwin9.8.0|
   \item Locale: \verb|en_US.UTF-8/en_US.UTF-8/C/C/en_US.UTF-8/en_US.UTF-8|
   \item Base packages: base, datasets, graphics, grDevices, grid,
     methods, splines, stats, tools, utils
-  \item Other packages: caret~4.23, class~7.2-48, e1071~1.5-19,
-    ellipse~0.3-5, gbm~1.6-3, ipred~0.8-8, kernlab~0.9-8, klaR~0.5-9,
-    lattice~0.17-25, MASS~7.2-48, mlbench~1.1-6, nnet~7.2-48,
-    pls~2.1-0, proxy~0.4-3, randomForest~4.5-30, rpart~3.1-45,
-    survival~2.35-7
+  \item Other packages: caret~4.27, class~7.3-1, e1071~1.5-20,
+    ellipse~0.3-5, gbm~1.6-3, ipred~0.8-8, kernlab~0.9-9, klaR~0.6-0,
+    lattice~0.17-26, MASS~7.3-3, mlbench~1.1-6, nnet~7.3-1, pls~2.1-0,
+    proxy~0.4-4, randomForest~4.5-33, rpart~3.1-45, survival~2.35-7
 \end{itemize}
 \section{References}
 

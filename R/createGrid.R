@@ -251,6 +251,9 @@
                       obliqueTree = expand.grid(
                         .oblique.splits = c("only", "on", "off"),
                         .variable.selection = c("none", "model.selection.aic", "lasso.aic")),
+                      nodeHarvest = expand.grid(
+                        .maxinter = 1:len,
+                        .mode = c("mean", "outbag")),
                       lda =, lm =, treebag =, sddaLDA =, sddaQDA =,
                       glm =, qda =, OneR =, rlm =,
                       rvmLinear =, lssvmLinear =, gaussprLinear =,
