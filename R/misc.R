@@ -147,7 +147,8 @@ modelLookup <- function(model = NULL)
                            "vbmpRadial",
                            "smda", "smda", "smda",
                            "pcr",
-                           "obliqueTree", "obliqueTree"
+                           "obliqueTree", "obliqueTree",
+                           "nodeHarvest", "nodeHarvest"
                            ),
                          parameter = c(
                            "parameter",      
@@ -229,7 +230,8 @@ modelLookup <- function(model = NULL)
                            "estimateTheta",
                            "NumVars", "R", "lambda",
                            "ncomp",
-                           "oblique.splits", "variable.selection"
+                           "oblique.splits", "variable.selection",
+                           "maxinter", "mode"
                            ),
                          label = I(c(
                            "none",      
@@ -313,7 +315,8 @@ modelLookup <- function(model = NULL)
                            "Theta Estimated",
                           "# Predictors",  "# Subclasses", "Lambda",
                            "#Components",
-                           "Oblique Splits", "Variable Selection Method"
+                           "Oblique Splits", "Variable Selection Method",
+                           "Maximum Interaction Depth", "Prediction Mode"
                            )),
                          seq = c(
                            FALSE,
@@ -394,6 +397,7 @@ modelLookup <- function(model = NULL)
                            FALSE,
                            FALSE, FALSE, FALSE,
                            TRUE,
+                           FALSE, FALSE,
                            FALSE, FALSE
                            ),
                          forReg = c(
@@ -475,7 +479,8 @@ modelLookup <- function(model = NULL)
                            FALSE,
                            FALSE, FALSE, FALSE,
                            TRUE,               ## PCR
-                           FALSE, FALSE
+                           FALSE, FALSE,
+                           TRUE,  TRUE
                            ),               
                          forClass =          
                          c(
@@ -557,6 +562,7 @@ modelLookup <- function(model = NULL)
                            TRUE,
                            TRUE, TRUE, TRUE,
                            FALSE,
+                           TRUE, TRUE,
                            TRUE, TRUE
                            ),
                          probModel = c(
@@ -638,6 +644,7 @@ modelLookup <- function(model = NULL)
                            TRUE,
                            FALSE, FALSE, FALSE, ## not yet
                            FALSE,              ## pcr
+                           TRUE, TRUE,
                            TRUE, TRUE
                            ),
                          stringsAsFactors  = FALSE               

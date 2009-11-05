@@ -675,7 +675,18 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
                              probs <- predictCPP(modelFit, newdata)
                              out <- modelFit$obsLevels[apply(probs, 1, which.max)]
                              out
-                           }                         
+                           },
+                           nodeHarvest =
+                           {
+                             library(nodeHarvest)
+                             if(modelFit$problemType == "Regression")
+                               {
+                                 predict(modelFit, as.matrix(newdata), maxshow = 0)
+                               } else  {
+                                 prbs <- predict(modelFit, as.matrix(newdata), maxshow = 0)
+                                 ifelse(prbs > .5, modelFit$obsLevels[1], modelFit$obsLevels[2])
+                               }
+                           }
   )
 predictedValue
 }

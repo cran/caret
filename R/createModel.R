@@ -55,7 +55,7 @@
                    "sddaLDA", "sddaQDA", "glmnet", "slda", "spls", "smda",
                    "qda", "relaxo", "lars", "lars2", "rlm", "vbmpRadial",
                    "superpc", "ppr", "sda", "penalized", "sparseLDA",
-                   "obliqueTree"))
+                   "obliqueTree", "nodeHarvest"))
     {
       trainX <- data[,!(names(data) %in% ".outcome")]
       trainY <- data[,".outcome"] 
@@ -1186,7 +1186,25 @@
                             control = ctl,
                             X.TEST = trainX[1,],
                             t.class.TEST  = as.numeric(trainY)[1])
-                     }
+                     },
+                     nodeHarvest =
+                     {
+                       library(nodeHarvest)
+                       if(type == "Regression")
+                         {
+                           out <- nodeHarvest(trainX, trainY,
+                                              maxinter = tuneValue$.maxinter,
+                                              mode = tuneValue$.mode,
+                                              ...)
+                         } else {
+                           out <- nodeHarvest(trainX,
+                                              ifelse(trainY == levels(trainY)[1], 1, 0),
+                                              maxinter = tuneValue$.maxinter,
+                                              mode = tuneValue$.mode,
+                                              ...)                          
+                         }
+                       out                        
+                       }
                      )
   
 

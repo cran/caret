@@ -121,6 +121,10 @@ byComplexity <- function(x, model)
            {
              x[order(x$NumVars, x$R, -x$lambda),]
            },
+           nodeHarvest =
+           {
+             x[order(x$maxinter, x$mode),]
+           },
            obliqueTree = x[order(x$variable.selection),],
            PART = x[order(x$pruned, -x$threshold),],
            sda = x[order(x$diagonal),],

@@ -1,6 +1,6 @@
 Package: caret
-Version: 4.26
-Date: 2009-10-26
+Version: 4.27
+Date: 2009-11-01
 Title: Classification and Regression Training
 Author: Max Kuhn. Contributions from Jed Wing, Steve Weston, Andre
         Williams, Chris Keefer and Allan Engelhardt
@@ -14,10 +14,10 @@ Suggests: gbm, pls, mlbench, rpart, ellipse, ipred, klaR, randomForest,
         earth (>= 2.2-3), party, ada, affy, proxy, e1071, grid,
         elasticnet, SDDA, caTools, RWeka (>= 0.3-14), superpc,
         penalized, sparseLDA (>= 0.1-1), spls, sda, glmnet, relaxo,
-        lars, vbmp
+        lars, vbmp, nodeHarvest
 License: GPL-2
 Repository: CRAN
 Repository/R-Forge/Project: caret
-Repository/R-Forge/Revision: 91
-Date/Publication: 2009-10-28 17:13:10
-Packaged: 2009-10-27 21:06:20 UTC; rforge
+Repository/R-Forge/Revision: 94
+Date/Publication: 2009-11-05 12:34:33
+Packaged: 2009-11-02 21:09:33 UTC; rforge

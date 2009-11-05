@@ -315,6 +315,11 @@ There is additional functionality in \texttt{train} that is described in the nex
             \texttt{ipred}       & 
             None \\                         
    
+      Node Harvest &
+         \texttt{nodeHarvest} & 
+            \texttt{nodeHarvest}       & 
+            \texttt{maxinter}, \texttt{mode}  \\                  
+            
       Multivariate Adaptive  &
          \texttt{earth}, \texttt{mars} & 
             \texttt{earth}       & 

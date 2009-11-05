@@ -260,6 +260,10 @@ probFunction <- function(method, modelFit, newdata)
                         probs <- cbind(1-probs, probs)
                         colnames(probs) <- modelFit$obsLevels
                         probs
+                      },
+                      nodeHarvest =
+                      {
+                        predict(modelFit, as.matrix(newdata), maxshow = 0)
                       }
                       )
 
