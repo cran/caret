@@ -10,13 +10,18 @@
   
 }
 \usage{
-plotClassProbs(object, ...)
+plotClassProbs(object,
+               plotType = "histogram",
+               useObjects = FALSE,
+               ...)
 }
 \arguments{
   \item{object}{an object (preferably from the function \code{\link{extractProb}}. There 
-  should be columns for each level of the class factor and columns named \code{obs}, \code{pred}, \code{model} (e.g. "rpart", "nnet" etc)
-  and \code{dataType} (e.g. "Training", "Test" etc) }
-  \item{\dots}{parameters to pass to   \code{\link[lattice]{histogram}}}
+  should be columns for each level of the class factor and columns named \code{obs}, \code{pred}, \code{model} (e.g. "rpart", "nnet" etc), 
+  \code{dataType} (e.g. "Training", "Test" etc) and optionally \code{objects} (for giving names to objects with the same model type).}
+  \item{plotType}{either "histogram" or "densityplot"}
+  \item{useObjects}{a logical; should the object name (if any) be used as a conditioning variable?}
+  \item{\dots}{parameters to pass to   \code{\link[lattice]{histogram}} or \code{\link[lattice]{densityplot}}}
 }
 
 \value{
@@ -25,25 +30,43 @@ plotClassProbs(object, ...)
 \author{Max Kuhn}
 
 \examples{
-
-data(iris)
+data(mdrr)
 set.seed(90)
-inTrain <- sample(1:dim(iris)[1], 100)
+inTrain <- createDataPartition(mdrrClass, p = .5)[[1]]
 
-trainData <- iris[inTrain,]
-testData <- iris[-inTrain,]
+trainData <- mdrrDescr[inTrain,1:20]
+testData <- mdrrDescr[-inTrain,1:20]
 
-rpartFit <- train(trainData[, -5], trainData[, 5], "rpart", 
-                  tuneLength = 15)
-ldaFit <- train(trainData[, -5], trainData[, 5], "lda")
-predProbs <- extractProb(list(ldaFit, rpartFit),
-                         testX = testData[, -5], 
-                         testY = testData[, 5])
+trainY <- mdrrClass[inTrain]
+testY <- mdrrClass[-inTrain]
 
-plotClassProbs(predProbs)
-plotClassProbs(predProbs[predProbs$model == "lda",])
-plotClassProbs(predProbs[predProbs$model == "lda" & 
-                         predProbs$dataType == "Test",])
+ctrl <- trainControl(method = "cv")
+
+nbFit1 <- train(trainData, trainY, "nb",
+                trControl = ctrl,
+                tuneGrid = data.frame(.usekernel = TRUE))
+
+nbFit2 <- train(trainData, trainY, "nb",
+                trControl = ctrl,
+                tuneGrid = data.frame(.usekernel = FALSE))
+
+
+models <- list(para = nbFit2,
+               nonpara = nbFit1)
+
+predProbs <- extractProb(models,
+                         testX = testData, 
+                         testY = testY)
+
+plotClassProbs(predProbs,
+               useObjects = TRUE)
+plotClassProbs(predProbs,
+               subset = object == "para" & dataType == "Test")
+plotClassProbs(predProbs,
+               useObjects = TRUE,
+               plotType = "densityplot",
+               auto.key = list(columns = 2))
+
 
 }
 

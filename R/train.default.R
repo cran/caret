@@ -33,7 +33,7 @@ train.default <- function(x, y,
       ## important with multiclass systems where one or more classes have low sample sizes
       ## relative to the others
       classLevels <- levels(y)
-      if(length(classLevels) > 2 & (method %in% c("gbm", "glmboost", "ada", "gamboost", "blackboost", "penalized", "glm", "earth", "nodeHarvest")))
+      if(length(classLevels) > 2 & (method %in% c("gbm", "glmboost", "ada", "gamboost", "blackboost", "penalized", "glm", "earth", "nodeHarvest", "glmrob")))
         stop("This model is only implemented for two class problems")
       if(length(classLevels) < 3 & (method %in% c("vbmpRadial")))
         stop("This model is only implemented for 3+ class problems")      

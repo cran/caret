@@ -10,7 +10,8 @@ probFunction <- function(method, modelFit, newdata)
                    "svmRadial", "svmPoly", "svmLinear",
                    "gaussprRadial", "gaussprPoly", "gaussprLinear",
                    "lssvmRadial", "lssvmLinear",
-                   "ctree", "ctree2",  "cforest"))
+                   "ctree", "ctree2",  "cforest",
+                   "penalized", "Linda", "QdaCov"))
     {
       
       obsLevels <- switch(method,
@@ -22,6 +23,8 @@ probFunction <- function(method, modelFit, newdata)
                             library(kernlab)
                             lev(modelFit)
                           },
+
+                          Linda =, QdaCov = names(modelFit@prior),
                           
                           ctree =, cforest =
                           {
@@ -222,7 +225,7 @@ probFunction <- function(method, modelFit, newdata)
                       {
                         library(spls)
                         if(!is.matrix(newdata)) newdata <- as.matrix(newdata)
-                        predict(modelFit, newdata, type = "prob")
+                        caret:::predict.splsda(modelFit, newdata, type = "prob")
                       },
                       sda =
                       {                  
@@ -264,6 +267,19 @@ probFunction <- function(method, modelFit, newdata)
                       nodeHarvest =
                       {
                         predict(modelFit, as.matrix(newdata), maxshow = 0)
+                      },
+                      Linda =, QdaCov =
+                      {
+                        library(rrcov)
+                        probs <- predict(modelFit, newdata)@posterior
+                        colnames(probs) <- names(modelFit@prior)
+                        probs
+                      },
+                      stepLDA =, stepQDA =
+                      {
+                        library(MASS)
+                        predict(modelFit$fit,
+                                newdata[, predictors(modelFit), drop = FALSE])$posterior
                       }
                       )
 

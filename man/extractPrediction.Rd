@@ -60,6 +60,7 @@ The two extraction functions can be used to get the predictions and observed out
   \item{obs }{the observed training and test data}
   \item{pred }{predicted values}
   \item{model}{the type of model used to predict}
+  \item{object}{the names of the objects within \code{models}. If \code{models} is an un-named list, the values of \code{object} will be "Object1", "Object2" and so on}
   \item{dataType }{"Training", "Test" or "Unknown" depending on what was
     specified}
 

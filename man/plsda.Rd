@@ -102,14 +102,17 @@ dim(predict(useBayes, testDescr, ncomp = 1:3))
 dim(predict(useBayes, testDescr, type = "prob"))
 dim(predict(useBayes, testDescr, type = "prob", ncomp = 1:3))
 
-## using spls
+## Using spls:
+## (As of 11/09, the spls package now has a similar funciton with
+## the same mane. To avoid conflicts, use caret:::splsda to 
+## get this version)
 
-splsFit <- splsda(trainDescr, trainMDRR, 
-                  K = 5, eta = .9,
-                  probMethod = "Bayes")
+splsFit <- caret:::splsda(trainDescr, trainMDRR, 
+                          K = 5, eta = .9,
+                          probMethod = "Bayes")
 
 confusionMatrix(
-                predict(splsFit, testDescr),
+                caret:::predict.splsda(splsFit, testDescr),
                 testMDRR)
 }
 
