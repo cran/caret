@@ -9,6 +9,10 @@ extractProb <- function(
    verbose = FALSE)
 {
 
+   objectNames <- names(models)
+   if(is.null(objectNames)) objectNames <- paste("Object", 1:length(models), sep = "")
+
+  
    if(any(unlist(lapply(models, function(x) !modelLookup(x$method)$probModel))))
       stop("only classification models that produce probabilities are allowed")
    
@@ -24,7 +28,7 @@ extractProb <- function(
    }
      
 
-   predProb <- predClass <- obs <- modelName <- dataType <-  NULL
+   predProb <- predClass <- obs <- modelName <- dataType <- objName <- NULL
    if(!is.null(testX))
    {
       if(!is.data.frame(testX)) testX <- as.data.frame(testX)
@@ -48,6 +52,7 @@ extractProb <- function(
          predClass <- c(predClass, as.character(tempTrainPred))         
          obs <- c(obs, as.character(trainY))
          modelName <- c(modelName, rep(models[[i]]$method, length(tempTrainPred)))
+         objName <- c(objName, rep(objectNames[[i]], length(tempTrainPred)))
          dataType <- c(dataType, rep("Training", length(tempTrainPred)))         
          
          # Test Data         
@@ -70,6 +75,7 @@ extractProb <- function(
             predClass <- c(predClass, as.character(tempTestPred))         
             obs <- c(obs, as.character(testY))
             modelName <- c(modelName, rep(models[[i]]$method, length(tempTestPred)))
+            objName <- c(objName, rep(objectNames[[i]], length(tempTestPred)))
             dataType <- c(dataType, rep("Test", length(tempTestPred)))                  
          }      
          
@@ -96,6 +102,7 @@ extractProb <- function(
          predClass <- c(predClass, as.character(tempUnkPred))         
          obs <- c(obs, rep(NA, length(tempUnkPred)))
          modelName <- c(modelName, rep(models[[i]]$method, length(tempUnkPred)))
+         objName <- c(objName, rep(objectNames[[i]], length(tempUnkPred)))
          dataType <- c(dataType, rep("Unknown", length(tempUnkPred)))        
          
       }
@@ -109,7 +116,8 @@ extractProb <- function(
    out$obs <- obs
    out$pred <- predClass
    out$model <- modelName
-   out$dataType <- dataType   
+   out$dataType <- dataType
+   out$object <- objName
    out
 }
 

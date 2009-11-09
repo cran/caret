@@ -9,6 +9,9 @@ extractPrediction <- function(
    verbose = FALSE)
 {
 
+   objectNames <- names(models)
+   if(is.null(objectNames)) objectNames <- paste("Object", 1:length(models), sep = "")
+   
    trainX <- models[[1]]$trainingData[,!(names(models[[1]]$trainingData) %in% ".outcome")]
    trainY <- models[[1]]$trainingData$.outcome  
 
@@ -21,7 +24,7 @@ extractPrediction <- function(
    }
      
    # do this differently!
-   pred <- obs <- modelName <- dataType <-  NULL
+   pred <- obs <- modelName <- dataType <- objName <- NULL
    if(!is.null(testX))
    {
       if(!is.data.frame(testX)) testX <- as.data.frame(testX)
@@ -52,6 +55,7 @@ extractPrediction <- function(
          }
          
          modelName <- c(modelName, rep(models[[i]]$method, length(tempTrainPred)))
+         objName <- c(objName, rep(objectNames[[i]], length(tempTrainPred)))
          dataType <- c(dataType, rep("Training", length(tempTrainPred)))
          
          if(!is.null(testX) & !is.null(testY))
@@ -79,6 +83,7 @@ extractPrediction <- function(
             }
            
             modelName <- c(modelName, rep(models[[i]]$method, length(tempTestPred)))
+            objName <- c(objName, rep(objectNames[[i]], length(tempTestPred)))         
             dataType <- c(dataType, rep("Test", length(tempTestPred)))   
             
          }
@@ -109,6 +114,7 @@ extractPrediction <- function(
          }
         
          modelName <- c(modelName, rep(models[[i]]$method, length(tempUnkPred)))
+         objName <- c(objName, rep(objectNames[[i]], length(tempUnkPred)))             
          dataType <- c(dataType, rep("Unknown", length(tempUnkPred)))   
          
       }
@@ -120,6 +126,6 @@ extractPrediction <- function(
       obs <- factor(obs, levels = obsLevels)
    }
    
-   data.frame(obs = obs, pred = pred, model = modelName, dataType = dataType)
+   data.frame(obs = obs, pred = pred, model = modelName, dataType = dataType, object = objName)
 }
 

@@ -454,3 +454,10 @@ predictors.smda <- function(x, ...)
     if(is.null(out)) out <- varIndex
     out
   }
+
+predictors.stepclass <- function(x, ...)
+  {
+    form <- x$formula
+    form[[2]] <- NULL
+    all.vars(form)
+  }

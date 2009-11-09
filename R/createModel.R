@@ -55,7 +55,7 @@
                    "sddaLDA", "sddaQDA", "glmnet", "slda", "spls", "smda",
                    "qda", "relaxo", "lars", "lars2", "rlm", "vbmpRadial",
                    "superpc", "ppr", "sda", "penalized", "sparseLDA",
-                   "obliqueTree", "nodeHarvest"))
+                   "nodeHarvest", "Linda", "QdaCov", "stepLDA", "stepQDA"))
     {
       trainX <- data[,!(names(data) %in% ".outcome")]
       trainY <- data[,".outcome"] 
@@ -1020,7 +1020,7 @@
                        library(spls)
                        if(is.factor(trainY))
                          {
-                           splsda(trainX, trainY, K = tuneValue$.K, eta = tuneValue$.eta,
+                           caret:::splsda(trainX, trainY, K = tuneValue$.K, eta = tuneValue$.eta,
                                   kappa = tuneValue$.kappa, ...)
                          } else {
                            spls(trainX, trainY, K = tuneValue$.K, eta = tuneValue$.eta,
@@ -1204,7 +1204,49 @@
                                               ...)                          
                          }
                        out                        
-                       }
+                       },
+                     Linda =
+                     {
+                       library(rrcov)
+                       Linda(trainX, trainY, ...)
+                     },
+                     QdaCov =
+                     {
+                       library(rrcov)
+                       QdaCov(trainX, trainY, ...)
+                     },
+                     stepLDA =
+                     {
+                       library(klaR)
+                       library(MASS)
+                       out <- stepclass(trainX, trainY,
+                                 method = "lda",
+                                 maxvar = tuneValue$.maxvar,
+                                 direction = as.character(tuneValue$.direction),
+                                 ...)
+                       out$fit <- lda(trainX[, predictors(out), drop = FALSE],
+                                      trainY,
+                                      ...)
+                       out
+                     },
+                     stepQDA =
+                     {
+                       library(klaR)
+                       library(MASS)
+                       out <- stepclass(trainX, trainY,
+                                 method = "qda",
+                                 maxvar = tuneValue$.maxvar,
+                                 direction = as.character(tuneValue$.direction),
+                                 ...)
+                       out$fit <- qda(trainX[, predictors(out), drop = FALSE],
+                                      trainY,
+                                      ...)
+                       out
+                     }
+
+
+
+                     
                      )
   
 
@@ -1222,7 +1264,7 @@
                                       "lssvmRadial", "lssvmPoly", "lssvmLinear",
                                       "gaussprRadial", "gaussprPoly", "gaussprLinear",
                                       "ctree", "ctree2", "cforest",
-                                      "penalized"))))
+                                      "penalized", "Linda", "QdaCov"))))
     {
       modelFit$xNames <- xNames
       modelFit$problemType <- type

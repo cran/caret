@@ -148,7 +148,12 @@ modelLookup <- function(model = NULL)
                            "smda", "smda", "smda",
                            "pcr",
                            "obliqueTree", "obliqueTree",
-                           "nodeHarvest", "nodeHarvest"
+                           "nodeHarvest", "nodeHarvest",
+                           "Linda",
+                           "QdaCov",
+                           "glmrob",
+                           "stepLDA", "stepLDA",
+                           "stepQDA", "stepQDA"
                            ),
                          parameter = c(
                            "parameter",      
@@ -231,7 +236,12 @@ modelLookup <- function(model = NULL)
                            "NumVars", "R", "lambda",
                            "ncomp",
                            "oblique.splits", "variable.selection",
-                           "maxinter", "mode"
+                           "maxinter", "mode",      
+                           "parameter",
+                           "parameter",
+                           "parameter",
+                           "maxvar", "direction",
+                           "maxvar", "direction"
                            ),
                          label = I(c(
                            "none",      
@@ -316,7 +326,12 @@ modelLookup <- function(model = NULL)
                           "# Predictors",  "# Subclasses", "Lambda",
                            "#Components",
                            "Oblique Splits", "Variable Selection Method",
-                           "Maximum Interaction Depth", "Prediction Mode"
+                           "Maximum Interaction Depth", "Prediction Mode",      
+                           "none",
+                           "none",
+                           "none",
+                           "Maximum #Variables", "Search Direction" ,
+                           "Maximum #Variables", "Search Direction"
                            )),
                          seq = c(
                            FALSE,
@@ -397,6 +412,11 @@ modelLookup <- function(model = NULL)
                            FALSE,
                            FALSE, FALSE, FALSE,
                            TRUE,
+                           FALSE, FALSE,
+                           FALSE, FALSE,
+                           FALSE,
+                           FALSE,
+                           FALSE,
                            FALSE, FALSE,
                            FALSE, FALSE
                            ),
@@ -480,7 +500,12 @@ modelLookup <- function(model = NULL)
                            FALSE, FALSE, FALSE,
                            TRUE,               ## PCR
                            FALSE, FALSE,
-                           TRUE,  TRUE
+                           TRUE,  TRUE,
+                           FALSE,
+                           FALSE,
+                           TRUE,
+                           FALSE, FALSE,
+                           FALSE, FALSE
                            ),               
                          forClass =          
                          c(
@@ -562,6 +587,11 @@ modelLookup <- function(model = NULL)
                            TRUE,
                            TRUE, TRUE, TRUE,
                            FALSE,
+                           TRUE, TRUE,
+                           TRUE, TRUE,
+                           TRUE,
+                           TRUE,
+                           TRUE,
                            TRUE, TRUE,
                            TRUE, TRUE
                            ),
@@ -645,7 +675,12 @@ modelLookup <- function(model = NULL)
                            FALSE, FALSE, FALSE, ## not yet
                            FALSE,              ## pcr
                            TRUE, TRUE,
-                           TRUE, TRUE
+                           TRUE, TRUE,
+                           TRUE,              ## Linda
+                           TRUE,              ## QdaCov
+                           TRUE,              ## glmrob
+                           TRUE, TRUE,        ## stepLDA
+                           TRUE, TRUE        ## stepQDA
                            ),
                          stringsAsFactors  = FALSE               
                          )         
@@ -950,7 +985,7 @@ getClassLevels <- function(x)
                                         "lssvmRadial", "lssvmPoly", "lssvmLinear",
                                         "gaussprRadial", "gaussprPoly", "gaussprLinear",
                                         "ctree", "ctree2", "cforest",
-                                        "penalized")))
+                                        "penalized", "Linda", "QdaCov")))
        
       {
         obsLevels <- switch(tolower(x$method),
@@ -962,6 +997,11 @@ getClassLevels <- function(x)
                             {
                               library(kernlab)
                               lev(x$finalModel)
+                            },
+
+                            linda =, qdacov = 
+                            {
+                              names(x$finalModel@prior)
                             },
                             
                             ctree =, ctree2 =, cforest =

@@ -5,7 +5,7 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
   coerceChar <- function(x)  as.data.frame(lapply(x, as.character), stringsAsFactors = FALSE)
   
   predictedValue <- switch(method,
-                           lda =, rda =, gpls =, slda =, qda = 
+                           lda =, rda =, gpls =, slda =, qda =
                            {
                              switch(method,
                                     lda =, qda = library(MASS),
@@ -514,7 +514,7 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
                                {
                                  predict(modelFit, newdata)
                                } else {
-                                 as.character(predict(modelFit, newdata, type = "class"))
+                                 as.character(caret:::predict.splsda(modelFit, newdata, type = "class"))
                                }
                            },
                            sda =
@@ -686,9 +686,21 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
                                  prbs <- predict(modelFit, as.matrix(newdata), maxshow = 0)
                                  ifelse(prbs > .5, modelFit$obsLevels[1], modelFit$obsLevels[2])
                                }
+                           },
+                           Linda =, QdaCov =
+                           {
+                             library(rrcov)
+                             predict(modelFit, newdata)@classification
+                           },                           
+                           stepLDA =, stepQDA =
+                           {
+                             library(MASS)
+                             as.character(
+                                          predict(modelFit$fit,
+                                                  newdata[,  predictors(modelFit), drop = FALSE])$class)
                            }
-  )
-predictedValue
+                           )
+  predictedValue
 }
 
 

@@ -1,36 +1,59 @@
-plotClassProbs <- function(object, ...)
+plotClassProbs <- function(object,
+                           plotType = "histogram",
+                           useObjects = FALSE,
+                           ...)
 {
-   classCol <- !(names(object) %in% c("obs", "pred", "model", "dataType"))
-   if(sum(classCol) == 2)
-   {
-      probLabel <- levels(object$obs)[1]
-      object$obs <- factor(paste("Data:", object$obs), levels = paste("Data:", levels(object$obs)))
-      histForm <- paste("~", names(object)[1], "|")
-      if(length(unique(object$dataType)) > 1) histForm <- paste(histForm, "dataType *")
-      histForm <- paste(histForm, "obs")
-      if(length(unique(object$model)) > 1) histForm <- paste(histForm, "* model")      
-      histForm <- as.formula(histForm)
-      histLabel <- paste("Probability of", probLabel)
+  library(reshape)
+
+  obsLevels <- levels(object$obs)
+
+
+  stackProbs <- melt(object, id.vars = c("obs", "model", "object", "dataType"),
+                     measure.vars = if(length(obsLevels) == 2) obsLevels[1] else obsLevels)
+  names(stackProbs)[names(stackProbs) == "variable"] <- "Class"
+  names(stackProbs)[names(stackProbs) == "value"] <- "Probability"
+  names(stackProbs)[names(stackProbs) == "obs"] <- "Observed"
+  stackProbs$Observed <- paste("Data:", as.character(stackProbs$Observed))
+  stackProbs$Class <- paste("Prob:", as.character(stackProbs$Class))
+  
+  keepVars <- "Observed"
+  if(length(unique(stackProbs$dataType)) > 1) keepVars <- c(keepVars, "dataType")
+  if(length(unique(stackProbs$model)) > 1) keepVars <- c(keepVars, "model")     
+
+  if(any(names(object) == "object") & useObjects)
+    {
+      if(length(unique(stackProbs$object)) > 1) keepVars <- c(keepVars, "object")
+    }
+
+  if(plotType == "histogram")
+    {
+      form <- if(length(obsLevels) == 2)
+        {
+          form <- if(length(keepVars) > 0) paste("~ Probability|", paste(keepVars, collapse = "*")) else "~ Probability"
+          form <- as.formula(form)
+          out <- histogram(form,
+                           data = stackProbs,
+                           xlab = paste("Probability of", obsLevels[1]),
+                           ...)
+          
+        } else {
+          form <- if(length(keepVars) > 0) paste("~ Probability|Class*", paste(keepVars, collapse = "*")) else "~ Probability|Class"
+                    form <- as.formula(form)
+          out <- histogram(form,
+                           data = stackProbs,
+                           ...)
+        }
       
-      out <- histogram(histForm, object, xlab = histLabel, ...)
 
-   } else {
-   
-      classCol <- !(names(object) %in% c("obs", "pred", "model", "dataType"))
-      stackProbs <- stack(object[, 1:sum(classCol)])
-      stackProbs$obs <- rep(
-         paste("Data:", object$obs), sum(classCol))
-      stackProbs$ind <- paste("Model:", stackProbs$ind)         
-      stackProbs$dataType <- rep(object$dataType, sum(classCol))
-      stackProbs$model <- rep(object$model, sum(classCol))      
-      histForm <- "~ values|ind*obs"
-      if(length(unique(object$dataType)) > 1) histForm <- paste(histForm, "* dataType")
-      if(length(unique(object$model)) > 1) histForm <- paste(histForm, "* model")      
-      histForm <- as.formula(histForm)
-      out <- histogram(histForm,  stackProbs, nint = 20, 
-         xlab = "Class Probability", as.table = TRUE, ...)
-   }
+      
+    } else {
+      keepVars <- keepVars[keepVars != "Observed"]
+      form  <- if(length(keepVars) > 0) paste("~ Probability|", paste(keepVars, collapse = "*")) else "~ Probability"
+      form <- as.formula(form)
 
-out
+      out <- densityplot(form, data = stackProbs, groups = Observed, ...)
+      
+    }
+  out
 }
 

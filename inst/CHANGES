@@ -1,4 +1,34 @@
 -------------------
+Version: 4.30
+Date: 2009-11-09
+
+For whatever reason, there is now a function in the spls package
+by the name of splsda that does the same thing. A few functions
+and a man page were changed to ensure backwards compatibility.
+
+-------------------
+Version: 4.29
+Date: 2009-11-06
+
+Added stepwise variable selection for lda and qda using the 
+stepclass function in klaR
+
+-------------------
+Version: 4.28
+Date: 2009-11-05
+
+Added robust linear and quadratic discriminant analysis functions 
+from rrcov.
+
+Also added another column to the output of extractPRob and 
+extractPrediction that saves the name of the model object so
+that you can have multiple models of the same type and tell
+which predictions came from which model.
+
+Changes were made to plotClassProbs: new parameters were added
+and densityplots can now be produced.
+
+-------------------
 Version: 4.27
 Date: 2009-11-01
 
