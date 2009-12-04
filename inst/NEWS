@@ -1,4 +1,20 @@
 -------------------
+Version: 4.31
+Date: 2009-12-04
+
+Added a new feature selection function, sbf (for selection by filter).
+
+Fixed bug in rfe that did not affect the results, but did produce
+a warning.
+
+A new model function, nullModel, was added. This model fits either the
+mean only model for regression or the majority class model for classification.
+
+Also, ldaFuncs had a bug fixed.
+
+Minor changes to Rd files
+
+-------------------
 Version: 4.30
 Date: 2009-11-09
 
@@ -224,7 +240,7 @@ random forest OOB resampling
 There are more examples in ?train.
 
 Changes to confusionMatrix, sensitivity, specificity and the 
-predicitive value functions:
+predictive value functions:
 
   - each was made more generic with default and table methods
   - confusionMatrix "extractor" functions for matrices and tables 

@@ -1,9 +1,3 @@
-## todo:
-## - re-write most of the documentation
-## - test with many models
-## - convert outer resample to lapply for easy parallelization
-## - check lda ranking function
-## - write man pages for lattice functions
 
 rfeIter <- function(x, y,
                     testX, testY, sizes,
@@ -99,7 +93,13 @@ rfeWrapper <- function(X)
 
 rfeChunk <- function(inTrain, x, y, cntl, sizes, ...)
   {
-    j <- which(unlist(lapply(cntl$index, function(x, y) all(x == y), y = inTrain)))
+    findMatch <- function(x, y)
+      {
+        if(length(x) != length(y)) return(FALSE)
+        all(x == y)
+      }
+    
+    j <- which(unlist(lapply(cntl$index, findMatch, y = inTrain)))
     if(length(j) == 0) stop("can't figure out which resample iteration this is")
 
     if(cntl$verbose) cat("\nExternal resampling iter:\t", j, "\n")
@@ -324,7 +324,7 @@ print.rfe <- function(x, top = 5, digits = max(3, getOption("digits") - 3), ...)
              "cv" = "cross-validation."),
       "\n")
 
-  cat("\nResampling perfromance over subset size:\n\n")
+  cat("\nResampling performance over subset size:\n\n")
   x$results$Selected <- ""
   x$results$Selected[x$results$Variables == x$bestSubset] <- "*"
   print(format(x$results, digits = digits), row.names = FALSE)
@@ -492,14 +492,15 @@ ldaFuncs <- list(summary = defaultSummary,
                  rank = function(object, x, y)
                  {
                    vimp <- filterVarImp(x, y, TRUE)
-                   avImp <- apply(vimp, 1, mean)
+                   
+                   vimp$Overall <- apply(vimp, 1, mean)
                    vimp <- vimp[
-                                order(avImp, decreasing = TRUE)
+                                order(vimp$Overall, decreasing = TRUE)
                                 ,]
                    
-                   vimp <- as.data.frame(vimp)[,1,drop = FALSE]
+                   vimp <- as.data.frame(vimp)[, "Overall",drop = FALSE]
                    vimp$var <- rownames(vimp)
-                   names(vimp) <- "Overall"
+                   vimp
                    
                  },
                  selectSize = pickSizeBest,

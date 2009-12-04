@@ -119,7 +119,24 @@ export(
        knnreg.default,
        knnreg.matrix,
        knnreg.data.frame,
-       predict.knnreg
+       predict.knnreg,
+       sbfControl,
+       sbf,
+       sbf.default,
+       sbf.formula,
+       caretSBF,
+       rfSBF,
+       lmSBF,
+       ldaSBF,
+       nbSBF,
+       treebagSBF,
+       anovaFilter,
+       gamFilter,
+       nullModel,
+       nullModel.default,
+       predict.nullModel,
+       anovaFilter,
+       gamFilter
        )
 
 S3method(confusionMatrix, default)
@@ -140,11 +157,14 @@ S3method(negPredValue,    default)
 S3method(rfe,             default)
 S3method(classDist,       default)
 S3method(knnreg,          default)
+S3method(sbf,             default)
+S3method(nullModel,       default)
 
 S3method(train,   formula)
 S3method(pcaNNet, formula)
 S3method(rfe,     formula)
 S3method(knnreg,  formula)
+S3method(sbf,     formula)
 
 S3method(varImp, train)
 S3method(varImp, rpart)
@@ -159,6 +179,7 @@ S3method(varImp, earth)
 S3method(varImp, bagEarth)
 S3method(varImp, RandomForest)
 S3method(varImp, rfe)
+S3method(varImp, sbf)
 
 S3method(densityplot, train)
 S3method(histogram,   train)
@@ -169,6 +190,9 @@ S3method(densityplot, rfe)
 S3method(histogram,   rfe)
 S3method(stripplot,   rfe)
 S3method(xyplot,      rfe)
+
+S3method(densityplot, sbf)
+S3method(histogram,   sbf)
 
 S3method(plot,  train)
 S3method(plot,  varImp.train)
@@ -189,6 +213,8 @@ S3method(print, pcaNNet)
 S3method(print, rfe)
 S3method(print, classDist)
 S3method(print, knnreg)
+S3method(print, sbf)
+S3method(print, nullModel)
 
 S3method(predict, PLS)
 S3method(predict, plsda)
@@ -202,6 +228,7 @@ S3method(predict, list)
 S3method(predict, train)
 S3method(predict, classDist)
 S3method(predict, knnreg)
+S3method(predict, nullModel)
 
 S3method(summary, bagEarth)
 S3method(summary, bagFDA)
@@ -256,6 +283,8 @@ S3method(predictors, penfit)
 S3method(predictors, lars)
 S3method(predictors, sda)
 S3method(predictors, smda)
+S3method(predictors, sbf)
+
 S3method(confusionMatrix, table)
 
 S3method(sensitivity, table)
