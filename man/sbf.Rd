@@ -1,0 +1,75 @@
+\name{sbf}
+\alias{sbf}
+\alias{sbf.default}
+\alias{sbf.formula}
+\alias{predict.sbf}
+\title{
+Selection By Filtering (SBF)
+}
+\description{
+Model fitting after applying univariate filters}
+
+\usage{
+sbf(x, ...)
+
+\method{sbf}{default}(x, y, sbfControl = sbfControl(), ...)
+
+\method{sbf}{formula}(form, data, ..., subset, na.action, contrasts = NULL) 
+
+}
+
+\arguments{
+  \item{x}{a data frame containing training data where samples are in rows and features are in columns.}
+  \item{y}{a numeric or factor vector containing the outcome for each sample.}
+\item{form}{A formula of the form \code{y ~ x1 + x2 + ...}}
+\item{data}{Data frame from which variables specified in \code{formula} are preferentially to be taken.}
+\item{subset}{An index vector specifying the cases to be used in the training sample. (NOTE: If given, this argument must be named.)}
+\item{na.action}{A function to specify the action to be taken if NAs are found. The default action is for the procedure to fail. An alternative is na.omit, which leads to rejection of cases with missing values on any required variable. (NOTE: If given, this argument must be named.)}
+\item{contrasts}{a list of contrasts to be used for some or all of the factors appearing as variables in the model formula.}
+  \item{\ldots}{ arguments passed to the classification or regression routine (such as \code{\link[randomForest]{randomForest}}).}  
+  \item{sbfControl}{a list of values that define how this function acts. See \code{\link{sbfControl}}. (NOTE: If given, this argument must be named.)}
+}
+
+\details{
+This function can be used to get resampling estimates for models when simple, filter-based feature selection is applied to the training data.
+
+For each iteration of resampling, the predictor variables are univariately filtered prior to modeling. Performance of this approach is estimated using resampling. The same filter and model are then applied to the entire training set and the final model (and final features) are saved.
+
+The modeling and filtering techniques are specified in \code{\link{sbfControl}}. Example functions are given in \code{\link{lmSBF}}.
+
+}
+\value{
+An object of class \code{sbf} with elements:
+  \item{pred}{if \code{sbfControl$saveDetails} is \code{TRUE}, this is a list of predictions for the hold-out samples at each resampling iteration. Otherwise it is \code{NULL}}
+  \item{variables}{a list of variable names that survived the filter at each resampling iteration}
+  \item{results}{a data frame of results aggregated over the resamples}
+  \item{fit}{the final model fit with only the filtered variables}
+  \item{optVariables}{the names of the variables that survived the filter using the training set}
+  \item{ call}{the function call}
+  \item{control}{the control object}
+  \item{resample}{if \code{sbfControl$returnResamp} is "all", a data frame of the resampled performance measures. Otherwise, \code{NULL}}
+  \item{metrics}{a character vector of names of the performance measures}
+  \item{dots}{a list of optional arguments that were passed in}
+}
+
+\author{
+Max Kuhn
+}
+
+\seealso{
+\code{\link{sbfControl}}, \code{\link{sbfControl}}
+}
+\examples{
+data(BloodBrain)
+
+## Use a GAM is the filter, then fit a random forest model
+RFwithGAM <- sbf(bbbDescr, logBBB,
+                 sbfControl = sbfControl(functions = rfSBF,
+                                         verbose = FALSE, 
+                                         method = "cv"))
+RFwithGAM
+
+}
+
+\keyword{models}
+
