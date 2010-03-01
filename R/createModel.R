@@ -55,14 +55,15 @@
                    "sddaLDA", "sddaQDA", "glmnet", "slda", "spls", "smda",
                    "qda", "relaxo", "lars", "lars2", "rlm", "vbmpRadial",
                    "superpc", "ppr", "sda", "penalized", "sparseLDA",
-                   "nodeHarvest", "Linda", "QdaCov", "stepLDA", "stepQDA"))
+                   "nodeHarvest", "Linda", "QdaCov", "stepLDA", "stepQDA",
+                   "parRF", "plr"))
     {
       trainX <- data[,!(names(data) %in% ".outcome")]
       trainY <- data[,".outcome"] 
     }
   
-  if(method == "gbm" & type == "Classification") 
-    gbmClasses <- ifelse(trainY == obsLevels[1], 1, 0)
+  if(method %in% c("gbm", "plr") & type == "Classification") 
+    numClasses <- ifelse(trainY == obsLevels[1], 1, 0)
 
   xNames <- names(data)[!(names(data) %in% ".outcome")]
   
@@ -90,7 +91,7 @@
 
                        ## check to see if weights were passed in (and availible)
                        if(!is.null(modelWeights)) theDots$w <- modelWeights                      
-                       modY <- if(type == "Classification") gbmClasses else trainY
+                       modY <- if(type == "Classification") numClasses else trainY
 
                        modArgs <- list(x = trainX,
                                        y = modY,
@@ -1242,10 +1243,72 @@
                                       trainY,
                                       ...)
                        out
+                     },
+                     parRF =
+                     {
+                       library(foreach)
+                       library(randomForest)
+                       
+                       workers <- getDoParWorkers()
+                       
+                       theDots <- list(...)
+
+                       theDots$ntree <- if(is.null(theDots$ntree)) 250 else theDots$ntree
+
+                       theDots$x <- trainX
+                       theDots$y <- trainY
+                       theDots$mtry <- tuneValue$.mtry
+                       theDots$ntree <- ceiling(theDots$ntree/workers)                       
+                   
+                       out <- foreach(ntree = 1:workers, .combine = combine) %dopar% {
+                         library(randomForest)
+                         do.call("randomForest", theDots)
+                       }
+                       out$call["x"] <- "x"
+                       out$call["y"] <- "y"
+                       out
+                     },
+                     plr =
+                     {
+                       library(stepPlr)
+                       out <- plr(trainX, numClasses,
+                                  lambda = tuneValue$.lambda,
+                                  cp = as.character(tuneValue$.cp),
+                                  ...)
+                       out
+                     },
+                     GAMens =
+                     {
+                       library(GAMens)
+                       modParam <- list(formula = modFormula,
+                                        data = data,
+                                        autoform = TRUE,
+                                        rsm_size =tuneValue$.rsm_size,
+                                        rsm = ifelse(tuneValue$.rsm_size > 0, TRUE, FALSE),
+                                        iter = tuneValue$.iter,
+                                        bagging = ifelse(tuneValue$.iter > 0, TRUE, FALSE),
+                                        fusion = tuneValue$.fusion)
+                       theDots <- list(...)
+                       if(any(names(theDots) == "autoform"))
+                         {
+                           warning("autoform is automatically set to TRUE by train()")
+                           theDots$autoform <- NULL
+                         }
+                       if(any(names(theDots) == "rsm"))
+                         {
+                           warning("rsm is automatically set using the rsm_size parameter by train()")
+                           theDots$rsm <- NULL
+                         }
+                       if(any(names(theDots) == "bagging"))
+                         {
+                           warning("bagging is automatically set using the rsm_size parameter by train()")
+                           theDots$bagging <- NULL
+                         }
+                       modParam <- c(modParam, theDots)
+                       out <- do.call("GAMens", modParam)
+                       ## "fix" call afterwords?
+                       out  
                      }
-
-
-
                      
                      )
   

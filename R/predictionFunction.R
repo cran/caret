@@ -54,7 +54,7 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
                              out
                            },
                            
-                           rf =
+                           rf =, parRF =
                            {
                              if(modelFit$problemType == "Classification")
                                {
@@ -698,6 +698,18 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
                              as.character(
                                           predict(modelFit$fit,
                                                   newdata[,  predictors(modelFit), drop = FALSE])$class)
+                           },
+                           plr =
+                           {
+                             library(stepPlr)
+                             ifelse(predict(modelFit, as.matrix(newdata), type = "class") == 1,
+                                    modelFit$obsLevels[1],
+                                    modelFit$obsLevels[2])
+                           },
+                           GAMens =
+                           {
+                             library(GAMens)
+                             predict(modelFit, newdata)$class[,1]
                            }
                            )
   predictedValue
