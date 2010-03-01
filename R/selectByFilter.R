@@ -329,7 +329,7 @@ anovaFilter <- function(x, y, cut = 0.05)
 gamFilter <- function(x, y, cut = 0.05)
   {
     library(gam)
-    pv <- try(anova(gam(x ~ s(y)), test = "F")[2, "Pr(F)"], silent = TRUE)
+    pv <- try(anova(gam(y ~ s(x)), test = "F")[2, "Pr(F)"], silent = TRUE)
     if(any(class(pv) == "try-error")) pv <- try(anova(lm(x ~ y), test = "F")[1, "Pr(>F)"], silent = TRUE)
     if(any(class(pv) == "try-error") || is.na(pv) || is.nan(pv)) pv <- Inf
     pv <= cut
@@ -518,7 +518,7 @@ histogram.sbf <- function(x,
 ######################################################################
 ## other functions
 
-predictors.sbf <- function(x, ...) unique(unlist(x$variables))
+predictors.sbf <- function(x, ...) x$optVariables
 
 varImp.sbf <- function(object, onlyFinal = TRUE, ...)
   {

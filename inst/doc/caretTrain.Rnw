@@ -304,7 +304,12 @@ There is additional functionality in \texttt{train} that is described in the nex
          \texttt{rf} & 
             \texttt{randomForest}       & 
             \texttt{mtry} \\
-                        
+  
+        & 
+         \texttt{parRF} & 
+            \texttt{randomForest}, \texttt{foreach}       & 
+            \texttt{mtry} \\              
+            
        & 
          \texttt{cforest} & 
             \texttt{party}       & 
@@ -564,6 +569,12 @@ There is additional functionality in \texttt{train} that is described in the nex
             \texttt{nnet}       & 
             \texttt{decay}& \\   
       \: \: Regression \\ 
+      
+   &
+         \texttt{plr} & 
+            \texttt{stepPlr}       & 
+            \texttt{lambda}, \texttt{cp} & \\     
+            
       
       LogitBoost &      
          \texttt{logitBoost} & 

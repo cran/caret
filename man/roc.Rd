@@ -20,13 +20,12 @@ roc(data, class, dataGrid = TRUE, gridLength = 100, positive = levels(class)[1])
    A matrix of results with columns "cutoff", "sensitivity" and "specificity"
 }
 \author{Max Kuhn}
-\note{The first row in the output has a cutoff of \code{NA}, zero sensitivity and specificity of one.}
+\note{The first row in the output has a cutoff of \code{NA}, zero specificity and sensitivity of one.}
 
 \seealso{\code{\link{sensitivity}}, \code{\link{specificity}}, \code{\link{aucRoc}}}
 \examples{
 set.seed(6)
-testData <- data.frame(
-                       x = c(rnorm(200), rnorm(200) + 1),
+testData <- data.frame(x = c(rnorm(200), rnorm(200) + 1),
                        group = factor(rep(letters[1:2], each = 200)))
    
 densityplot(~testData$x, groups = testData$group, auto.key = TRUE)   

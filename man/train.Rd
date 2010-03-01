@@ -31,7 +31,7 @@ train(x, ...)
 \item{subset}{An index vector specifying the cases to be used in the training sample. (NOTE: If given, this argument must be named.)}
 \item{na.action}{A function to specify the action to be taken if NAs are found. The default action is for the procedure to fail. An alternative is na.omit, which leads to rejection of cases with missing values on any required variable. (NOTE: If given, this argument must be named.)}
 \item{contrasts}{a list of contrasts to be used for some or all of the factors appearing as variables in the model formula.}
-  \item{method}{a string specifying which classification or regression model to use. Possible values are: \code{ada}, \code{bagEarth}, \code{bagFDA}, \code{blackboost}, \code{cforest}, \code{ctree}, \code{ctree2}, \code{earth}, \code{enet}, \code{fda}, \code{gamboost}, \code{gaussprPoly}, \code{gaussprRadial}, \code{gaussprLinear}, \code{gbm}, \code{glm}, \code{glmboost}, \code{glmnet}, \code{gpls}, \code{J48}, \code{JRip}, \code{knn}, \code{lars}, \code{lasso}, \code{lda}, \code{Linda}, \code{lm}, \code{lmStepAIC}, \code{LMT}, \code{logitBoost}, \code{lssvmPoly}, \code{lssvmRadial}, \code{lvq}, \code{M5Rules}, \code{mda}, \code{multinom}, \code{nb}, \code{nnet}, \code{nodeHarvest}, \code{OneR}, \code{pam}, \code{pcaNNet}, \code{pcr}, \code{pda}, \code{pda2}, \code{penalized}, \code{pls}, \code{ppr}, \code{qda}, \code{QdaCov}, \code{rda}, \code{rf}, \code{rlm}, \code{rpart}, \code{rvmLinear}, \code{rvmPoly}, \code{rvmRadial}, \code{sda}, \code{sddaLDA}, \code{sddaQDA}, \code{slda}, \code{smda}, \code{sparseLDA}, \code{spls}, \code{stepLDA}, \code{stepQDA}, \code{superpc}, \code{svmPoly}, \code{svmRadial}, \code{svmLinear}, \code{treebag} and  \code{vbmpRadial}. See the Details section below.}  
+  \item{method}{a string specifying which classification or regression model to use. Possible values are: \code{ada}, \code{bagEarth}, \code{bagFDA}, \code{blackboost}, \code{cforest}, \code{ctree}, \code{ctree2}, \code{earth}, \code{enet}, \code{fda}, \code{gamboost}, \code{gaussprPoly}, \code{gaussprRadial}, \code{gaussprLinear}, \code{gbm}, \code{glm}, \code{glmboost}, \code{glmnet}, \code{gpls}, \code{J48}, \code{JRip}, \code{knn}, \code{lars}, \code{lasso}, \code{lda}, \code{Linda}, \code{lm}, \code{lmStepAIC}, \code{LMT}, \code{logitBoost}, \code{lssvmPoly}, \code{lssvmRadial}, \code{lvq}, \code{M5Rules}, \code{mda}, \code{multinom}, \code{nb}, \code{nnet}, \code{nodeHarvest}, \code{OneR}, \code{pam}, \code{parRF}, \code{pcaNNet}, \code{pcr}, \code{pda}, \code{pda2}, \code{penalized}, \code{plr}, \code{pls}, \code{ppr}, \code{qda}, \code{QdaCov}, \code{rda}, \code{rf}, \code{rlm}, \code{rpart}, \code{rvmLinear}, \code{rvmPoly}, \code{rvmRadial}, \code{sda}, \code{sddaLDA}, \code{sddaQDA}, \code{slda}, \code{smda}, \code{sparseLDA}, \code{spls}, \code{stepLDA}, \code{stepQDA}, \code{superpc}, \code{svmPoly}, \code{svmRadial}, \code{svmLinear}, \code{treebag} and  \code{vbmpRadial}. See the Details section below.}  
   \item{\ldots}{ arguments passed to the classification or regression routine (such as \code{\link[randomForest]{randomForest}}). Errors will occur if values
          for tuning parameters are passed here.}  
   \item{metric}{a string that specifies what summary metric will be used to select the optimal model. By default, possible values are "RMSE" and "Rsquared" for regression and "Accuracy" and "Kappa" for classification. If custom performance metrics are used (via the \code{summaryFunction} argument in \code{\link{trainControl}}, the value of \code{metric} should match one of the arguments. If it does not, a warning is issued and the first metric given by the \code{summaryFunction} is used. (NOTE: If given, this argument must be named.)}         
@@ -63,6 +63,7 @@ Boosted regression models \tab \code{glmboost} \tab \pkg{mboost} \tab \code{msto
 \tab \code{gamboost} \tab \pkg{mboost} \tab  \code{mstop}\cr    
 \tab \code{logitBoost} \tab \pkg{caTools} \tab  \code{nIter}\cr    
 Random forests \tab  \code{rf} \tab \pkg{randomForest} \tab \code{mtry} \cr
+\tab \code{parRF} \tab \pkg{randomForest}, \pkg{foreach} \tab \code{mtry} \cr   
 \tab \code{cforest} \tab \pkg{party} \tab \code{mtry} \cr   
 Bagged trees \tab \code{treebag} \tab \pkg{ipred} \tab None \cr 
 Node Harvest \tab \code{nodeHarvest} \tab \pkg{nodeHarvest} \tab \code{maxinter}, \code{node} \cr 
@@ -114,6 +115,7 @@ Stabilised linear discriminant analysis \tab \code{slda} \tab \pkg{ipred} \tab N
 Flexible discriminant analysis (MARS) \tab \code{fda} \tab \pkg{mda}, \pkg{earth} \tab \code{degree}, \code{nprune} \cr
 Bagged FDA \tab \code{bagFDA} \tab \pkg{caret},  \pkg{earth} \tab \code{degree}, \code{nprune} \cr  
 Logistic/multinomial regression \tab \code{multinom} \tab \pkg{nnet} \tab \code{decay}\cr 
+Penalized logistic regression \tab \code{plr} \tab \pkg{stepPlr} \tab \code{lambda}, \code{cp}\cr 
 Rule--based classification \tab \code{J48} \tab \pkg{RWeka} \tab \code{C}\cr 
  \tab \code{OneR} \tab \pkg{RWeka} \tab None\cr
  \tab \code{PART} \tab \pkg{RWeka} \tab \code{threshold}, \code{pruned}\cr
@@ -254,7 +256,21 @@ usingMPI <-  train(medv ~ .,
                    "glmboost",
                    trControl = mpiControl)
 
-stopCluster(cl)
+}
+
+################################################
+## Parallel Random Forest using foreach and doMPI
+
+\dontrun{
+library(doMPI)
+cl <- startMPIcluster(count = 5, verbose = TRUE)
+registerDoMPI(cl)
+
+rfMPI <- train(medv ~ .,
+               data = BostonHousing, 
+               "parRF")
+
+closeCluster(cl)
 }
 
 #######################################
@@ -287,6 +303,21 @@ close(sObj)
 }
 
 
+#######################################
+## Parallel Random Forest Models using
+## the foreach package and MPI
+
+\dontrun{
+library(doMPI)
+cl <- startMPIcluster(2)
+registerDoMPI(cl)
+
+set.seed(1)
+parallelRF <-  train(medv ~ .,
+                     data = BostonHousing, 
+                     "parRF")
+closeCluster(cl)
 }
 
+}
 \keyword{models}

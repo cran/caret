@@ -98,7 +98,7 @@ probFunction <- function(method, modelFit, newdata)
                         if(length(dim(out)) == 3) out <- out[,,1]
                         out
                       },
-                      rf =, rpart =, treebag  =
+                      rf =, rpart =, treebag  =, parRF =
                       {
                         library(randomForest)
                         out <- predict(modelFit, newdata, type = "prob")
@@ -280,6 +280,23 @@ probFunction <- function(method, modelFit, newdata)
                         library(MASS)
                         predict(modelFit$fit,
                                 newdata[, predictors(modelFit), drop = FALSE])$posterior
+                      },
+                      plr =
+                      {
+                        library(stepPlr)
+                        out <- predict(modelFit, newdata, type = "response")
+                        out <- cbind(out, 1-out)
+                        dimnames(out)[[2]] <-  modelFit$obsLevels
+                        out
+                      },
+                      GAMens =
+                      {
+                        library(GAMens)
+                        out <- predict(modelFit, newdata)$pred
+                        out <- cbind(1 - out, out)
+                        dimnames(out)[[2]] <-  modelFit$obsLevels
+                        out
+
                       }
                       )
 
