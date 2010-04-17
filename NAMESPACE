@@ -284,6 +284,8 @@ S3method(predictors, lars)
 S3method(predictors, sda)
 S3method(predictors, smda)
 S3method(predictors, sbf)
+S3method(predictors, trocc)
+S3method(predictors, foba)
 
 S3method(confusionMatrix, table)
 

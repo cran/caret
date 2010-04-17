@@ -1,4 +1,16 @@
 -------------------
+Version: 4.36
+Date: 2010-04-17
+
+Added penalized linear models from the foba package
+
+-------------------
+Version: 4.35
+Date: 2010-04-15
+
+Added rocc classifcation and fixed a typo.
+
+-------------------
 Version: 4.34
 Date: 2010-03-17
 

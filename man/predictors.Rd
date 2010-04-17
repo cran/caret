@@ -39,6 +39,21 @@
 \alias{predictors.terms}
 \alias{predictors.train}
 \alias{predictors.rfe}
+\alias{predictors.spls}
+\alias{predictors.glm}
+\alias{predictors.mda}
+\alias{predictors.glmnet}
+\alias{predictors.qda}
+\alias{predictors.penfit}
+\alias{predictors.lars}
+\alias{predictors.sda}
+\alias{predictors.trocc}
+\alias{predictors.foba}
+\alias{predictors.knnreg}
+\alias{predictors.ppr}
+\alias{predictors.sbf}
+\alias{predictors.smda}
+
 \title{ List predictors used in the model}
 \description{
 This class uses a model fit to determine which predictors were used in the final model.
@@ -46,83 +61,109 @@ This class uses a model fit to determine which predictors were used in the final
 \usage{
 predictors(x, ...)
 
-\method{predictors}{train}(x,  ...)
+\method{predictors}{bagEarth}(x,  ...)
 
-\method{predictors}{terms}(x,  ...)
+\method{predictors}{bagFDA}(x,  ...)
 
-\method{predictors}{formula}(x,  ...)
+\method{predictors}{BinaryTree}(x, surrogate = TRUE,  ...)
 
-\method{predictors}{list}(x,  ...)
+\method{predictors}{blackboost}(x,  ...)
 
-\method{predictors}{mvr}(x,  ...)
-
-\method{predictors}{gbm}(x,  ...)
-
-\method{predictors}{Weka_classifier}(x,  ...)
-
-\method{predictors}{fda}(x,  ...)
+\method{predictors}{classbagg}(x, surrogate = TRUE,  ...)
 
 \method{predictors}{earth}(x,  ...)
 
+\method{predictors}{fda}(x,  ...)
+
+\method{predictors}{foba}(x,  k = NULL, ...)
+
+\method{predictors}{formula}(x,  ...)
+
+\method{predictors}{gamboost}(x,  ...)
+
 \method{predictors}{gausspr}(x,  ...)
 
-\method{predictors}{ksvm}(x,  ...)
+\method{predictors}{gbm}(x,  ...)
 
-\method{predictors}{lssvm}(x,  ...)
+\method{predictors}{glm}(x,  ...)
 
-\method{predictors}{rvm}(x,  ...)
+\method{predictors}{glmboost}(x,  ...)
 
-\method{predictors}{train}(x,  ...)
+\method{predictors}{glmnet}(x,  lambda = NULL, ...)
 
 \method{predictors}{gpls}(x,  ...)
 
 \method{predictors}{knn3}(x,  ...)
 
-\method{predictors}{LogitBoost}(x,  ...)
+\method{predictors}{knnreg}(x,  ...)
+
+\method{predictors}{ksvm}(x,  ...)
+
+\method{predictors}{lars}(x,  s = NULL, ...)
 
 \method{predictors}{lda}(x,  ...)
 
-\method{predictors}{rda}(x,  ...)
+\method{predictors}{list}(x,  ...)
+
+\method{predictors}{lm}(x,  ...)
+
+\method{predictors}{LogitBoost}(x,  ...)
+
+\method{predictors}{lssvm}(x,  ...)
+
+\method{predictors}{mda}(x,  ...)
 
 \method{predictors}{multinom}(x,  ...)
 
-\method{predictors}{nnet}(x,  ...)
-
-\method{predictors}{pcaNNet}(x,  ...)
+\method{predictors}{mvr}(x,  ...)
 
 \method{predictors}{NaiveBayes}(x,  ...)
 
-\method{predictors}{randomForest}(x,  ...)
+\method{predictors}{nnet}(x,  ...)
 
 \method{predictors}{pamrtrained}(x, newdata = NULL, threshold = NULL, ...)
 
-\method{predictors}{superpc}(x, newdata = NULL, threshold = NULL, n.components = NULL, ...)
+\method{predictors}{pcaNNet}(x,  ...)
 
-\method{predictors}{slda}(x,  ...)
+\method{predictors}{penfit}(x,  ...)
 
-\method{predictors}{rpart}(x, surrogate = TRUE,  ...)
+\method{predictors}{ppr}(x, ...)
 
-\method{predictors}{regbagg}(x, surrogate = TRUE,  ...)
+\method{predictors}{qda}(x,  ...)
 
-\method{predictors}{classbagg}(x, surrogate = TRUE,  ...)
-
-\method{predictors}{glmboost}(x,  ...)
-
-\method{predictors}{gamboost}(x,  ...)
-
-\method{predictors}{blackboost}(x,  ...)
-
-\method{predictors}{BinaryTree}(x, surrogate = TRUE,  ...)
+\method{predictors}{randomForest}(x,  ...)
 
 \method{predictors}{RandomForest}(x, surrogate = TRUE,  ...)
 
-\method{predictors}{bagEarth}(x,  ...)
+\method{predictors}{rda}(x,  ...)
 
-\method{predictors}{bagFDA}(x,  ...)
-
-\method{predictors}{ppr}(x,  ...)
+\method{predictors}{regbagg}(x, surrogate = TRUE,  ...)
 
 \method{predictors}{rfe}(x,  ...)
+
+\method{predictors}{rpart}(x, surrogate = TRUE,  ...)
+
+\method{predictors}{rvm}(x,  ...)
+
+\method{predictors}{sbf}(x,  ...)
+
+\method{predictors}{sda}(x,  ...)
+
+\method{predictors}{slda}(x,  ...)
+
+\method{predictors}{smda}(x,  ...)
+
+\method{predictors}{spls}(x,  ...)
+
+\method{predictors}{superpc}(x, newdata = NULL, threshold = NULL, n.components = NULL, ...)
+
+\method{predictors}{terms}(x,  ...)
+
+\method{predictors}{train}(x,  ...)
+
+\method{predictors}{trocc}(x,  ...)
+
+\method{predictors}{Weka_classifier}(x,  ...)
 }
 
 \arguments{
@@ -131,12 +172,18 @@ predictors(x, ...)
   \item{threshold}{for \code{\link[pamr]{pamr.train}} and \code{\link[superpc]{superpc.train}}: the feature selection threshold}
   \item{n.components}{for \code{\link[superpc]{superpc.train}}: the number of PCA components used}
   \item{surrogate}{a logical for \code{\link[rpart]{rpart}}, \code{\link[ipred:bagging]{ipredbagg}},  \code{\link[party]{ctree}} and \code{\link[party]{cforest}}: should variables used as surrogate splits also be returned?}
+  \item{lambda}{for \code{\link[glmnet]{glmnet}}: the L1 regularization value}
+  \item{s}{for \code{\link[lars]{lars}}: the path index. See  \code{\link[lars]{predict.lars}}}
+  \item{k}{for \code{\link[foba]{foba}}: the sparsity level (i.e. the number of selected terms for the model). See  \code{\link[foba]{predict.foba}}}
+
+
+
   \item{\dots}{ not currently used }
 }
 \details{
 For \code{\link[randomForest]{randomForest}}, \code{\link[party]{cforest}}, \code{\link[party]{ctree}}, \code{\link[rpart]{rpart}}, \code{\link[ipred:bagging]{ipredbagg}},  \code{\link[ipred]{bagging}},  \code{\link[earth]{earth}},  \code{\link[mda]{fda}},  \code{\link[pamr]{pamr.train}},   \code{\link[superpc]{superpc.train}},  \code{\link{bagEarth}} and  \code{\link{bagFDA}}, an attempt was made to report the predictors that were actually used in the final model. 
 
-In cases where the predictors cannot be determined, \code{NA} is returned. For example, \code{\link[nnet]{nnet}} may retrun missing values form \code{predictors}.
+In cases where the predictors cannot be determined, \code{NA} is returned. For example, \code{\link[nnet]{nnet}} may retrun missing values from \code{predictors}.
 }
 \value{
 a character string of predictors or \code{NA}.

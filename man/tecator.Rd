@@ -3,7 +3,7 @@
 \alias{tecator}
 \alias{absorp}
 \alias{endpoints}
-\title{Fat, Water and Protein Content of Maat Samples}
+\title{Fat, Water and Protein Content of Meat Samples}
 \description{
 "These data are recorded on a Tecator Infratec Food and Feed Analyzer 
 working in the wavelength range 850 - 1050 nm by the Near Infrared 
