@@ -56,7 +56,7 @@
                    "qda", "relaxo", "lars", "lars2", "rlm", "vbmpRadial",
                    "superpc", "ppr", "sda", "penalized", "sparseLDA",
                    "nodeHarvest", "Linda", "QdaCov", "stepLDA", "stepQDA",
-                   "parRF", "plr"))
+                   "parRF", "plr", "rocc", "foba"))
     {
       trainX <- data[,!(names(data) %in% ".outcome")]
       trainY <- data[,".outcome"] 
@@ -1308,8 +1308,20 @@
                        out <- do.call("GAMens", modParam)
                        ## "fix" call afterwords?
                        out  
+                     },
+                     rocc =
+                     {
+                       library(rocc)
+                       newY <- factor(ifelse(trainY == obsLevels[1], 1, 0), levels = c("0", "1"))
+                       tr.rocc(g = t(trainX), out = newY, xgenes = tuneValue$.xgenes)
+                     },
+                     foba =
+                     {
+                       library(foba)
+                       foba(as.matrix(trainX), trainY,
+                            lambda = tuneValue$.lambda,
+                            ...)
                      }
-                     
                      )
   
 

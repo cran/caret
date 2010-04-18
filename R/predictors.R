@@ -461,3 +461,18 @@ predictors.stepclass <- function(x, ...)
     form[[2]] <- NULL
     all.vars(form)
   }
+
+
+predictors.trocc <- function(x, ...) x$genes
+
+
+predictors.foba <- function(x, k = NULL, ...)
+  {
+    if(is.null(k))
+      {
+        if(!is.null(x$tuneValue)) k <- x$tuneValue$.k[1]  else stop("Please specify k")
+      }
+    library(foba)
+    names(predict(x, k = k, type = "coefficients")$selected.variables)
+  }
+
