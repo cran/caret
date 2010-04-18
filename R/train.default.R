@@ -59,6 +59,9 @@ train.default <- function(x, y,
                                                          boot = createResample(y, trControl$number),
                                                          test = createDataPartition(y, 1, trControl$p),
                                                          lgocv = createDataPartition(y, trControl$number, trControl$p))
+
+
+  if(is.null(names(trControl$index)) | length(unique(names(trControl$index))) != length(trControl$index)) names(trControl$index) <- paste("Resample", seq(along = trControl$index), sep = "")
   
   ## Combine the features and classes into one df
   trainData <- as.data.frame(x)
@@ -149,6 +152,7 @@ train.default <- function(x, y,
   paramNames <- names(tuneGrid)
   paramNames <- gsub("^\\.", "", paramNames)
 
+
   ## Now take the predictions and boil them down to performance matrics per tuning
   ## parameter and resampling combo.
   if(trControl$method != "oob")
@@ -205,7 +209,7 @@ train.default <- function(x, y,
   names(bestTune) <- paste(".", names(bestTune), sep = "") 
 
   ## Save some or all of the resampling summary metrics
-  if(trControl$method != "oob")
+  if(!(trControl$method %in% c("LOOCV", "oob")))
     {
       
       byResample <- switch(trControl$returnResamp,
@@ -218,8 +222,8 @@ train.default <- function(x, y,
                            },
                            final =
                            {
-                             out <- merge(bestTune, perResample)        
-                             out <- out[,!(names(perResample) %in% names(tuneGrid))]
+                             out <- merge(bestTune, perResample)
+                             out <- out[,!(names(out) %in% names(tuneGrid))]
                              out
                            })                        
     } else {
