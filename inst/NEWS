@@ -1,4 +1,10 @@
 -------------------
+Version: 4.37
+Date: 2010-04-18
+
+Fixed a new bug in how resampling results are exported
+
+-------------------
 Version: 4.36
 Date: 2010-04-17
 

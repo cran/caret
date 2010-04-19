@@ -1134,6 +1134,7 @@ workerData <- function(data, index, loop, method, lvls, workers = 1, caretVerbos
             for(j in 1:workers)
               {
                 iter <- iter + 1
+                ## TODO add a variable here to keep track of the resample id across workers/models
                 subsets[[iter]]$index <- index[workLoads == j]
                 subsets[[iter]]$fixed <- loop$loop[i,,drop = FALSE]
                 subsets[[iter]]$worker <- paste("W", j, sep = "")
@@ -1283,7 +1284,7 @@ workerTasks <- function(x)
               {
                 tmp <- data.frame(obs = observed,
                                   pred = predicted,
-                                  Resample = paste(x$worker, "R", i, sep = ""))
+                                  Resample = names(x$index)[i])
                 if(names(tmp)[2] != "pred") names(tmp)[2] <- "pred"
                 tmp <- merge(tmp, x$fixed)
                 out <- if(i > 1) rbind(out, tmp) else tmp
@@ -1306,7 +1307,7 @@ workerTasks <- function(x)
 
                 ## Stack the predictions then merge on the model indicators
                 tmp <- merge(stack(predicted), param)
-                tmp$Resample <- paste(x$resample, i, sep = "")
+                tmp$Resample <- names(x$index)[i]
                 tmp$obs <-  rep(observed, ncol(predicted))
                 tmp$ind <- NULL
                 names(tmp)[names(tmp) == "values"] <- "pred"
@@ -1345,15 +1346,25 @@ getPerformance <- function(x, groups, func, levels, mod, loo = FALSE)
 
     splitUp <- split(x, x$parameterGroup)
 
-    perf <- lapply(splitUp, func, lev = levels, model = mod)
-    perf <- do.call("rbind", perf)
+    ## Write a wrapper around func to also get resample number
+    func2 <- function(x, l, m, g)
+      {
+        out <- func(x, l, m)
+        out <- as.matrix(t(out))
+        out <- as.data.frame(out)
 
-    groupValues <- lapply(splitUp, function(x, y) x[1,y,drop = FALSE], y = groups)
-    groupValues <- do.call("rbind", groupValues)
+        for(i in seq(along = g))
+          {
+            out$..tmp <- unique(x[,g[i]])[1]
+            names(out)[ncol(out)] <- g[i]
+          }
+        
+        out
+      }
 
-    result1 <- cbind(groupValues, perf)
-    result1$parameterGroup <- NULL
-    result1$Resample <- NULL
+    result1 <- lapply(splitUp, func2, l = levels, m = mod, g = groups)
+    result1 <- do.call("rbind", result1)
+    perfNames <- names(result1)[!(names(result1) %in% groups)]
 
     if(!loo)
       {
@@ -1365,20 +1376,20 @@ getPerformance <- function(x, groups, func, levels, mod, loo = FALSE)
 
         splitUp <- split(result1, result1$parameterGroup)
 
-        meanFunc <- function(x, y)
+        meanFunc <- function(x, y, p)
           {
-            x <- x[, !(colnames(x) %in% c(y, "parameterGroup")), drop = FALSE]
+            x <- x[, p, drop = FALSE]
             mean(x, na.rm = TRUE)
           }
-        means <- lapply(splitUp, meanFunc, y = groups)
+        means <- lapply(splitUp, meanFunc, y = groups, p = perfNames)
         means <- do.call("rbind", means)
 
-                sdFunc <- function(x, y)
+        sdFunc <- function(x, y, p)
           {
-            x <- x[, !(colnames(x) %in% c(y, "parameterGroup")), drop = FALSE]
-            sd(x, na.rm = TRUE)
+            x <- x[, p, drop = FALSE]
+            mean(x, na.rm = TRUE)
           }
-        sds <- lapply(splitUp, sdFunc, y = groups)
+        sds <- lapply(splitUp, sdFunc, y = groups, p = perfNames)
         sds <- do.call("rbind", sds)
         colnames(sds) <- paste( colnames(sds), "SD", sep = "")
 
@@ -1388,10 +1399,11 @@ getPerformance <- function(x, groups, func, levels, mod, loo = FALSE)
         
         out <- cbind(groupValues, means, sds)
         rownames(out) <- 1:nrow(out)
+        result1$parameterGroup <- NULL
+        rownames(result1) <- 1:nrow(result1)
         return(list(values = result1, results = out))
       } else {
         rownames(result1) <- 1:nrow(result1)
-        isParam <- colnames(groupValues) %in% groups
         colnames(result1) <- gsub("^\\.", "", colnames(result1))
         return(list(values = NULL, results = result1))
       }
