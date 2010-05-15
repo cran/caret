@@ -56,7 +56,7 @@
                    "qda", "relaxo", "lars", "lars2", "rlm", "vbmpRadial",
                    "superpc", "ppr", "sda", "penalized", "sparseLDA",
                    "nodeHarvest", "Linda", "QdaCov", "stepLDA", "stepQDA",
-                   "parRF", "plr", "rocc", "foba"))
+                   "parRF", "plr", "rocc", "foba", "partDSA"))
     {
       trainX <- data[,!(names(data) %in% ".outcome")]
       trainY <- data[,".outcome"] 
@@ -535,6 +535,29 @@
                          } else out <- stepAIC(lm(modFormula, data), ...)
                        out                       
                      },
+                     glmStepAIC =
+                     {
+                       library(MASS)
+                       ##check for family in dot and over-write if none
+                       theDots <- list(...)
+                       if(!any(names(theDots) == "family"))
+                         {
+                           theDots$family <- if(is.factor(data$.outcome)) binomial() else gaussian()              
+                         }
+
+                       ## pass in any model weights
+                       if(!is.null(modelWeights)) theDots$weights <- modelWeights
+                       
+                       modelArgs <- c(
+                                      list(formula = modFormula,
+                                           data = data),
+                                      theDots)
+
+                       out <- stepAIC(do.call("glm", modelArgs))
+                       out$call <- NULL
+                       out
+                                
+                     },                     
                      lda = 
                      {
                        library(MASS)
@@ -1046,6 +1069,7 @@
                                       theDots)
      
                        out <- do.call("glm", modelArgs)
+                       out$call <- NULL
                        out
                      },
                      mda =
@@ -1321,13 +1345,25 @@
                        foba(as.matrix(trainX), trainY,
                             lambda = tuneValue$.lambda,
                             ...)
+                     },
+                     partDSA =
+                     {
+                       ## todo better parsing of ... args between func and control
+                       library(partDSA)
+                       partDSA(trainX, trainY,
+                               control = DSA.control(
+                                 cut.off.growth = tuneValue$.cut.off.growth,
+                                 MPD = tuneValue$.MPD,
+                                 vfold = 1),
+                               ...)
                      }
                      )
   
 
   ## In case the model needs to be saved to the file system and run later, we will
   ## need to cache the model (per Kurt Hornik on 2008-10-05)
-  if(method %in% c("JRip", "LMT", "M5Rules", "J48", "OneR", "PART")) .jcache(modelFit$classifier)
+  ## No ,onger needed?
+  ## if(method %in% c("JRip", "LMT", "M5Rules", "J48", "OneR", "PART")) .jcache(modelFit$classifier)
   
   ##save a few items so we have a self contained set of information in the model. this will
   ## also carry over to the finalModel if returnData = TRUE in train call

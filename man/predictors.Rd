@@ -53,6 +53,7 @@
 \alias{predictors.ppr}
 \alias{predictors.sbf}
 \alias{predictors.smda}
+\alias{predictors.dsa}
 
 \title{ List predictors used in the model}
 \description{
@@ -70,6 +71,8 @@ predictors(x, ...)
 \method{predictors}{blackboost}(x,  ...)
 
 \method{predictors}{classbagg}(x, surrogate = TRUE,  ...)
+
+\method{predictors}{dsa}(x,  cuts = NULL, ...)
 
 \method{predictors}{earth}(x,  ...)
 
@@ -175,6 +178,7 @@ predictors(x, ...)
   \item{lambda}{for \code{\link[glmnet]{glmnet}}: the L1 regularization value}
   \item{s}{for \code{\link[lars]{lars}}: the path index. See  \code{\link[lars]{predict.lars}}}
   \item{k}{for \code{\link[foba]{foba}}: the sparsity level (i.e. the number of selected terms for the model). See  \code{\link[foba]{predict.foba}}}
+   \item{cuts}{the number of rule sets to use in the model (for \code{partDSA} only)}
 
 
 

@@ -282,10 +282,11 @@
                       foba = expand.grid(
                         .lambda = 10 ^ seq(-5, -1, length = len),
                         .k = larsTune(data, len)[,1]),
+                      partDSA = expand.grid(.cut.off.growth = 1:10, .MPD = .1),
                       lda =, lm =, treebag =, sddaLDA =, sddaQDA =,
                       glm =, qda =, OneR =, rlm =,
                       rvmLinear =, lssvmLinear =, gaussprLinear =,
-                      lmStepAIC =, slda =, Linda =, QdaCov =,
+                      glmStepAIC =, lmStepAIC =, slda =, Linda =, QdaCov =,
                       glmrob = data.frame(.parameter = "none"))
   trainGrid
 }

@@ -11,6 +11,7 @@ data(BloodBrain)
 data(mdrr)
 
 
+
 ###################################################
 ### chunk number 2: preProc
 ###################################################
@@ -87,6 +88,10 @@ options(width = currentWidth)
 ###################################################
 ### chunk number 8: summaryFunc
 ###################################################
+
+
+
+
 newSummary <- function (data, lev, model)
   {
     out <- c(sensitivity(data[, "pred"], data[, "obs"], lev[1]),
@@ -257,7 +262,107 @@ dev.off()
 ###################################################
 ### chunk number 22: bhPredPlot
 ###################################################
+pdf("bhPredPlot.pdf", width = 8, height = 5)
 trellis.par.set(caretTheme(), warn = FALSE)
 print(plotObsVsPred(testPred))
+dev.off()
+
+
+###################################################
+### chunk number 23: loadData
+###################################################
+## If we compute the above models, the vignettes takes too long for cran, 
+## so we load the data from a remote source
+load(url("http://caret.r-forge.r-project.org/Classification_and_Regression_Training_files/exampleModels.RData"))
+
+
+###################################################
+### chunk number 24: resamps
+###################################################
+resamps <- resamples(list(CART = rpartFit,
+                          CondInfTree = ctreeFit,
+                          MARS = earthFit,
+                          M5 = m5Fit))
+resamps
+summary(resamps)
+
+
+###################################################
+### chunk number 25: resamplePlots
+###################################################
+bwplot(resamps, metric = "RMSE")
+
+densityplot(resamps, metric = "RMSE")
+
+xyplot(resamps,
+       models = c("CART", "MARS"),
+       metric = "RMSE")
+
+splom(resamps, metric = "RMSE")
+
+
+###################################################
+### chunk number 26: resamplePlots2
+###################################################
+pdf("resampleScatter.pdf", width = 6, height = 6)
+trellis.par.set(caretTheme())
+print(xyplot(resamps, models = c("CART", "MARS")))
+dev.off()
+pdf("resampleDens.pdf", width = 7, height = 4.5)
+print(
+      densityplot(resamps, 
+                  scales = list(x = list(relation = "free")), 
+                  adjust = 1.2, 
+                  plot.points = FALSE, 
+                  auto.key = list(columns = 2)))
+
+dev.off() 
+
+
+###################################################
+### chunk number 27: diffs
+###################################################
+difValues <- diff(resamps)
+
+difValues
+
+summary(difValues)
+
+
+###################################################
+### chunk number 28: diffPlots
+###################################################
+dotplot(difValues)
+
+densityplot(difValues,
+            metric = "RMSE",
+            auto.key = TRUE,
+            pch = "|")
+
+bwplot(difValues,
+       metric = "RMSE")
+
+levelplot(difValues, what = "differences")
+
+
+###################################################
+### chunk number 29: diffPlots2
+###################################################
+pdf("diffLevel.pdf", width = 7.5, height = 6)
+trellis.par.set(caretTheme())
+print(levelplot(difValues, what = "differences"))
+dev.off()
+
+pdf("diffDot.pdf", width = 6, height = 6)
+trellis.par.set(caretTheme())
+print(dotplot(difValues))
+dev.off()
+
+
+
+###################################################
+### chunk number 30: <session
+###################################################
+toLatex(sessionInfo())
 
 

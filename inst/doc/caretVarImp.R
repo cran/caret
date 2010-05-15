@@ -21,3 +21,9 @@ preProcVals <- apply(mdrrDescr, 2, processData)
 mdrrDescr <- applyProcessing(mdrrDescr, preProcVals)
 
 
+###################################################
+### chunk number 3: <session
+###################################################
+toLatex(sessionInfo())
+
+

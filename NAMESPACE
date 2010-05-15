@@ -136,7 +136,9 @@ export(
        nullModel.default,
        predict.nullModel,
        anovaFilter,
-       gamFilter
+       gamFilter,
+       resamples.default,
+       resamples
        )
 
 S3method(confusionMatrix, default)
@@ -159,6 +161,7 @@ S3method(classDist,       default)
 S3method(knnreg,          default)
 S3method(sbf,             default)
 S3method(nullModel,       default)
+S3method(resamples,       default)
 
 S3method(train,   formula)
 S3method(pcaNNet, formula)
@@ -180,6 +183,7 @@ S3method(varImp, bagEarth)
 S3method(varImp, RandomForest)
 S3method(varImp, rfe)
 S3method(varImp, sbf)
+S3method(varImp, dsa)
 
 S3method(densityplot, train)
 S3method(histogram,   train)
@@ -193,6 +197,16 @@ S3method(xyplot,      rfe)
 
 S3method(densityplot, sbf)
 S3method(histogram,   sbf)
+
+S3method(densityplot, resamples)
+S3method(bwplot,      resamples)
+S3method(splom,       resamples)
+S3method(xyplot,      resamples)
+
+S3method(densityplot, diff.resamples)
+S3method(bwplot,      diff.resamples)
+S3method(levelplot,   diff.resamples)
+S3method(dotplot,     diff.resamples)
 
 S3method(plot,  train)
 S3method(plot,  varImp.train)
@@ -215,6 +229,10 @@ S3method(print, classDist)
 S3method(print, knnreg)
 S3method(print, sbf)
 S3method(print, nullModel)
+S3method(print, resamples)
+S3method(print, summary.resamples)
+S3method(print, diff.resamples)
+S3method(print, summary.diff.resamples)
 
 S3method(predict, PLS)
 S3method(predict, plsda)
@@ -286,6 +304,7 @@ S3method(predictors, smda)
 S3method(predictors, sbf)
 S3method(predictors, trocc)
 S3method(predictors, foba)
+S3method(predictors, dsa)
 
 S3method(confusionMatrix, table)
 
@@ -301,3 +320,8 @@ S3method(negPredValue,    matrix)
 S3method(as.table,  confusionMatrix)
 S3method(as.matrix, confusionMatrix)
 
+S3method(summary, resamples)
+
+S3method(diff, resamples)
+
+S3method(summary, diff.resamples)

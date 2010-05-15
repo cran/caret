@@ -289,3 +289,30 @@ print(
 dev.off()
 
 
+###################################################
+### chunk number 17: classDist
+###################################################
+inTrain <- seq(1, 150, 6)
+centroids <- classDist(iris[inTrain, 1:4], iris$Species[inTrain])
+distances <- predict(centroids, iris[-inTrain, 1:4])
+head(distances)
+
+
+###################################################
+### chunk number 18: classDistPlot
+###################################################
+pdf("classDist.pdf", width = 5, height = 7)
+   trellis.par.set(caretTheme())
+   print(
+         splom(distances, 
+               groups = iris$Species[-inTrain],
+               auto.key = list(columns = 3)))
+dev.off()
+
+
+###################################################
+### chunk number 19: <session
+###################################################
+toLatex(sessionInfo())
+
+

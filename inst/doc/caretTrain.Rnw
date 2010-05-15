@@ -261,6 +261,10 @@ There is additional functionality in \texttt{train} that is described in the nex
          \texttt{glm} & 
             \texttt{stats}       & 
             None \\  
+&
+         \texttt{glmStepAIC} & 
+            \texttt{MASS}       & 
+            None \\              
        
       Recursive Partitioning &
          \texttt{rpart} & 
@@ -295,7 +299,7 @@ There is additional functionality in \texttt{train} that is described in the nex
          \texttt{glmboost} & 
             \texttt{mboost}       &          
             \texttt{mstop}\\   
-      &      
+         &      
          \texttt{gamboost} & 
             \texttt{mboost}       &          
             \texttt{mstop}\\      
@@ -320,10 +324,15 @@ There is additional functionality in \texttt{train} that is described in the nex
             \texttt{ipred}       & 
             None \\                         
    
-      Node Harvest &
-         \texttt{nodeHarvest} & 
+            Other Trees &
+            \texttt{nodeHarvest} & 
             \texttt{nodeHarvest}       & 
-            \texttt{maxinter}, \texttt{mode}  \\                  
+            \texttt{maxinter}, \texttt{mode}  \\    
+            
+            &
+            \texttt{partDSA} & 
+            \texttt{partDSA}       & 
+            \texttt{cut.off.growth}, \texttt{MPD}  \\     
             
       Multivariate Adaptive  &
          \texttt{earth}, \texttt{mars} & 
@@ -404,6 +413,11 @@ There is additional functionality in \texttt{train} that is described in the nex
          \texttt{lm} & 
             \texttt{stats}       & 
             None \\  
+            
+            &
+         \texttt{lmStepAIC} & 
+            \texttt{MASS}       & 
+            None \\  
 
        Principal Component Regression &
          \texttt{pcr} & 
@@ -473,9 +487,9 @@ There is additional functionality in \texttt{train} that is described in the nex
       Supervised Principal &
          \texttt{superpc}  &
          \texttt{superpc}  &
-         \texttt{n.components}, 
+         \texttt{n.components}\\
+      \:\: Components  & & & 
          \texttt{threshold} \\
-      \:\: Components  & & &\\
       \\       
              
 \multicolumn{5}{c}{{{\em Classification Only Models}}} \\ 
@@ -982,10 +996,13 @@ dev.off()
 
 \begin{figure}
    \begin{center}      
-<<bhPredPlot, echo = FALSE, fig = TRUE>>=
+<<bhPredPlot, echo = FALSE, results = hide, fig = FALSE>>=
+pdf("bhPredPlot.pdf", width = 8, height = 5)
 trellis.par.set(caretTheme(), warn = FALSE)
 print(plotObsVsPred(testPred))
+dev.off()
 @         
+      \includegraphics[clip, width = .75\textwidth]{bhPredPlot}   
       \caption{The results of using \texttt{ plotObsVsPred } to show plots of the observed median home price against the predictions from two models. The plot shows the training and test sets in the same Lattice plot}
       \label{f:bhPredPlot}         
    \end{center}
@@ -994,10 +1011,221 @@ print(plotObsVsPred(testPred))
 
 To plot class probabilities, \texttt{plotClassProbs} will display the results by model, data and true class (for example, Figure \ref{f:mbrrProbs}).     
 
+\clearpage
+
+\section{Comparing Resampling Distributions}
+
+\texttt{caret} also includes functions to characterize the differences between models using their resampling distributions. 
+
+Using the blood-brain barrier data (see \texttt{?BloodBrain)}, three regression models were
+created: an \texttt{rpart} tree, a conditional inference tree using
+\texttt{ctree}, M5 rules using \texttt{M5Rules} and a MARS model using \texttt{earth}. We ensure that the models use the same resampling data sets. In this case, 100 leave--group--out cross--validation was employed.
+
+\begin{Schunk}
+\begin{Sinput}
+> data(BloodBrain)
+> set.seed(1)
+> tmp <- createDataPartition(logBBB, p = 0.8, times = 100)
+> rpartFit <- train(bbbDescr, logBBB,
++                   "rpart", 
++                   tuneLength = 16,
++                   trControl = trainControl(method = "LGOCV", index = tmp))
+\end{Sinput}
+\begin{Soutput}
+Fitting: maxdepth=16 
+\end{Soutput}
+\begin{Sinput}
+> ctreeFit <- train(bbbDescr, logBBB,
++                  "ctree2",
++                   tuneLength = 10,
++                   trControl = trainControl(method = "LGOCV", index = tmp))
+\end{Sinput}
+\begin{Soutput}
+Fitting: maxdepth=1 
+Fitting: maxdepth=2 
+Fitting: maxdepth=3 
+Fitting: maxdepth=4 
+Fitting: maxdepth=5 
+Fitting: maxdepth=6 
+Fitting: maxdepth=7 
+Fitting: maxdepth=8 
+Fitting: maxdepth=9 
+Fitting: maxdepth=10 
+\end{Soutput}
+\begin{Sinput}
+> earthFit <- train(bbbDescr, logBBB,
++                   "earth",
++                   tuneLength = 20,
++                   trControl = trainControl(method = "LGOCV", index = tmp))
+\end{Sinput}
+\begin{Soutput}
+Fitting: degree=1, nprune=76 
+\end{Soutput}
+\end{Schunk}
+\begin{Sinput}
+> m5Fit <- train(bbbDescr, logBBB,
++                "M5Rules",
++                trControl = trainControl(method = "LGOCV", index = tmp))    
+\end{Sinput}
+\begin{Soutput}
+Fitting: pruned=Yes 
+Fitting: pruned=No 
+\end{Soutput}
+
+<<loadData, results = hide, echo = FALSE>>=
+## If we compute the above models, the vignettes takes too long for cran, 
+## so we load the data from a remote source
+load(url("http://caret.r-forge.r-project.org/Classification_and_Regression_Training_files/exampleModels.RData"))
+@ 
+
+Given these models, can we make statistical statements about their performance differences? To do this, we first collect the resampling results using \texttt{resamples}.
+
+<<resamps>>=
+resamps <- resamples(list(CART = rpartFit,
+                          CondInfTree = ctreeFit,
+                          MARS = earthFit,
+                          M5 = m5Fit))
+resamps
+summary(resamps)
+@ 
+
+There are several Lattice plot methods that can be used to visualize
+the resampling distributions: density plots, box--whisker plots,
+scatterplot matrices and scatterplots of summary statistics. In the
+latter case, the plot consists of the differences between two models
+on the $y$--axis and the average on the $x$--axis (See Figure
+\ref{f:resampleScatter}). In Figure \ref{F:resampleDens}, densityplots
+of the data are shown. In this figure,  the $R^2$ distributions
+indicate that M5 rules and MARS appear to be
+        similar to one another but different from the two tree--based
+        models. However, this pattern is inconsistent with the root
+        mean squared error distributions.
+
+<<resamplePlots>>=
+bwplot(resamps, metric = "RMSE")
+
+densityplot(resamps, metric = "RMSE")
+
+xyplot(resamps,
+       models = c("CART", "MARS"),
+       metric = "RMSE")
+
+splom(resamps, metric = "RMSE")
+@ 
+
+<<resamplePlots2, results = hide, echo = FALSE>>=
+pdf("resampleScatter.pdf", width = 6, height = 6)
+trellis.par.set(caretTheme())
+print(xyplot(resamps, models = c("CART", "MARS")))
+dev.off()
+pdf("resampleDens.pdf", width = 7, height = 4.5)
+print(
+      densityplot(resamps, 
+                  scales = list(x = list(relation = "free")), 
+                  adjust = 1.2, 
+                  plot.points = FALSE, 
+                  auto.key = list(columns = 2)))
+
+dev.off() 
+@ 
+
+
+Since models are fit on the same versions of the training data, it makes sense to make inferences on the differences between models. In this way we reduce the within--resample correlation that may exist. We can compute the differences, then use a simple $t$--test to evaluate the null hypothesis that there is no difference between models.
+
+<<diffs>>=
+difValues <- diff(resamps)
+
+difValues
+
+summary(difValues)
+@ 
+Note that these results are consistent with the patterns shown in
+Figure \ref{F:resampleDens}; there are more differences in the $R^2$
+distributions than in the error distributions.
+
+Several Lattices methods also exist to plot the differences (density
+and box--whisker plots) or the inferential results (level and dot
+plots). Figures \ref{F:diffLevel} and \ref{F:diffDot} show examples of
+level and dot plots.
+
+<<diffPlots>>=
+dotplot(difValues)
+
+densityplot(difValues,
+            metric = "RMSE",
+            auto.key = TRUE,
+            pch = "|")
+
+bwplot(difValues,
+       metric = "RMSE")
+
+levelplot(difValues, what = "differences")
+@ 
+
+<<diffPlots2, results = hide, echo = FALSE>>=
+pdf("diffLevel.pdf", width = 7.5, height = 6)
+trellis.par.set(caretTheme())
+print(levelplot(difValues, what = "differences"))
+dev.off()
+
+pdf("diffDot.pdf", width = 6, height = 6)
+trellis.par.set(caretTheme())
+print(dotplot(difValues))
+dev.off()
+
+@ 
+
+
+\begin{figure}
+   \begin{center}		
+      \includegraphics[clip, width = .6\textwidth]{resampleScatter}    
+
+      \caption{ Examples of output from \texttt{xyplot(resamps, models = c("CART", "MARS"))}. The averages and differences of the two models is shown for each resampling data set.}
+      \label{f:resampleScatter} 
+    \end{center}
+\end{figure} 
+
+\begin{figure}
+   \begin{center}		
+      \includegraphics[clip, width = .9\textwidth]{resampleDens}    
+
+      \caption{ Examples of output from
+        \texttt{densityplot(resamps)}. Looking at $R^2$, M5 rules and MARS appear to be
+        similar to one another but different from the two tree--based
+        models. However, this pattern is inconsistent with the root
+        mean squared error distributions.}
+      \label{F:resampleDens} 
+    \end{center}
+\end{figure} 
+
+
+\begin{figure}
+   \begin{center}		
+      \includegraphics[clip, width = .8\textwidth]{diffLevel}    
+
+      \caption{ Examples of output from \texttt{levelplot(difValues,
+          what = "differences")}. The pair--wise differences in RMSE
+        are shown}
+      \label{F:diffLevel} 
+    \end{center}
+\end{figure} 
+
+
+\begin{figure}
+   \begin{center}		
+      \includegraphics[clip, width = .8\textwidth]{diffDot}    
+
+      \caption{ Examples of output from
+        \texttt{dotplot(difValues)}. The differences in RMSE and their
+        associated confidence intervals are shown.}
+      \label{F:diffDot} 
+    \end{center}
+\end{figure} 
+
 
 \section{Session Information}
 
-<<<session, echo=FALSE, results=tex>>=
+<<session, echo=FALSE, results=tex>>=
 toLatex(sessionInfo())
 @ 
 
