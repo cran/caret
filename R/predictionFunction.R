@@ -533,7 +533,7 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
                              library(sparseLDA)
                              as.character(predict(modelFit, newdata)$class)
                            },                           
-                           glm =
+                           glm =, glmStepAIC =
                            {
                              if(modelFit$problemType == "Classification")
                                {
@@ -737,6 +737,36 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
                                }
                              out
                            },
+                           partDSA =
+                           {
+                             library(partDSA)
+
+
+                             if(!is.null(param))
+                               {
+                                 tmp <- c(modelFit$tuneValue$.cut.off.growth, param$.cut.off.growth)
+                                 if(modelFit$problemType == "Classification")
+                                   {
+                                     out <- predict(modelFit, newdata)
+                                     out <- out[tmp]
+                                     out <- lapply(out, as.character)
+                                     out <- as.data.frame(do.call("cbind", out), stringsAsFactors = FALSE)
+                                     
+                                   } else {
+                                     out <- as.data.frame(predict(modelFit, newdata)[,tmp, drop= FALSE])
+                                   }
+                               } else {
+
+                                 ## use best Tune
+                                 if(modelFit$problemType == "Classification")
+                                   {
+                                     out <- as.character(predict(modelFit, newdata)[[modelFit$.cut.off.growth]])
+                                   } else {
+                                     out <- predict(modelFit, newdata)[,modelFit$.cut.off.growth]
+                                   }
+                               }
+                             out
+                           }                           
                            )
   predictedValue
 }

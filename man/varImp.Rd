@@ -14,6 +14,7 @@
 \alias{varImp.bagEarth}
 \alias{varImp.RandomForest}
 \alias{varImp.rfe}
+\alias{varImp.dsa}
 
 \title{Calculation of variable importance for regression and classification models}
 
@@ -36,6 +37,7 @@ A generic method for calculating variable importance for objects produced by
 \method{varImp}{bagEarth}(object, ...)
 \method{varImp}{RandomForest}(object, normalize = TRUE, ...)
 \method{varImp}{rfe}(object, drop = FALSE, ...)
+\method{varImp}{dsa}(object, cuts = NULL, ...)
 }
 
 \arguments{
@@ -54,6 +56,7 @@ A generic method for calculating variable importance for objects produced by
      either \code{gcv}, \code{nsubsets}, or \code{rss}}
    \item{normalize}{a logical: should the importance values be divided by their standard deviations?}
    \item{drop}{a logical: should variables not included in the final set be calculated?}
+   \item{cuts}{the number of rule sets to use in the model (for \code{partDSA} only)}
 }
 
 \value{

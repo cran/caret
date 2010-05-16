@@ -158,7 +158,9 @@ modelLookup <- function(model = NULL)
                            "plr", "plr",
                            "GAMens", "GAMens", "GAMens",
                            "rocc",
-                           "foba", "foba"
+                           "foba", "foba",
+                           "partDSA", "partDSA",
+                           "glmStepAIC"
                            ),
                          parameter = c(
                            "parameter",      
@@ -251,7 +253,9 @@ modelLookup <- function(model = NULL)
                            "lambda", "cp",
                            "iter", "rsm_size", "fusion",
                            "xgenes",
-                           "k", "lambda"
+                           "k", "lambda",
+                           "cut.off.growth", "MPD",
+                           "parameter"
                            ),
                          label = I(c(
                            "none",      
@@ -346,7 +350,9 @@ modelLookup <- function(model = NULL)
                            "L2 Penalty", "Complexity Parameter",
                            "Ensemble Size", "#Random Feature Subsets", "Data Fusion Function",
                            "#Variables Retained",
-                           "#Variables Retained", "L2 Penalty"
+                           "#Variables Retained", "L2 Penalty",
+                           "Number of Terminal Partitions", "Minimum Percent Difference",
+                           "none"
                            )),
                          seq = c(
                            FALSE,
@@ -438,7 +444,9 @@ modelLookup <- function(model = NULL)
                            FALSE, FALSE,
                            FALSE, FALSE, FALSE,
                            FALSE,
-                           TRUE, FALSE
+                           TRUE, FALSE,
+                           TRUE, FALSE,
+                           FALSE
                            ),
                          forReg = c(
                            TRUE,
@@ -530,7 +538,9 @@ modelLookup <- function(model = NULL)
                            FALSE, FALSE,
                            FALSE, FALSE, FALSE,
                            FALSE,
-                           TRUE, TRUE
+                           TRUE, TRUE,
+                           TRUE, TRUE,
+                           TRUE
                            ),               
                          forClass =          
                          c(
@@ -623,7 +633,9 @@ modelLookup <- function(model = NULL)
                            TRUE, TRUE,
                            TRUE, TRUE, TRUE,
                            TRUE,
-                           FALSE, FALSE
+                           FALSE, FALSE,
+                           TRUE, TRUE,
+                           TRUE
                            ),
                          probModel = c(
                            TRUE,             #   bagged trees
@@ -715,7 +727,9 @@ modelLookup <- function(model = NULL)
                            TRUE, TRUE,        ## stepQDA
                            TRUE, TRUE, TRUE,  ## GAMens,
                            FALSE,             ## rrocc
-                           FALSE, FALSE       ## foba
+                           FALSE, FALSE,      ## foba
+                           FALSE, FALSE,      ## partDSA
+                           TRUE               ## glmStepAIC
                            ),
                          stringsAsFactors  = FALSE               
                          )         
@@ -996,7 +1010,25 @@ tuneScheme <- function(model, grid, useOOB = FALSE)
                    loop$.k[loop$.lambda == uniqueLambda[i]] <- subK[which.max(subK)]
                    seqParam[[i]] <- data.frame(.k = subK[-which.max(subK)])
                  }         
-             }, 
+             },
+             partDSA = 
+             {
+               grid <- grid[order(grid$.MPD, grid$.cut.off.growth, decreasing = TRUE),, drop = FALSE]
+               
+               uniqueMPD <- unique(grid$.MPD)
+               
+               loop <- data.frame(.MPD = uniqueMPD)
+               loop$.cut.off.growth <- NA
+               
+               seqParam <- vector(mode = "list", length = length(uniqueMPD))
+               
+               for(i in seq(along = uniqueMPD))
+                 {
+                   subCuts <- grid[grid$.MPD == uniqueMPD[i],".cut.off.growth"]
+                   loop$.cut.off.growth[loop$.MPD == uniqueMPD[i]] <- subCuts[which.max(subCuts)]
+                   seqParam[[i]] <- data.frame(.cut.off.growth = subCuts[-which.max(subCuts)])
+                 }
+             }
              )
       out <- list(scheme = "seq", loop = loop, seqParam = seqParam, model = modelInfo, constant = constant, vary = vary)
     } else out <- list(scheme = "basic", loop = grid, seqParam = NULL, model = modelInfo, constant = names(grid), vary = NULL)

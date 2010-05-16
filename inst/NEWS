@@ -1,4 +1,20 @@
 -------------------
+Version: 4.39
+Date: 2010-05-15
+
+Added several classes for examining the resampling results. There
+are methods for estimating pair-wise differences and lattice
+functions for visualization. The training vignette has a new
+section describing the new features.
+
+-------------------
+Version: 4.38
+Date: 2010-05-12
+
+Added partDSA and stepAIC for linear models and generalized
+linear models
+
+-------------------
 Version: 4.37
 Date: 2010-04-18
 
@@ -14,7 +30,7 @@ Added penalized linear models from the foba package
 Version: 4.35
 Date: 2010-04-15
 
-Added rocc classifcation and fixed a typo.
+Added rocc classification and fixed a typo.
 
 -------------------
 Version: 4.34

@@ -64,7 +64,7 @@ byComplexity <- function(x, model)
              x[order(x$degree, x$nprune),]
            },
            treebag =, lda =, lm =, sddaLDA =, sddaQDA =,
-           lmStepAIC =, slda =, glm =, qda =, OneR =,
+           glmStepAIC =,lmStepAIC =, slda =, glm =, qda =, OneR =,
            rvmLinear =, lssvmLinear =, gaussprLinear =,
            rlm =, vbmpRadial =, glmrob =
            {
@@ -129,6 +129,10 @@ byComplexity <- function(x, model)
            {
              x[order(-x$lambda),]
            },
+           partDSA =
+           {
+             x[order(x$cut.off.growth, x$MPD),]
+           },           
            rocc = x[order(x$xgenes),],
            foba = x[order(x$k, -x$lambda),], 
            obliqueTree = x[order(x$variable.selection),],
