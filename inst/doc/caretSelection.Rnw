@@ -491,21 +491,32 @@ function. Here, the argument \texttt{functions} dictates what the
 different components should do. This argument should have elements
 called \texttt{filter}, \texttt{fit}, \texttt{pred} and \texttt{summary}.
 
-\subsubsection{The \texttt{filter} Function}\label{S:filter}
+\subsubsection{The \texttt{score} Function}\label{S:filter}
 
 This function takes as inputs the predictors and the outcome in
 objects called \texttt{x} and \texttt{y}, respectively. The output
+should be a named vector of scores where the names correspond to the
+column names of \texttt{x}. 
+
+There are two built--in functions called \texttt{anovaScores} and
+\texttt{gamScores}. \texttt{anovaScores} treats the outcome as the
+independent variable and the predictor as the outcome. In this way,
+the null hypothesis is that the mean predictor values are equal across
+the different classes. For regression, \texttt{gamScores} fits a smoothing spline in
+the predictor to the outcome  using a generalized additive model and tests to see if there is any
+functional relationship between the two. In each function the
+p--value is used as the score.
+
+\subsubsection{The \texttt{filter} Function}\label{S:filter}
+
+This function takes as inputs the scores coming out of the
+\texttt{score} function (in an argument called \texttt{score}). The
+function also has the training set data as inputs (arguments are called \texttt{x} and \texttt{y}). 
+The output
 should be a named logical vector where the names correspond to the
 column names of \texttt{x}. Columns with values of \texttt{TRUE} will
 be used in the subsequent model.
 
-There are two built--in functions called \texttt{anovaFilter} and
-\texttt{gamFilter}. \texttt{anovaFilter} treats the outcome as the
-independent variable and the predictor as the outcome. In this way,
-the null hypothesis is that the mean predictor values are equal across
-the different classes. For regression, \texttt{gamFilter} fits a smoothing spline in
-the predictor to the outcome  using a generalized additive model and tests to see if there is any
-functional relationship between the two. 
 
 \subsubsection{The \texttt{fit} Function}
 

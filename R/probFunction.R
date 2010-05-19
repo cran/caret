@@ -297,6 +297,13 @@ probFunction <- function(method, modelFit, newdata)
                         dimnames(out)[[2]] <-  modelFit$obsLevels
                         out
 
+                      },
+                      hda =
+                      {
+                        library(hda)
+                        tmp <- predict(modelFit, as.matrix(newdata))
+                        if(is.vector(tmp)) tmp <- matrix(tmp, ncol = 1)
+                        predict(modelFit$naivebayes, tmp, type = "raw")
                       }
                       )
 

@@ -130,13 +130,11 @@ export(
        ldaSBF,
        nbSBF,
        treebagSBF,
-       anovaFilter,
-       gamFilter,
+       anovaScores,
+       gamScores,
        nullModel,
        nullModel.default,
        predict.nullModel,
-       anovaFilter,
-       gamFilter,
        resamples.default,
        resamples
        )

@@ -180,6 +180,10 @@
                       nnet =, pcaNNet = expand.grid(
                                 .size = ((1:len) * 2) - 1, 
                                 .decay = c(0, 10 ^ seq(-1, -4, length = len - 1))),
+                      hda = expand.grid(
+                        .gamma = seq(0, 1, length = len), 
+                        .lambda =  seq(0, 1, length = len),
+                        .newdim = 2:(min(len, ncol(data)))),
                       rda = expand.grid(
                         .gamma = seq(0, 1, length = len), 
                         .lambda =  seq(0, 1, length = len)),

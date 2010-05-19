@@ -56,12 +56,21 @@ The \code{pred} function returns a vector of predictions (numeric or factors) fr
             held-back samples}
 }
 
-The \code{filter} function is used to return a logical vector with names for each predictor. The values should be \code{TRUE} for predictors that pass the filter and \code{FALSE} for those that do not. Inputs are:
+The \code{score} function is used to return a vector of scores with names for each predictor (such as a p-value). Inputs are:
 \itemize{
       \item{\code{x}}{ the  predictors for the training samples}
       \item{\code{y}}{ the current training outcomes}
 }
-The function should return a named local vector, as previously stated.
+The function should return a vector, as previously stated. Examples are give by \code{\link{anovaScores}} for classification and  \code{\link{gamScores}} for regression.
+
+The \code{filter} function is used to return a logical vector with names for each predictor (\code{TRUE} indicates that the predicto should be retained). Inputs are:
+\itemize{
+      \item{\code{score}}{ the output of the \code{score} function}
+      \item{\code{x}}{ the  predictors for the training samples}
+      \item{\code{y}}{ the current training outcomes}
+}
+The function should return a named logical vector.
+
 
 Examples of these functions are included in the package: \code{\link{caretSBF}}, \code{\link{lmSBF}}, \code{\link{rfSBF}}, \code{\link{treebagSBF}}, \code{\link{ldaSBF}} and \code{\link{nbSBF}}.
 
