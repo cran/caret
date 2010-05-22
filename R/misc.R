@@ -160,7 +160,8 @@ modelLookup <- function(model = NULL)
                            "rocc",
                            "foba", "foba",
                            "partDSA", "partDSA",
-                           "glmStepAIC"
+                           "glmStepAIC",
+                           "hda", "hda", "hda"
                            ),
                          parameter = c(
                            "parameter",      
@@ -255,7 +256,8 @@ modelLookup <- function(model = NULL)
                            "xgenes",
                            "k", "lambda",
                            "cut.off.growth", "MPD",
-                           "parameter"
+                           "parameter",
+                           "gamma", "lambda", "newdim"
                            ),
                          label = I(c(
                            "none",      
@@ -352,7 +354,8 @@ modelLookup <- function(model = NULL)
                            "#Variables Retained",
                            "#Variables Retained", "L2 Penalty",
                            "Number of Terminal Partitions", "Minimum Percent Difference",
-                           "none"
+                           "none",
+                           "Gamma", "Lambda", "Dimension of the Discriminative Subspace"
                            )),
                          seq = c(
                            FALSE,
@@ -446,7 +449,8 @@ modelLookup <- function(model = NULL)
                            FALSE,
                            TRUE, FALSE,
                            TRUE, FALSE,
-                           FALSE
+                           FALSE,
+                           FALSE, FALSE, FALSE
                            ),
                          forReg = c(
                            TRUE,
@@ -540,7 +544,8 @@ modelLookup <- function(model = NULL)
                            FALSE,
                            TRUE, TRUE,
                            TRUE, TRUE,
-                           TRUE
+                           TRUE,
+                           FALSE, FALSE, FALSE
                            ),               
                          forClass =          
                          c(
@@ -635,7 +640,8 @@ modelLookup <- function(model = NULL)
                            TRUE,
                            FALSE, FALSE,
                            TRUE, TRUE,
-                           TRUE
+                           TRUE,
+                           TRUE, TRUE, TRUE
                            ),
                          probModel = c(
                            TRUE,             #   bagged trees
@@ -729,7 +735,8 @@ modelLookup <- function(model = NULL)
                            FALSE,             ## rrocc
                            FALSE, FALSE,      ## foba
                            FALSE, FALSE,      ## partDSA
-                           TRUE               ## glmStepAIC
+                           TRUE,              ## glmStepAIC
+                           TRUE, TRUE, TRUE   ## hda
                            ),
                          stringsAsFactors  = FALSE               
                          )         

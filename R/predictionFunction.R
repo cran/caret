@@ -766,7 +766,14 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
                                    }
                                }
                              out
-                           }                           
+                           },
+                           hda =
+                           {
+                             library(hda)
+                             tmp <- predict(modelFit, as.matrix(newdata))
+                             if(is.vector(tmp)) tmp <- matrix(tmp, ncol = 1)
+                             as.character(predict(modelFit$naivebayes, tmp))
+                           }
                            )
   predictedValue
 }

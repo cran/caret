@@ -57,7 +57,7 @@ Max Kuhn
 }
 
 \seealso{
-\code{\link{sbfControl}}, \code{\link{sbfControl}}
+\code{\link{sbfControl}}
 }
 \examples{
 data(BloodBrain)

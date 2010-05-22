@@ -9,7 +9,9 @@ sbfIter <- function(x, y,
 
   if(is.null(testX) | is.null(testY)) stop("a test set must be specified")
 
-  retained <- apply(x, 2, sbfControl$functions$filter, y = y)
+  scores <- apply(x, 2, sbfControl$functions$score, y = y)
+
+  retained <- sbfControl$functions$filter(scores, x, y)  
   ## deal with zero length results
   
   testX <- testX[, which(retained), drop = FALSE]
@@ -158,8 +160,9 @@ sbf <- function (x, ...) UseMethod("sbf")
                                        function(y) y$selectedVars))
   varList <- unique(unlist(selectedVars))
 
-  retained <- apply(x, 2, sbfControl$functions$filter, y = y)
-
+  scores <- apply(x, 2, sbfControl$functions$score, y = y)
+  retained <- sbfControl$functions$filter(scores, x, y)
+  
   fit <- sbfControl$functions$fit(x[, retained, drop = FALSE],
                                   y,
                                   ...)
@@ -319,20 +322,20 @@ sbfControl <- function(functions = NULL,
 ######################################################################
 ## some built-in functions for certain models
 
-anovaFilter <- function(x, y, cut = 0.05)
+anovaScores <- function(x, y)
   {
     pv <- try(anova(lm(x ~ y), test = "F")[1, "Pr(>F)"], silent = TRUE)
-    if(any(class(pv) == "try-error") || is.na(pv) || is.nan(pv)) pv <- Inf
-    pv <= cut
+    if(any(class(pv) == "try-error") || is.na(pv) || is.nan(pv)) pv <- 1
+    pv
   }
 
-gamFilter <- function(x, y, cut = 0.05)
+gamScores <- function(x, y)
   {
     library(gam)
     pv <- try(anova(gam(y ~ s(x)), test = "F")[2, "Pr(F)"], silent = TRUE)
     if(any(class(pv) == "try-error")) pv <- try(anova(lm(x ~ y), test = "F")[1, "Pr(>F)"], silent = TRUE)
-    if(any(class(pv) == "try-error") || is.na(pv) || is.nan(pv)) pv <- Inf
-    pv <= cut
+    if(any(class(pv) == "try-error") || is.na(pv) || is.nan(pv)) pv <- 1
+    pv
   }
 
 caretSBF <- list(summary = defaultSummary,
@@ -355,11 +358,12 @@ caretSBF <- list(summary = defaultSummary,
                        modelPred$pred
                      } else predict(object, x) 
                  },
-                 filter = function(x, y)
+                 score = function(x, y)
                  {
                    ## should return a named logical vector
-                   if(is.factor(y)) anovaFilter(x, y) else gamFilter(x, y)
-                 }
+                   if(is.factor(y)) anovaScores(x, y) else gamScores(x, y)
+                 },
+                 filter = function(score, x, y) score <= 0.05
                  )
 
 rfSBF <- list(summary = defaultSummary,
@@ -375,11 +379,12 @@ rfSBF <- list(summary = defaultSummary,
               {
                 predict(object, x)
               },
-              filter = function(x, y)
+              score = function(x, y)
               {
                 ## should return a named logical vector
-                if(is.factor(y)) anovaFilter(x, y) else gamFilter(x, y)
-              }
+                if(is.factor(y)) anovaScores(x, y) else gamScores(x, y)
+              },
+              filter = function(score, x, y) score <= 0.05
               )
 
 lmSBF <- list(summary = defaultSummary,
@@ -396,10 +401,11 @@ lmSBF <- list(summary = defaultSummary,
               {
                 predict(object, x)
               },
-              filter = function(x, y)
+              score = function(x, y)
               {
-                anovaFilter(y, x)
-              }
+                anovaScores(y, x)
+              },
+              filter = function(score, x, y) score <= 0.05
               )
 
 ldaSBF <- list(summary = defaultSummary,
@@ -415,11 +421,12 @@ ldaSBF <- list(summary = defaultSummary,
                {
                  if(class(object) == "nullModel") predict(object, x) else predict(object, x)$class
                },
-               filter = function(x, y)
+               score = function(x, y)
                {
                  ## should return a named logical vector
-                 novaFilter(x, y)
-               }
+                 anovaScores(x, y)
+               },
+               filter = function(score, x, y) score <= 0.05
                )
 
 nbSBF <- list(summary = defaultSummary,
@@ -441,11 +448,12 @@ nbSBF <- list(summary = defaultSummary,
               {
                 predict(object, x)$class
               },
-              filter = function(x, y)
+              score = function(x, y)
               {
                 ## should return a named logical vector
                 anovaFilter(x, y)
-              }
+              },
+                 filter = function(score, x, y) score <= 0.05
               )
 
 
@@ -464,11 +472,13 @@ treebagSBF <- list(summary = defaultSummary,
                      {
                        predict(object, x)
                      },
-                     filter = function(x, y)
+                     score = function(x, y)
                      {
                        ## should return a named logical vector
-                       anovaFilter(x, y)
-                     })
+                       anovaScores(x, y)
+                     },
+                   filter = function(score, x, y) score <= 0.05
+                   )
 
 
 
@@ -585,3 +595,54 @@ predict.nullModel <- function (object, newdata = NULL, ...)
   
 
 
+if(FALSE)
+  {
+    data(BloodBrain)
+
+
+    set.seed(1)
+    RFwithGAM <- sbf(bbbDescr, logBBB,
+                      sbfControl = sbfControl(functions = rfSBF,
+                        verbose = FALSE))
+
+    test <- rfSBF
+    test$filter <-  function(score, x, y)
+      {
+        ## FDR of 5%
+        out <- bhAdjust(score) <= 0.05 
+        out
+      }
+    
+
+        set.seed(1)
+    RFwithGAM2 <- sbf(bbbDescr, logBBB,
+                      sbfControl = sbfControl(functions = test,
+                        verbose = FALSE))
+    
+    
+    test <- rfSBF
+    test$filter <-  function(score, x, y)
+      {
+        ## Don't keep if no information
+        hasVar <- apply(x, 2, function(x) length(unique(x)) > 1)
+        corX <- cor(x[, hasVar, drop = FALSE])
+
+        ## Find minimal set with pair-wide correlations < 0.75
+        tooHigh <- findCorrelation(corX, .75)
+        if(length(tooHigh) > 1) hasVar[tooHigh] <- FALSE
+
+        ## FDR of 5%
+        out <- bhAdjust(score) <= 0.05 & hasVar
+        out
+      }
+    
+    set.seed(1)
+    RFwithGAM3 <- sbf(bbbDescr, logBBB,
+                      sbfControl = sbfControl(functions = test,
+                        verbose = FALSE))
+    RFwithGAM
+    RFwithGAM2
+    RFwithGAM3
+    
+
+  }

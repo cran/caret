@@ -8,7 +8,11 @@ print.confusionMatrix <- function(x, digits = max(3, getOption("digits") - 3), p
    if(printStats)
    {
  
-      overall <- signif(x$overall, digits = digits)
+      tmp <- format(x$overall, digits = digits)
+      pIndex <- grep("PValue", names(x$overall))
+      tmp[pIndex] <- format.pval(x$overall[pIndex], digits = digits)
+      overall <- tmp
+        
       accCI <- paste(
                      "(",
                      paste(
@@ -53,8 +57,7 @@ print.confusionMatrix <- function(x, digits = max(3, getOption("digits") - 3), p
          overallText <- c(
                       overallText,
                       "",
-                      paste(
-                            signif(x$byClass, digits = digits)))
+                      format(x$byClass, digits = digits))
          overallNames <- c(
                            overallNames,
                            "",

@@ -12,6 +12,11 @@ byComplexity <- function(x, model)
              # sort on lambda (larger are least complex)
              x[order(-x$lambda, x$gamma),] 
            },
+           hda =
+           {
+             
+             x[order(x$newdim, -x$lambda, x$gamma),] 
+           },           
            gbm =
            {
              # This is a toss-up, but the # trees probably adds

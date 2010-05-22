@@ -56,7 +56,7 @@
                    "qda", "relaxo", "lars", "lars2", "rlm", "vbmpRadial",
                    "superpc", "ppr", "sda", "penalized", "sparseLDA",
                    "nodeHarvest", "Linda", "QdaCov", "stepLDA", "stepQDA",
-                   "parRF", "plr", "rocc", "foba", "partDSA"))
+                   "parRF", "plr", "rocc", "foba", "partDSA", "hda"))
     {
       trainX <- data[,!(names(data) %in% ".outcome")]
       trainY <- data[,".outcome"] 
@@ -1356,6 +1356,15 @@
                                  MPD = tuneValue$.MPD,
                                  vfold = 1),
                                ...)
+                     },
+                     hda =
+                     {
+                       library(hda)
+                       hda(trainX, trainY,
+                           newdim = tuneValue$.newdim,
+                           reg.lamb = tuneValue$.lambda,
+                           reg.gamm = tuneValue$.gamma,
+                           crule = TRUE, ...)
                      }
                      )
   
