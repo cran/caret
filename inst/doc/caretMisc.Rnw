@@ -299,6 +299,11 @@ testDescr <- predict(preProcValues, test)
 
 In some cases, there is a need to use principal component analysis (PCA) to transform the data to a smaller sub--space where the new variable are uncorrelated with one another. The \texttt{preProcess} class can apply this transformation by including \texttt{"pca"} in the \texttt{method} argument. Doing this will also force scaling of the predictors. Note that when PCA is requested, \texttt{predict.preProcess} changes the column names to \texttt{PC1},  \texttt{PC2} and so on.
 
+Similarly, independent component analysis (ICA) can also be used to
+find new variables that are linear combinations of the original set
+such that the components are independent (as opposed to uncorrelated in
+PCA). The new variables will be labeled as  \texttt{IC1},  \texttt{IC2} and so on.
+
 The ``spatial sign" transformation (\href{http://pubs.acs.org/cgi-bin/abstract.cgi/jcisd8/2006/46/i03/abs/ci050498u.html}{Serneels {\it et al}, 2006}) projects the data for a predictor to the unit circle in $p$ dimensions, where $p$ is the number of predictors. Essentially, a vector of data is divided by its norm. Figures \ref{f:descSplom} and \ref{f:descSplomTrans} show two centered and scaled descriptors from the MDRR data before and after the spatial sign transformation. The predictors should be centered and scaled before applying this transformation.
 
 This transformation can also be applied using the \texttt{preProcess} class.
@@ -652,11 +657,25 @@ dev.off()
 For example, in the Fisher/Anderson iris data there are four predictors and a class variable describing three species of iris. These data are typically used to demonstrate how the four predictors can be used to predict the three species. 
 
 
+\subsection{Independent Component Regression}
+
+The \texttt{icr} function can be used to fit a model analogous to
+principal component regression (PCR), but using independent component
+analysis (ICA). The predictor data are centered and projected to the
+ICA components. These components are then regressed against the
+outcome. The user needed to specify the number of components to keep.
+
+The model uses the \texttt{preProcess} function to compute the latent
+variables using the  {\tt \href{http://cran.r-project.org/web/packages/fastICA/index.html}{fastICA}} package.
+
+Like PCR, there is no guarantee that there will be a correlation
+between the new latent variable and the outcomes.
+
 \section{Session Information}
 
 <<<session, echo=FALSE, results=tex>>=
 toLatex(sessionInfo())
-@ 
+@
 
 \section{References}
 

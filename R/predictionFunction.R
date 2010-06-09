@@ -773,6 +773,10 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
                              tmp <- predict(modelFit, as.matrix(newdata))
                              if(is.vector(tmp)) tmp <- matrix(tmp, ncol = 1)
                              as.character(predict(modelFit$naivebayes, tmp))
+                           },
+                           icr =
+                           {
+                             predict(modelFit, newdata)
                            }
                            )
   predictedValue

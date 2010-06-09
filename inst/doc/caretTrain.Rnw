@@ -449,70 +449,78 @@ There is additional functionality in \texttt{train} that is described in the nex
          \texttt{pcr} & 
              {\tt \href{http://cran.r-project.org/web/packages/pls/index.html}{pls}}      & 
             \texttt{ncomp}  \\  
+
+\rowcolor[rgb]{.95, .95, .95}   
+       Independent Component Regression&
+         \texttt{icr} & 
+             {\tt \href{http://cran.r-project.org/web/packages/caret/index.html}{caret}}      & 
+            \texttt{n.comp}  \\              
            
-\rowcolor[rgb]{.95, .95, .95}                    
+                
       Robust Linear Regression &
          \texttt{rlm} & 
              {\tt \href{http://cran.r-project.org/web/packages/MASS/index.html}{MASS}}       & 
             None \\              
                    
+ \rowcolor[rgb]{.95, .95, .95}   
       Rule--Based Models &
          \texttt{M5Rules} & 
             {\tt \href{http://cran.r-project.org/web/packages/RWeka/index.html}{RWeka}}    & 
             \texttt{pruned}  \\             
 
-\rowcolor[rgb]{.95, .95, .95}         
+
       Projection Pursuit Regression  &
          \texttt{ppr} & 
             \texttt{stats}       & 
             \texttt{nterms} \\            
-            
+         
+\rowcolor[rgb]{.95, .95, .95}               
       Penalized Linear Models  &
          \texttt{penalized} & 
              {\tt \href{http://cran.r-project.org/web/packages/penalized/index.html}{penalized}}      & 
             \texttt{lambda1}, \texttt{lambda2} \\            
-       
+\rowcolor[rgb]{.95, .95, .95}          
        &
          \texttt{lars} & 
              {\tt \href{http://cran.r-project.org/web/packages/lars/index.html}{lars}}      & 
             \texttt{fraction} \\   
+\rowcolor[rgb]{.95, .95, .95}               
          &
          \texttt{lars2} & 
              {\tt \href{http://cran.r-project.org/web/packages/lars/index.html}{lars}}        & 
             \texttt{step} \\            
-                
+\rowcolor[rgb]{.95, .95, .95}                   
       &
          \texttt{enet} & 
              {\tt \href{http://cran.r-project.org/web/packages/elasticnet/index.html}{elasticnet}}      & 
             \texttt{lambda}, \texttt{fraction} \\          
-
+\rowcolor[rgb]{.95, .95, .95}   
       &
          \texttt{lasso} & 
              {\tt \href{http://cran.r-project.org/web/packages/elasticnet/index.html}{elasticnet}}      & 
             \texttt{fraction} \\       
-      
+\rowcolor[rgb]{.95, .95, .95}         
        &
          \texttt{foba} & 
              {\tt \href{http://cran.r-project.org/web/packages/foba/index.html}{foba}}       & 
             \texttt{lambda}, \texttt{k} \\    
-            
-\rowcolor[rgb]{.95, .95, .95}                     
+                              
       Relevance Vector Machines  &
          \texttt{rvmLinear} & 
              {\tt \href{http://cran.r-project.org/web/packages/kernlab/index.html}{kernlab}}        & 
             none \\            
-
-\rowcolor[rgb]{.95, .95, .95}               
+             
   &
          \texttt{rvmRadial} & 
             {\tt \href{http://cran.r-project.org/web/packages/kernlab/index.html}{kernlab}}       & 
             \texttt{sigma} \\              
-
-\rowcolor[rgb]{.95, .95, .95}               
+           
   &
          \texttt{rvmPoly} & 
             {\tt \href{http://cran.r-project.org/web/packages/kernlab/index.html}{kernlab}}       & 
             \texttt{scale}, \texttt{degree} \\                        
+
+\rowcolor[rgb]{.95, .95, .95}
             
       Supervised Principal Components&
          \texttt{superpc}  &

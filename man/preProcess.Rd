@@ -17,16 +17,20 @@ preProcess(x, ...)
 }
 
 \arguments{
-  \item{x}{a matrix or data frame}
-  \item{method}{a character vector specifying the type of processing. Possible values are "center", "scale", "pca" and "spartialSign"}
+  \item{x}{a matrix or data frame. All variables must be numeric.}
+  \item{method}{a character vector specifying the type of processing. Possible values are "center", "scale", "pca" "ica" and "spartialSign" (see Details below)}
   \item{thresh}{a cutoff for the cumulative percent of variance to be retained by PCA}
   \item{na.remove}{a logical; should missing values be removed from the calculations?}
   \item{object}{an object of class \code{preProcess}}
   \item{newdata}{a matrix or data frame of new data to be pre-processed}
-  \item{\dots}{Additional arguments (currently this argument is not used)}
+  \item{\dots}{additional arguments to pass to \code{\link[fastICA]{fastICA}}, such as \code{n.comp}}
 }
 \details{
-The operations are applied in this order: centering, scaling, PCA and spatial sign. If PCA is requested but scaling is not, the values will still be scaled. 
+The operations are applied in this order: centering, scaling, PCA, ICA then spatial sign. 
+
+If PCA is requested but scaling is not, the values will still be scaled. Similarly, when ICA is requested, the data are automatically centered.
+
+A warning is thrown if both PCA and ICA are requested. ICA, as implemented bt the \code{\link[fastICA]{fastICA}} package automatically does a PCA decomposition prior to finding the ICA scores.
 
 The function will throw an error of any variables in \code{x} has less than two unique values. 
 }
@@ -40,14 +44,14 @@ The function will throw an error of any variables in \code{x} has less than two 
   \item{method}{the value of\code{method}}
   \item{thresh}{the value of\code{thresh}}
   \item{numComp}{the number of principal components required of capture the specified amount of variance}
-
+  \item{ica}{contains values for the \code{W} and \code{K} matrix of the decomposition}
 }
 
 \author{ Max Kuhn }
 
 \references{Kuhn (2008), ``Building Predictive Models in R Using the caret'' (\url{http://www.jstatsoft.org/v28/i05/})}
 
-\seealso{\code{\link[stats]{prcomp}}, \code{\link{spatialSign}}}
+\seealso{\code{\link[stats]{prcomp}}, \code{\link[fastICA]{fastICA}}, \code{\link{spatialSign}}}
 
 \examples{
 data(BloodBrain)

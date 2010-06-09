@@ -8,7 +8,7 @@ print.confusionMatrix <- function(x, digits = max(3, getOption("digits") - 3), p
    if(printStats)
    {
  
-      tmp <- format(x$overall, digits = digits)
+      tmp <- round(x$overall, digits = digits)
       pIndex <- grep("PValue", names(x$overall))
       tmp[pIndex] <- format.pval(x$overall[pIndex], digits = digits)
       overall <- tmp
