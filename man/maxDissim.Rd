@@ -7,7 +7,8 @@
 Functions to create a sub-sample by maximizing the dissimilarity between new samples and the existing subset.
 }
 \usage{
-maxDissim(a, b, n = 2, obj = minDiss, randomFrac = 1, verbose = FALSE, ...)
+maxDissim(a, b, n = 2, obj = minDiss, useNames = FALSE, 
+         randomFrac = 1, verbose = FALSE, ...)
 minDiss(u)
 sumDiss(u)
 }
@@ -17,6 +18,7 @@ sumDiss(u)
   \item{b}{a matrix or data frame of samples to sample from}
   \item{n}{the size of the sub-sample}
   \item{obj}{an objective function to measure overall dissimilarity}
+  \item{useNames}{a logical: should the function return the row names (as opposed ot the row index)}
   \item{randomFrac}{a number in (0, 1] that can be used to sub-sample from the remaining candidate values} 
   \item{verbose}{a logical; should each step be printed?}
   \item{\dots}{optional arguments to pass to dist}
@@ -29,7 +31,7 @@ This algorithm tends to select points on the edge of the data mainstream and wil
 
 }
 \value{
-a vector of integers corresponding to the rows of \code{b} that comprise the sub-sample. 
+a vector of integers or row names (depending on \code{useNames}) corresponding to the rows of \code{b} that comprise the sub-sample. 
 }
 \references{Willett, P. (1999), "Dissimilarity-Based Algorithms for Selecting Structurally Diverse Sets of Compounds," \emph{Journal of Computational Biology}, 6, 447-457.}
 \author{Max Kuhn  \email{max.kuhn@pfizer.com}}

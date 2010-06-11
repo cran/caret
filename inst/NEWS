@@ -1,5 +1,25 @@
 -------------------
-Version: 4.40Date: 2010-05-19
+Version: 4.42
+Date: 2010-06-09
+
+Added predict.sbf and modified the structure of the sbf 
+helper functions. The "score" function only computes 
+the metric used to filter and the filter function does
+the actual filtering. This was changed so that FDR 
+corrections or other operations that use all of the 
+p-values can be computed. 
+
+Also, the formatting of p-values in print.confusionMatrix  
+was changed and an argument was added to maxDissim
+so that the variable name is returned instead of the index.
+
+Independent component analysis was added to the list of 
+pre-processing operations and a new model ("icr") was
+added to fit a pcr-like model with the ICA components.
+
+-------------------
+Version: 4.40
+Date: 2010-05-19
 
 Added hda and cleaned up the caret training vignette 
 

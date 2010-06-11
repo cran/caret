@@ -56,7 +56,7 @@
                    "qda", "relaxo", "lars", "lars2", "rlm", "vbmpRadial",
                    "superpc", "ppr", "sda", "penalized", "sparseLDA",
                    "nodeHarvest", "Linda", "QdaCov", "stepLDA", "stepQDA",
-                   "parRF", "plr", "rocc", "foba", "partDSA", "hda"))
+                   "parRF", "plr", "rocc", "foba", "partDSA", "hda", "icr"))
     {
       trainX <- data[,!(names(data) %in% ".outcome")]
       trainY <- data[,".outcome"] 
@@ -1365,6 +1365,12 @@
                            reg.lamb = tuneValue$.lambda,
                            reg.gamm = tuneValue$.gamma,
                            crule = TRUE, ...)
+                     },
+                     icr =
+                     {
+                       icr(trainX, trainY,
+                           n.comp = tuneValue$.n.comp,
+                           ...)
                      }
                      )
   

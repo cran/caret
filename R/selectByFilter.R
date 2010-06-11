@@ -1,5 +1,3 @@
-## need:
-##     - predict for rfe and sbf
 
 sbfIter <- function(x, y,
                     testX, testY, 
@@ -72,7 +70,7 @@ sbfChunk <- function(inTrain, x, y, cntl, sizes, ...)
     
     if(length(j) == 0) stop("can't figure out which resample iteration this is")
 
-    if(cntl$verbose) cat("\nExternal resampling iter:\t", j)
+    if(cntl$verbose) cat("\nExternal resampling iter:\t", j, "\n")
     flush.console()
     
     inTrainX <- x[inTrain, ]
@@ -291,6 +289,37 @@ print.sbf <- function(x, top = 5, digits = max(3, getOption("digits") - 3), ...)
 
 ######################################################################
 ######################################################################
+
+predict.sbf <- function(object, newdata = NULL, ...)
+  {
+    if(!all(object$optVariables %in% colnames(newdata)))
+      stop("required columns in newdata are missing")
+    if(!is.null(newdata))
+      {
+        if (inherits(object, "sbf.formula"))
+          {
+            newdata <- as.data.frame(newdata)
+            rn <- row.names(newdata)
+            Terms <- delete.response(object$terms)
+            m <- model.frame(Terms, newdata, na.action = na.omit, 
+                             xlev = object$xlevels)
+            if (!is.null(cl <- attr(Terms, "dataClasses"))) .checkMFClasses(cl, m)
+            keep <- match(row.names(m), rn)
+            newdata <- model.matrix(Terms, m, contrasts = object$contrasts)
+            xint <- match("(Intercept)", colnames(newdata), nomatch = 0)
+            if (xint > 0) newdata <- newdata[, -xint, drop = FALSE]   
+          }
+        newdata <- newdata[, object$optVariables, drop = FALSE]
+        out <- object$control$functions$pred(object$fit, newdata)
+      } else {
+        out <- object$control$functions$pred(object$fit)
+      }
+    out  
+  }
+
+######################################################################
+######################################################################
+
 
 sbfControl <- function(functions = NULL,
                        method = "boot",
