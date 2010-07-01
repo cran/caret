@@ -1,4 +1,20 @@
 -------------------
+Version: 4.43
+Date: 2010-06-30
+
+Bug fix release:
+
+o the resampling estimate of the standard deviation given 
+  by train() since v 4.39 was wrong
+
+o a new field was added to varImp.mvr called "estimate".
+  In cases where the mvr model had multiple estimates of
+  performance (e.g. training set, CV, etc) the user can
+  now select which estimate they want to be used in the
+  importance calculation (thanks to Sophie Bréand for
+  finding this)
+
+-------------------
 Version: 4.42
 Date: 2010-06-09
 

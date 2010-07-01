@@ -1433,7 +1433,7 @@ getPerformance <- function(x, groups, func, levels, mod, loo = FALSE)
         sdFunc <- function(x, y, p)
           {
             x <- x[, p, drop = FALSE]
-            mean(x, na.rm = TRUE)
+            sd(x, na.rm = TRUE)
           }
         sds <- lapply(splitUp, sdFunc, y = groups, p = perfNames)
         sds <- do.call("rbind", sds)
