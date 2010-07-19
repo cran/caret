@@ -304,6 +304,21 @@ probFunction <- function(method, modelFit, newdata)
                         tmp <- predict(modelFit, as.matrix(newdata))
                         if(is.vector(tmp)) tmp <- matrix(tmp, ncol = 1)
                         predict(modelFit$naivebayes, tmp, type = "raw")
+                      },
+                      scrda =
+                      {
+                        library(rda)
+                        tmp <- predict(modelFit,
+                                       x = modelFit$data$x,
+                                       y = as.numeric(modelFit$data$y),
+                                       xnew = t(as.matrix(newdata)),
+                                       type = "posterior",
+                                       alpha = modelFit$tuneValue$.alpha,
+                                       delta = modelFit$tuneValue$.delta)
+                        ## No matter the actual factor levels supplied, we
+                        ## need to back-transform the column names
+                        colnames(tmp) <- obsLevels[as.numeric(colnames(tmp))]
+                        tmp
                       }
                       )
 

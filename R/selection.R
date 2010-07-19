@@ -25,7 +25,7 @@ byComplexity <- function(x, model)
            },
            rf =, rfNWS =, rfLSF =, parRF =, gpls =, pcr =, pls =, PLS =, pam =, cforest =,
            nb =, rpart =, ctree2 =, logitBoost=, J48 =, LMT =, ppr =, mda =, pda =, pda2 =,
-           lars =, lars2 =, Linda =, QdaCov =, icr =  
+           lars =, lars2 =, Linda =, QdaCov =, icr =, qrf =  
            {
              x[order(x[,1]),]
            },
@@ -137,7 +137,9 @@ byComplexity <- function(x, model)
            partDSA =
            {
              x[order(x$cut.off.growth, x$MPD),]
-           },           
+           },
+           neuralnet = x[order(x$layer1, x$layer2, x$layer3),],
+           scrda = x[order(x$alpha, x$delta, decreasing = TRUE),],
            rocc = x[order(x$xgenes),],
            foba = x[order(x$k, -x$lambda),], 
            obliqueTree = x[order(x$variable.selection),],

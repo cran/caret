@@ -335,11 +335,6 @@ predictors.BinaryTree <- function(x, surrogate = TRUE, ...)
   }
 
 
-predictors.RandomForest <- function(x, surrogate = TRUE, ...)
-  {
-    NA    
-  }
-
 predictors.bagEarth <- function(x, ...)
   {
     eachFit <- lapply(x$fit, predictors.earth)
@@ -358,6 +353,11 @@ predictors.ppr <- function(x, ...)
   }
 
 predictors.spls <- function(x, ...)
+  {
+    colnames(x$x)[x$A]
+  }
+
+predictors.splsda <- function(x, ...)
   {
     colnames(x$x)[x$A]
   }
@@ -487,4 +487,11 @@ predictors.dsa <- function(x, cuts = NULL, ...)
     tmp <- x$var.importance[,cuts]
     names(tmp)[which(tmp != 0)]
 
+  }
+
+predictors.RandomForest <- function(x, ...)
+  {
+    library(party)
+    vi <- varimp(x, ...)
+    names(vi)[vi != 0]
   }

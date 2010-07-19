@@ -56,7 +56,8 @@
                    "qda", "relaxo", "lars", "lars2", "rlm", "vbmpRadial",
                    "superpc", "ppr", "sda", "penalized", "sparseLDA",
                    "nodeHarvest", "Linda", "QdaCov", "stepLDA", "stepQDA",
-                   "parRF", "plr", "rocc", "foba", "partDSA", "hda", "icr"))
+                   "parRF", "plr", "rocc", "foba", "partDSA", "hda", "icr",
+                   "qrf", "scrda"))
     {
       trainX <- data[,!(names(data) %in% ".outcome")]
       trainY <- data[,".outcome"] 
@@ -1371,6 +1372,43 @@
                        icr(trainX, trainY,
                            n.comp = tuneValue$.n.comp,
                            ...)
+                     },
+                     neuralnet =
+                     {
+                       library(neuralnet)
+                       colNames <- colnames(data)
+                       colNames <- colNames[colNames != ".outcome"]
+                       form <- as.formula(
+                                          paste(".outcome ~",
+                                                paste(colNames, collapse = "+")))
+                       if(tuneValue$.layer1 == 0) stop("the first layer must have at least one hidden unit")
+                       if(tuneValue$.layer2 == 0 & tuneValue$.layer2 > 0) stop("the second layer must have at least one hidden unit if a third layer is specified")
+                       nodes <- c(tuneValue$.layer1)
+                       if(tuneValue$.layer2 > 0)
+                         {
+                           nodes <- c(nodes, tuneValue$.layer2)
+                           if(tuneValue$.layer3 > 0) nodes <- c(nodes, tuneValue$.layer3)
+                         }
+                       
+                       neuralnet(form,
+                                 data = data,
+                                 hidden = nodes,
+                                 ...)
+                     },
+                     qrf =
+                     {
+                       library(quantregForest)
+                       quantregForest(trainX, trainY, mtry = tuneValue$.mtry, ...)
+                     },
+                     scrda =
+                     {
+                       library(rda)
+                       modelFit <- rda:::rda(t(trainX), as.numeric(trainY),
+                                             alpha = tuneValue$.alpha,
+                                             delta = tuneValue$.delta,
+                                             ...)
+                       modelFit$data <- list(x = t(trainX), y = trainY)
+                       modelFit
                      }
                      )
   

@@ -777,7 +777,70 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
                            icr =
                            {
                              predict(modelFit, newdata)
-                           }
+                           },
+                           neuralnet =
+                           {
+                             library(neuralnet)
+                             newdata <- newdata[, modelFit$model.list$variables, drop = FALSE]
+                             compute(modelFit,
+                                     covariate = newdata)$net.result[,1]
+
+                           },
+                           qrf =
+                           {
+                             library(quantregForest)
+                             predict(modelFit, newdata, quantiles = .5)
+                           },
+                           scrda =
+                           {
+                             library(rda)
+                             out <- predict(modelFit,
+                                            x = modelFit$data$x,
+                                            y = as.numeric(modelFit$data$y),
+                                            xnew = t(as.matrix(newdata)),
+                                            alpha = modelFit$tuneValue$.alpha,
+                                            delta = modelFit$tuneValue$.delta)
+                             out <- as.character(modelFit$obsLevels)[out]
+
+                             if(!is.null(param))
+                               {
+                                 ## We could get results for all alpha, delta and samples at the same time.
+                                 ## If #alpha > 1 and #delta > 1, the results are a 3d array. However, if either
+                                 ## alpha or delta have one value, the array dinesions drop, so it is hard to
+                                 ## get predictions elegently.
+                                 
+                                 ## Column order will be (a_1, d_1), (a_1, d_2), ..., (a_p, d_q)
+                                 tmp <- data.frame(
+                                                   matrix(NA, nrow = nrow(newdata), ncol = nrow(param)+1),
+                                                   stringsAsFactors = FALSE)
+                                 tmp[,1] <- out
+
+                                 ## Using predict.rda, the alpha and delta params will generate all
+                                 ## possible combinations, which might not be what the user wanted
+                                 ## as specified by tuneGrid. To make sure these match, we will
+                                 ## loop over one parameter
+                                 
+                                 uniqueA <- unique(param$.alpha)
+                                 index1 <- 2
+                                 for(i in 1:length(uniqueA))
+                                   {
+                                     delta <- subset(param, .alpha == uniqueA[i])$.delta
+                                     index2 <- index1 + length(delta) - 1
+                                     tmpPred <- predict(modelFit,
+                                                        x = modelFit$data$x,
+                                                        y = as.numeric(modelFit$data$y),
+                                                        xnew = t(as.matrix(newdata)),
+                                                        alpha = uniqueA[i],
+                                                        delta = delta)
+                                     tmpPred <- apply(tmpPred, 2, function(x, y) y[x], y = as.character(modelFit$obsLevels))
+                                     tmp[, index1:index2] <- t(tmpPred)
+                                     index1 <- index2 + 1
+                                   }
+                                 out <- tmp
+                               }
+
+                             out
+                           }                           
                            )
   predictedValue
 }

@@ -461,6 +461,17 @@ There is additional functionality in \texttt{train} that is described in the nex
          \texttt{rlm} & 
              {\tt \href{http://cran.r-project.org/web/packages/MASS/index.html}{MASS}}       & 
             None \\              
+            
+\rowcolor[rgb]{.95, .95, .95}              
+      Neural Networks &
+         \texttt{neuralnet} & 
+             {\tt \href{http://cran.r-project.org/web/packages/neuralnet/index.html}{neuralnet}}       & 
+            \texttt{layer1},  \texttt{layer2}, \texttt{layer3}\\         
+              
+      Quantile Regressoin Forests &
+         \texttt{qrf} & 
+             {\tt \href{http://cran.r-project.org/web/packages/quantregForest/index.html}{quantregForest}}       & 
+            \texttt{mtry}\\                 
                    
  \rowcolor[rgb]{.95, .95, .95}   
       Rule--Based Models &
@@ -680,6 +691,12 @@ There is additional functionality in \texttt{train} that is described in the nex
          \texttt{pam} & 
              {\tt \href{http://cran.r-project.org/web/packages/pamr/index.html}{pamr}}        & 
             \texttt{threshold} \\  
+
+\rowcolor[rgb]{.95, .95, .95}              
+&
+         \texttt{scrda} & 
+             {\tt \href{http://cran.r-project.org/web/packages/rda/index.html}{rda}}        & 
+            \texttt{alpha}, \texttt{delta} \\              
        
       Naive Bayes &
          \texttt{nb} & 

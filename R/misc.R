@@ -162,7 +162,10 @@ modelLookup <- function(model = NULL)
                            "partDSA", "partDSA",
                            "glmStepAIC",
                            "hda", "hda", "hda",
-                           "icr"
+                           "icr",
+                           "neuralnet", "neuralnet", "neuralnet",
+                           "qrf",
+                           "scrda", "scrda"
                            ),
                          parameter = c(
                            "parameter",      
@@ -259,7 +262,10 @@ modelLookup <- function(model = NULL)
                            "cut.off.growth", "MPD",
                            "parameter",
                            "gamma", "lambda", "newdim",
-                           "n.comp"
+                           "n.comp",
+                           "layer1", "layer2", "layer3",
+                           "mtry",
+                           "alpha", "delta"
                            ),
                          label = I(c(
                            "none",      
@@ -358,7 +364,10 @@ modelLookup <- function(model = NULL)
                            "Number of Terminal Partitions", "Minimum Percent Difference",
                            "none",
                            "Gamma", "Lambda", "Dimension of the Discriminative Subspace",
-                           "#Components"
+                           "#Components",
+                           "#Hidden Units in Layer 1", "#Hidden Units in Layer 2", "#Hidden Units in Layer 3",
+                           "#Randomly Selected Predictors",
+                           "Regularization Value", "Threshold"
                            )),
                          seq = c(
                            FALSE,
@@ -454,7 +463,10 @@ modelLookup <- function(model = NULL)
                            TRUE, FALSE,
                            FALSE,
                            FALSE, FALSE, FALSE,
-                           FALSE
+                           FALSE,
+                           FALSE, FALSE, FALSE,
+                           FALSE,
+                           TRUE, TRUE
                            ),
                          forReg = c(
                            TRUE,
@@ -550,7 +562,10 @@ modelLookup <- function(model = NULL)
                            TRUE, TRUE,
                            TRUE,
                            FALSE, FALSE, FALSE,
-                           TRUE
+                           TRUE,
+                           TRUE, TRUE, TRUE,
+                           TRUE,
+                           FALSE, FALSE
                            ),               
                          forClass =          
                          c(
@@ -647,7 +662,10 @@ modelLookup <- function(model = NULL)
                            TRUE, TRUE,
                            TRUE,
                            TRUE, TRUE, TRUE,
-                           FALSE
+                           FALSE,
+                           FALSE, FALSE, FALSE,
+                           FALSE,
+                           TRUE, TRUE
                            ),
                          probModel = c(
                            TRUE,             #   bagged trees
@@ -743,7 +761,10 @@ modelLookup <- function(model = NULL)
                            FALSE, FALSE,      ## partDSA
                            TRUE,              ## glmStepAIC
                            TRUE, TRUE, TRUE,  ## hda
-                           FALSE              ## icr
+                           FALSE,             ## icr,
+                           FALSE, FALSE, FALSE, ## neuralnet
+                           FALSE,             ## qrf
+                           TRUE, TRUE         ## scrda
                            ),
                          stringsAsFactors  = FALSE               
                          )         
@@ -1042,7 +1063,13 @@ tuneScheme <- function(model, grid, useOOB = FALSE)
                    loop$.cut.off.growth[loop$.MPD == uniqueMPD[i]] <- subCuts[which.max(subCuts)]
                    seqParam[[i]] <- data.frame(.cut.off.growth = subCuts[-which.max(subCuts)])
                  }
-             }
+             },
+             scrda = 
+             {
+               grid <- grid[order(grid$.alpha, grid$.delta, decreasing = TRUE),]
+               loop <- grid[1,,drop = FALSE]
+               seqParam <- list(grid[-1,,drop = FALSE])
+             }            
              )
       out <- list(scheme = "seq", loop = loop, seqParam = seqParam, model = modelInfo, constant = constant, vary = vary)
     } else out <- list(scheme = "basic", loop = grid, seqParam = NULL, model = modelInfo, constant = names(grid), vary = NULL)

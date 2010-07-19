@@ -30,6 +30,7 @@
 \alias{predictors.pcaNNet}
 \alias{predictors.ppr}
 \alias{predictors.randomForest}
+\alias{predictors.RandomForest}
 \alias{predictors.rda}
 \alias{predictors.regbagg}
 \alias{predictors.rpart}
@@ -40,6 +41,7 @@
 \alias{predictors.train}
 \alias{predictors.rfe}
 \alias{predictors.spls}
+\alias{predictors.splsda}
 \alias{predictors.glm}
 \alias{predictors.mda}
 \alias{predictors.glmnet}
@@ -136,7 +138,7 @@ predictors(x, ...)
 
 \method{predictors}{randomForest}(x,  ...)
 
-\method{predictors}{RandomForest}(x, surrogate = TRUE,  ...)
+\method{predictors}{RandomForest}(x, ...)
 
 \method{predictors}{rda}(x,  ...)
 
@@ -157,6 +159,8 @@ predictors(x, ...)
 \method{predictors}{smda}(x,  ...)
 
 \method{predictors}{spls}(x,  ...)
+
+\method{predictors}{splsda}(x,  ...)
 
 \method{predictors}{superpc}(x, newdata = NULL, threshold = NULL, n.components = NULL, ...)
 
