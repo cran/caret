@@ -31,7 +31,7 @@ train(x, ...)
 \item{subset}{An index vector specifying the cases to be used in the training sample. (NOTE: If given, this argument must be named.)}
 \item{na.action}{A function to specify the action to be taken if NAs are found. The default action is for the procedure to fail. An alternative is na.omit, which leads to rejection of cases with missing values on any required variable. (NOTE: If given, this argument must be named.)}
 \item{contrasts}{a list of contrasts to be used for some or all of the factors appearing as variables in the model formula.}
-  \item{method}{a string specifying which classification or regression model to use. Possible values are: \code{ada}, \code{bagEarth}, \code{bagFDA}, \code{blackboost}, \code{cforest}, \code{ctree}, \code{ctree2}, \code{earth}, \code{enet}, \code{fda}, \code{foba}, \code{gamboost}, \code{gaussprPoly}, \code{gaussprRadial}, \code{gaussprLinear}, \code{gbm}, \code{glm}, \code{glmboost}, \code{glmnet}, \code{gpls}, \code{hda}, \code{icr}, \code{J48}, \code{JRip}, \code{knn}, \code{lars}, \code{lasso}, \code{lda}, \code{Linda}, \code{lm}, \code{lmStepAIC}, \code{LMT}, \code{logitBoost}, \code{lssvmPoly}, \code{lssvmRadial}, \code{lvq}, \code{M5Rules}, \code{mda}, \code{multinom}, \code{nb}, \code{nnet}, \code{nodeHarvest}, \code{OneR}, \code{pam}, \code{parRF}, \code{partDSA}, \code{pcaNNet}, \code{pcr}, \code{pda}, \code{pda2}, \code{penalized}, \code{plr}, \code{pls}, \code{ppr}, \code{qda}, \code{QdaCov}, \code{rda}, \code{rf}, \code{rlm}, \code{rocc}, \code{rpart}, \code{rvmLinear}, \code{rvmPoly}, \code{rvmRadial}, \code{sda}, \code{sddaLDA}, \code{sddaQDA}, \code{slda}, \code{smda}, \code{sparseLDA}, \code{spls}, \code{stepLDA}, \code{stepQDA}, \code{superpc}, \code{svmPoly}, \code{svmRadial}, \code{svmLinear}, \code{treebag} and  \code{vbmpRadial}. See the Details section below.}  
+  \item{method}{a string specifying which classification or regression model to use. Possible values are: \code{ada}, \code{bagEarth}, \code{bagFDA}, \code{blackboost}, \code{cforest}, \code{ctree}, \code{ctree2}, \code{earth}, \code{enet}, \code{fda}, \code{foba}, \code{gamboost}, \code{gaussprPoly}, \code{gaussprRadial}, \code{gaussprLinear}, \code{gbm}, \code{glm}, \code{glmboost}, \code{glmnet}, \code{gpls}, \code{hda}, \code{icr}, \code{J48}, \code{JRip}, \code{knn}, \code{lars}, \code{lasso}, \code{lda}, \code{Linda}, \code{lm}, \code{lmStepAIC}, \code{LMT}, \code{logitBoost}, \code{lssvmPoly}, \code{lssvmRadial}, \code{lvq}, \code{M5Rules}, \code{mda}, \code{multinom}, \code{nb}, \code{neuralnet}, \code{nnet}, \code{nodeHarvest}, \code{OneR}, \code{pam}, \code{parRF}, \code{partDSA}, \code{pcaNNet}, \code{pcr}, \code{pda}, \code{pda2}, \code{penalized}, \code{plr}, \code{pls}, \code{ppr}, \code{qda}, \code{QdaCov}, \code{rda}, \code{rf}, \code{rlm}, \code{rocc}, \code{rpart}, \code{rvmLinear}, \code{rvmPoly}, \code{rvmRadial}, \code{sda}, \code{sddaLDA}, \code{sddaQDA}, \code{slda}, \code{smda}, \code{sparseLDA}, \code{spls}, \code{stepLDA}, \code{stepQDA}, \code{superpc}, \code{svmPoly}, \code{svmRadial}, \code{svmLinear}, \code{treebag} and  \code{vbmpRadial}. See the Details section below.}  
   \item{\ldots}{ arguments passed to the classification or regression routine (such as \code{\link[randomForest]{randomForest}}). Errors will occur if values
          for tuning parameters are passed here.}  
   \item{metric}{a string that specifies what summary metric will be used to select the optimal model. By default, possible values are "RMSE" and "Rsquared" for regression and "Accuracy" and "Kappa" for classification. If custom performance metrics are used (via the \code{summaryFunction} argument in \code{\link{trainControl}}, the value of \code{metric} should match one of the arguments. If it does not, a warning is issued and the first metric given by the \code{summaryFunction} is used. (NOTE: If given, this argument must be named.)}         
@@ -71,6 +71,7 @@ Other Trees \tab \code{nodeHarvest} \tab \pkg{nodeHarvest} \tab \code{maxinter},
             \tab \code{partDSA} \tab \pkg{partDSA} \tab \code{cut.off.growth}, \code{MPD} \cr 
 Elastic net (glm) \tab  \code{glmnet} \tab \pkg{glmnet} \tab \code{alpha}, \code{lambda} \cr
 Neural networks \tab  \code{nnet} \tab \pkg{nnet} \tab \code{decay}, \code{size} \cr
+                \tab \code{neuralnet} \tab \pkg{neuralnet} \tab \code{layer1}, \code{layer2}, \code{layer3} \cr
 \tab \code{pcaNNet} \tab  \pkg{caret} \tab \code{decay}, \code{size} \cr
 Projection pursuit regression \tab \code{ppr} \tab \pkg{stats} \tab \code{nterms} \cr
 Principal component regression \tab \code{pcr} \tab \pkg{pls} \tab \code{ncomp} \cr
@@ -100,6 +101,7 @@ Penalized linear models \tab \code{penalized} \tab \pkg{penalized} \tab \code{la
    \tab \code{enet} \tab \pkg{elasticnet} \tab \code{fraction} \cr
    \tab \code{foba} \tab \pkg{foba} \tab \code{lambda}, \code{k} \cr
 Supervised principal components \tab \code{superpc} \tab \pkg{superpc} \tab \code{n.components}, \code{threshold} \cr 
+Quantile Regressoin Forests \tab \code{qrf} \tab \pkg{quantregForest} \tab \code{mtry} \cr
 Linear discriminant analysis \tab \code{lda} \tab \pkg{MASS} \tab  None\cr 
                              \tab \code{Linda} \tab \pkg{rrcov} \tab  None\cr 
 Quadratic discriminant analysis \tab \code{qda} \tab \pkg{MASS} \tab  None\cr 
@@ -129,6 +131,7 @@ Rule--based classification \tab \code{J48} \tab \pkg{RWeka} \tab \code{C}\cr
 Bayesian multinomial probit model \tab \code{vbmpRadial} \tab \pkg{vbmp} \tab \code{estimateTheta} \cr
 k nearest neighbors \tab \code{knn3} \tab \pkg{caret} \tab \code{k} \cr 
 Nearest shrunken centroids \tab \code{pam} \tab \pkg{pamr} \tab \code{threshold} \cr  
+                           \tab \code{scrda} \tab \pkg{rda} \tab \code{alpha}, \code{delta} \cr 
 Naive Bayes \tab \code{nb} \tab \pkg{klaR} \tab \code{usekernel} \cr
 Generalized partial least squares\tab \code{gpls} \tab \pkg{gpls} \tab \code{K.prov} \cr
 Learned vector quantization \tab \code{lvq} \tab \pkg{class} \tab  \code{k} \cr

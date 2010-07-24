@@ -1,4 +1,12 @@
 -------------------
+Version: 4.44
+Date: 2010-07-19
+
+Added neuralnet, quantregForest and rda:::rda to train(). 
+Since there is a naming conflict with mda:::rda, the 
+rda:::rda model was given a method value of "scrda".
+
+-------------------
 Version: 4.43
 Date: 2010-06-30
 

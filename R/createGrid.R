@@ -175,6 +175,21 @@
       names(tmp) <- ".xgenes"
       tmp
     }
+
+  scrdaTune <- function(data, len)
+    {
+      library(rda)
+      x <- t(as.matrix(data[, colnames(data) != ".outcome", drop = FALSE]))
+      modelFit <- rda:::rda(x, as.numeric(data$.outcome),
+                            alpha = 0,
+                            delta = seq(0, 30, length = 30))
+      maxDelta <- max(modelFit$delta[modelFit$ngene > 0])
+      if(maxDelta == 0) maxDelta <- modelFit$delta[2]
+      out <- expand.grid(.alpha = seq(0, .9, length = len),
+                         .delta = seq(0, maxDelta, length = len))
+      out
+
+    }
   
   trainGrid <- switch(method,
                       nnet =, pcaNNet = expand.grid(
@@ -191,7 +206,7 @@
                         .interaction.depth = seq(1, len),
                         .n.trees = floor((1:len) * 50),
                         .shrinkage = .1),
-                      rf =, rfNWS =, rfLSF =, parRF = rfTune(data, len),
+                      rf =, rfNWS =, rfLSF =, parRF =, qrf = rfTune(data, len),
                       gpls = data.frame(.K.prov =seq(1, len) ),
                       lvq = data.frame(.k =seq(4, 3+len) ),
                       rpart = rpartTune(data, len),
@@ -288,6 +303,8 @@
                         .k = larsTune(data, len)[,1]),
                       partDSA = expand.grid(.cut.off.growth = 1:10, .MPD = .1),
                       icr = data.frame(.n.comp = 1:len),
+                      neuralnet = expand.grid(.layer1 = ((1:len) * 2) - 1, .layer2 = 0, .layer3 = 0),
+                      scrda = scrdaTune(data, len),
                       lda =, lm =, treebag =, sddaLDA =, sddaQDA =,
                       glm =, qda =, OneR =, rlm =,
                       rvmLinear =, lssvmLinear =, gaussprLinear =,
