@@ -138,6 +138,14 @@ byComplexity <- function(x, model)
            {
              x[order(x$cut.off.growth, x$MPD),]
            },
+           bag =
+           {
+             x[order(x$vars),]
+           },
+           hdda =
+           {
+             x[order(-x$threshold),]
+           },
            neuralnet = x[order(x$layer1, x$layer2, x$layer3),],
            scrda = x[order(x$alpha, x$delta, decreasing = TRUE),],
            rocc = x[order(x$xgenes),],

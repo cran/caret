@@ -21,7 +21,7 @@
          \usepackage{lscape}
 
 \usepackage{Sweave}
-
+\SweaveOpts{keep.source=TRUE}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % define new colors for use
@@ -265,123 +265,128 @@ There is additional functionality in \texttt{train} that is described in the nex
       Generalized linear model &
          \texttt{glm} & 
             \texttt{stats}       & 
-            None \\
+            None & \\
 \rowcolor[rgb]{.95, .95, .95}                       
          &
          \texttt{glmStepAIC} & 
              {\tt \href{http://cran.r-project.org/web/packages/MASS/index.html}{MASS}}       & 
-            None \\              
+            None & \\              
        
        
        
       Recursive Partitioning &
          \texttt{rpart} & 
              {\tt \href{http://cran.r-project.org/web/packages/rpart/index.html}{rpart}}     & 
-            \texttt{maxdepth} \\  
+            \texttt{maxdepth} & \\  
        &
          \texttt{ctree} & 
              {\tt \href{http://cran.r-project.org/web/packages/party/index.html}{party}}       & 
-            \texttt{mincriterion} \\   
+            \texttt{mincriterion} & \\   
        &
          \texttt{ctree2} & 
             {\tt \href{http://cran.r-project.org/web/packages/party/index.html}{party}}      & 
-            \texttt{maxdepth} \\   
+            \texttt{maxdepth} & \\   
 
 \rowcolor[rgb]{.95, .95, .95}         
       Boosted Trees &
          \texttt{gbm} & 
              {\tt \href{http://cran.r-project.org/web/packages/party/index.html}{gbm}}      & 
-            \texttt{n.trees}, \texttt{shrinkage}\\
+            \texttt{n.trees}, \texttt{shrinkage} &\\
 \rowcolor[rgb]{.95, .95, .95}                     
-            & & & \texttt{interaction.depth} \\
+            & & & \texttt{interaction.depth} & \\
 
 \rowcolor[rgb]{.95, .95, .95}         
        &
          \texttt{blackboost} & 
              {\tt \href{http://cran.r-project.org/web/packages/mboost/index.html}{mboost}}        & 
-            \texttt{maxdepth}, \texttt{mstop}\\
+            \texttt{maxdepth}, \texttt{mstop} & \\
 \rowcolor[rgb]{.95, .95, .95}                     
        &
          \texttt{ada} & 
             {\tt \href{http://cran.r-project.org/web/packages/ada/index.html}{ada}}       & 
-            \texttt{maxdepth}, \texttt{iter}, \texttt{nu}\\            
+            \texttt{maxdepth}, \texttt{iter}, \texttt{nu} & \\            
      
       Other Boosted Models &
          \texttt{glmboost} & 
             {\tt \href{http://cran.r-project.org/web/packages/mboost/index.html}{mboost}}       &          
-            \texttt{mstop}\\   
+            \texttt{mstop} & \\   
          &      
          \texttt{gamboost} & 
             {\tt \href{http://cran.r-project.org/web/packages/mboost/index.html}{mboost}}       &          
-            \texttt{mstop}\\      
+            \texttt{mstop} & \\      
 
 \rowcolor[rgb]{.95, .95, .95}                                        
       Random Forests & 
          \texttt{rf} & 
             {\tt \href{http://cran.r-project.org/web/packages/randomForest/index.html}{randomForest}}        & 
-            \texttt{mtry} \\
+            \texttt{mtry}  & \\
 \rowcolor[rgb]{.95, .95, .95}         
           & 
          \texttt{parRF} & 
              {\tt \href{http://cran.r-project.org/web/packages/randomForest/index.html}{randomForest}},  {\tt \href{http://cran.r-project.org/web/packages/foreach/index.html}{foreach}}        & 
-            \texttt{mtry} \\              
+            \texttt{mtry} & \\              
 
 \rowcolor[rgb]{.95, .95, .95}         
                    & 
          \texttt{cforest} & 
             {\tt \href{http://cran.r-project.org/web/packages/party/index.html}{party}}     & 
-            \texttt{mtry} \\     
+            \texttt{mtry} & \\     
                         
-      Bagged Trees &
+      Bagging&
          \texttt{treebag} & 
              {\tt \href{http://cran.r-project.org/web/packages/ipred/index.html}{ipred}}       & 
-            None \\                         
+            None & \\                 
+            
+          &
+         \texttt{bag} & 
+             {\tt \href{http://cran.r-project.org/web/packages/caret/index.html}{caret}}       & 
+            \texttt{vars} & \\               
 
 \rowcolor[rgb]{.95, .95, .95}            
             Other Trees &
             \texttt{nodeHarvest} & 
              {\tt \href{http://cran.r-project.org/web/packages/nodeHarvest/index.html}{nodeHarvest}}       & 
-            \texttt{maxinter}, \texttt{mode}  \\    
+            \texttt{maxinter}, \texttt{mode}  & \\    
 
 \rowcolor[rgb]{.95, .95, .95}         
             &
             \texttt{partDSA} & 
              {\tt \href{http://cran.r-project.org/web/packages/partDSA/index.html}{partDSA}}       & 
-            \texttt{cut.off.growth}, \texttt{MPD}  \\     
+            \texttt{cut.off.growth}, \texttt{MPD}  & \\     
             
       Multivariate Adaptive Regression Splines &
          \texttt{earth}, \texttt{mars} & 
              {\tt \href{http://cran.r-project.org/web/packages/earth/index.html}{earth}}      & 
-            \texttt{degree}, \texttt{nprune} \\            
+            \texttt{degree}, \texttt{nprune} & \\            
 
 \rowcolor[rgb]{.95, .95, .95}                     
       Bagged MARS &
          \texttt{bagEarth} & 
             {\tt \href{http://cran.r-project.org/web/packages/caret/index.html}{caret}},   {\tt \href{http://cran.r-project.org/web/packages/earth/index.html}{earth}}      & 
-            \texttt{degree}, \texttt{nprune} \\ 
+            \texttt{degree}, \texttt{nprune} & \\ 
             
       Elastic Net (glm) &               
          \texttt{glmnet} & 
              {\tt \href{http://cran.r-project.org/web/packages/glmnet/index.html}{glmnet}}       &       
-            \texttt{alpha}, \texttt{lambda} \\ 
+            \texttt{alpha}, \texttt{lambda} & \\ 
             
 \rowcolor[rgb]{.95, .95, .95}                     
       Neural Networks &               
          \texttt{nnet} & 
              {\tt \href{http://cran.r-project.org/web/packages/nnet/index.html}{nnet}}       &       
-            \texttt{decay}, \texttt{size} \\      
+            \texttt{decay}, \texttt{size} & \\      
 
 \rowcolor[rgb]{.95, .95, .95}         
        &               
          \texttt{pcaNNet} & 
             {\tt \href{http://cran.r-project.org/web/packages/caret/index.html}{caret}},
             {\tt \href{http://cran.r-project.org/web/packages/nnet/index.html}{nnet}}&       
-            \texttt{decay}, \texttt{size} \\              
+            \texttt{decay}, \texttt{size} & \\              
             
       Partial Least Squares &
          \texttt{pls} & 
              {\tt \href{http://cran.r-project.org/web/packages/pls/index.html}{pls}} ,  {\tt \href{http://cran.r-project.org/web/packages/caret/index.html}{caret}}       & 
-            \texttt{ncomp} \\      
+            \texttt{ncomp} & \\      
 
 \rowcolor[rgb]{.95, .95, .95}         
 
@@ -389,46 +394,46 @@ There is additional functionality in \texttt{train} that is described in the nex
          \texttt{spls} & 
              {\tt \href{http://cran.r-project.org/web/packages/spls/index.html}{spls}} , 
              {\tt \href{http://cran.r-project.org/web/packages/caret/index.html}{caret}}      & 
-            \texttt{K}, \texttt{eta}, \texttt{kappa} \\   
+            \texttt{K}, \texttt{eta}, \texttt{kappa} & \\   
       
       Support Vector Machines  &
          \texttt{svmLinear} & 
              {\tt \href{http://cran.r-project.org/web/packages/kernlab/index.html}{kernlab}}       & 
-            none \\              
+            none & \\              
       
   &
          \texttt{svmRadial} & 
             {\tt \href{http://cran.r-project.org/web/packages/kernlab/index.html}{kernlab}}      & 
-            \texttt{sigma}, \texttt{C} \\             
+            \texttt{sigma}, \texttt{C} & \\             
       
   &
          \texttt{svmPoly} & 
             {\tt \href{http://cran.r-project.org/web/packages/kernlab/index.html}{kernlab}}      & 
-            \texttt{scale}, \texttt{degree}, \texttt{C} \\            
+            \texttt{scale}, \texttt{degree}, \texttt{C} & \\            
 
 \rowcolor[rgb]{.95, .95, .95}         
            Gaussian Processes  &
          \texttt{gaussprLinear} & 
             {\tt \href{http://cran.r-project.org/web/packages/kernlab/index.html}{kernlab}}      & 
-            none \\             
+            none & \\             
             
 \rowcolor[rgb]{.95, .95, .95}               
   &
          \texttt{gaussprRadial} & 
              {\tt \href{http://cran.r-project.org/web/packages/kernlab/index.html}{kernlab}}        & 
-            \texttt{sigma} \\              
+            \texttt{sigma} & \\              
 
 \rowcolor[rgb]{.95, .95, .95}               
   &
          \texttt{gaussprPoly} & 
              {\tt \href{http://cran.r-project.org/web/packages/kernlab/index.html}{kernlab}}       & 
-            \texttt{scale}, \texttt{degree} \\            
+            \texttt{scale}, \texttt{degree} & \\            
 
                       
       $k$ Nearest Neighbors &
          \texttt{knn} & 
              {\tt \href{http://cran.r-project.org/web/packages/caret/index.html}{caret}}       & 
-            \texttt{k} \\   
+            \texttt{k} & \\   
       
       \\
 \multicolumn{5}{c}{{{ \em Regression Only Models}}} \\      
@@ -437,106 +442,106 @@ There is additional functionality in \texttt{train} that is described in the nex
       Linear Least Squares &
          \texttt{lm} & 
             \texttt{stats}       & 
-            None \\  
+            None & \\  
             
 \rowcolor[rgb]{.95, .95, .95}                     
             &
          \texttt{lmStepAIC} & 
              {\tt \href{http://cran.r-project.org/web/packages/MASS/index.html}{MASS}}       & 
-            None \\  
+            None & \\  
 
        Principal Component Regression&
          \texttt{pcr} & 
              {\tt \href{http://cran.r-project.org/web/packages/pls/index.html}{pls}}      & 
-            \texttt{ncomp}  \\  
+            \texttt{ncomp}  & \\  
 
 \rowcolor[rgb]{.95, .95, .95}   
        Independent Component Regression&
          \texttt{icr} & 
              {\tt \href{http://cran.r-project.org/web/packages/caret/index.html}{caret}}      & 
-            \texttt{n.comp}  \\              
+            \texttt{n.comp} & \\              
            
                 
       Robust Linear Regression &
          \texttt{rlm} & 
              {\tt \href{http://cran.r-project.org/web/packages/MASS/index.html}{MASS}}       & 
-            None \\              
+            None & \\              
             
 \rowcolor[rgb]{.95, .95, .95}              
       Neural Networks &
          \texttt{neuralnet} & 
              {\tt \href{http://cran.r-project.org/web/packages/neuralnet/index.html}{neuralnet}}       & 
-            \texttt{layer1},  \texttt{layer2}, \texttt{layer3}\\         
+            \texttt{layer1},  \texttt{layer2}, \texttt{layer3} & \\         
               
       Quantile Regressoin Forests &
          \texttt{qrf} & 
              {\tt \href{http://cran.r-project.org/web/packages/quantregForest/index.html}{quantregForest}}       & 
-            \texttt{mtry}\\                 
+            \texttt{mtry} & \\                 
                    
  \rowcolor[rgb]{.95, .95, .95}   
       Rule--Based Models &
          \texttt{M5Rules} & 
             {\tt \href{http://cran.r-project.org/web/packages/RWeka/index.html}{RWeka}}    & 
-            \texttt{pruned}  \\             
+            \texttt{pruned}  & \\             
 
 
       Projection Pursuit Regression  &
          \texttt{ppr} & 
             \texttt{stats}       & 
-            \texttt{nterms} \\            
+            \texttt{nterms} & \\            
          
 \rowcolor[rgb]{.95, .95, .95}               
       Penalized Linear Models  &
          \texttt{penalized} & 
              {\tt \href{http://cran.r-project.org/web/packages/penalized/index.html}{penalized}}      & 
-            \texttt{lambda1}, \texttt{lambda2} \\            
+            \texttt{lambda1}, \texttt{lambda2} &  \\            
 \rowcolor[rgb]{.95, .95, .95}          
        &
          \texttt{lars} & 
              {\tt \href{http://cran.r-project.org/web/packages/lars/index.html}{lars}}      & 
-            \texttt{fraction} \\   
+            \texttt{fraction} & \\   
 \rowcolor[rgb]{.95, .95, .95}               
          &
          \texttt{lars2} & 
              {\tt \href{http://cran.r-project.org/web/packages/lars/index.html}{lars}}        & 
-            \texttt{step} \\            
+            \texttt{step} & \\            
 \rowcolor[rgb]{.95, .95, .95}                   
       &
          \texttt{enet} & 
              {\tt \href{http://cran.r-project.org/web/packages/elasticnet/index.html}{elasticnet}}      & 
-            \texttt{lambda}, \texttt{fraction} \\          
+            \texttt{lambda}, \texttt{fraction} & \\          
 \rowcolor[rgb]{.95, .95, .95}   
       &
          \texttt{lasso} & 
              {\tt \href{http://cran.r-project.org/web/packages/elasticnet/index.html}{elasticnet}}      & 
-            \texttt{fraction} \\       
+            \texttt{fraction} & \\       
 \rowcolor[rgb]{.95, .95, .95}         
        &
          \texttt{foba} & 
              {\tt \href{http://cran.r-project.org/web/packages/foba/index.html}{foba}}       & 
-            \texttt{lambda}, \texttt{k} \\    
+            \texttt{lambda}, \texttt{k} & \\    
                               
       Relevance Vector Machines  &
          \texttt{rvmLinear} & 
              {\tt \href{http://cran.r-project.org/web/packages/kernlab/index.html}{kernlab}}        & 
-            none \\            
+            none & \\            
              
   &
          \texttt{rvmRadial} & 
             {\tt \href{http://cran.r-project.org/web/packages/kernlab/index.html}{kernlab}}       & 
-            \texttt{sigma} \\              
+            \texttt{sigma} & \\              
            
   &
          \texttt{rvmPoly} & 
             {\tt \href{http://cran.r-project.org/web/packages/kernlab/index.html}{kernlab}}       & 
-            \texttt{scale}, \texttt{degree} \\                        
+            \texttt{scale}, \texttt{degree} & \\                        
 
 \rowcolor[rgb]{.95, .95, .95}
             
       Supervised Principal Components&
          \texttt{superpc}  &
          {\tt \href{http://cran.r-project.org/web/packages/superpc/index.html}{superpc}} &
-         \texttt{n.components}, \texttt{threshold}\\
+         \texttt{n.components}, \texttt{threshold} & \\
             
 \\             
 \multicolumn{5}{c}{{{\em Classification Only Models}}} \\ 
@@ -545,54 +550,55 @@ There is additional functionality in \texttt{train} that is described in the nex
       Linear Discriminant Analysis &
          \texttt{lda} & 
              {\tt \href{http://cran.r-project.org/web/packages/MASS/index.html}{MASS}}       &          
-            None\\
+            None & \\
 \rowcolor[rgb]{.95, .95, .95}                     
           &
          \texttt{Linda} & 
               {\tt \href{http://cran.r-project.org/web/packages/rrcov/index.html}{rrcov}}       &          
-            None\\
+            None & \\
                         
             
       Quadratic Discriminant Analysis &
          \texttt{qda} & 
              {\tt \href{http://cran.r-project.org/web/packages/MASS/index.html}{MASS}}         &          
-            None\\  
+            None & \\ 
+            
       &   \texttt{QdaCov} & 
              {\tt \href{http://cran.r-project.org/web/packages/rrcov/index.html}{rrcov}}        &          
-            None\\            
+            None & \\            
             
 \rowcolor[rgb]{.95, .95, .95}                     
       Stabilized Linear Discriminant Analysis&
          \texttt{slda} & 
               {\tt \href{http://cran.r-project.org/web/packages/ipred/index.html}{ipred}}        &          
-            \texttt{diagonal}\\  
+            \texttt{diagonal} & \\  
       
       Heteroscedastic Discriminant Analysis&
          \texttt{hda} & 
               {\tt \href{http://cran.r-project.org/web/packages/hda/index.html}{hda}}      &          
-            \texttt{newdim}, \texttt{lambda}, \texttt{gamma}\\  
+            \texttt{newdim}, \texttt{lambda}, \texttt{gamma} & \\  
             
 \rowcolor[rgb]{.95, .95, .95}                     
       Shrinkage Linear Discriminant Analysis &
          \texttt{sda} & 
               {\tt \href{http://cran.r-project.org/web/packages/sda/index.html}{sda}}      &          
-            \texttt{diagonal}\\  
+            \texttt{diagonal} & \\  
       
       Sparse Linear Discriminant Analysis&
          \texttt{sparseLDA} & 
               {\tt \href{http://cran.r-project.org/web/packages/sparseLDA/index.html}{sparseLDA}}      &          
-            \texttt{NumVars}, \texttt{lambda} \\  
+            \texttt{NumVars}, \texttt{lambda} & \\  
 
 \rowcolor[rgb]{.95, .95, .95}               
        Stepwise Discriminant&
         \texttt{stepLDA}, &
          {\tt \href{http://cran.r-project.org/web/packages/klaR/index.html}{klaR}}   &
-        None \\
+        None & \\
       
       Stepwise Diagonal Discriminant Analysis&
         \texttt{sddaLDA}, \texttt{sddaQDA}&
          {\tt \href{http://cran.r-project.org/web/packages/SDDA/index.html}{SDDA}}&
-        None \\
+        None & \\
             
 \rowcolor[rgb]{.95, .95, .95}                     
       Regularized Discriminant Analysis &
@@ -609,7 +615,7 @@ There is additional functionality in \texttt{train} that is described in the nex
       Sparse Mixture Discriminant Analysis&
          \texttt{smda} & 
              {\tt \href{http://cran.r-project.org/web/packages/sparseLDA/index.html}{sparseLDA}}        &          
-            \texttt{NumVars}, \texttt{R}, \texttt{lambda} \\  
+            \texttt{NumVars}, \texttt{R}, \texttt{lambda} & \\  
       
       Penalized Discriminant Analysis &
          \texttt{pda} & 
@@ -618,107 +624,118 @@ There is additional functionality in \texttt{train} that is described in the nex
  
         & \texttt{pda2} & 
              {\tt \href{http://cran.r-project.org/web/packages/mda/index.html}{mda}}       & 
-            \texttt{df} & \\     
- 
- \rowcolor[rgb]{.95, .95, .95}              
+            \texttt{df} & \\ 
+            
+\rowcolor[rgb]{.95, .95, .95}     
+                  High Dimensional Discriminant Analysis &
+         \texttt{hdda} & 
+             {\tt \href{http://cran.r-project.org/web/packages/HDclassif/index.html}{HDclassif}}      & 
+            \texttt{model}, \texttt{threshold} & \\
+            
+         
       Flexible Discriminant Analysis (MARS basis) &
          \texttt{fda} & 
              {\tt \href{http://cran.r-project.org/web/packages/mda/index.html}{mda}},  {\tt \href{http://cran.r-project.org/web/packages/earth/index.html}{earth}}       & 
             \texttt{degree}, \texttt{nprune} & \\
-      
+
+\rowcolor[rgb]{.95, .95, .95}                 
       Bagged FDA &
          \texttt{bagFDA} & 
              {\tt \href{http://cran.r-project.org/web/packages/caret/index.html}{caret}},   {\tt \href{http://cran.r-project.org/web/packages/earth/index.html}{earth}}      & 
-            \texttt{degree}, \texttt{nprune} \\   
+            \texttt{degree}, \texttt{nprune} & \\   
             
-\rowcolor[rgb]{.95, .95, .95}                     
       Logistic/Multinomial Regression &
          \texttt{multinom} & 
              {\tt \href{http://cran.r-project.org/web/packages/nnet/index.html}{nnet}}     & 
             \texttt{decay}& \\   
       
-\rowcolor[rgb]{.95, .95, .95}               
+           
    &
          \texttt{plr} & 
              {\tt \href{http://cran.r-project.org/web/packages/stepPlr/index.html}{stepPlr}}     & 
             \texttt{lambda}, \texttt{cp} & \\     
             
-      
+\rowcolor[rgb]{.95, .95, .95}         
       LogitBoost &      
          \texttt{logitBoost} & 
              {\tt \href{http://cran.r-project.org/web/packages/caTools/index.html}{caTools}}      &          
-            \texttt{nIter}\\              
+            \texttt{nIter} & \\              
             
-\rowcolor[rgb]{.95, .95, .95}                     
+               
       Logistic Model Trees &
          \texttt{LMT} & 
             {\tt \href{http://cran.r-project.org/web/packages/RWeka/index.html}{RWeka}}   & 
-            \texttt{iter}  \\  
-            
+            \texttt{iter}  & \\  
+
+\rowcolor[rgb]{.95, .95, .95}               
       Rule--Based Models &
          \texttt{J48} & 
            {\tt \href{http://cran.r-project.org/web/packages/RWeka/index.html}{RWeka}}   & 
-            \texttt{C}  \\  
+            \texttt{C} & \\  
             
+\rowcolor[rgb]{.95, .95, .95}               
        &
          \texttt{OneR} & 
            {\tt \href{http://cran.r-project.org/web/packages/RWeka/index.html}{RWeka}}   & 
-            None  \\  
-            
+            None  & \\  
+        
+\rowcolor[rgb]{.95, .95, .95}               
        &
          \texttt{PART} & 
            {\tt \href{http://cran.r-project.org/web/packages/RWeka/index.html}{RWeka}}   & 
-            \texttt{threshold}, \texttt{pruned}   \\  
+            \texttt{threshold}, \texttt{pruned} &  \\  
             
+\rowcolor[rgb]{.95, .95, .95}               
         &
          \texttt{JRip} & 
            {\tt \href{http://cran.r-project.org/web/packages/RWeka/index.html}{RWeka}}    & 
-            \texttt{NumOpt}   \\
+            \texttt{NumOpt}   & \\
 
-\rowcolor[rgb]{.95, .95, .95}                     
+              
       Bayesian Multinomial Probit Model  
       & \texttt{vbmpRadial} 
       &  {\tt \href{http://cran.r-project.org/web/packages/vbmp/index.html}{vbmp}} 
-      & \texttt{estimateTheta} \\
-      
+      & \texttt{estimateTheta} & \\
+
+\rowcolor[rgb]{.95, .95, .95}            
       Least Squares Support Vector Machines &
          \texttt{lssvmRadial} & 
              {\tt \href{http://cran.r-project.org/web/packages/kernlab/index.html}{kernlab}}      & 
-            \texttt{sigma} \\             
+            \texttt{sigma} & \\             
        
-\rowcolor[rgb]{.95, .95, .95}                
+      
       Nearest Shrunken Centroids&
          \texttt{pam} & 
              {\tt \href{http://cran.r-project.org/web/packages/pamr/index.html}{pamr}}        & 
-            \texttt{threshold} \\  
+            \texttt{threshold} & \\  
 
-\rowcolor[rgb]{.95, .95, .95}              
 &
          \texttt{scrda} & 
              {\tt \href{http://cran.r-project.org/web/packages/rda/index.html}{rda}}        & 
-            \texttt{alpha}, \texttt{delta} \\              
+            \texttt{alpha}, \texttt{delta} & \\              
        
+\rowcolor[rgb]{.95, .95, .95}                  
       Naive Bayes &
          \texttt{nb} & 
             {\tt \href{http://cran.r-project.org/web/packages/klaR/index.html}{klaR}}     & 
-            \texttt{usekernel} \\
+            \texttt{usekernel} & \\
         
-\rowcolor[rgb]{.95, .95, .95}                 
       Generalized Partial Least Squares&
          \texttt{gpls} & 
              {\tt \href{http://cran.r-project.org/web/packages/gpls/index.html}{gpls}}      & 
-            \texttt{K.prov} \\
-      
+            \texttt{K.prov} & \\
+            
+\rowcolor[rgb]{.95, .95, .95}            
       Learned Vector  Quantization&
          \texttt{lvq} & 
              {\tt \href{http://cran.r-project.org/web/packages/class/index.html}{class}}       &          
-            \texttt{k} \\  
+            \texttt{k} & \\  
      
-\rowcolor[rgb]{.95, .95, .95}              
+            
       ROC Curves &
          \texttt{rocc} & 
              {\tt \href{http://cran.r-project.org/web/packages/rocc/index.html}{rocc}}    &          
-            \texttt{xgenes} \\                 
+            \texttt{xgenes} & \\                 
 \label{label-name}
 \end{longtable}
 \end{landscape}

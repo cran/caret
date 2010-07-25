@@ -57,7 +57,7 @@
                    "superpc", "ppr", "sda", "penalized", "sparseLDA",
                    "nodeHarvest", "Linda", "QdaCov", "stepLDA", "stepQDA",
                    "parRF", "plr", "rocc", "foba", "partDSA", "hda", "icr",
-                   "qrf", "scrda"))
+                   "qrf", "scrda", "bag", "hdda"))
     {
       trainX <- data[,!(names(data) %in% ".outcome")]
       trainY <- data[,".outcome"] 
@@ -1409,6 +1409,15 @@
                                              ...)
                        modelFit$data <- list(x = t(trainX), y = trainY)
                        modelFit
+                     },
+                     bag =
+                     {
+                       bag(trainX, trainY, vars = tuneValue$.vars, ...)
+                     },
+                     hdda =
+                     {
+                       library(HDclassif)
+                       hdda(trainX, trainY, model = tuneValue$.model, threshold = tuneValue$.threshold, ...)
                      }
                      )
   

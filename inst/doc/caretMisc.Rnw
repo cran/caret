@@ -18,7 +18,7 @@
          {hyperref}
          \usepackage{lscape}
 \usepackage{Sweave}           
-
+\SweaveOpts{keep.source=TRUE}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % define new colors for use
