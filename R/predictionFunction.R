@@ -840,7 +840,16 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
                                }
 
                              out
-                           }                           
+                           },
+                           bag =
+                           {
+                             predict(modelFit, newdata)
+                           },
+                           hdda =
+                           {
+                             library(HDclassif)
+                             as.character(predict(modelFit, newdata)$class)
+                           }
                            )
   predictedValue
 }

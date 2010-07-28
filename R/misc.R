@@ -165,7 +165,9 @@ modelLookup <- function(model = NULL)
                            "icr",
                            "neuralnet", "neuralnet", "neuralnet",
                            "qrf",
-                           "scrda", "scrda"
+                           "scrda", "scrda",
+                           "bag",
+                           "hdda", "hdda"
                            ),
                          parameter = c(
                            "parameter",      
@@ -265,7 +267,9 @@ modelLookup <- function(model = NULL)
                            "n.comp",
                            "layer1", "layer2", "layer3",
                            "mtry",
-                           "alpha", "delta"
+                           "alpha", "delta",
+                           "vars",
+                           "threshold", "model"
                            ),
                          label = I(c(
                            "none",      
@@ -367,7 +371,9 @@ modelLookup <- function(model = NULL)
                            "#Components",
                            "#Hidden Units in Layer 1", "#Hidden Units in Layer 2", "#Hidden Units in Layer 3",
                            "#Randomly Selected Predictors",
-                           "Regularization Value", "Threshold"
+                           "Regularization Value", "Threshold",
+                           "#Randomly Selected Predictors",
+                           "Threshold", "Model Type"
                            )),
                          seq = c(
                            FALSE,
@@ -466,7 +472,9 @@ modelLookup <- function(model = NULL)
                            FALSE,
                            FALSE, FALSE, FALSE,
                            FALSE,
-                           TRUE, TRUE
+                           TRUE, TRUE,
+                           FALSE,
+                           FALSE, FALSE
                            ),
                          forReg = c(
                            TRUE,
@@ -564,6 +572,8 @@ modelLookup <- function(model = NULL)
                            FALSE, FALSE, FALSE,
                            TRUE,
                            TRUE, TRUE, TRUE,
+                           TRUE,
+                           FALSE, FALSE,
                            TRUE,
                            FALSE, FALSE
                            ),               
@@ -665,6 +675,8 @@ modelLookup <- function(model = NULL)
                            FALSE,
                            FALSE, FALSE, FALSE,
                            FALSE,
+                           TRUE, TRUE,
+                           TRUE,
                            TRUE, TRUE
                            ),
                          probModel = c(
@@ -764,7 +776,9 @@ modelLookup <- function(model = NULL)
                            FALSE,             ## icr,
                            FALSE, FALSE, FALSE, ## neuralnet
                            FALSE,             ## qrf
-                           TRUE, TRUE         ## scrda
+                           TRUE, TRUE,        ## scrda
+                           TRUE,              ## bag
+                           TRUE, TRUE         ## hdda
                            ),
                          stringsAsFactors  = FALSE               
                          )         

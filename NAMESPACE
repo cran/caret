@@ -140,7 +140,11 @@ export(
        icr,
        icr.default,
        icr.formula,
-       predict.icr     
+       predict.icr,
+       bag,
+       bag.default,
+       predict.bag,
+       bagControl
        )
 
 S3method(confusionMatrix, default)
@@ -165,6 +169,7 @@ S3method(sbf,             default)
 S3method(nullModel,       default)
 S3method(resamples,       default)
 S3method(icr,             default)
+S3method(bag,             default)
 
 S3method(train,   formula)
 S3method(pcaNNet, formula)
@@ -238,6 +243,7 @@ S3method(print, summary.resamples)
 S3method(print, diff.resamples)
 S3method(print, summary.diff.resamples)
 S3method(print, icr)
+S3method(print, bag)
 
 S3method(predict, PLS)
 S3method(predict, plsda)
@@ -254,6 +260,7 @@ S3method(predict, knnreg)
 S3method(predict, nullModel)
 S3method(predict, sbf)
 S3method(predict, icr)
+S3method(predict, bag)
 
 S3method(summary, bagEarth)
 S3method(summary, bagFDA)

@@ -19,6 +19,7 @@
 \usepackage{lscape}
 \usepackage{ctable}
 \usepackage{Sweave}
+\SweaveOpts{keep.source=TRUE}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
