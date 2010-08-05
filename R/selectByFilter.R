@@ -82,7 +82,7 @@ sbfChunk <- function(inTrain, x, y, cntl, sizes, ...)
                           cntl,
                           ...)
     
-    sbfResults$pred$resampleIter <- rep(j, nrow(sbfResults$pred))
+    sbfResults$pred$resampleIter <- rep(names(cntl$index)[j], nrow(sbfResults$pred))
 
     out <- list(pred = sbfResults$pred,
                 selectedVars = sbfResults$variables)
@@ -109,6 +109,7 @@ sbf <- function (x, ...) UseMethod("sbf")
                                boot = createResample(y, sbfControl$number),
                                test = createDataPartition(y, 1, sbfControl$p),
                                lgocv = createDataPartition(y, sbfControl$number, sbfControl$p))
+  if(is.null(names(sbfControl$index)) | length(unique(names(sbfControl$index))) != length(sbfControl$index)) names(sbfControl$index) <- paste("Resample", seq(along = sbfControl$index), sep = "")
   
   ## check summary function and metric
   test <- sbfControl$functions$summary(data.frame(obs = y, pred = sample(y)))
@@ -146,11 +147,15 @@ sbf <- function (x, ...) UseMethod("sbf")
   sbfPred <- split(sbfPred, sbfPred$resampleIter)
   resamples <- lapply(sbfPred, sbfControl$functions$summary)
   resamples <- as.data.frame(do.call("rbind", resamples))
+  ## TODO add a column called "Resample" with reproducabile values
+  ## as in train
 
   externPerf <- cbind(t(apply(resamples, 2, mean, na.rm = TRUE)),
                       t(apply(resamples, 2, sd, na.rm = TRUE)))
   colnames(externPerf)[3:4] <- paste(colnames(externPerf)[3:4], "SD", sep = "")
- 
+
+  resamples$Resample <- rownames(resamples)
+  
   #########################################################################
 
   selectedVars <- lapply(sbfResults,

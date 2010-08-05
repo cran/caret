@@ -1509,3 +1509,8 @@ repList <- function(x, times = 3, addIndex = FALSE)
     out
   }
 
+useMathSymbols <- function(x)
+  {
+    if(x == "Rsquared") x <- expression(R^2)
+    x
+  }

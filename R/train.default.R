@@ -152,6 +152,11 @@ train.default <- function(x, y,
   paramNames <- names(tuneGrid)
   paramNames <- gsub("^\\.", "", paramNames)
 
+  if(trControl$verboseIter)
+    {
+      cat("Aggregating results\n")
+      flush.console()
+    }
 
   ## Now take the predictions and boil them down to performance matrics per tuning
   ## parameter and resampling combo.
@@ -173,6 +178,16 @@ train.default <- function(x, y,
   ## Sort the tuning parameters from least complex to most complex
   performance <- byComplexity(performance, method)
 
+  if(trControl$verboseIter)
+    {
+      mod <- modelLookup(method)
+      if(!all(mod$label == "none"))
+        {
+          cat("Selecting tuning parameters\n")
+          flush.console()
+        }
+    }
+  
   ## select the optimal set
   selectClass <- class(trControl$selectionFunction)[1]
 
@@ -239,7 +254,13 @@ train.default <- function(x, y,
     }
   names(orderList) <- trainInfo$model$parameter
   performance <- performance[do.call("order", orderList),]      
-  
+
+  if(trControl$verboseIter)
+    {
+      cat("Fitting model on full training set\n")
+      flush.console()
+    }
+    
   ## Make the final model based on the tuning results
   finalModel <- createModel(
                             trainData, 

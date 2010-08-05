@@ -1,4 +1,24 @@
 -------------------
+Version: 4.47
+Date: 2010-08-05
+
+Extended resamples() to work with rfe() and sbf()
+
+-------------------
+Version: 4.46
+Date: 2010-08-04
+
+Cleaned up some of the man files for the resamples class 
+and added parallel.resamples.
+
+Fixed a bug in diff.resamples where ... were not being
+passed to the test statistic function.
+
+Added more log messages in train() when running verbose.
+
+Added the German credit data set.
+
+-------------------
 Version: 4.45
 Date: 2010-07-25
 

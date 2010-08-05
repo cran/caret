@@ -3,6 +3,8 @@
 \alias{densityplot.resamples}
 \alias{bwplot.resamples}
 \alias{splom.resamples}
+\alias{parallel.resamples}
+
 \title{Lattice Functions for Visualizing Resampling Results}
 
 \description{
@@ -10,9 +12,14 @@ Lattice functions for visualizing resampling results across models
 }
 \usage{
 \method{xyplot}{resamples}(x, data = NULL, models = x$models[1:2], metric = x$metric[1], ...)
+
 \method{densityplot}{resamples}(x, data = NULL, models = x$models, metric = x$metric, ...)
+
 \method{bwplot}{resamples}(x, data = NULL, models = x$models, metric = x$metric, ...)
-\method{splom}{resamples}(x, data = NULL, models = x$models, metric = x$metric[1], ...)
+
+\method{splom}{resamples}(x, data = NULL, models = x$models, metric = x$metric[1], panelRange = NULL, ...)
+
+\method{parallel}{resamples}(x, data = NULL, models = x$models, metric = x$metric[1], ...)
 
 }
 \arguments{
@@ -21,6 +28,7 @@ Lattice functions for visualizing resampling results across models
   \item{models}{a character string for which models to plot. Note: \code{xyplot} requires exactly two models whereas the other methods can plot more than two.}
   \item{metric}{a character string for which metrics to use as conditioning variables in the plot. \code{splom} requires exactly one metric and does not condition.}
   \item{\dots}{further arguments to pass to either \code{\link[lattice:histogram]{histogram}}, \code{\link[lattice:histogram]{densityplot}}, \code{\link[lattice:xyplot]{xyplot}} or \code{\link[lattice:splom]{splom}}}
+  \item{panelRange}{a common range for the panels. If \code{NULL}, the panel ranges are derived from the values across all the models}
 }
 \details{
 \code{xyplot} only uses two models in the plot. The plot uses difference of the models on the y-axis and the average of the models on the x-axis.
@@ -55,6 +63,8 @@ xyplot(resamps,
        metric = "RMSE")
 
 splom(resamps, metric = "RMSE")
+
+parallel(resamps, metric = "RMSE")
 
 
 }

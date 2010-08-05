@@ -115,7 +115,7 @@ rfeChunk <- function(inTrain, x, y, cntl, sizes, ...)
                           cntl,
                           ...)
     
-    rfeResults$pred$resampleIter <- rep(j, nrow(rfeResults$pred))
+    rfeResults$pred$resampleIter <- rep(names(cntl$index)[j], nrow(rfeResults$pred))
 
     out <- list(pred = rfeResults$pred,
                 selectedVars = rfeResults$finalVariables)
@@ -147,6 +147,7 @@ rfe <- function (x, ...) UseMethod("rfe")
                                test = createDataPartition(y, 1, rfeControl$p),
                                lgocv = createDataPartition(y, rfeControl$number, rfeControl$p))
   
+  if(is.null(names(rfeControl$index)) | length(unique(names(rfeControl$index))) != length(rfeControl$index)) names(rfeControl$index) <- paste("Resample", seq(along = rfeControl$index), sep = "")
 
   sizeValues <- sort(unique(sizes))
   sizeValues <- sizeValues[sizeValues <= ncol(x)]
@@ -224,8 +225,10 @@ rfe <- function (x, ...) UseMethod("rfe")
       externPerf[i, 1] <- subsets[i]
       if(rfeControl$returnResamp != "none")
         {
-          resampleResults <- cbind(resampleResults,
-                                   rep(subsets[i], nrow(resampleResults)))
+          resampleResults <- as.data.frame(resampleResults)
+          resampleResults$Variables <- rep(subsets[i], nrow(resampleResults))
+          resampleResults$Resample <- rownames(resampleResults)
+          
           resamples <- if(i == 1) resampleResults else rbind(resamples, resampleResults)
         }
     }
@@ -248,13 +251,11 @@ rfe <- function (x, ...) UseMethod("rfe")
                       none = NULL, 
                       all = {
                         out <- resamples
-                        colnames(out)[ncol(out)] <- "Variables"
                         rownames(out) <- NULL
                         out
                       },
                       final = {
-                        out <- resamples[resamples[,ncol(resamples)]  == bestSubset,,drop = FALSE]
-                        colnames(out)[ncol(out)] <- "Variables"
+                        out <- subset(resamples, Variables == bestSubset)
                         rownames(out) <- NULL
                         out
                       })
@@ -278,6 +279,7 @@ rfe <- function (x, ...) UseMethod("rfe")
                  resample = resamples,
                  metric = metric,
                  maximize = maximize,
+                 perfNames = perfNames,
                  dots = list(...)),
             class = "rfe")
 }

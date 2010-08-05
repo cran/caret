@@ -102,7 +102,7 @@ Penalized linear models \tab \code{penalized} \tab \pkg{penalized} \tab \code{la
    \tab \code{enet} \tab \pkg{elasticnet} \tab \code{fraction} \cr
    \tab \code{foba} \tab \pkg{foba} \tab \code{lambda}, \code{k} \cr
 Supervised principal components \tab \code{superpc} \tab \pkg{superpc} \tab \code{n.components}, \code{threshold} \cr 
-Quantile Regressoin Forests \tab \code{qrf} \tab \pkg{quantregForest} \tab \code{mtry} \cr
+Quantile Regression Forests \tab \code{qrf} \tab \pkg{quantregForest} \tab \code{mtry} \cr
 Linear discriminant analysis \tab \code{lda} \tab \pkg{MASS} \tab  None\cr 
                              \tab \code{Linda} \tab \pkg{rrcov} \tab  None\cr 
 Quadratic discriminant analysis \tab \code{qda} \tab \pkg{MASS} \tab  None\cr 
