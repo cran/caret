@@ -5,6 +5,7 @@
 \description{Methods for making inferences about differences between models }
 \usage{
 \method{diff}{resamples}(x, models = x$models, metric = x$metrics, test = t.test, ...)
+
 \method{summary}{diff.resamples}(object, digits = max(3, getOption("digits") - 3), ...)
 }
 \arguments{
@@ -36,7 +37,7 @@ An object of class \code{"summary.diff.resamples"} with elements:
 
 \author{Max Kuhn}
 
-\seealso{\code{\link{resamples}}}
+\seealso{\code{\link{resamples}}, \code{\link{dotplot.diff.resamples}},  \code{\link{densityplot.diff.resamples}}, \code{\link{bwplot.diff.resamples}}, \code{\link{levelplot.diff.resamples}}}
 
 \examples{
 \dontrun{

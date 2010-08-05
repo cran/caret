@@ -7,7 +7,7 @@ resamples.default <- function(x, modelNames = names(x), ...)
     ## that they actually used the samples samples in the resamples
     if(length(x) < 2) stop("at least two train objects are needed")
     classes <- unlist(lapply(x, function(x) class(x)[1]))
-    if(!all(classes == "train")) stop("all objects in x must of class train")
+    if(!all(classes %in% c("sbf", "rfe", "train"))) stop("all objects in x must of class train, sbf or rfe")
 
  
     numResamp <- unlist(lapply(x, function(x) length(x$control$index)))
@@ -20,23 +20,34 @@ resamples.default <- function(x, modelNames = names(x), ...)
         uniqueIndex <- length(table(table(unlist(indices))))
         if(length(uniqueIndex) > 1) stop("The samples indices are not equal across resamples")
       }
+
+    getNames <- function(x)
+      {
+        switch(class(x)[1],
+               sbf = x$metrics,
+               train =, rfe = x$perfNames)               
+      }
     
-    perfs <- lapply(x, function(x) x$perfNames)
+    perfs <- lapply(x, getNames)
     if(length(unique(unlist(lapply(perfs, length)))) != 1) stop("all objects must has the same performance metrics")
     perfs <- do.call("rbind", perfs)
     uniques <- apply(perfs, 2, function(x) length(unique(x)))
     if(!all(uniques == 1)) stop("all objects must has the same performance metrics")
-    pNames <- perfs[1,]
+    pNames <- unique(as.vector(perfs))
 
-
-    pNames <- x[[1]]$perfNames
     
     if(is.null(modelNames)) modelNames <- paste("Model", seq(along = x))
     for(i in seq(along = x))
       {
 
+        ## TODO check for returnResamp in control object and select appropriate
+        ## data for train
+        if(class(x[[i]])[1] == "rfe" && x[[i]]$control$returnResamp == "all")
+          {
+            x[[i]]$resample <- subset(x[[i]]$resample, Variables == x[[i]]$bestSubset)
+          }
         tmp <- x[[i]]$resample[, c(pNames, "Resample"), drop = FALSE]
-        names(tmp)[names(tmp) %in% pNames] <- paste(modelNames[i], names(tmp)[names(tmp) %in% pNames], sep = ".")
+        names(tmp)[names(tmp) %in% pNames] <- paste(modelNames[i], names(tmp)[names(tmp) %in% pNames], sep = "~")
         out <- if(i == 1) tmp else merge(out, tmp)
       }
 
@@ -70,10 +81,10 @@ summary.resamples <- function(object, ...)
   out <- vector(mode = "list", length = length(object$metrics))
   for(i in seq(along = object$metrics))
     {
-      tmpData <- vals[, grep(paste(".", object$metrics[i], sep = ""), names(vals), fixed = TRUE), drop = FALSE]
+      tmpData <- vals[, grep(paste("~", object$metrics[i], sep = ""), names(vals), fixed = TRUE), drop = FALSE]
       
       out[[i]] <- do.call("rbind", lapply(tmpData, summary))
-      rownames(out[[i]]) <- gsub(paste(".", object$metrics[i], sep = ""),
+      rownames(out[[i]]) <- gsub(paste("~", object$metrics[i], sep = ""),
                                  "",
                                  rownames(out[[i]]),
                                  fixed = TRUE)
@@ -115,7 +126,7 @@ xyplot.resamples <- function (x, data = NULL, models = x$models[1:2], metric = x
 {
   if(length(metric) != 1) stop("exactly one metric must be given")
   if(length(models) != 2) stop("exactly two model names must be given")
-  tmpData <- x$values[, paste(models, metric, sep =".")]
+  tmpData <- x$values[, paste(models, metric, sep ="~")]
   tmpData$Difference <- tmpData[,1] - tmpData[,2]
   tmpData$Average <- (tmpData[,1] + tmpData[,2])/2
   ylm <- extendrange(c(tmpData$Difference, 0))
@@ -123,7 +134,7 @@ xyplot.resamples <- function (x, data = NULL, models = x$models[1:2], metric = x
          data = tmpData,
          ylab = paste(models, collapse = " - "),
          ylim = ylm,
-         main = metric,
+         main = useMathSymbols(metric),
          panel = function(x, y, ...)
          {
            panel.abline(h = 0, col = "darkgrey", lty = 2)
@@ -132,23 +143,55 @@ xyplot.resamples <- function (x, data = NULL, models = x$models[1:2], metric = x
   
 }
 
-
-
-
-splom.resamples <- function (x, data = NULL, models = x$models, metric = x$metric[1], ...) 
+parallel.resamples <- function (x, data = NULL, models = x$models, metric = x$metric[1], ...) 
 {
   if(length(metric) != 1) stop("exactly one metric must be given")
 
-  tmpData <- x$values[, grep(paste(".", metric, sep = ""),
+  tmpData <- x$values[, grep(paste("~", metric, sep = ""),
                              names(x$value),
                              fixed = TRUE),
                       drop = FALSE]
-  names(tmpData) <- gsub(paste(".", metric, sep = ""),
+  names(tmpData) <- gsub(paste("~", metric, sep = ""),
                          "",
                          names(tmpData),
                          fixed = TRUE)
-  tmpData
-  splom(~tmpData, ...)
+  rng <- range(unlist(lapply(lapply(tmpData, as.numeric), range)))
+  prng <- pretty(rng)
+
+  reord <- order(apply(tmpData, 2, median))
+  tmpData <- tmpData[, reord]
+
+  parallel(~tmpData,
+           common.scale = TRUE,
+           scales = list(x = list(at = (prng-min(rng))/diff(rng), labels = prng)),
+           xlab = useMathSymbols(metric),
+           ...)
+    
+}
+
+splom.resamples <- function (x, data = NULL, models = x$models, metric = x$metric[1], panelRange = NULL, ...) 
+{
+  if(length(metric) != 1) stop("exactly one metric must be given")
+
+  tmpData <- x$values[, grep(paste("~", metric, sep = ""),
+                             names(x$value),
+                             fixed = TRUE),
+                      drop = FALSE]
+  names(tmpData) <- gsub(paste("~", metric, sep = ""),
+                         "",
+                         names(tmpData),
+                         fixed = TRUE)
+  if(is.null(panelRange)) panelRange <- extendrange(tmpData)
+  splom(~tmpData,
+        panel = function(x, y)
+        {
+          panel.splom(x, y, ...)
+          panel.abline(0, 1, lty = 2, col = "darkgrey")
+
+          },
+        main = useMathSymbols(metric),
+        prepanel.limits = function(x) panelRange,
+        ...)
                          
 }
 
@@ -156,7 +199,7 @@ splom.resamples <- function (x, data = NULL, models = x$models, metric = x$metri
 densityplot.resamples <- function (x, data = NULL, models = x$models, metric = x$metric, ...) 
 {
   plotData <- melt(x$values, id.vars = "Resample")
-  tmp <- strsplit(as.character(plotData$variable), ".", fixed = TRUE)
+  tmp <- strsplit(as.character(plotData$variable), "~", fixed = TRUE)
   plotData$Model <- unlist(lapply(tmp, function(x) x[1]))
   plotData$Metric <- unlist(lapply(tmp, function(x) x[2]))
   plotData <- subset(plotData, Model %in% models & Metric  %in% metric)
@@ -171,7 +214,7 @@ densityplot.resamples <- function (x, data = NULL, models = x$models, metric = x
 bwplot.resamples <- function (x, data = NULL, models = x$models, metric = x$metric, ...) 
 {
   plotData <- melt(x$values, id.vars = "Resample")
-  tmp <- strsplit(as.character(plotData$variable), ".", fixed = TRUE)
+  tmp <- strsplit(as.character(plotData$variable), "~", fixed = TRUE)
   plotData$Model <- unlist(lapply(tmp, function(x) x[1]))
   plotData$Metric <- unlist(lapply(tmp, function(x) x[2]))
   plotData <- subset(plotData, Model %in% models & Metric  %in% metric)
@@ -211,8 +254,8 @@ diff.resamples <- function(x,
                   {
                     index <- index + 1
                     
-                    left <- paste(models[i], metric[h], sep = ".")
-                    right <- paste(models[j], metric[h], sep = ".")
+                    left <- paste(models[i], metric[h], sep = "~")
+                    right <- paste(models[j], metric[h], sep = "~")
                     
                                         # cat(right, left, "\n")
                     dif[,index] <- x$values[,left] - x$values[,right]
@@ -221,7 +264,7 @@ diff.resamples <- function(x,
               }
           }
 
-        stats <- apply(dif, 2, function(x, tst, ...) tst(x, ...), tst = test)
+        stats <- apply(dif, 2, function(x, tst, ...) tst(x, ...), tst = test, ...)
         
         allDif[[h]] <- dif
         allStats[[h]] <- stats
@@ -260,9 +303,10 @@ bwplot.diff.resamples <- function(x, data, metric = x$metric, ...)
     plotData$Metric <- rep(x$metric, each = length(x$difs[[1]]))
     plotData$ind <- gsub(".diff.", " - ", plotData$ind, fixed = TRUE)
     plotData <- subset(plotData, Metric %in% metric)
-    bwplot(ind ~ values|Metric, data = plotData,
-                     xlab = "",
-                     ...)
+    bwplot(ind ~ values|Metric,
+           data = plotData,
+           xlab = "",
+           ...)
 
   }
 
@@ -439,7 +483,7 @@ dotplot.diff.resamples <- function(x, data = NULL, metric = x$metric[1], ...)
     plotData
     dotplot(Difference ~ value,
             data = plotData,
-            xlab = paste("Difference in", metric),
+            xlab = paste("Difference in", useMathSymbols(metric)),
             panel = function(x, y)
             {
               plotTheme <- trellis.par.get()
@@ -459,9 +503,6 @@ dotplot.diff.resamples <- function(x, data = NULL, metric = x$metric[1], ...)
                 
 
               panel.dotplot(middle$x, middle$mod)
-              
-
-
             },
             ...)
   }

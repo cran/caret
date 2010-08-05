@@ -10,8 +10,11 @@ Lattice functions for visualizing resampling result differences between models
 }
 \usage{
 \method{densityplot}{diff.resamples}(x, data, metric = x$metric, ...)
+
 \method{bwplot}{diff.resamples}(x, data, metric = x$metric, ...)
+
 \method{levelplot}{diff.resamples}(x, data = NULL, metric = x$metric[1], what = "pvalues", ...)
+
 \method{dotplot}{diff.resamples}(x, data = NULL, metric = x$metric[1], ...)
 
 }

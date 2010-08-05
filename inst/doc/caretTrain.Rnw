@@ -473,7 +473,7 @@ There is additional functionality in \texttt{train} that is described in the nex
              {\tt \href{http://cran.r-project.org/web/packages/neuralnet/index.html}{neuralnet}}       & 
             \texttt{layer1},  \texttt{layer2}, \texttt{layer3} & \\         
               
-      Quantile Regressoin Forests &
+      Quantile Regression Forests &
          \texttt{qrf} & 
              {\tt \href{http://cran.r-project.org/web/packages/quantregForest/index.html}{quantregForest}}       & 
             \texttt{mtry} & \\                 
@@ -1099,7 +1099,9 @@ To plot class probabilities, \texttt{plotClassProbs} will display the results by
 
 \section{Comparing Resampling Distributions}
 
-\texttt{caret} also includes functions to characterize the differences between models using their resampling distributions. 
+\texttt{caret} also includes functions to characterize the differences
+between models (generated using \texttt{train}, \texttt{sbf} or
+\texttt{rfe}) via their resampling distributions. 
 
 Using the blood-brain barrier data (see \texttt{?BloodBrain)}, three regression models were
 created: an \texttt{rpart} tree, a conditional inference tree using
