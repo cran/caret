@@ -1,4 +1,10 @@
 -------------------
+Version: 4.48
+Date: 2010-08-06
+
+Added a prcomp method for the resamples class
+
+-------------------
 Version: 4.47
 Date: 2010-08-05
 
