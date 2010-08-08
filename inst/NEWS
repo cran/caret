@@ -1,4 +1,11 @@
 -------------------
+Version: 4.49
+Date: 2010-08-08
+
+Enhaced the tuneGrid option to allow a function
+to be passed in.
+
+-------------------
 Version: 4.48
 Date: 2010-08-06
 

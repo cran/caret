@@ -622,40 +622,92 @@ if(FALSE)
     data(BloodBrain)
 
 
-library(caret)
-data(BloodBrain)
 
-set.seed(1)
-tmp <- createDataPartition(logBBB,
-                           p = .8,
-                           times = 100)
+    set.seed(1)
+    tmp <- createDataPartition(logBBB,
+                               p = .8,
+                               times = 5)
+    bbbDescr2 <- scale(bbbDescr[, apply(bbbDescr, 2, function(x) length(unique(x)) > 1)])
 
-rpartFit <- train(bbbDescr, logBBB,
-                  "rpart", 
-                  tuneLength = 16,
-                  trControl = trainControl(method = "LGOCV", index = tmp))
-
-
-ctreeFit <- train(bbbDescr, logBBB,
-                  "ctree2",
-                  tuneLength = 5,
-                  trControl = trainControl(method = "LGOCV", index = tmp))
-
-m5Fit <- train(bbbDescr, logBBB,
-               "M5Rules",
-               trControl = trainControl(method = "LGOCV", index = tmp))    
+    rpartFit <- train(bbbDescr, logBBB,
+                      "rpart", 
+                      tuneLength = 16,
+                      trControl = trainControl(method = "LGOCV", index = tmp))
 
 
-earthFit <- train(bbbDescr, logBBB,
-                  "earth",
-                  tuneLength = 20,
-                  trControl = trainControl(method = "LGOCV", index = tmp))
+    ctreeFit <- train(bbbDescr, logBBB,
+                      "ctree2",
+                      tuneLength = 5,
+                      trControl = trainControl(method = "LGOCV", index = tmp))
 
+    m5Fit <- train(bbbDescr, logBBB,
+                   "M5Rules",
+                   trControl = trainControl(method = "LGOCV", index = tmp))    
+
+
+    earthFit <- train(bbbDescr, logBBB,
+                      "earth",
+                      tuneLength = 10,
+                      trControl = trainControl(method = "LGOCV", index = tmp))
+
+
+
+    bagEarthFit <- train(bbbDescr, logBBB,
+                         "bagEarth",
+                         tuneLength = 10,
+                         trControl = trainControl(method = "LGOCV", index = tmp))
+
+    rfFit <- train(bbbDescr, logBBB,
+                   "rf",
+                   tuneLength = 5,
+                   trControl = trainControl(method = "LGOCV", index = tmp))
+
+    crfFit <- train(bbbDescr, logBBB,
+                    "cforest",
+                    tuneLength = 5,
+                    trControl = trainControl(method = "LGOCV", index = tmp))
+
+    gbmFit <- train(bbbDescr, logBBB,
+                    "gbm",
+                    tuneGrid = expand.grid(
+                      .interaction.depth = -1 + (1:5) * 2,
+                      .n.trees = 20 * (1:20),
+                      .shrinkage = .1),
+                    verbose = FALSE,
+                    trControl = trainControl(method = "LGOCV", index = tmp))
+
+    svmRFit <- train(bbbDescr2, logBBB,
+                    "svmRadial",
+                    tuneLength = 5,
+                    trControl = trainControl(method = "LGOCV", index = tmp))
+
+    svmLFit <- train(bbbDescr2, logBBB,
+                    "svmLinear",
+                    tuneLength = 5,
+                    trControl = trainControl(method = "LGOCV", index = tmp))    
+
+    plsFit <- train(bbbDescr2, logBBB,
+                    "pls",
+                    tuneLength = 15,
+                    trControl = trainControl(method = "LGOCV", index = tmp))
+
+
+    lmFit <- train(bbbDescr2, logBBB,
+                    "lm",
+                    trControl = trainControl(method = "LGOCV", index = tmp))       
+    
 
     resamps <- resamples(list(CART = rpartFit,
                               CondInfTree = ctreeFit,
                               MARS = earthFit,
-                              M5 = m5Fit))
+                              M5 = m5Fit,
+                              rf = rfFit,
+                              crf = crfFit,
+                              pls = plsFit,
+                              svmL = svmLFit,
+                              svmR = svmRFit,
+                              bagMARS = bagEarthFit,
+                              gbm = gbmFit))
     
 
     resamps
