@@ -30,7 +30,7 @@ maxDissim <- function(a, b, n = 2, obj = minDiss, useNames = FALSE, randomFrac =
           cat("Number of candidates:", length(free), "\n")
           cat("Sampling from", length(pool), "samples\n")		
         }
-      diss <- dist(newA, b[pool,, drop = FALSE], ...)
+      diss <- proxy:::dist(newA, b[pool,, drop = FALSE], ...)
       bNames <- colnames(b)[pool] 
       tmp <- pool[which.max(apply(diss, 2, obj))]
       if(verbose)cat("new sample:", tmp, "\n")      

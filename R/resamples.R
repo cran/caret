@@ -64,6 +64,113 @@ resamples.default <- function(x, modelNames = names(x), ...)
     out
   }
 
+
+prcomp.resamples <- function(x, metric = x$metrics[1],  ...)
+  {
+    
+    if(length(metric) != 1) stop("exactly one metric must be given")
+
+    tmpData <- x$values[, grep(paste("~", metric, sep = ""),
+                               names(x$value),
+                               fixed = TRUE),
+                        drop = FALSE]
+    names(tmpData) <- gsub(paste("~", metric, sep = ""),
+                           "",
+                           names(tmpData),
+                           fixed = TRUE)
+
+    tmpData <- t(tmpData)
+    out <- prcomp(tmpData)
+    out$metric <- metric
+    out$call <- match.call()
+    class(out) <- c("prcomp.resamples", "prcomp")
+    out
+  }
+
+plot.prcomp.resamples <- function(x, what = "scree", dims = max(2, ncol(x$rotation)), ...)
+{
+  if(length(what) > 1) stop("one plot at a time please")
+  switch(what,
+         scree =
+         {
+           barchart(x$sdev ~ paste("PC", seq(along = x$sdev)),
+                    ylab = "Standard Deviation", ...)
+         },
+         cumulative =
+         {
+           barchart(cumsum(x$sdev^2)/sum(x$sdev^2) ~ paste("PC", seq(along = x$sdev)),
+                    ylab = "Culmulative Percent of Variance", ...)
+         },
+         loadings =
+         {
+
+           panelRange <- extendrange(x$rotation[, 1:dims,drop = FALSE])
+           if(dims > 2)
+             {
+               
+               splom(~x$rotation[, 1:dims,drop = FALSE],
+                     main = caret:::useMathSymbols(x$metric),
+                     prepanel.limits = function(x) panelRange,
+                     type = c("p", "g"),
+                     ...)
+             } else {
+               xyplot(PC2~PC1, data = as.data.frame(x$rotation),
+                     main = caret:::useMathSymbols(x$metric),
+                     xlim = panelRange,
+                     ylim = panelRange,
+                     type = c("p", "g"),
+                     ...)
+             }
+
+         },
+         components =
+         {
+
+           panelRange <- extendrange(x$x[, 1:dims,drop = FALSE])
+           if(dims > 2)
+             {
+               
+               splom(~x$x[, 1:dims,drop = FALSE],
+                     main = caret:::useMathSymbols(x$metric),
+                     prepanel.limits = function(x) panelRange,
+                     groups = rownames(x$x),
+                     type = c("p", "g"),
+                     ...)
+             } else {
+               xyplot(PC2~PC1, data = as.data.frame(x$x),
+                     main = caret:::useMathSymbols(x$metric),
+                     xlim = panelRange,
+                     ylim = panelRange,
+                     
+                     groups = rownames(x$x),
+                     type = c("p", "g"),
+                     ...)
+             }
+
+         })
+} 
+
+
+print.prcomp.resamples <- function (x, digits = max(3, getOption("digits") - 3), print.x = FALSE, ...) 
+{
+  cat("\nCall:\n", deparse(x$call), "\n\n", sep = "")
+  cat("Metric:", x$metric, "\n")
+
+
+  sds <- rbind(x$sdev, cumsum(x$sdev^2)/sum(x$sdev^2))
+  rownames(sds) <- c("Std. Dev. ", "Cum. Percent Var. ")
+  colnames(sds) <- rep("", ncol(sds))
+                     
+  print(sds, digits = digits, ...)
+  cat("\nRotation:\n")
+  print(x$rotation, digits = digits, ...)
+  if (print.x && length(x$x)) {
+    cat("\nRotated variables:\n")
+    print(x$x, digits = digits, ...)
+  }
+  invisible(x)
+}
+
 print.resamples <- function(x, ...)
   {
     cat("\nCall:\n", deparse(x$call), "\n\n", sep = "")
