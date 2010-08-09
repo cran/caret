@@ -81,7 +81,19 @@ train.default <- function(x, y,
 
   ## If no default training grid is specified, get one. We have to pass in the formula
   ## and data for some models (rpart, pam, etc - see manual for more details)
-  if(is.null(tuneGrid)) tuneGrid <- createGrid(method, tuneLength, trainData)
+  if(is.null(tuneGrid))
+    {
+      tuneGrid <- createGrid(method, tuneLength, trainData)
+    } else {
+      if(is.function(tuneGrid))
+        {
+          if(length(formals(tuneGrid)) == 2
+             && names(formals(tuneGrid)) == c("len", "data"))
+            {
+              tuneGrid <- tuneGrid(tuneLength, trainData)
+            } else stop("If a function, tuneGrid should have arguments len and data")
+        }
+    }
 
   ##------------------------------------------------------------------------------------------------------------------------------------------------------#
 
