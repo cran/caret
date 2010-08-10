@@ -1,4 +1,18 @@
 -------------------
+Version: 4.51
+Date: 2010-08-10
+
+Added an option to splom.resamples so that the variables in the 
+scatter plots are models or metrics.
+
+-------------------
+Version: 4.50
+Date: 2010-08-09
+
+Added dotplot.resamples plus acknowledgements to Hothorn et al 
+(2005) and Eugster et al (2008)
+
+-------------------
 Version: 4.49
 Date: 2010-08-08
 
