@@ -23,6 +23,8 @@ resamples(x, ...)
   \item{\dots}{not currently used}
 }
 \details{
+The ideas and methods here are based on Hothorn et al (2005) and Eugster et al (2008).
+
 The results from  \code{\link{train}} can have more than one performance metric per resample. Each metric in the input object is saved.
 
 \code{resamples} checks that the resampling results match; that is, the indices in the object \code{trainObject$control$index} are the same. Also, the argument \code{\link{trainControl}} \code{returnResamp} should have a value of \code{"final"} for each model.
@@ -44,6 +46,10 @@ Max Kuhn
 
 \seealso{
 \code{\link{train}},  \code{\link{trainControl}}, \code{\link{diff.resamples}}, \code{\link{xyplot.resamples}}, \code{\link{densityplot.resamples}}, \code{\link{bwplot.resamples}}, \code{\link{splom.resamples}}}
+
+\references{Hothorn et al. The design and analysis of benchmark experiments. Journal of Computational and Graphical Statistics (2005) vol. 14 (3) pp. 675-699
+
+Eugster et al. Exploratory and inferential analysis of benchmark experiments. Ludwigs-Maximilians-Universitat Munchen, Department of Statistics, Tech. Rep (2008) vol. 30}
 
 \examples{
 \dontrun{

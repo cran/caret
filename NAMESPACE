@@ -210,6 +210,7 @@ S3method(histogram,   sbf)
 
 S3method(densityplot, resamples)
 S3method(bwplot,      resamples)
+S3method(dotplot,      resamples)
 S3method(splom,       resamples)
 S3method(xyplot,      resamples)
 S3method(parallel,    resamples)
