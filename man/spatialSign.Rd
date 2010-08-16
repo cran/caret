@@ -18,6 +18,7 @@ spatialSign.data.frame(x)
 
 \value{A vector, matrix or data frame with the same dim names of the original data.}
 \author{Max Kuhn}
+\references{Serneels et al. Spatial sign preprocessing: a simple way to impart moderate robustness to multivariate estimators. J. Chem. Inf. Model (2006) vol. 46 (3) pp. 1402-1409}
 \examples{
 spatialSign(rnorm(5))
 

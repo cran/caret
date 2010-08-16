@@ -849,6 +849,22 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
                            {
                              library(HDclassif)
                              as.character(predict(modelFit, newdata)$class)
+                           },
+                           logreg =
+                           {
+                             library(LogicReg)
+                             if(modelFit$type == "logistic")
+                               {
+                                 out <- ifelse(predict(modelFit, newbin = newdata) >= .5,
+                                               modelFit$obsLevels[1], modelFit$obsLevels[2])
+                               } else out <- predict(modelFit, newbin = newdata)
+                             out
+                           },
+                           logforest =
+                           {
+                             library(LogicForest)
+                             ifelse(predict(modelFit, newdata = newdata)$LFprediction == 1,
+                                    modelFit$obsLevels[1], modelFit$obsLevels[2])
                            }
                            )
   predictedValue

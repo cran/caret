@@ -278,7 +278,7 @@
                       mda = data.frame(.subclasses = (1:len) + 1),
                       pda = data.frame(.lambda = 1:len),
                       pda2 = data.frame(.df = 2* (0:(len - 1) + 1)),
-                                            lars = expand.grid(.fraction = seq(0.05, 1, length = len)),
+                      lars = expand.grid(.fraction = seq(0.05, 1, length = len)),
                       lars2 = larsTune(data, len),
                       PART = data.frame(.threshold = 0.25, .pruned = "yes"),
                       vbmpRadial = data.frame(.estimateTheta = "yes"),
@@ -307,11 +307,12 @@
                       scrda = scrdaTune(data, len),
                       bag = data.frame(.vars = ncol(data) - 1),
                       hdda = expand.grid(.model = c("best", "dbest"), .threshold = seq(0.05, .3, length = len)),
+                      logreg = expand.grid(.ntrees = (1:3) + 1, .treesize = 2^(1+(1:len))),
                       lda =, lm =, treebag =, sddaLDA =, sddaQDA =,
                       glm =, qda =, OneR =, rlm =,
                       rvmLinear =, lssvmLinear =, gaussprLinear =,
                       glmStepAIC =, lmStepAIC =, slda =, Linda =, QdaCov =,
-                      glmrob = data.frame(.parameter = "none"))
+                      glmrob =, logforest = data.frame(.parameter = "none"))
   trainGrid
 }
 

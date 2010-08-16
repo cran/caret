@@ -25,7 +25,7 @@ byComplexity <- function(x, model)
            },
            rf =, rfNWS =, rfLSF =, parRF =, gpls =, pcr =, pls =, PLS =, pam =, cforest =,
            nb =, rpart =, ctree2 =, logitBoost=, J48 =, LMT =, ppr =, mda =, pda =, pda2 =,
-           lars =, lars2 =, Linda =, QdaCov =, icr =, qrf =  
+           lars =, lars2 =, Linda =, QdaCov =, icr =, qrf =
            {
              x[order(x[,1]),]
            },
@@ -71,7 +71,7 @@ byComplexity <- function(x, model)
            treebag =, lda =, lm =, sddaLDA =, sddaQDA =,
            glmStepAIC =,lmStepAIC =, slda =, glm =, qda =, OneR =,
            rvmLinear =, lssvmLinear =, gaussprLinear =,
-           rlm =, vbmpRadial =, glmrob =
+           rlm =, vbmpRadial =, glmrob =, logforest =
            {
              x
            },
@@ -146,6 +146,7 @@ byComplexity <- function(x, model)
            {
              x[order(-x$threshold),]
            },
+           logreg = x[order(x$ntrees, x$treesize),],
            neuralnet = x[order(x$layer1, x$layer2, x$layer3),],
            scrda = x[order(x$alpha, x$delta, decreasing = TRUE),],
            rocc = x[order(x$xgenes),],

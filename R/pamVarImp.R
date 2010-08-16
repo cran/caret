@@ -14,9 +14,6 @@ function (object, threshold, data, ...)
    retainedX <- x[object$gene.subset, object$sample.subset, drop = F]
    centroids <- pamr.predict(object, x, threshold = threshold, type = "cent")
    standCentroids <- (centroids - object$centroid.overall)/object$sd
-#   numClasses <- dim( standCentroids)[2]
-#   greaterThanZero <- drop(abs(standCentroids) %*% rep(1, numClasses)) > 0
-#   finalCentroids <- standCentroids[greaterThanZero, , drop = FALSE]
    rownames(standCentroids) <- featureNames
    colnames(standCentroids) <- names(object$prior)
   

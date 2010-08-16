@@ -57,7 +57,7 @@
                    "superpc", "ppr", "sda", "penalized", "sparseLDA",
                    "nodeHarvest", "Linda", "QdaCov", "stepLDA", "stepQDA",
                    "parRF", "plr", "rocc", "foba", "partDSA", "hda", "icr",
-                   "qrf", "scrda", "bag", "hdda"))
+                   "qrf", "scrda", "bag", "hdda", "logreg", "logforest"))
     {
       trainX <- data[,!(names(data) %in% ".outcome")]
       trainY <- data[,".outcome"] 
@@ -1418,6 +1418,25 @@
                      {
                        library(HDclassif)
                        hdda(trainX, trainY, model = tuneValue$.model, threshold = tuneValue$.threshold, ...)
+                     },
+                     logreg =
+                     {
+                       library(LogicReg)
+                       if(is.factor(trainY)) trainY <- ifelse(trainY == levels(trainY)[1], 1, 0)
+                       logreg(resp = trainY, bin = trainX,
+                              ntrees = tuneValue$.ntrees,
+                              tree.control = logreg.tree.control(treesize = tuneValue$.treesize),
+                              select = 1,
+                              type = ifelse(type == "Regression", 2, 3),
+                              ...)
+                     },
+                     logforest =
+                     {
+                       library(LogicForest)
+                       y2 <- ifelse(trainY == levels(trainY)[1], 1, 0)
+                       logforest(resp = y2,
+                                 Xs = trainX,
+                                 ...)
                      }
                      )
   

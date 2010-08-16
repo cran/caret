@@ -364,72 +364,77 @@ There is additional functionality in \texttt{train} that is described in the nex
          \texttt{bagEarth} & 
             {\tt \href{http://cran.r-project.org/web/packages/caret/index.html}{caret}},   {\tt \href{http://cran.r-project.org/web/packages/earth/index.html}{earth}}      & 
             \texttt{degree}, \texttt{nprune} & \\ 
+           
+      Logic Regression &
+         \texttt{logreg} & 
+            {\tt \href{http://cran.r-project.org/web/packages/LogicReg/index.html}{LogicReg}}  & 
+            \texttt{ntrees}, \texttt{treesize} & \\ 
             
+\rowcolor[rgb]{.95, .95, .95}        
       Elastic Net (glm) &               
          \texttt{glmnet} & 
              {\tt \href{http://cran.r-project.org/web/packages/glmnet/index.html}{glmnet}}       &       
             \texttt{alpha}, \texttt{lambda} & \\ 
             
-\rowcolor[rgb]{.95, .95, .95}                     
+                
       Neural Networks &               
          \texttt{nnet} & 
              {\tt \href{http://cran.r-project.org/web/packages/nnet/index.html}{nnet}}       &       
             \texttt{decay}, \texttt{size} & \\      
 
-\rowcolor[rgb]{.95, .95, .95}         
+      
        &               
          \texttt{pcaNNet} & 
             {\tt \href{http://cran.r-project.org/web/packages/caret/index.html}{caret}},
             {\tt \href{http://cran.r-project.org/web/packages/nnet/index.html}{nnet}}&       
             \texttt{decay}, \texttt{size} & \\              
-            
+   
+\rowcolor[rgb]{.95, .95, .95}                    
       Partial Least Squares &
          \texttt{pls} & 
              {\tt \href{http://cran.r-project.org/web/packages/pls/index.html}{pls}} ,  {\tt \href{http://cran.r-project.org/web/packages/caret/index.html}{caret}}       & 
             \texttt{ncomp} & \\      
 
-\rowcolor[rgb]{.95, .95, .95}         
 
       Sparse Partial Least Squares&
          \texttt{spls} & 
              {\tt \href{http://cran.r-project.org/web/packages/spls/index.html}{spls}} , 
              {\tt \href{http://cran.r-project.org/web/packages/caret/index.html}{caret}}      & 
             \texttt{K}, \texttt{eta}, \texttt{kappa} & \\   
-      
+
+\rowcolor[rgb]{.95, .95, .95}        
       Support Vector Machines  &
          \texttt{svmLinear} & 
              {\tt \href{http://cran.r-project.org/web/packages/kernlab/index.html}{kernlab}}       & 
             none & \\              
-      
+ \rowcolor[rgb]{.95, .95, .95}             
   &
          \texttt{svmRadial} & 
             {\tt \href{http://cran.r-project.org/web/packages/kernlab/index.html}{kernlab}}      & 
             \texttt{sigma}, \texttt{C} & \\             
-      
+ \rowcolor[rgb]{.95, .95, .95}             
   &
          \texttt{svmPoly} & 
             {\tt \href{http://cran.r-project.org/web/packages/kernlab/index.html}{kernlab}}      & 
             \texttt{scale}, \texttt{degree}, \texttt{C} & \\            
 
-\rowcolor[rgb]{.95, .95, .95}         
            Gaussian Processes  &
          \texttt{gaussprLinear} & 
             {\tt \href{http://cran.r-project.org/web/packages/kernlab/index.html}{kernlab}}      & 
             none & \\             
-            
-\rowcolor[rgb]{.95, .95, .95}               
+                       
   &
          \texttt{gaussprRadial} & 
              {\tt \href{http://cran.r-project.org/web/packages/kernlab/index.html}{kernlab}}        & 
             \texttt{sigma} & \\              
 
-\rowcolor[rgb]{.95, .95, .95}               
+          
   &
          \texttt{gaussprPoly} & 
              {\tt \href{http://cran.r-project.org/web/packages/kernlab/index.html}{kernlab}}       & 
             \texttt{scale}, \texttt{degree} & \\            
 
-                      
+\rowcolor[rgb]{.95, .95, .95}                          
       $k$ Nearest Neighbors &
          \texttt{knn} & 
              {\tt \href{http://cran.r-project.org/web/packages/caret/index.html}{caret}}       & 
@@ -691,47 +696,52 @@ There is additional functionality in \texttt{train} that is described in the nex
            {\tt \href{http://cran.r-project.org/web/packages/RWeka/index.html}{RWeka}}    & 
             \texttt{NumOpt}   & \\
 
-              
+      Logic Forests &
+         \texttt{logforest} & 
+           {\tt \href{http://cran.r-project.org/web/packages/LogForest/index.html}{LogForest}}   & 
+            None & \\  
+
+\rowcolor[rgb]{.95, .95, .95}               
       Bayesian Multinomial Probit Model  
       & \texttt{vbmpRadial} 
       &  {\tt \href{http://cran.r-project.org/web/packages/vbmp/index.html}{vbmp}} 
       & \texttt{estimateTheta} & \\
-
-\rowcolor[rgb]{.95, .95, .95}            
+    
       Least Squares Support Vector Machines &
          \texttt{lssvmRadial} & 
              {\tt \href{http://cran.r-project.org/web/packages/kernlab/index.html}{kernlab}}      & 
             \texttt{sigma} & \\             
        
-      
+\rowcolor[rgb]{.95, .95, .95}         
       Nearest Shrunken Centroids&
          \texttt{pam} & 
              {\tt \href{http://cran.r-project.org/web/packages/pamr/index.html}{pamr}}        & 
             \texttt{threshold} & \\  
-
+\rowcolor[rgb]{.95, .95, .95}   
 &
          \texttt{scrda} & 
              {\tt \href{http://cran.r-project.org/web/packages/rda/index.html}{rda}}        & 
             \texttt{alpha}, \texttt{delta} & \\              
        
-\rowcolor[rgb]{.95, .95, .95}                  
+
       Naive Bayes &
          \texttt{nb} & 
             {\tt \href{http://cran.r-project.org/web/packages/klaR/index.html}{klaR}}     & 
             \texttt{usekernel} & \\
-        
+
+\rowcolor[rgb]{.95, .95, .95}   
       Generalized Partial Least Squares&
          \texttt{gpls} & 
              {\tt \href{http://cran.r-project.org/web/packages/gpls/index.html}{gpls}}      & 
             \texttt{K.prov} & \\
             
-\rowcolor[rgb]{.95, .95, .95}            
+     
       Learned Vector  Quantization&
          \texttt{lvq} & 
              {\tt \href{http://cran.r-project.org/web/packages/class/index.html}{class}}       &          
             \texttt{k} & \\  
      
-            
+ \rowcolor[rgb]{.95, .95, .95}                 
       ROC Curves &
          \texttt{rocc} & 
              {\tt \href{http://cran.r-project.org/web/packages/rocc/index.html}{rocc}}    &          
