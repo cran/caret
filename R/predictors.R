@@ -495,3 +495,20 @@ predictors.RandomForest <- function(x, ...)
     vi <- varimp(x, ...)
     names(vi)[vi != 0]
   }
+
+
+predictors.logreg <- function(x, ...)
+  {
+    getVarIndex <- function(y) unique(y$trees$knot)
+    varNums <- unique(unlist(lapply(x$model$trees, getVarIndex)))
+    varNums <- varNums[varNums > 0]
+    if(length(varNums) > 0) colnames(x$binary)[varNums] else NA
+  }
+
+predictors.logforest <- function(x, ...)
+  {
+    varNums <- sort(unique(unlist(lapply(x$AllFits, predictors))))
+    if(length(varNums) == 0) varNums <- NA
+    varNums
+  }
+

@@ -1,4 +1,13 @@
 -------------------
+Version: 4.53
+Date: 2010-08-16
+
+Fixed a bug in varImp.train related to nearest shrunken 
+centroid models.
+
+Added logic regression and logic forests
+
+-------------------
 Version: 4.51
 Date: 2010-08-10
 

@@ -70,6 +70,7 @@ would be \code{dist.11.11}, \code{dist.22.22}, etc.
 \author{
 Max Kuhn
 }
+\references{Forina et al. CAIMAN brothers: A family of powerful classification and class modeling techniques. Chemometrics and Intelligent Laboratory Systems (2009) vol. 96 (2) pp. 239-245}
 
 \seealso{\code{\link[stats]{mahalanobis}}}
 \examples{

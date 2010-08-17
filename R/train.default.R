@@ -24,6 +24,15 @@ train.default <- function(x, y,
   ## and label and whether the model can be fit sequentially (i.e. multiple models can
   ## be derived from the same R object).
   modelInfo <- modelLookup(method)
+
+  if(method %in% c("logreg", "logforest"))
+    {
+      binaryCheck <- unlist(lapply(x, function(x) any(!(x %in% c(0, 1)))))
+      if(any(binaryCheck)) stop(
+                                paste("When using logic regression, train() is",
+                                      "only setup to use predictors that are",
+                                      "either 0 or 1"))
+    }
   
   if(modelType == "Classification")
     {     
@@ -34,7 +43,8 @@ train.default <- function(x, y,
       ## relative to the others
       classLevels <- levels(y)
       if(length(classLevels) > 2 & (method %in% c("gbm", "glmboost", "ada", "gamboost", "blackboost", "penalized", "glm",
-                                                  "earth", "nodeHarvest", "glmrob", "plr", "GAMens", "rocc")))
+                                                  "earth", "nodeHarvest", "glmrob", "plr", "GAMens", "rocc",
+                                                  "logforest", "logreg")))
         stop("This model is only implemented for two class problems")
       if(length(classLevels) < 3 & (method %in% c("vbmpRadial")))
         stop("This model is only implemented for 3+ class problems")      
@@ -102,7 +112,75 @@ train.default <- function(x, y,
   ## only save the prediction summaries at this stage.
   
   ## trainInfo will hold the information about how we should loop to train the model and what types
-  ## of parameters are used. 
+  ## of parameters are used.
+
+  ## There are two types of methods to build the models: "basic" means that each tuning parameter
+  ## combination requires it's own model fit and "seq" where a single model fit can be used to
+  ## get predictions for multiple tuning parameters.
+
+  ## The tuneScheme() function is in miscr.R and it helps define the following:
+  ##   - A data frame called "loop" with columns for parameters and a row for each model to be fit.
+  ##     For "basic" models, this is the same as the tuning grid. For "seq" models, it is only
+  ##     the subset of parameters that need to be fit
+  ##   - A list called "seqParam". If "basic", it is NULL. For "seq" models, it is a list. Each list
+  ##     item is a data frame of the parameters that need to be varied for the corresponding row of
+  ##     the loop oject.
+  ##
+  ## For example, for a gbm model, our tuning grid might be:
+  ##    .interaction.depth .n.trees .shrinkage
+  ##                     1       50        0.1
+  ##                     1      100        0.1
+  ##                     2       50        0.1
+  ##                     2      100        0.1
+  ##                     2      150        0.1
+  ##
+  ## For this example:
+  ## 
+  ##   loop:
+  ##   .interaction.depth .shrinkage .n.trees
+  ##                    1        0.1      100
+  ##                    2        0.1      150
+  ##
+  ##   seqParam:
+  ##   [[1]]
+  ##     .n.trees
+  ##           50
+  ## 
+  ##   [[2]]
+  ##     .n.trees
+  ##           50
+  ##          100
+  ## 
+  ## A simplified version of predictionFunction() would have the following gbm section:
+  ##
+  ##     # First get the predicitons with the value of n.trees as given in the current
+  ##     # row of loop
+  ##     out <- predict(modelFit,
+  ##                    newdata,
+  ##                    type = "response",
+  ##                    n.trees = modelFit$tuneValue$.n.trees)
+  ##
+  ##     # param is the current value of seqParam. In normal predction mode (i.e
+  ##     # when using predict.train), param = NULL. When called within train()
+  ##     # with this model, it will have the other values for n.trees.
+  ##     # In this case, the output of the function is a matrix of predictions
+  ##     # where rows are samples and columns are different models. These values
+  ##     # are deconvoluted in workerTasks() in misc.R
+  ##     if(!is.null(param))
+  ##       {
+  ##         tmp <- data.frame(
+  ##                           matrix(NA, nrow = nrow(newdata), ncol = nrow(param)),
+  ##                           stringsAsFactors = FALSE)
+  ##         
+  ##         for(j in seq(along = param$.n.trees))
+  ##           {   
+  ##             tmp[,j]  <- predict(modelFit,
+  ##                                 newdata,
+  ##                                 type = "response",
+  ##                                 n.trees = param$.n.trees[j])
+  ##           }
+  ##         out <- cbind(out, tmp)
+  ##
   
   trainInfo <- tuneScheme(method, tuneGrid, trControl$method == "oob")
   paramCols <- paste(".", trainInfo$model$parameter, sep = "")

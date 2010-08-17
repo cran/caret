@@ -4,7 +4,7 @@
 
   if(is.null(object$finalModel)) stop("must have retained the final model")
   modelName <- object$method    
-  if(!(modelName %in% c("lm", "pls", "pam", "rf", "rpart", "gbm", "treebag", "mars", "earth", "bmars", "cforest"))) useModel <- FALSE   
+  if(!(class(object$finalModel)[1] %in% gsub("varImp.", "", as.character(methods("varImp"), fixed = TRUE)))) useModel <- FALSE   
   availMethods <- methods("varImp")
   availMethods <- rownames(attributes(availMethods)$info)
   availMethods <- gsub("varImp.", "", availMethods, fixed = TRUE)
@@ -18,13 +18,14 @@
                     class(object$finalModel)[1],
                     pamrtrained = 
                     {
+                      library(pamr)
                       if(is.null(object$finalModel$xData)) stop("the train$finalModel object needs an xData object")
                       varImp(
                              object$finalModel, 
-                             threshold = ifelse(is.null(object$tuneValue), 0, object$tuneValue),
+                             threshold = ifelse(is.null(object$bestTune), 0, object$bestTune[,1]),
                              data = object$finalModel$xData)         
                     },
-                    mars = 
+                    mars =, earth = 
                     {
                       if(is.null(object$trainingData)) stop("the train object needs an trainingData object")
                       tmp <- object$trainingData[,names(object$trainingData) != ".outcome"]
