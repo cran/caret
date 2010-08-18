@@ -342,6 +342,12 @@ There is additional functionality in \texttt{train} that is described in the nex
              {\tt \href{http://cran.r-project.org/web/packages/caret/index.html}{caret}}       & 
             \texttt{vars} & \\               
 
+          &
+         \texttt{logicBag} & 
+             {\tt \href{http://cran.r-project.org/web/packages/logicFS/index.html}{logicFS}}       & 
+            \texttt{ntrees}, \texttt{nleaves} & \\               
+            
+            
 \rowcolor[rgb]{.95, .95, .95}            
             Other Trees &
             \texttt{nodeHarvest} & 

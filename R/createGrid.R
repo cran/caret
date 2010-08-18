@@ -308,6 +308,7 @@
                       bag = data.frame(.vars = ncol(data) - 1),
                       hdda = expand.grid(.model = c("best", "dbest"), .threshold = seq(0.05, .3, length = len)),
                       logreg = expand.grid(.ntrees = (1:3) + 1, .treesize = 2^(1+(1:len))),
+                      logicBag = expand.grid(.ntrees = (1:len) + 1, .nleaves = 2^((1:len) + 1)),
                       lda =, lm =, treebag =, sddaLDA =, sddaQDA =,
                       glm =, qda =, OneR =, rlm =,
                       rvmLinear =, lssvmLinear =, gaussprLinear =,

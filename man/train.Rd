@@ -68,6 +68,7 @@ Random forests \tab  \code{rf} \tab \pkg{randomForest} \tab \code{mtry} \cr
 \tab \code{cforest} \tab \pkg{party} \tab \code{mtry} \cr   
 Bagging \tab \code{treebag} \tab \pkg{ipred} \tab None \cr 
         \tab \code{bag}     \tab \pkg{caret} \tab \code{vars} \cr
+	\tab \code{logicBag}\tab \pkg{logicFS}\tab \code{ntrees}, \code{nleaves}\cr
 Other Trees \tab \code{nodeHarvest} \tab \pkg{nodeHarvest} \tab \code{maxinter}, \code{node} \cr 
             \tab \code{partDSA} \tab \pkg{partDSA} \tab \code{cut.off.growth}, \code{MPD} \cr 
 Logic Regression \tab \code{logreg} \tab \pkg{LogicReg} \tab \code{ntrees}, code{treesize} \cr

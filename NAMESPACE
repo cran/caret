@@ -326,6 +326,10 @@ S3method(predictors, sbf)
 S3method(predictors, trocc)
 S3method(predictors, foba)
 S3method(predictors, dsa)
+S3method(predictors, logreg)
+S3method(predictors, logforest)
+S3method(predictors, logicBagg)
+
 
 S3method(confusionMatrix, table)
 

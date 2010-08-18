@@ -865,6 +865,19 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
                              library(LogicForest)
                              ifelse(predict(modelFit, newdata = newdata)$LFprediction == 1,
                                     modelFit$obsLevels[1], modelFit$obsLevels[2])
+                           },
+                           logicBag =
+                           {
+                             library(logicFS)
+                             if(modelFit$problemType == "Classification")
+                               {
+                                 if(length(modelFit$obsLevels) == 2)
+                                   {
+                                     as.character(modelFit$obsLevels[predict(modelFit, newData = newdata) + 1])
+                                   } else {
+                                     as.character(predict(modelFit, newData = newdata))
+                                   }
+                               } else predict(modelFit, newData = newdata)
                            }
                            )
   predictedValue

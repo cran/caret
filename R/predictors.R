@@ -512,3 +512,15 @@ predictors.logforest <- function(x, ...)
     varNums
   }
 
+predictors.logicBagg <- function(x, ...)
+  {
+    varNums <- lapply(x$logreg.model,
+                      function(y) lapply(y$trees,
+                                         function(z) z$trees$knot))
+    
+
+    varNums <- sort(unique(unlist(varNums)))
+    varNums <- varNums[varNums > 0]
+    if(length(varNums) > 0) colnames(x$data)[varNums] else NA    
+  }
+

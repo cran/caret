@@ -57,7 +57,7 @@
                    "superpc", "ppr", "sda", "penalized", "sparseLDA",
                    "nodeHarvest", "Linda", "QdaCov", "stepLDA", "stepQDA",
                    "parRF", "plr", "rocc", "foba", "partDSA", "hda", "icr",
-                   "qrf", "scrda", "bag", "hdda", "logreg", "logforest"))
+                   "qrf", "scrda", "bag", "hdda", "logreg", "logforest", "logicBag"))
     {
       trainX <- data[,!(names(data) %in% ".outcome")]
       trainY <- data[,".outcome"] 
@@ -1437,6 +1437,14 @@
                        logforest(resp = y2,
                                  Xs = trainX,
                                  ...)
+                     },
+                     logicBag =
+                     {
+                       library(logicFS)
+                       logic.bagging(as.matrix(trainX), trainY,
+                                     ntrees = tuneValue$.ntrees,
+                                     nleaves = tuneValue$.nleaves,
+                                     ...)
                      }
                      )
   
