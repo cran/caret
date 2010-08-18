@@ -1,4 +1,10 @@
 -------------------
+Version: 4.54
+Date: 2010-08-17
+
+Added logic.bagginf in logicFT with method  = "logicBag"
+
+-------------------
 Version: 4.53
 Date: 2010-08-16
 

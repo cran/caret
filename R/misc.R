@@ -169,7 +169,8 @@ modelLookup <- function(model = NULL)
                            "bag",
                            "hdda", "hdda",
                            "logreg", "logreg",
-                           "logforest"
+                           "logforest",
+                           "logicBag", "logicBag"
                            ),
                          parameter = c(
                            "parameter",      
@@ -273,7 +274,8 @@ modelLookup <- function(model = NULL)
                            "vars",
                            "threshold", "model",
                            "treesize", "ntrees",
-                           "parameter"
+                           "parameter",
+                           "nleaves", "ntrees"
                            ),
                          label = I(c(
                            "none",      
@@ -379,7 +381,8 @@ modelLookup <- function(model = NULL)
                            "#Randomly Selected Predictors",
                            "Threshold", "Model Type",
                            "Maximum Number of Leaves", "Number of Trees",
-                           "none"
+                           "none",
+                           "Maximum Number of Leaves", "Number of Trees"
                            )),
                          seq = c(
                            FALSE,
@@ -482,7 +485,8 @@ modelLookup <- function(model = NULL)
                            FALSE,
                            FALSE, FALSE,
                            FALSE, FALSE,
-                           FALSE
+                           FALSE,
+                           FALSE, FALSE
                            ),
                          forReg = c(
                            TRUE,
@@ -585,7 +589,8 @@ modelLookup <- function(model = NULL)
                            TRUE,
                            FALSE, FALSE,
                            TRUE, TRUE,
-                           FALSE
+                           FALSE,
+                           TRUE, TRUE
                            ),               
                          forClass =          
                          c(
@@ -689,7 +694,8 @@ modelLookup <- function(model = NULL)
                            TRUE,
                            TRUE, TRUE,
                            TRUE, TRUE,
-                           TRUE
+                           TRUE,
+                           TRUE, TRUE
                            ),
                          probModel = c(
                            TRUE,             #   bagged trees
@@ -792,7 +798,8 @@ modelLookup <- function(model = NULL)
                            TRUE,              ## bag
                            TRUE, TRUE,        ## hdda
                            TRUE, TRUE,        ## logreg
-                           TRUE               ## logforest
+                           TRUE,              ## logforest
+                           TRUE, TRUE         ## logicBag
                            ),
                          stringsAsFactors  = FALSE               
                          )         

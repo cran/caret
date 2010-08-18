@@ -20,6 +20,9 @@
 \alias{predictors.knn3}
 \alias{predictors.ksvm}
 \alias{predictors.lda}
+\alias{predictors.logforest}
+\alias{predictors.logicBagg}
+\alias{predictors.logreg}
 \alias{predictors.list}
 \alias{predictors.lm}
 \alias{predictors.lssvm}
@@ -112,7 +115,13 @@ predictors(x, ...)
 
 \method{predictors}{lm}(x,  ...)
 
+\method{predictors}{logforest}(x,  ...)
+
+\method{predictors}{logicBagg}(x,  ...)
+
 \method{predictors}{LogitBoost}(x,  ...)
+
+\method{predictors}{logreg}(x,  ...)
 
 \method{predictors}{lssvm}(x,  ...)
 

@@ -25,7 +25,7 @@ train.default <- function(x, y,
   ## be derived from the same R object).
   modelInfo <- modelLookup(method)
 
-  if(method %in% c("logreg", "logforest"))
+  if(method %in% c("logreg", "logforest", "logicBag"))
     {
       binaryCheck <- unlist(lapply(x, function(x) any(!(x %in% c(0, 1)))))
       if(any(binaryCheck)) stop(
