@@ -71,7 +71,7 @@ train.default <- function(x, y,
                                                          lgocv = createDataPartition(y, trControl$number, trControl$p))
 
 
-  if(is.null(names(trControl$index)) | length(unique(names(trControl$index))) != length(trControl$index)) names(trControl$index) <- paste("Resample", seq(along = trControl$index), sep = "")
+  if(trControl$method != "oob") names(trControl$index) <- prettySeq(trControl$index)
   
   ## Combine the features and classes into one df
   trainData <- as.data.frame(x)
@@ -163,23 +163,21 @@ train.default <- function(x, y,
   ##     # param is the current value of seqParam. In normal predction mode (i.e
   ##     # when using predict.train), param = NULL. When called within train()
   ##     # with this model, it will have the other values for n.trees.
-  ##     # In this case, the output of the function is a matrix of predictions
-  ##     # where rows are samples and columns are different models. These values
-  ##     # are deconvoluted in workerTasks() in misc.R
+  ##     # In this case, the output of the function is a list of predictions
+  ##     # These values are deconvoluted in workerTasks() in misc.R
   ##     if(!is.null(param))
   ##       {
-  ##         tmp <- data.frame(
-  ##                           matrix(NA, nrow = nrow(newdata), ncol = nrow(param)),
-  ##                           stringsAsFactors = FALSE)
+  ##         tmp <- vector(mode = "list", length = nrow(param) + 1)
+  ##         tmp[[1]] <- out
   ##         
   ##         for(j in seq(along = param$.n.trees))
   ##           {   
-  ##             tmp[,j]  <- predict(modelFit,
-  ##                                 newdata,
-  ##                                 type = "response",
-  ##                                 n.trees = param$.n.trees[j])
+  ##             tmp[[j]]  <- predict(modelFit,
+  ##                                  newdata,
+  ##                                  type = "response",
+  ##                                  n.trees = param$.n.trees[j])
   ##           }
-  ##         out <- cbind(out, tmp)
+  ##         out <- tmp
   ##
   
   trainInfo <- tuneScheme(method, tuneGrid, trControl$method == "oob")
@@ -210,14 +208,18 @@ train.default <- function(x, y,
                     sep = ""))
     }
 
+  ## TODO: pass a flag into argList that is LOO = TRUE/FALSE. If TRUE, then
+  ## run default summary on the output of listOutput. Otherwise, the returned
+  ## value will be the summarized performance metrics
 
   ## Now, we setup arguments to lapply (or similar functions) executed via do.call
   ## workerData will split up the data need for the jobs
   argList <- list(X =
                   workerData(
                              trainData,
-                             trControl$index,
-                             trainInfo, method,
+                             trControl,
+                             trainInfo,
+                             method,
                              classLevels,
                              trControl$workers,
                              trControl$verboseIter,
@@ -230,38 +232,40 @@ train.default <- function(x, y,
 
   ## Get the predictions (or summaries for OOB)
   listOutput <- do.call(trControl$computeFunction, argList)
-
+ 
   if(trControl$method != "oob")
     {
-      results <- do.call("rbind", listOutput)
+      resampleResults <- do.call("rbind", listOutput)
+      colnames(resampleResults) <- gsub("^\\.", "", colnames(resampleResults))
+      if(trControl$method == "LOOCV")
+        {
+          paramValues <- resampleResults[, trainInfo$model$param, drop = FALSE]
+          allVars <- factor(apply(paramValues, 1, function(x) paste(x, collapse = ":")))
+          resampleResults <- split(resampleResults, allVars)
+          resampleResults <- lapply(resampleResults,
+                                    looSummary,
+                                    func = trControl$summaryFunction,
+                                    param = trainInfo$model$param)
+          resampleResults <- do.call("rbind", resampleResults)
+          
+
+        }
+      performance <- performanceSummary(resampleResults,
+                                        trainInfo$model$param,
+                                        trControl$method)
     } else {
-      performance <- cbind(trainInfo$loop, do.call("rbind", listOutput))
+      performance <- do.call("rbind", listOutput)
       colnames(performance) <- gsub("^\\.", "", colnames(performance))
     }
 
-  paramNames <- names(tuneGrid)
-  paramNames <- gsub("^\\.", "", paramNames)
+  paramNames <- trainInfo$model$param
 
   if(trControl$verboseIter)
     {
       cat("Aggregating results\n")
       flush.console()
     }
-
-  ## Now take the predictions and boil them down to performance matrics per tuning
-  ## parameter and resampling combo.
-  if(trControl$method != "oob")
-    {     
-      resampleResults <- getPerformance(results,
-                                        paramCols,
-                                        trControl$summaryFunction,
-                                        classLevels,
-                                        method,
-                                        trControl$method == "LOOCV")
-      perResample <- resampleResults$values
-      performance <- resampleResults$results
-    }
-  
+ 
   perfCols <- names(performance)
   perfCols <- perfCols[!(perfCols %in% paramNames)]
 
@@ -284,8 +288,7 @@ train.default <- function(x, y,
   ## Select the "optimal" tuning parameter.
   if(selectClass == "function")
     {
-      bestIter <- trControl$selectionFunction(
-                                              x = performance,
+      bestIter <- trControl$selectionFunction(x = performance,
                                               metric = metric,
                                               maximize = maximize)
     }
@@ -311,7 +314,6 @@ train.default <- function(x, y,
 
   ## Based on the optimality criterion, select the tuning parameter(s)
   bestTune <- performance[bestIter, trainInfo$model$parameter, drop = FALSE]
-  names(bestTune) <- paste(".", names(bestTune), sep = "") 
 
   ## Save some or all of the resampling summary metrics
   if(!(trControl$method %in% c("LOOCV", "oob")))
@@ -321,13 +323,13 @@ train.default <- function(x, y,
                            none = NULL,
                            all =
                            {
-                             out <- perResample
+                             out <- resampleResults
                              colnames(out) <- gsub("^\\.", "", colnames(out))
                              out
                            },
                            final =
                            {
-                             out <- merge(bestTune, perResample)
+                             out <- merge(bestTune, resampleResults)
                              out <- out[,!(names(out) %in% names(tuneGrid))]
                              out
                            })                        
@@ -335,6 +337,7 @@ train.default <- function(x, y,
       byResample <- NULL        
     } 
 
+  names(bestTune) <- paste(".", names(bestTune), sep = "")   
 
   ## Reorder rows of performance
   orderList <- list()

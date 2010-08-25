@@ -1,3 +1,5 @@
+prettySeq <- function(x) paste("Resample", gsub(" ", "0", format(seq(along = x))), sep = "")
+
 ipredStats <- function(x)
 {
   ## error check
@@ -61,777 +63,23 @@ cforestStats <- function(x)
 
 bagEarthStats <- function(x) apply(x$oob, 2, function(x) quantile(x, probs = .5))
 
-
-modelLookup <- function(model = NULL)
-{
-  paramKey <- data.frame(
-                         model = c(
-                           "treebag",
-                           "lm",
-                           "lda",
-                           "ctree",
-                           "ctree2",
-                           "cforest",
-                           "ada", "ada", "ada",
-                           "glmboost", "glmboost",
-                           "gamboost", "gamboost",
-                           "blackboost", "blackboost",
-                           "logitBoost",
-                           "nnet", "nnet",
-                           "pcaNNet", "pcaNNet",
-                           "multinom", 
-                           "rda", "rda", 
-                           "gbm", "gbm", "gbm",
-                           "rfNWS",
-                           "rfLSF",
-                           "rf",
-                           "parRF",
-                           ## to keep backwards compat, we have double svm entries
-                           "svmpoly", "svmpoly", "svmpoly", 
-                           "svmradial", "svmradial",                           
-                           "svmPoly", "svmPoly", "svmPoly", 
-                           "svmRadial", "svmRadial",
-                           "rvmPoly", "rvmPoly", 
-                           "rvmRadial",
-                           "lssvmPoly", "lssvmPoly", 
-                           "lssvmRadial",
-                           "gaussprPoly", "gaussprPoly", 
-                           "gaussprRadial",                              
-                           "gpls", 
-                           "lvq", 
-                           "rpart", 
-                           "pls", 
-                           "plsTest",
-                           "pam", 
-                           "knn", 
-                           "nb", 
-                           "earth", "earth", 
-                           "earthTest", "earthTest",          
-                           "mars", "mars",          
-                           "bagEarth", "bagEarth",         
-                           "fda", "fda",
-                           "bagFDA", "bagFDA",
-                           "enet", "enet",
-                           "lasso",
-                           "sddaLDA",
-                           "sddaQDA",
-                           "J48",
-                           "M5Rules",
-                           "LMT",
-                           "JRip",
-                           "lmStepAIC",
-                           "slda",
-                           "superpc",
-                           "superpc",
-                           "ppr",
-                           "sparseLDA", "sparseLDA",
-                           "penalized", "penalized",
-                           "spls", "spls", "spls",
-                           "sda",
-                           "glm",
-                           "mda",
-                           "pda",
-                           "pda2",
-                           "qda",
-                           "glmnet", "glmnet",
-                           "relaxo", "relaxo",
-                           "lars",
-                           "lars2",
-                           "OneR",
-                           "PART",
-                           "PART",
-                           "rlm",
-                           "svmLinear",
-                           "rvmLinear",
-                           "lssvmLinear",
-                           "gaussprLinear",
-                           "vbmpRadial",
-                           "smda", "smda", "smda",
-                           "pcr",
-                           "obliqueTree", "obliqueTree",
-                           "nodeHarvest", "nodeHarvest",
-                           "Linda",
-                           "QdaCov",
-                           "glmrob",
-                           "stepLDA", "stepLDA",
-                           "stepQDA", "stepQDA",
-                           "plr", "plr",
-                           "GAMens", "GAMens", "GAMens",
-                           "rocc",
-                           "foba", "foba",
-                           "partDSA", "partDSA",
-                           "glmStepAIC",
-                           "hda", "hda", "hda",
-                           "icr",
-                           "neuralnet", "neuralnet", "neuralnet",
-                           "qrf",
-                           "scrda", "scrda",
-                           "bag",
-                           "hdda", "hdda",
-                           "logreg", "logreg",
-                           "logforest",
-                           "logicBag", "logicBag"
-                           ),
-                         parameter = c(
-                           "parameter",      
-                           "parameter",
-                           "parameter",         
-                           "mincriterion",
-                           "maxdepth",
-                           "mtry",
-                           "iter", "maxdepth", "nu",
-                           "mstop", "prune",
-                           "mstop", "prune", 
-                           "mstop", "maxdepth",
-                           "nIter",
-                           "size", "decay",
-                           "size", "decay", 
-                           "decay", 
-                           "gamma", "lambda", 
-                           "n.trees", "interaction.depth",  "shrinkage",          
-                           "mtry",
-                           "mtry",         
-                           "mtry",
-                           "mtry",
-                           "C", "degree", "scale",  
-                           "C", "sigma",
-                           "C", "degree", "scale",  
-                           "C", "sigma",
-                           "degree", "scale",  
-                           "sigma",
-                           "degree", "scale",  
-                           "sigma",
-                           "degree", "scale",  
-                           "sigma", 
-                           "K.prov", 
-                           "k", 
-                           "maxdepth", 
-                           "ncomp", 
-                           "ncomp",          
-                           "threshold", 
-                           "k", 
-                           "usekernel", 
-                           "nprune", "degree", 
-                           "nprune", "degree",         
-                           "nprune", "degree",          
-                           "nprune", "degree", 
-                           "nprune", "degree",                    
-                           "nprune", "degree",
-                           "fraction","lambda", 
-                           "fraction",
-                           "parameter",
-                           "parameter",
-                           "C",
-                           "pruned",
-                           "iter",
-                           "NumOpt",
-                           "parameter",
-                           "parameter",
-                           "threshold", "n.components",
-                           "nterms",
-                           "NumVars", "lambda",
-                           "lambda1", "lambda2",
-                           "K", "eta", "kappa",
-                           "diagonal",
-                           "parameter",
-                           "subclasses",
-                           "lambda",
-                           "df",
-                           "parameter",
-                           "lambda", "alpha",
-                           "lambda", "phi",
-                           "fraction",
-                           "step",
-                           "parameter",
-                           "threshold",
-                           "pruned",
-                           "parameter",
-                           "C",
-                           "parameter",
-                           "parameter",
-                           "parameter",
-                           "estimateTheta",
-                           "NumVars", "R", "lambda",
-                           "ncomp",
-                           "oblique.splits", "variable.selection",
-                           "maxinter", "mode",      
-                           "parameter",
-                           "parameter",
-                           "parameter",
-                           "maxvar", "direction",
-                           "maxvar", "direction",
-                           "lambda", "cp",
-                           "iter", "rsm_size", "fusion",
-                           "xgenes",
-                           "k", "lambda",
-                           "cut.off.growth", "MPD",
-                           "parameter",
-                           "gamma", "lambda", "newdim",
-                           "n.comp",
-                           "layer1", "layer2", "layer3",
-                           "mtry",
-                           "alpha", "delta",
-                           "vars",
-                           "threshold", "model",
-                           "treesize", "ntrees",
-                           "parameter",
-                           "nleaves", "ntrees"
-                           ),
-                         label = I(c(
-                           "none",      
-                           "none",
-                           "none",         
-                           "P-Value Threshold",
-                           "Max Tree Depth",
-                           "#Randomly Selected Predictors",
-                           "#Trees", "Max Tree Depth", "Learning Rate",
-                           "# Boosting Iterations", "AIC Prune?",
-                           "# Boosting Iterations", "AIC Prune?",    
-                           "#Trees", "Max Tree Depth",
-                           "# Boosting Iterations",
-                           "#Hidden Units", "Weight Decay",
-                           "#Hidden Units", "Weight Decay", 
-                           "Weight Decay", 
-                           "Gamma", "Lambda", 
-                           "#Trees", "Interaction Depth",  "Learning Rate",
-                           "#Randomly Selected Predictors",
-                           "#Randomly Selected Predictors",         
-                           "#Randomly Selected Predictors",
-                           "#Randomly Selected Predictors", 
-                           "Cost", "Polynomial Degree", "Scale",  
-                           "Cost", "Sigma",
-                           "Cost", "Polynomial Degree", "Scale",  
-                           "Cost", "Sigma",
-                           "Polynomial Degree", "Scale",  
-                           "Sigma",
-                           "Polynomial Degree", "Scale",  
-                           "Sigma",
-                           "Polynomial Degree", "Scale",  
-                           "Sigma",  
-                           "#Components", 
-                           "#Prototypes", 
-                           "Max Tree Depth", 
-                           "#Components", 
-                           "#Components",          
-                           "Shrinkage Threshold", 
-                           "#Neighbors", 
-                           "Distribution Type", 
-                           "#Retained Terms", "Product Degree",  
-                           "#Retained Terms", "Product Degree",                  
-                           "#Retained Terms", "Product Degree",  
-                           "#Retained Terms", "Product Degree",
-                           "#Retained Terms", "Product Degree",                  
-                           "#Retained Terms", "Product Degree",
-                           "Fraction of Full Solution","Weight Decay",
-                           "Fraction of Full Solution",
-                           "none",
-                           "none",
-                           "Confidence Threshold",
-                           "Pruned",
-                           "# Iteratons",
-                           "# Optimizations",
-                           "none",
-                           "none",
-                           "Threshold", "#Components",
-                           "# Terms",
-                           "# Predictors", "Lambda",
-                           "L1 Penalty", "L2 Penalty",
-                           "#Components", "Threshold", "Kappa",
-                           "Diagonalize",
-                           "none",
-                           "#Subclasses Per Class",
-                           "Shrinkage Penalty Coefficient",
-                           "Degrees of Freedom",
-                           "none",
-                           "Regularization Parameter",
-                           "Mixing Percentage",
-                           "Penalty Parameter",
-                           "Relaxation Parameter",
-                           "Fraction",
-                           "#Steps",
-                           "none",
-                           "Confidence Threshold",
-                           "Pruning",
-                           "none",
-                           "C",
-                           "none",
-                           "none",
-                           "none",
-                           "Theta Estimated",
-                           "# Predictors",  "# Subclasses", "Lambda",
-                           "#Components",
-                           "Oblique Splits", "Variable Selection Method",
-                           "Maximum Interaction Depth", "Prediction Mode",      
-                           "none",
-                           "none",
-                           "none",
-                           "Maximum #Variables", "Search Direction" ,
-                           "Maximum #Variables", "Search Direction",
-                           "L2 Penalty", "Complexity Parameter",
-                           "Ensemble Size", "#Random Feature Subsets", "Data Fusion Function",
-                           "#Variables Retained",
-                           "#Variables Retained", "L2 Penalty",
-                           "Number of Terminal Partitions", "Minimum Percent Difference",
-                           "none",
-                           "Gamma", "Lambda", "Dimension of the Discriminative Subspace",
-                           "#Components",
-                           "#Hidden Units in Layer 1", "#Hidden Units in Layer 2", "#Hidden Units in Layer 3",
-                           "#Randomly Selected Predictors",
-                           "Regularization Value", "Threshold",
-                           "#Randomly Selected Predictors",
-                           "Threshold", "Model Type",
-                           "Maximum Number of Leaves", "Number of Trees",
-                           "none",
-                           "Maximum Number of Leaves", "Number of Trees"
-                           )),
-                         seq = c(
-                           FALSE,
-                           FALSE,
-                           FALSE,
-                           TRUE,
-                           FALSE,
-                           FALSE,
-                           FALSE,   FALSE,   FALSE,
-                           TRUE,    FALSE,
-                           TRUE,    FALSE,   
-                           TRUE,    FALSE,
-                           TRUE, 
-                           FALSE,   FALSE,
-                           FALSE,   FALSE, 
-                           FALSE, 
-                           FALSE,   FALSE, 
-                           TRUE,    FALSE,   FALSE,         
-                           FALSE,
-                           FALSE,         
-                           FALSE,
-                           FALSE,
-                           FALSE,   FALSE,   FALSE, #svmPoly  
-                           FALSE,   FALSE,                              
-                           FALSE,   FALSE,   FALSE,  
-                           FALSE,   FALSE,          
-                           FALSE,   FALSE,   # rvm
-                           FALSE,
-                           FALSE,   FALSE,   # lssvm
-                           FALSE,
-                           FALSE,   FALSE,   # gausspr
-                           FALSE,#
-                           FALSE, 
-                           FALSE, 
-                           TRUE, 
-                           TRUE, 
-                           FALSE,          
-                           TRUE, 
-                           FALSE, 
-                           FALSE, 
-                           TRUE,    FALSE,    # earth        
-                           FALSE,   FALSE,  
-                           FALSE,   FALSE,
-                           FALSE,   FALSE, 
-                           FALSE,   FALSE,                 
-                           FALSE,   FALSE,
-                           TRUE,    FALSE,
-                           TRUE,
-                           FALSE,              # sdda
-                           FALSE,
-                           FALSE,
-                           FALSE,
-                           FALSE,
-                           FALSE,
-                           FALSE,
-                           FALSE,
-                           TRUE,    TRUE,       # superpc
-                           FALSE,
-                           FALSE,   FALSE,
-                           FALSE,    FALSE,     ## penalized; see note in createModel,
-                           FALSE,    FALSE,    FALSE,
-                           FALSE,
-                           FALSE,              ## glm
-                           FALSE,
-                           FALSE,
-                           FALSE,
-                           FALSE,
-                           TRUE,  FALSE,
-                           TRUE,  FALSE,
-                           TRUE,
-                           TRUE,
-                           FALSE,
-                           FALSE, FALSE,
-                           FALSE,               ## rlm
-                           FALSE,
-                           FALSE,
-                           FALSE,
-                           FALSE,
-                           FALSE,
-                           FALSE, FALSE, FALSE,
-                           TRUE,
-                           FALSE, FALSE,
-                           FALSE, FALSE,
-                           FALSE,
-                           FALSE,
-                           FALSE,
-                           FALSE, FALSE,
-                           FALSE, FALSE,
-                           FALSE, FALSE,
-                           FALSE, FALSE, FALSE,
-                           FALSE,
-                           TRUE, FALSE,
-                           TRUE, FALSE,
-                           FALSE,
-                           FALSE, FALSE, FALSE,
-                           FALSE,
-                           FALSE, FALSE, FALSE,
-                           FALSE,
-                           TRUE, TRUE,
-                           FALSE,
-                           FALSE, FALSE,
-                           FALSE, FALSE,
-                           FALSE,
-                           FALSE, FALSE
-                           ),
-                         forReg = c(
-                           TRUE,
-                           TRUE,
-                           FALSE,
-                           TRUE,
-                           TRUE,
-                           TRUE,
-                           FALSE,   FALSE,   FALSE,
-                           TRUE,    TRUE,
-                           TRUE,    TRUE,
-                           TRUE,    TRUE,
-                           FALSE,
-                           TRUE,    TRUE,
-                           TRUE,    TRUE, 
-                           FALSE, 
-                           FALSE,   FALSE, 
-                           TRUE,    TRUE,    TRUE,       
-                           TRUE,
-                           TRUE,         
-                           TRUE,
-                           TRUE,
-                           TRUE,    TRUE,    TRUE, 
-                           TRUE,    TRUE,
-                           TRUE,    TRUE,    TRUE, 
-                           TRUE,    TRUE,
-                           TRUE,    TRUE, 
-                           TRUE,
-                           FALSE,   FALSE,    #lssvm
-                           FALSE,
-                           TRUE,    TRUE, 
-                           TRUE,               # guasspr
-                           FALSE, 
-                           FALSE, 
-                           TRUE, 
-                           TRUE, 
-                           TRUE, 
-                           FALSE, 
-                           TRUE, 
-                           FALSE, 
-                           TRUE,    TRUE, 
-                           TRUE,    TRUE,           
-                           TRUE,    TRUE,          
-                           TRUE,    TRUE,         
-                           FALSE,   FALSE,
-                           FALSE,   FALSE,
-                           TRUE,    TRUE,
-                           TRUE,
-                           FALSE,
-                           FALSE,
-                           FALSE,
-                           TRUE,
-                           FALSE,
-                           FALSE,
-                           TRUE,
-                           FALSE,
-                           TRUE,    TRUE,       # superpc
-                           TRUE,
-                           FALSE,   FALSE,
-                           TRUE,    TRUE,
-                           TRUE,    TRUE,   TRUE,
-                           FALSE,
-                           TRUE,                 ## glm
-                           FALSE,
-                           FALSE,
-                           FALSE,
-                           FALSE,
-                           TRUE,  TRUE,
-                           TRUE, TRUE,
-                           TRUE,
-                           TRUE,
-                           FALSE,
-                           FALSE,  FALSE,
-                           TRUE,               ## rlm
-                           TRUE,               ## svm linear
-                           TRUE,               ## rvn linear
-                           FALSE,              ## ls svm linear
-                           TRUE,               ## gaussian linear
-                           FALSE,
-                           FALSE, FALSE, FALSE,
-                           TRUE,               ## PCR
-                           FALSE, FALSE,
-                           TRUE,  TRUE,
-                           FALSE,
-                           FALSE,
-                           TRUE,
-                           FALSE, FALSE,
-                           FALSE, FALSE,
-                           FALSE, FALSE,
-                           FALSE, FALSE, FALSE,
-                           FALSE,
-                           TRUE, TRUE,
-                           TRUE, TRUE,
-                           TRUE,
-                           FALSE, FALSE, FALSE,
-                           TRUE,
-                           TRUE, TRUE, TRUE,
-                           TRUE,
-                           FALSE, FALSE,
-                           TRUE,
-                           FALSE, FALSE,
-                           TRUE, TRUE,
-                           FALSE,
-                           TRUE, TRUE
-                           ),               
-                         forClass =          
-                         c(
-                           TRUE,
-                           FALSE,
-                           TRUE,
-                           TRUE,
-                           TRUE, ##check these
-                           TRUE,
-                           TRUE,    TRUE,    TRUE,
-                           TRUE,    TRUE,
-                           TRUE,    TRUE,
-                           TRUE,    TRUE,
-                           TRUE,
-                           TRUE,    TRUE,
-                           TRUE,    TRUE,
-                           TRUE, 
-                           TRUE,    TRUE, 
-                           TRUE,    TRUE,    TRUE,        
-                           TRUE,
-                           TRUE,           
-                           TRUE,
-                           TRUE,
-                           TRUE,    TRUE,    TRUE, ##svmPoly 
-                           TRUE,    TRUE,
-                           TRUE,    TRUE,    TRUE, 
-                           TRUE,    TRUE,
-                           FALSE,   FALSE,
-                           FALSE,
-                           TRUE,    TRUE,   ## lssvm
-                           TRUE,
-                           TRUE,    TRUE, 
-                           TRUE,
-                           TRUE, 
-                           TRUE, 
-                           TRUE, 
-                           TRUE, 
-                           TRUE, 
-                           TRUE, 
-                           TRUE, 
-                           TRUE, 
-                           TRUE,   TRUE, 
-                           FALSE,   FALSE,          
-                           FALSE,   FALSE,          
-                           TRUE,   TRUE,         
-                           TRUE,    TRUE,
-                           TRUE,    TRUE,
-                           FALSE,   FALSE,
-                           FALSE,
-                           TRUE,
-                           TRUE,
-                           TRUE,
-                           FALSE,
-                           TRUE,
-                           TRUE,
-                           FALSE,
-                           TRUE,
-                           FALSE,    FALSE,
-                           FALSE,
-                           TRUE,     TRUE,
-                           FALSE,    FALSE, ## penalized has no way to pass the class levels in
-                           TRUE,     TRUE,    TRUE,
-                           TRUE,
-                           TRUE,      ## glm
-                           TRUE,
-                           TRUE,
-                           TRUE,
-                           TRUE,
-                           TRUE,  TRUE,
-                           FALSE, FALSE,
-                           FALSE,
-                           FALSE,
-                           TRUE,
-                           TRUE,  TRUE,
-                           FALSE,              ## rlm
-                           TRUE,               ## svm linear
-                           FALSE,              ## rvm linear
-                           TRUE,               ## ls svm linear
-                           TRUE,               ## gaussian linear
-                           TRUE,
-                           TRUE, TRUE, TRUE,
-                           FALSE,
-                           TRUE, TRUE,
-                           TRUE, TRUE,
-                           TRUE,
-                           TRUE,
-                           TRUE,
-                           TRUE, TRUE,
-                           TRUE, TRUE,
-                           TRUE, TRUE,
-                           TRUE, TRUE, TRUE,
-                           TRUE,
-                           FALSE, FALSE,
-                           TRUE, TRUE,
-                           TRUE,
-                           TRUE, TRUE, TRUE,
-                           FALSE,
-                           FALSE, FALSE, FALSE,
-                           FALSE,
-                           TRUE, TRUE,
-                           TRUE,
-                           TRUE, TRUE,
-                           TRUE, TRUE,
-                           TRUE,
-                           TRUE, TRUE
-                           ),
-                         probModel = c(
-                           TRUE,             #   bagged trees
-                           FALSE,            #   lm
-                           TRUE,             #   lda
-                           TRUE,             #   ctree (1)
-                           TRUE,             #   ctree2
-                           TRUE,             #   cforest (1)
-                           TRUE, TRUE, TRUE, #   ada (3)
-                           TRUE, TRUE,       #   glmboost (2)
-                           TRUE, TRUE,       #   gamboost (2)
-                           TRUE, TRUE,       #   blackboost (2)
-                           TRUE,             #   LogitBoost (1),
-                           TRUE, TRUE,       #   nnet (2)
-                           TRUE, TRUE,       #   pcaNNet (2)
-                           TRUE,             #   multinom (1) 
-                           TRUE, TRUE,       #   rda (2)
-                           TRUE, TRUE, TRUE, #   gbm (3)         
-                           TRUE,             #   rfNWS (1)
-                           TRUE,             #   rfLSF (1)         
-                           TRUE,             #   rf (1)
-                           TRUE,             #   parRF(1)
-                           TRUE, TRUE, TRUE, #   svmPoly (3) 
-                           TRUE, TRUE,       #   svmRadial (2)
-                           TRUE, TRUE, TRUE, #   svmpoly (3) 
-                           TRUE, TRUE,       #   svmradial (2)
-                           FALSE,FALSE,      #   rvmPoly (2) 
-                           FALSE,            #   rvmRadial (1)
-                           FALSE,FALSE,      #   lssvmPoly (2) # not implemented in kernlab
-                           FALSE,            #   lssvmRadial (1)
-                           TRUE, TRUE,       #   gausspr(2) Poly
-                           TRUE,             #   gausspr(1) radial
-                           TRUE,             #   gpls (1) 
-                           FALSE,            #   lvq (1) 
-                           TRUE,             #   rpart (1) 
-                           TRUE,             #   pls (1) 
-                           TRUE,             #   plsTest (1)          
-                           TRUE,             #   pam (1) 
-                           TRUE,             #   knn (1) 
-                           TRUE,             #   nb (1) 
-                           TRUE,  TRUE,      #   earth (2)
-                           FALSE, FALSE,     #   earthTest (2)         
-                           FALSE, FALSE,     #   mars (2)       
-                           TRUE,  TRUE,      #   bagEarth (2)        
-                           TRUE, TRUE,       #   fda (2)
-                           TRUE, TRUE,       #   bagFDA (2)
-                           FALSE, FALSE,     #   enet (2)
-                           FALSE,            #   lasso (1)
-                           TRUE,             #   sdda for lda (1)
-                           TRUE,             #   sdda for qda (1)
-                           TRUE,             #   J48 (1)
-                           FALSE,            #   M5Rules(1)
-                           TRUE,             #   LMT(1)
-                           TRUE,             #   JRip(1)
-                           FALSE,            #   stepAIC(0)
-                           TRUE,             #   slda(0)
-                           FALSE, FALSE,     #   superpc(2)
-                           FALSE,
-                           TRUE,  TRUE,      #   sparseLDA,
-                           FALSE, FALSE,     #   penalized
-                           TRUE,  TRUE, TRUE,#   splsda (3)
-                           TRUE,             #   sda
-                           TRUE,             #   glm
-                           TRUE,             #   mda
-                           TRUE,
-                           TRUE,
-                           TRUE,
-                           TRUE,  TRUE,       # glmnet
-                           FALSE, FALSE,      # relaxo,
-                           FALSE,             # lars
-                           FALSE,             # lars2
-                           TRUE,              # OneR
-                           TRUE, TRUE,        # PART
-                           FALSE,              ## rlm
-                           TRUE,               ## svm linear
-                           FALSE,              ## rvm linear
-                           FALSE,              ## ls svm linear
-                           TRUE,               ## gaussian linear
-                           TRUE,
-                           FALSE, FALSE, FALSE, ## not yet
-                           FALSE,              ## pcr
-                           TRUE, TRUE,
-                           TRUE, TRUE,
-                           TRUE,              ## Linda
-                           TRUE,              ## QdaCov
-                           TRUE,              ## glmrob
-                           TRUE, TRUE,        ## stepLDA
-                           TRUE, TRUE,        ## plr
-                           TRUE, TRUE,        ## stepQDA
-                           TRUE, TRUE, TRUE,  ## GAMens,
-                           FALSE,             ## rrocc
-                           FALSE, FALSE,      ## foba
-                           FALSE, FALSE,      ## partDSA
-                           TRUE,              ## glmStepAIC
-                           TRUE, TRUE, TRUE,  ## hda
-                           FALSE,             ## icr,
-                           FALSE, FALSE, FALSE, ## neuralnet
-                           FALSE,             ## qrf
-                           TRUE, TRUE,        ## scrda
-                           TRUE,              ## bag
-                           TRUE, TRUE,        ## hdda
-                           TRUE, TRUE,        ## logreg
-                           TRUE,              ## logforest
-                           TRUE, TRUE         ## logicBag
-                           ),
-                         stringsAsFactors  = FALSE               
-                         )         
-  
-  if(!is.null(model))
-    {
-      if(!any(model == paramKey$model)) stop("value of model unknown")
-      out <- paramKey[paramKey$model == model,]
-      
-    } else out <- paramKey        
-  out     
-
-}
-
-
 tuneScheme <- function(model, grid, useOOB = FALSE)
 {
-  # this function extracts information about the requested model and figures 
-  # out the details about how the tuning process should be executed
+                                        # this function extracts information about the requested model and figures 
+                                        # out the details about how the tuning process should be executed
 
   modelInfo <- modelLookup(model)
   
-  # a little hack hre to change when this goes into production:
+                                        # a little hack hre to change when this goes into production:
   
   if(all(is.na(grid)) & !is.null(grid$.parameter)) grid <- data.frame(.parameter = "none")
   
-  # some models have "sequential" parameters where several different models can be
-  # derived form one R object. For example, in gbm models you can fit a model with
-  # 500 trees and get predictions for any mode with <= 500 trees from the same object
+                                        # some models have "sequential" parameters where several different models can be
+                                        # derived form one R object. For example, in gbm models you can fit a model with
+                                        # 500 trees and get predictions for any mode with <= 500 trees from the same object
 
-  # if we don't have any of these types of parameters, use a basic looping strategy
-  # i.e. scheme = "basic"
+                                        # if we don't have any of these types of parameters, use a basic looping strategy
+                                        # i.e. scheme = "basic"
   if(!any(modelInfo$seq) | useOOB) 
     return(
            list(
@@ -842,14 +90,14 @@ tuneScheme <- function(model, grid, useOOB = FALSE)
                 constant = names(grid), 
                 vary = NULL))
 
-  # I've included a pruning technique for models in the mboost packages. This wouldn't
-  # easily lend itself to a sequential version, so use the basic approach if any 
-  # prune = "yes"
+                                        # I've included a pruning technique for models in the mboost packages. This wouldn't
+                                        # easily lend itself to a sequential version, so use the basic approach if any 
+                                        # prune = "yes"
   if(model %in% c("glmboost", "gamboost") && any(grid$.prune == "yes")) modelInfo$seq <- FALSE
 
-  # some models have sequential parameters, but if the tune grid is manually specified
-  # and there is only 1 value of the sequential parameter(s), we should use the basic
-  # approach
+                                        # some models have sequential parameters, but if the tune grid is manually specified
+                                        # and there is only 1 value of the sequential parameter(s), we should use the basic
+                                        # approach
   
   paramVary <- unlist(lapply(grid, function(u) length(unique(u)) > 1))
   paramVary <- data.frame(
@@ -862,19 +110,19 @@ tuneScheme <- function(model, grid, useOOB = FALSE)
 
   scheme <- if(any(modelInfo$varyingSeq)) "seq" else "basic"
 
-  # if we do have sequential parameters (with more than one value), we need to figure
-  # out what parmeters we should loop over, their values and the values of the 
-  # sequential parameters for each loop
+                                        # if we do have sequential parameters (with more than one value), we need to figure
+                                        # out what parmeters we should loop over, their values and the values of the 
+                                        # sequential parameters for each loop
 
   if(scheme == "seq")
     {
       constant <- as.character(modelInfo$column)[!modelInfo$varyingSeq]
       vary <- as.character(modelInfo$column)[modelInfo$varyingSeq] 
       
-      # The data frame loop is the combination(s) of tuning parameters that we will
-      # be looping over. For each combination in loop, the list seqParam will provide the
-      # value(s) of the sequential parameter that should be evaluated for the same R model
-      # object      
+                                        # The data frame loop is the combination(s) of tuning parameters that we will
+                                        # be looping over. For each combination in loop, the list seqParam will provide the
+                                        # value(s) of the sequential parameter that should be evaluated for the same R model
+                                        # object      
       
       switch(model,
              logitBoost = 
@@ -946,15 +194,15 @@ tuneScheme <- function(model, grid, useOOB = FALSE)
              },
              ctree = 
              {
-               # there is an exception here:
-               # There does not appear to be a way to tell what value of mincriterion was used
-               # when looking at an object of class BinaryTree. We want to fit a model with the 
-               # smallest mincriterion (the largest tree in the tuning grid), then derive the 
-               # predictions from the smaller trees.
+                                        # there is an exception here:
+                                        # There does not appear to be a way to tell what value of mincriterion was used
+                                        # when looking at an object of class BinaryTree. We want to fit a model with the 
+                                        # smallest mincriterion (the largest tree in the tuning grid), then derive the 
+                                        # predictions from the smaller trees.
                
-               # Unlike the other models in this function, the seqParam vector *will* include the 
-               # parameter corresponding to the largest tree ( = smallest  mincriterion), but we
-               # will remove this value from the vector in the prediction function
+                                        # Unlike the other models in this function, the seqParam vector *will* include the 
+                                        # parameter corresponding to the largest tree ( = smallest  mincriterion), but we
+                                        # will remove this value from the vector in the prediction function
                loop <- data.frame(.mincriterion = min(grid$.mincriterion))
                seqParam <- list(grid[order(grid$.mincriterion), ".mincriterion",drop = FALSE])
              },
@@ -1131,7 +379,6 @@ decoerce <- function(x, grid, dot = FALSE)
 }  
 
 
-## todo: make avaible to outside
 defaultSummary <- function(data, lev = NULL, model = NULL)
   {
     if(is.character(data$obs)) data$obs <- factor(data$obs, levels = lev)
@@ -1147,7 +394,7 @@ getClassLevels <- function(x)
                                         "gaussprRadial", "gaussprPoly", "gaussprLinear",
                                         "ctree", "ctree2", "cforest",
                                         "penalized", "Linda", "QdaCov")))
-       
+      
       {
         obsLevels <- switch(tolower(x$method),
                             penalized = NULL,
@@ -1202,9 +449,11 @@ splitIndicies <- function(n, k)
 ## Note that the number of workers is need so that we can minimize the number of copies of the
 ## raw data. We only need one per worker.
 
-workerData <- function(data, index, loop, method, lvls, workers = 1, caretVerbose, ...)
+workerData <- function(data, ctrl, loop, method, lvls, workers = 1, caretVerbose, ...)
   {
 
+    index <- ctrl$index
+    
     if(loop$scheme != "oob")
       {
         ## Here we want to split the number of total tasks (B times M where B=#resamples and
@@ -1221,13 +470,16 @@ workerData <- function(data, index, loop, method, lvls, workers = 1, caretVerbos
 
         subsets <- lapply(subsets,
                           function(x, m, l, d)
-                          list(data = NULL,                ##  constant but will be added later
+                          list(data = NULL,                 ##  constant but will be added later
                                index = NULL,
                                method = m,                  ## constant across the workers
                                fixed = NULL,
                                obsLevels = l,               ## constant across the workers
                                seq = NULL,
                                worker = NULL,
+                               isLOO = ifelse(ctrl$method == "LOOCV",
+                                 TRUE, FALSE),              ## constant across the workers
+                               func = ctrl$summaryFunction, ## constant across the workers
                                caretVerbose = caretVerbose, ## constant across the workers
                                dots = d),                   ## constant across the workers
                           m = method,
@@ -1242,7 +494,6 @@ workerData <- function(data, index, loop, method, lvls, workers = 1, caretVerbos
             for(j in 1:workers)
               {
                 iter <- iter + 1
-                ## TODO add a variable here to keep track of the resample id across workers/models
                 subsets[[iter]]$index <- index[workLoads == j]
                 subsets[[iter]]$fixed <- loop$loop[i,,drop = FALSE]
                 subsets[[iter]]$worker <- paste("W", j, sep = "")
@@ -1342,6 +593,14 @@ workerTasks <- function(x)
             "\n")
       } 
 
+    params <- expand(x$fixed, x$seq)
+
+    ## For ctree, we had to repeat the first value
+    if(x$method == "ctree") params <- params[!duplicated(params),, drop = FALSE]
+
+    ## For glmnet, we fit all the lambdas but x$fixed has an NA
+    if(x$method == "glmnet") params <- params[complete.cases(params),, drop = FALSE]
+    
     numResamples <- length(x$index)
 
     if(numResamples == 0 & x$method %in% c("rf", "treebag", "cforest", "bagEarth", "bagFDA"))
@@ -1362,77 +621,129 @@ workerTasks <- function(x)
                       RandomForest = cforestStats(modelObj),
                       bagEarth =, bagFDA = bagEarthStats(modelObj),
                       regbagg =, classbagg = ipredStats(modelObj))
+        out <- cbind(as.data.frame(t(out)), params)
         
       } else {
         
         for(i in 1:numResamples)
           {
-
-            
-            args <- list(data = x$data[x$index[[i]],],
+           args <- list(data = x$data[x$index[[i]],],
                          method = x$method,
                          tuneValue = x$fixed,
                          obsLevels = x$obsLevels)
             if(length(x$dots) > 0) args <- c(args, x$dots)
 
-            modelObj <- do.call(createModel,
-                                args)
+            modelObj <- do.call(createModel, args)
 
             holdBack <-  x$data[-x$index[[i]],]
             observed <- holdBack$.outcome
             holdBack$.outcome <- NULL
             if(any(colnames(holdBack) == ".modelWeights")) holdBack$.modelWeights <- NULL
-            
+
+            ## If we have seqeuntial parameters, predicted is a list, otherwise
+            ## it is a vector            
             predicted <- caret:::predictionFunction(x$method,
                                                     modelObj,
                                                     holdBack,
                                                     x$seq)
-
-            if(is.null(x$seq))
+#           browser()
+            if(!x$isLOO)
               {
-                tmp <- data.frame(obs = observed,
-                                  pred = predicted,
-                                  Resample = names(x$index)[i])
-                if(names(tmp)[2] != "pred") names(tmp)[2] <- "pred"
-                tmp <- merge(tmp, x$fixed)
-                out <- if(i > 1) rbind(out, tmp) else tmp
+
+                if(!is.null(x$seq))
+                  {
+                    predicted <- lapply(predicted,
+                                        function(x, y, lv)
+                                        {
+                                          if(is.factor(x)) y <- factor(as.character(y),
+                                                                       levels = lv)
+                                          data.frame(pred = x, obs = y)
+                                        },
+                                        y = observed,
+                                        lv = x$obsLevels)
+                   
+                    thisResample <- do.call("rbind",
+                                            lapply(predicted,
+                                                   x$func,
+                                                   lev = x$obsLevels,
+                                                   model = x$method))
+                    thisResample <- cbind(thisResample, params)
+                    thisResample$Resample <- names(x$index)[i]                  
+                  } else {
+                    if(is.factor(observed)) predicted <- factor(as.character(predicted),
+                                                                levels = x$obsLevels)
+                    thisResample <- x$func(
+                                           data.frame(pred = predicted,
+                                                      obs = observed),
+                                           lev = x$obsLevels,
+                                           model = x$method)
+                    thisResample <- as.data.frame(t(thisResample))
+                    thisResample <- cbind(thisResample, params)
+                    thisResample$Resample <- names(x$index)[i]
+                  }
+                out <- if(i == 1) thisResample else rbind(out, thisResample)
               } else {
-                ## We want to merge in the model information. For sequential models, this
-                ## means merging the fixed and sequential parameters. First we rename the
-                ## columns of predicted for merging.
-                
-                names(predicted) <- paste("mod", 1:ncol(predicted))
+                if(!is.null(x$seq))
+                  {
+                    predicted <- lapply(predicted,
+                                        function(x, y, lv)
+                                        {
+                                          if(is.factor(x)) y <- factor(as.character(y),
+                                                                       levels = lv)
+                                          data.frame(pred = x, obs = y)
+                                        },
+                                        y = observed,
+                                        lv = x$obsLevels)
+                    
+                    thisResample <- do.call("rbind", predicted)
+                    thisResample <- cbind(thisResample, params)
+                    thisResample$Resample <- names(x$index)[i]   
 
-                ## param will be a data frame with the appropriate fixed and sequential
-                ## factors
-                param <- expand(x$fixed, x$seq)
-                if(x$method == "ctree") param <- param[!duplicated(param),, drop = FALSE]
-
-                ## For glmnet, we fit all the lambdas but x$fixed has an NA
-                if(x$method == "glmnet") param <- param[complete.cases(param),, drop = FALSE]
-                
-                param$ind <-  paste("mod", 1:ncol(predicted))
-
-                ## Stack the predictions then merge on the model indicators
-                tmp <- merge(stack(predicted), param)
-                tmp$Resample <- names(x$index)[i]
-                tmp$obs <-  rep(observed, ncol(predicted))
-                tmp$ind <- NULL
-                names(tmp)[names(tmp) == "values"] <- "pred"
-                out <- if(i == 1) tmp else rbind(out, tmp)                
+                  } else {
+                    if(!is.factor(observed))
+                      {
+                        thisResample <- data.frame(obs  = observed,
+                                                   pred = predicted)
+                      } else {
+                        thisResample <- data.frame(obs  = factor(as.character(observed),  levels = x$obsLevels),
+                                                   pred = factor(as.character(predicted), levels = x$obsLevels))
+                      }
+                    thisResample$Resample <- names(x$index)[i]
+                    thisResample <- cbind(thisResample, params)
+                    
+                  }
+                out <- if(i == 1) thisResample else rbind(out, thisResample)
               }
-            
-            rm(tmp)
-          }
-
-        if(is.character(observed) | is.factor(observed))
-          {
-            out$obs <- as.character(out$obs)
-            out$pred <- as.character(out$pred)
           }
       }
-
     out
+  }
+
+
+looSummary <- function(x, func, param)
+  {
+    out <- data.frame(t(func(x)))
+    paramValues <- x[, param, drop = FALSE]
+    paramValues <- paramValues[!duplicated(paramValues),,drop = FALSE]
+    colnames(paramValues) <- param
+    cbind(out, paramValues)
+  }
+
+performanceSummary <- function(x, param, method)
+  {
+    if(method == "LOOCV") return(x)
+    byGroups <- vector(mode = "list", length = length (param))
+    for(i in seq(along = param)) byGroups[[i]] <- x[,param[i]]
+    names(byGroups) <- param
+    perfCols <- names(x)[!(names(x) %in% c("Resample", param))]
+    mns <- aggregate(x[, perfCols, drop = FALSE],
+              byGroups,
+              function(x) mean(x, na.rm = TRUE))
+    sds <- aggregate(x[, perfCols, drop = FALSE],
+              byGroups,
+              function(x) sd(x, na.rm = TRUE))
+    names(sds)[names(sds) %in% perfCols] <- paste(perfCols, "SD", sep = "")
+    merge(mns, sds)
   }
 
 

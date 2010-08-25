@@ -646,11 +646,12 @@
 
                        ## pass in any model weights
                        if(!is.null(modelWeights)) theDots$weights <- modelWeights  
+
                        
                        modelArgs <- c(
                                       list(
-                                           x = as.matrix(trainX),
-                                           y = trainY,
+                                           formula = modFormula,
+                                           data = data,
                                            control = ctl),
                                       theDots)
                       
@@ -662,15 +663,13 @@
                            tmp <- if(is.factor(trainY)) try(out[mstop(AIC(out, "classical"))], silent = TRUE) else try(out[mstop(AIC(out))], silent = TRUE)
                          }
                        
-                       out$call["x"] <- "xData"         
-                       out$call["y"] <- "yData"  
-                       
                        out
 
                      },      
                      blackboost = 
                      {
                        library(mboost)
+                       library(party)
                        
                        theDots <- list(...)
                        
@@ -700,19 +699,15 @@
                        
                        modelArgs <- c(
                                       list(
-                                           x = as.matrix(trainX),
-                                           y = trainY,
+                                           formula = modFormula,
+                                           data = data,
                                            control = ctl,
                                            tree_controls = treeCtl),
                                       theDots)                     
                        
                        out <- do.call("blackboost", modelArgs)
-
-                       out$call["x"] <- "xData"         
-                       out$call["y"] <- "yData"  
-                       
+                       out$call["data"] <- "data"  
                        out
-
                      },
                      
                      ada = 
