@@ -42,3 +42,5 @@ varImp.mvr <- function(object, estimate = NULL, ...)
   as.data.frame(out)
 }
 
+varImp.plsda <- varImp.mvr
+

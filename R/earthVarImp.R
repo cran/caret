@@ -47,3 +47,9 @@ varImp.earth <- function(object, value = "gcv", ...)
   
 }
 
+varImp.fda <- function(object, value = "gcv", ...)
+  {
+    varImp(object$fit, value = value, ...)
+  }
+
+

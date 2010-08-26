@@ -145,7 +145,8 @@ export(
        bag,
        bag.default,
        predict.bag,
-       bagControl
+       bagControl,
+       modelLookup
        )
 
 S3method(confusionMatrix, default)
@@ -194,6 +195,8 @@ S3method(varImp, RandomForest)
 S3method(varImp, rfe)
 S3method(varImp, sbf)
 S3method(varImp, dsa)
+S3method(varImp, plsda)
+S3method(varImp, fda)
 
 S3method(densityplot, train)
 S3method(histogram,   train)

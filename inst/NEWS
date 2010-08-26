@@ -1,8 +1,49 @@
 -------------------
+Version: 4.57
+Date: 2010-08-25
+
+Internal changes related to how predictions from models are
+stored and summarized. With the exception of loo, the model
+performance values are calculated by the workers instead of
+the main program. This should reduce i/o and lay some
+groundwork for upcoming changes.
+
+The default grid for relaxo models were changed based on 
+and initial model fit.
+
+partDSA model predictions were modified; there were cases
+where the user might request X partitions, but the model
+only produced Y < X. In these cases, the partitions for 
+missing models were replaced with the largest model 
+that was fit.
+
+The function modelLookup() was put in the namespace and 
+a man file was added.
+
+The names of the resample indices are automatically 
+reset, even if the user specified them.
+
+
+-------------------
+Version: 4.56
+Date: 2010-08-19
+
+Fixed a bug generated a few versions ago where varImp 
+for plsda and fda objects crashed.
+
+
+-------------------
+Version: 4.55
+Date: 2010-08-18
+
+When computing the scale parameter for RBF kernels, the 
+option to automatically scale the data was changed to TRUE
+
+-------------------
 Version: 4.54
 Date: 2010-08-17
 
-Added logic.bagginf in logicFT with method  = "logicBag"
+Added logic.bagging in logicFT with method  = "logicBag"
 
 -------------------
 Version: 4.53
@@ -31,7 +72,7 @@ Added dotplot.resamples plus acknowledgements to Hothorn et al
 Version: 4.49
 Date: 2010-08-08
 
-Enhaced the tuneGrid option to allow a function
+Enhanced the tuneGrid option to allow a function
 to be passed in.
 
 -------------------
