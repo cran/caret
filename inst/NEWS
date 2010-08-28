@@ -1,4 +1,14 @@
 -------------------
+Version: 4.58
+Date: 2010-08-28
+
+Added the ability to include class probabilities in 
+performance calculations. See ?trainControl and 
+?twoClassSummary.
+
+Updated and restructured the main vignette.
+ 
+-------------------
 Version: 4.57
 Date: 2010-08-25
 

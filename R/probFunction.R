@@ -1,4 +1,4 @@
-probFunction <- function(method, modelFit, newdata)
+probFunction <- function(method, modelFit, newdata, param = NULL)
 {
   
   if(!any(modelLookup(method)$probModel))
@@ -76,6 +76,23 @@ probFunction <- function(method, modelFit, newdata)
                                        n.trees = modelFit$tuneValue$.n.trees)
                         out <- cbind(out, 1-out)
                         dimnames(out)[[2]] <-  modelFit$obsLevels
+                        if(!is.null(param))
+                          {
+                            tmp <- vector(mode = "list", length = nrow(param) + 1)
+                            tmp[[1]] <- out
+                            
+                            for(j in seq(along = param$.n.trees))
+                              {
+                                if(modelFit$problemType == "Classification")
+                                  {
+                                    gbmProb <- predict(modelFit, newdata, type = "response", n.trees = param$.n.trees[j])
+                                    gbmProb <- cbind(gbmProb, 1-gbmProb)
+                                    dimnames(gbmProb)[[2]] <-  modelFit$obsLevels
+                                    tmp[[j+1]] <- as.data.frame(gbmProb)
+                                  }
+                              }
+                            out <- tmp
+                          }
                         out
                       },
 
@@ -96,14 +113,47 @@ probFunction <- function(method, modelFit, newdata)
                         if(!is.matrix(newdata)) newdata <- as.matrix(newdata)
                         out <- predict(modelFit, newdata, type = "prob",  ncomp = modelFit$tuneValue$.ncomp)
                         if(length(dim(out)) == 3) out <- out[,,1]
+                        if(!is.null(param))
+                          {
+                            tmp <- vector(mode = "list", length = nrow(param) + 1)
+                            tmp[[1]] <- out
+                            
+                            for(j in seq(along = param$.ncomp))
+                              {
+                                tmpProb <- predict(modelFit, newdata, type = "prob",  ncomp = param$.ncomp[j])[,,1]
+                                tmp[[j+1]] <- as.data.frame(tmpProb[, modelFit$obsLevels])
+                              }
+                            out <- tmp
+                          }                        
                         out
                       },
-                      rf =, rpart =, treebag  =, parRF =
+                      rf =, treebag  =, parRF =
                       {
                         library(randomForest)
-                        out <- predict(modelFit, newdata, type = "prob")
+                        out <- predict(modelFit, newdata, type = "prob")            
                         out
                       },
+                      rpart =
+                      {
+                        library(randomForest)
+                        if(!is.data.frame(newdata)) newdata <- as.data.frame(newdata)
+                        out <- predict(modelFit, newdata, type = "prob")
+                        if(!is.null(param))
+                          {
+                            tmp <- vector(mode = "list", length = nrow(param) + 1)
+                            tmp[[1]] <- out
+                            cpValues <- depth2cp(modelFit$cptable, param$.maxdepth)
+                            
+                            for(j in seq(along = cpValues))
+                              {
+                                prunedFit <- prune.rpart(modelFit, cp = cpValues[j])
+                                tmpProb <- predict(prunedFit, newdata, type = "prob")
+                                tmp[[j+1]] <- as.data.frame(tmpProb[, modelFit$obsLevels])
+                              }
+                            out <- tmp
+                          }                            
+                        out
+                      },                      
                       gpls =
                       {
                         library(gpls)
@@ -115,8 +165,22 @@ probFunction <- function(method, modelFit, newdata)
                       pam =
                       {
                         library(pamr)
-                        out <-pamr.predict(modelFit, t(newdata),
-                                           threshold = modelFit$tuneValue$.threshold, type= "posterior")
+                        out <- pamr.predict(modelFit, t(newdata),
+                                            threshold = modelFit$tuneValue$.threshold, type= "posterior")
+                        if(!is.null(param))
+                          {
+                            tmp <- vector(mode = "list", length = nrow(param) + 1)
+                            tmp[[1]] <- out
+                            
+                            for(j in seq(along = param$.threshold))
+                              {
+                                tmpProb <-  pamr.predict(modelFit, t(newdata),
+                                                         threshold =  param$.threshold[j], type= "posterior")
+                                tmp[[j+1]] <- as.data.frame(tmpProb[, modelFit$obsLevels])
+
+                              }
+                            out <- tmp
+                          }   
                         out
                       },
                       nb =
@@ -130,7 +194,7 @@ probFunction <- function(method, modelFit, newdata)
                       {
                         library(mda)
                         library(earth)
-                        out <- predict(modelFit, newdata, type= "prob")
+                        out <- predict(modelFit, newdata, type= "prob")                        
                         out
                       },
 
@@ -174,15 +238,32 @@ probFunction <- function(method, modelFit, newdata)
                       },
                       gamboost =, blackboost =, glmboost =
                       {
-                                        # glmboost defies conveintion a bit by having higher values of the lp
-                                        # correspond to the second factor level (as opposed to the first),
-                                        # so we use the -lp for the first factor level prob
+                        ## glmboost defies conveintion a bit by having higher values of the lp
+                        ## correspond to the second factor level (as opposed to the first),
+                        ## so we use the -lp for the first factor level prob
                         library(mboost)
-                        lp <- predict(modelFit, as.matrix(newdata), type = "lp")
+                        if(method == "glmboost" & !is.matrix(newdata)) newdata <- as.matrix(newdata)
+                        
+                        lp <- predict(modelFit, newdata)
                         out <- cbind(
                                      binomial()$linkinv(-lp),
                                      1 - binomial()$linkinv(-lp))
                         colnames(out) <- modelFit$obsLevels
+                        if(!is.null(param))
+                          {
+                            tmp <- vector(mode = "list", length = nrow(param) + 1)
+                            tmp[[1]] <- out
+                            
+                            for(j in seq(along = param$.mstop))
+                              {                           
+                                tmpProb <- predict(modelFit[param$.mstop[j]], newdata)
+                                tmpProb <- cbind(binomial()$linkinv(-tmpProb),
+                                                 1 - binomial()$linkinv(-tmpProb))
+                                colnames(tmpProb) <- modelFit$obsLevels
+                                tmp[[j+1]] <- as.data.frame(tmpProb[, modelFit$obsLevels])           
+                              }
+                            out <- tmp
+                          }                        
                         out
                       },
                       ada =
@@ -201,8 +282,24 @@ probFunction <- function(method, modelFit, newdata)
                       {
                         library(caTools)
                         out <- caTools::predict.LogitBoost(modelFit, newdata, type = "raw")
-                                        # I've seen them not be on [0, 1]
+                        ## I've seen them not be on [0, 1]
                         out <- t(apply(out, 1, function(x) x/sum(x)))
+                        if(!is.null(param))
+                          {
+                            tmp <- vector(mode = "list", length = nrow(param) + 1)
+                            tmp[[1]] <- out
+                            
+                            for(j in seq(along = param$.nIter))
+                              {                           
+                                tmpProb <- caTools::predict.LogitBoost(modelFit,
+                                                                       newdata,
+                                                                       type = "raw",
+                                                                       nIter = param$.nIter[j])
+                                tmpProb <- out <- t(apply(tmpProb, 1, function(x) x/sum(x)))
+                                tmp[[j+1]] <- as.data.frame(tmpProb[, modelFit$obsLevels])           
+                              }
+                            out <- tmp
+                          }                       
                         out
                       },
                       J48 =, LMT =, JRip =, OneR =, PART = 
@@ -256,12 +353,33 @@ probFunction <- function(method, modelFit, newdata)
                       },
                       glmnet =
                       {
-                        probs <- predict(modelFit,
-                                        as.matrix(newdata),
-                                        s = modelFit$lambdaOpt,
-                                        type = "response")
-                        probs <- cbind(1-probs, probs)
-                        colnames(probs) <- modelFit$obsLevels
+                        
+                        if(!is.null(param))
+                          {
+                            probs <- predict(modelFit,
+                                             as.matrix(newdata),
+                                             s = param$.lambda,
+                                             type = "response")
+
+                            probs <- as.list(as.data.frame(probs))
+                            probs <- lapply(probs,
+                                            function(x, lev)
+                                            {
+                                              tmp <- data.frame(x, 1-x)
+                                              names(tmp) <- lev
+                                              tmp
+                                            },
+                                            lev = modelFit$obsLevels)
+                            
+                          } else {
+                            probs <- predict(modelFit,
+                                             as.matrix(newdata),
+                                             s = modelFit$lambdaOpt,
+                                             type = "response")
+                            probs <- cbind(1-probs, probs)
+                            colnames(probs) <- modelFit$obsLevels
+                          }
+                        
                         probs
                       },
                       nodeHarvest =
@@ -362,7 +480,11 @@ probFunction <- function(method, modelFit, newdata)
                       }
                       )
 
-  if(!is.data.frame(classProb)) classProb <- as.data.frame(classProb)
-  classProb[, obsLevels]
+  if(!is.data.frame(classProb) & is.null(param))
+    {
+      classProb <- as.data.frame(classProb)
+      classProb <- classProb[, obsLevels]
+    }
+  classProb
 }
 

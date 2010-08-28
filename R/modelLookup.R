@@ -682,8 +682,8 @@ modelLookup <- function(model = NULL)
              TRUE, FALSE, 
              ## cforest
              FALSE, 
-             ## ctree
-             TRUE, 
+             ## ctree actually is a sequential model, but treeresponse can't do probs from multiple models
+             FALSE, 
              ## ctree2
              FALSE, 
              ## earth

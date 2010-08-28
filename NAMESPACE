@@ -146,7 +146,8 @@ export(
        bag.default,
        predict.bag,
        bagControl,
-       modelLookup
+       modelLookup,
+       twoClassSummary
        )
 
 S3method(confusionMatrix, default)

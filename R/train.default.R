@@ -50,11 +50,21 @@ train.default <- function(x, y,
         stop("This model is only implemented for 3+ class problems")      
       if(metric %in% c("RMSE", "Rsquared")) 
         stop(paste("Metric", metric, "not applicable for classification models"))
+      if(trControl$classProbs & any(!modelInfo$probModel))
+        {
+          warning("Class probabilities were requested for a model that does not implement them")
+          trControl$classProbs <- FALSE
+        }
     } else {
       if(!any(modelInfo$forReg)) stop("wrong model type for regression")
       if(metric %in% c("Accuracy", "Kappa")) 
         stop(paste("Metric", metric, "not applicable for regression models"))         
       classLevels <- NA
+      if(trControl$classProbs)
+        {
+          warning("cannnot compute class probabilities for regression")
+          trControl$classProbs <- FALSE
+        }   
     }
   
   if(trControl$method == "oob" & !(method %in% c("rf", "treebag", "cforest", "bagEarth", "bagFDA")))
@@ -190,6 +200,12 @@ train.default <- function(x, y,
       ## get phoney performance to obtain the names of the outputs
       testOutput <- data.frame(pred = sample(y, min(10, length(y))),
                                obs = sample(y, min(10, length(y))))
+
+      if(trControl$classProbs)
+        {
+          for(i in seq(along = classLevels)) testOutput[, classLevels[i]] <- runif(nrow(testOutput))
+        }
+      
       perfNames <- names(trControl$summaryFunction(testOutput,
                                                    classLevels,
                                                    method))

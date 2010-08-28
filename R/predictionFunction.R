@@ -105,13 +105,7 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
                            rpart =
                            {
                              library(rpart)
-                             depth2cp <- function(x, depth)
-                               {
-                                 out <- approx(x[,"nsplit"], x[,"CP"], depth)$y
-                                 out[depth > max(x[,"nsplit"])] <- min(x[,"CP"]) * .99
-                                 out
-                               }
-
+                             
                              if(!is.data.frame(newdata)) newdata <- as.data.frame(newdata)
 
                              if(modelFit$problemType == "Classification")
@@ -342,26 +336,6 @@ predictionFunction <- function(method, modelFit, newdata, param = NULL)
                              library(party)
 
                              out <- predict(modelFit, newdata)
-
-                             if(!is.null(param))
-                               {
-                                 ## see note in tuneScheme about this two lines:
-                                 minMinCrit <- min(param$.mincriterion)
-                                 param <- param[param$.mincriterion > minMinCrit,, drop = FALSE]
-                                 
-                                 tmp <- vector(mode = "list", length = nrow(param) + 1)
-                                 tmp[[1]] <- if(is.matrix(out)) out[,1]  else out
-                                 
-                                 for(j in seq(along = param$.mincriterion))
-                                   {
-                                     tmpPred <- predict(modelFit, newdata, mincriterion = param$.mincriterion[j])
-                                     tmp[[j+1]] <- if(is.matrix(tmpPred)) tmpPred[,1]  else tmpPred
-                                     
-                                   }
-                                 
-                                 out <- if(!is.null(modelFit@responses@levels$.outcome)) lapply(tmp, as.character) else tmp
-                               } 
-
                              out
                            },
 
