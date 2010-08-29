@@ -391,15 +391,27 @@ dotplot.resamples <- function (x, data = NULL, models = x$models, metric = x$met
            y <- as.numeric(y)
            
            vals <- aggregate(x, list(group = y), function(x) c(min = min(x), mid = median(x), max = max(x)))
-         
+           
            panel.dotplot(vals$x[,"mid"], vals$group,
-                        pch = plotTheme$plot.symbol$pch,
-                        col = plotTheme$plot.symbol$col)
+                         pch = plotTheme$plot.symbol$pch[1],
+                         col = plotTheme$plot.symbol$col[1],
+                         cex = plotTheme$plot.symbol$cex[1])
            panel.segments(vals$x[,"min"], vals$group, 
                           vals$x[,"max"], vals$group, 
-                          lty = plotTheme$plot.line$lty,
-                        col = plotTheme$plot.line$col,
-                          lwd = plotTheme$plot.line$lwd)
+                          lty = plotTheme$plot.line$lty[1],
+                          col = plotTheme$plot.line$col[1],
+                          lwd = plotTheme$plot.line$lwd[1])
+           len <- .03
+           panel.segments(vals$x[,"min"], vals$group+len, 
+                          vals$x[,"min"], vals$group-len, 
+                          lty = plotTheme$plot.line$lty[1],
+                          col = plotTheme$plot.line$col[1],
+                          lwd = plotTheme$plot.line$lwd[1])
+           panel.segments(vals$x[,"max"], vals$group+len, 
+                          vals$x[,"max"], vals$group-len, 
+                          lty = plotTheme$plot.line$lty[1],
+                          col = plotTheme$plot.line$col[1],
+                          lwd = plotTheme$plot.line$lwd[1])           
           
          },
           sub = paste("Confidence Level:", conf.level),
@@ -666,26 +678,44 @@ dotplot.diff.resamples <- function(x, data = NULL, metric = x$metric[1], ...)
     plotData
     dotplot(Difference ~ value,
             data = plotData,
-            xlab = paste("Difference in", useMathSymbols(metric)),
+            xlab = paste("Difference in", caret:::useMathSymbols(metric)),
             panel = function(x, y)
             {
               plotTheme <- trellis.par.get()
-              panel.dotplot(x, y, type = "n")
-              panel.abline(v = 0,
-                           col = plotTheme$reference.line$col[1],
-                           lty = plotTheme$reference.line$lty[1],
-                           lwd = plotTheme$reference.line$lwd[1])
+              
 
               middle <- aggregate(x, list(mod = y), median)
               upper <- aggregate(x, list(mod = as.numeric(y)), max)
               lower <- aggregate(x, list(mod = as.numeric(y)), min)
-              for(i in seq(along = upper$mod)) panel.segments(upper$x[i], upper$mod[i], lower$x[i], lower$mod[i],
-                             col = plotTheme$plot.line$col[1],
-                             lwd = plotTheme$plot.line$lwd[1],
-                             lty = plotTheme$plot.line$lty[1])
-                
+              panel.dotplot(middle$x, middle$mod,
+                            col = plotTheme$plot.symbol$col[1],
+                            pch = plotTheme$plot.symbol$pch[1],
+                            cex = plotTheme$plot.symbol$cex[1])
+              panel.abline(v = 0,
+                           col = plotTheme$reference.line$col[1],
+                           lty = plotTheme$reference.line$lty[1],
+                           lwd = plotTheme$reference.line$lwd[1])
+              for(i in seq(along = upper$mod))
+                {
+                  panel.segments(upper$x[i], upper$mod[i], lower$x[i], lower$mod[i],
+                                 col = plotTheme$plot.line$col[1],
+                                 lwd = plotTheme$plot.line$lwd[1],
+                                 lty = plotTheme$plot.line$lty[1])
+                  len <- .03
+                  panel.segments(lower$x[i], upper$mod[i]+len, 
+                                 lower$x[i], lower$mod[i]-len, 
+                                 lty = plotTheme$plot.line$lty[1],
+                                 col = plotTheme$plot.line$col[1],
+                                 lwd = plotTheme$plot.line$lwd[1])
+                  panel.segments(upper$x[i],upper$mod[i]+len, 
+                                 upper$x[i], lower$mod[i]-len, 
+                                 lty = plotTheme$plot.line$lty[1],
+                                 col = plotTheme$plot.line$col[1],
+                                 lwd = plotTheme$plot.line$lwd[1])
+                }
 
-              panel.dotplot(middle$x, middle$mod)
+              
+              
             },
             ...)
   }

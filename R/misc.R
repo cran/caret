@@ -385,6 +385,16 @@ defaultSummary <- function(data, lev = NULL, model = NULL)
     postResample(data[,"pred"], data[,"obs"])
   }
 
+twoClassSummary <- function(data, lev = NULL, model = NULL)
+  {
+    out <- c(sensitivity(data[, "pred"], data[, "obs"], lev[1]),
+             specificity(data[, "pred"], data[, "obs"], lev[2]),
+             aucRoc(roc(data[, lev[1]], data$obs, positive = lev[1])))
+    
+    names(out) <- c("Sens", "Spec", "ROC")
+    out
+  }
+
 ## make this object oriented
 getClassLevels <- function(x) 
   {
@@ -479,6 +489,7 @@ workerData <- function(data, ctrl, loop, method, lvls, workers = 1, caretVerbose
                                worker = NULL,
                                isLOO = ifelse(ctrl$method == "LOOCV",
                                  TRUE, FALSE),              ## constant across the workers
+                               classProbs = ctrl$classProbs,## constant across the workers
                                func = ctrl$summaryFunction, ## constant across the workers
                                caretVerbose = caretVerbose, ## constant across the workers
                                dots = d),                   ## constant across the workers
@@ -638,15 +649,22 @@ workerTasks <- function(x)
             holdBack <-  x$data[-x$index[[i]],]
             observed <- holdBack$.outcome
             holdBack$.outcome <- NULL
-            if(any(colnames(holdBack) == ".modelWeights")) holdBack$.modelWeights <- NULL
+           if(any(colnames(holdBack) == ".modelWeights")) holdBack$.modelWeights <- NULL
 
-            ## If we have seqeuntial parameters, predicted is a list, otherwise
-            ## it is a vector            
-            predicted <- caret:::predictionFunction(x$method,
-                                                    modelObj,
-                                                    holdBack,
-                                                    x$seq)
-#           browser()
+           ## If we have seqeuntial parameters, predicted is a list, otherwise
+           ## it is a vector            
+           predicted <- caret:::predictionFunction(x$method,
+                                                   modelObj,
+                                                   holdBack,
+                                                   x$seq)
+           if(x$classProbs)
+             {
+               probValues <- caret:::probFunction(x$method,
+                                                  modelObj,
+                                                  holdBack,
+                                                  x$seq)
+             }
+
             if(!x$isLOO)
               {
 
@@ -661,6 +679,10 @@ workerTasks <- function(x)
                                         },
                                         y = observed,
                                         lv = x$obsLevels)
+                    if(x$classProbs)
+                      {
+                        for(k in seq(along = predicted)) predicted[[k]] <- cbind(predicted[[k]], probValues[[k]])
+                      }
                    
                     thisResample <- do.call("rbind",
                                             lapply(predicted,
@@ -672,9 +694,11 @@ workerTasks <- function(x)
                   } else {
                     if(is.factor(observed)) predicted <- factor(as.character(predicted),
                                                                 levels = x$obsLevels)
-                    thisResample <- x$func(
-                                           data.frame(pred = predicted,
-                                                      obs = observed),
+                    tmp <-  data.frame(pred = predicted,
+                                       obs = observed)
+                    if(x$classProbs) tmp <- cbind(tmp, probValues)
+                    #browser()
+                    thisResample <- x$func(tmp,
                                            lev = x$obsLevels,
                                            model = x$method)
                     thisResample <- as.data.frame(t(thisResample))
@@ -845,4 +869,11 @@ useMathSymbols <- function(x)
   {
     if(x == "Rsquared") x <- expression(R^2)
     x
+  }
+
+depth2cp <- function(x, depth)
+  {
+    out <- approx(x[,"nsplit"], x[,"CP"], depth)$y
+    out[depth > max(x[,"nsplit"])] <- min(x[,"CP"]) * .99
+    out
   }

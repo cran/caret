@@ -288,7 +288,7 @@ The \texttt{summary} function takes the observed and predicted values and comput
 
 \subsubsection{The \texttt{fit} Function}\label{S:fit}
 
-This function builds the model based on the current data set (lines line \ref{A:fit0},  \ref{A:fit1} and \ref{A:fit2}). The arguments for the function must be:
+This function builds the model based on the current data set (lines\ref{A:fit0},  \ref{A:fit1} and \ref{A:fit2}). The arguments for the function must be:
 \begin{itemize}
 \item \texttt{x}: the current training set of predictor data with the appropriate subset of variables
 \item \texttt{y}: the current outcome data (either a numeric or factor vector)
