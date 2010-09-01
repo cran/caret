@@ -18,8 +18,13 @@ sbfIter <- function(x, y,
                                         y,
                                         ...)  
 
-  modelPred <- data.frame(pred = sbfControl$functions$pred(fitObject, testX),
-                          obs = testY)
+  modelPred <- sbfControl$functions$pred(fitObject, testX)
+  if(is.data.frame(modelPred) | is.matrix(modelPred))
+    {
+      if(is.matrix(modelPred)) modelPred <- as.data.frame(modelPred)
+      modelPred$obs <- testY
+    } else modelPred <- data.frame(pred = modelPred, obs = testY)
+  
   
   list(variables = names(retained)[which(retained)],
        pred = modelPred)
@@ -81,7 +86,8 @@ sbfChunk <- function(inTrain, x, y, cntl, sizes, ...)
                           outTrainX, outTrainY,
                           cntl,
                           ...)
-    
+
+    ## TODO make this like train()
     sbfResults$pred$resampleIter <- rep(names(cntl$index)[j], nrow(sbfResults$pred))
 
     out <- list(pred = sbfResults$pred,
@@ -101,6 +107,7 @@ sbf <- function (x, ...) UseMethod("sbf")
   funcCall <- match.call(expand.dots = TRUE)
 
   numFeat <- ncol(x)
+  classLevels <- levels(y)
 
   if(is.null(sbfControl$index))
     sbfControl$index <- switch(tolower(sbfControl$method),
@@ -109,10 +116,18 @@ sbf <- function (x, ...) UseMethod("sbf")
                                boot = createResample(y, sbfControl$number),
                                test = createDataPartition(y, 1, sbfControl$p),
                                lgocv = createDataPartition(y, sbfControl$number, sbfControl$p))
-  if(is.null(names(sbfControl$index)) | length(unique(names(sbfControl$index))) != length(sbfControl$index)) names(sbfControl$index) <- paste("Resample", seq(along = sbfControl$index), sep = "")
+  names(sbfControl$index) <- prettySeq(sbfControl$index)
   
   ## check summary function and metric
-  test <- sbfControl$functions$summary(data.frame(obs = y, pred = sample(y)))
+  testOutput <- data.frame(pred = sample(y, min(10, length(y))),
+                           obs = sample(y, min(10, length(y))))
+
+  if(is.factor(y))
+    {
+      for(i in seq(along = classLevels)) testOutput[, classLevels[i]] <- runif(nrow(testOutput))
+    }
+  
+  test <- sbfControl$functions$summary(testOutput, lev = classLevels)
   perfNames <- names(test)
 
   ## need to setup lists for each worker (!= each task)
@@ -138,21 +153,21 @@ sbf <- function (x, ...) UseMethod("sbf")
   if(!is.null(sbfControl$computeArgs)) argList <- c(argList, sbfControl$computeArgs)
  
   sbfResults <- do.call(sbfControl$computeFunction, argList)
-  
+
   sbfPred <- lapply(sbfResults,
                     function(x) lapply(x,
                                        function(y) y$pred))[[1]]
   sbfPred <- do.call("rbind", sbfPred)
 
   sbfPred <- split(sbfPred, sbfPred$resampleIter)
-  resamples <- lapply(sbfPred, sbfControl$functions$summary)
+  resamples <- lapply(sbfPred,
+                      sbfControl$functions$summary,
+                      lev = classLevels)
   resamples <- as.data.frame(do.call("rbind", resamples))
-  ## TODO add a column called "Resample" with reproducabile values
-  ## as in train
 
   externPerf <- cbind(t(apply(resamples, 2, mean, na.rm = TRUE)),
                       t(apply(resamples, 2, sd, na.rm = TRUE)))
-  colnames(externPerf)[3:4] <- paste(colnames(externPerf)[3:4], "SD", sep = "")
+  colnames(externPerf)<- c(perfNames, paste(perfNames, "SD", sep = ""))
 
   resamples$Resample <- rownames(resamples)
   
@@ -384,13 +399,22 @@ caretSBF <- list(summary = defaultSummary,
                  {
                    if(class(object) != "nullModel")
                      {
-                       modelPred <- extractPrediction(
-                                                      list(object),
-                                                      unkX = x,
-                                                      unkOnly = TRUE)
-                       modelPred <- modelPred[modelPred$dataType == "Unknown",]
-                       modelPred$pred
-                     } else predict(object, x) 
+                       tmp <- predict(object, x)
+                       if(object$modelType == "Classification" &
+                          modelLookup(object$method)$probModel[1])
+                         {
+                           out <- cbind(data.frame(pred = tmp),
+                                        as.data.frame(predict(object, x, type = "prob")))
+                         } else out <- tmp
+                     } else {
+                       tmp <- predict(object, x)
+                       if(!is.null(object$levels))
+                         {
+                           out <- cbind(data.frame(pred = tmp),
+                                        as.data.frame(predict(object, x, type = "prob")))
+                         } else out <- tmp 
+                     }
+                   out
                  },
                  score = function(x, y)
                  {
@@ -411,7 +435,24 @@ rfSBF <- list(summary = defaultSummary,
               },
               pred = function(object, x)
               {
-                predict(object, x)
+                if(class(object) == "nullModel")
+                  {
+                    tmp <- predict(object, x)
+                    if(!is.null(object$levels))
+                      {
+                        out <- cbind(data.frame(pred = tmp),
+                                     as.data.frame(predict(object, x, type = "prob")))
+                      } else out <- tmp                           
+                  } else {
+                    tmp <- predict(object, x)
+                    if(is.factor(object$y))
+                      {
+                        out <- cbind(data.frame(pred = tmp),
+                                     as.data.frame(predict(object, x, type = "prob")))
+                      } else out <- tmp
+                  }                
+               
+                out
               },
               score = function(x, y)
               {
@@ -453,7 +494,20 @@ ldaSBF <- list(summary = defaultSummary,
                },
                pred = function(object, x)
                {
-                 if(class(object) == "nullModel") predict(object, x) else predict(object, x)$class
+                 if(class(object) == "nullModel")
+                   {
+                     tmp <- predict(object, x)
+                     out <- cbind(data.frame(pred = tmp),
+                                  as.data.frame(
+                                                predict(object,
+                                                        x,
+                                                        type = "prob"))) 
+                   } else {
+                     tmp <- predict(object, x)
+                     out <- cbind(data.frame(pred = tmp$class),
+                                  as.data.frame(tmp$posterior)) 
+                   }
+                out
                },
                score = function(x, y)
                {
@@ -475,7 +529,20 @@ nbSBF <- list(summary = defaultSummary,
               },
               pred = function(object, x)
               {
-                if(class(object) == "nullModel") predict(object, x) else predict(object, x)$class
+                if(class(object) == "nullModel")
+                  {
+                    tmp <- predict(object, x)
+                    out <- cbind(data.frame(pred = tmp),
+                                 as.data.frame(
+                                               predict(object,
+                                                       x,
+                                                       type = "prob"))) 
+                  } else {
+                    tmp <- predict(object, x)
+                    out <- cbind(data.frame(pred = tmp$class),
+                                 as.data.frame(tmp$posterior)) 
+                  }
+                out
               },              
 
               pred = function(object, x)
@@ -485,7 +552,7 @@ nbSBF <- list(summary = defaultSummary,
               score = function(x, y)
               {
                 ## should return a named logical vector
-                anovaFilter(x, y)
+                anovaScores(x, y)
               },
                  filter = function(score, x, y) score <= 0.05
               )
@@ -504,7 +571,23 @@ treebagSBF <- list(summary = defaultSummary,
 
                      pred = function(object, x)
                      {
-                       predict(object, x)
+                       if(class(object) == "nullModel")
+                         {
+                           tmp <- predict(object, x)
+                           if(!is.null(object$levels))
+                             {
+                               out <- cbind(data.frame(pred = tmp),
+                                            as.data.frame(predict(object, x, type = "prob")))
+                             } else out <- tmp                           
+                         } else {
+                           tmp <- predict(object, x)
+                           if(is.factor(object$y))
+                             {
+                               out <- cbind(data.frame(pred = tmp),
+                                            as.data.frame(predict(object, x, type = "prob")))
+                             } else out <- tmp
+                         }
+                       out
                      },
                      score = function(x, y)
                      {
@@ -590,14 +673,17 @@ nullModel.default <- function(x = NULL, y, ...)
         lvls <- levels(y)
         tab <- table(y)
         value <- names(tab)[which.max(tab)]
+        pct <- max(tab)/sum(tab)
       } else {
         lvls <- NULL
+        pct <- NULL
         value <- mean(y, na.rm = TRUE)
       }
     structure(
               list(call = match.call(),
                    value = value,
                    levels = lvls,
+                   pct = pct,
                    n = length(y)),
               class = "nullModel")
   }
@@ -614,20 +700,30 @@ print.nullModel <- function(x, digits = max(3, getOption("digits") - 3), ...)
       "\n")
 }
 
-predict.nullModel <- function (object, newdata = NULL, ...)
+predict.nullModel <- function (object, newdata = NULL, type  = NULL, ...)
   {
+    if(is.null(type))
+      {
+        type <- if(is.null(object$levels)) "raw" else "class"
+      }
+
     n <- if(is.null(newdata)) object$n else nrow(newdata)
     if(!is.null(object$levels))
       {
-        out <- factor(rep(object$value, n), levels = object$levels)
-      } else out <- rep(object$value, n)
-
+        if(type == "prob")
+          {
+            out <- as.data.frame(matrix(0, nrow = n, ncol = length(object$levels)))
+            names(out) <- object$levels
+            out[, object$value] <- object$pct
+          } else {
+            out <- factor(rep(object$value, n), levels = object$levels)
+          }
+      } else {
+        if(type %in% c("prob", "class")) stop("ony raw predicitons are applicable to regression models")
+        out <- rep(object$value, n)
+      }
     out
   }
-
-
-  
-
 
 if(FALSE)
   {

@@ -280,11 +280,76 @@ dev.off()
 
 \subsection{Helper Functions}\label{S:helpers}
 
-To use feature elimination for an arbitrary model, a set of functions must be passed to \texttt{rfe} for each of the steps in Algorithm  \ref{A:rfe2}. This section defines those functions and uses the existing random forest functions as an illustrative example.
+To use feature elimination for an arbitrary model, a set of functions
+must be passed to \texttt{rfe} for each of the steps in Algorithm
+\ref{A:rfe2}. 
+
+This section defines those functions and uses the
+existing random forest functions as an illustrative
+example. \texttt{caret} contains a list called \texttt{rfFuncs}, but
+this document will use a more simple version that will be better for
+illustrating the ideas at play. The functions used here are collected
+in a list called \texttt{rfRFE}.
+
+<<rfeAlt, results = hide, echo = FALSE>>=
+rfRFE <-  list(summary = defaultSummary,
+                 fit = function(x, y, first, last, ...)
+                 {
+                   library(randomForest)
+                   randomForest(x, y, importance = first, ...)
+                 },
+                 pred = function(object, x)
+                 {
+                   predict(object, x)
+                 },
+                 rank = function(object, x, y)
+                 {
+                   vimp <- varImp(object)
+
+                   if(is.factor(y))
+                     {
+                       if(all(levels(y) %in% colnames(vimp)))
+                         {
+                           avImp <- apply(vimp[, levels(y), drop = TRUE],
+                                          1,
+                                          mean)
+                           vimp$Overall <- avImp
+                         }
+
+                     }
+                   
+                   vimp <- vimp[
+                                order(
+                                      vimp$Overall,
+                                      decreasing = TRUE)
+                                ,,
+                                drop = FALSE]
+                   
+                   vimp$var <- rownames(vimp)                  
+                   vimp
+                 },
+                 selectSize = pickSizeBest,
+                 selectVar = pickVars)
+@ 
+
 
 \subsubsection{The \texttt{summary} Function}\label{S:summary}
 
-The \texttt{summary} function takes the observed and predicted values and computes one or more performance metrics (see line \ref{A:summary}). The input is a data frame with columns \texttt{obs} and \texttt{pred}. The output should be a named vector of numeric variables. Note that the \texttt{metric} argument of the \texttt{rfe} function should reference one of the names of the output of \texttt{summary}.
+The \texttt{summary} function takes the observed and predicted values
+and computes one or more performance metrics (see line
+\ref{A:summary}). The input is a data frame with columns \texttt{obs}
+and \texttt{pred}. The output should be a named vector of numeric
+variables. Note that the \texttt{metric} argument of the \texttt{rfe}
+function should reference one of the names of the output of
+\texttt{summary}. The example function is:
+<<rfSummary>>=
+rfRFE$summary
+@ 
+
+Two functions in \texttt{caret} that can be used as the summary
+funciton are \texttt{defaultSummary} and \texttt{twoClassSummary} (for
+classification probelms with two classes). 
+
 
 \subsubsection{The \texttt{fit} Function}\label{S:fit}
 
@@ -298,7 +363,7 @@ This function builds the model based on the current data set (lines\ref{A:fit0},
 \end{itemize}
 The function should return a model object that can be used to generate predictions. For random forest, the fit function is simple:
 <<rfModel>>=
-rfFuncs$fit
+rfRFE$fit
 @ 
 For feature selection without re--ranking at each iteration, the random forest variable importances only need to be computed on the first iterations when all of the predictors are in the model. This can be accomplished using  \texttt{importance = first}.
 
@@ -311,7 +376,7 @@ This function returns a vector of predictions (numeric or factors) from the curr
 \end{itemize}
 For random forests, the function is a simple wrapper for the predict function:
 <<rfPredict>>=
-rfFuncs$pred
+rfRFE$pred
 @ 
 For classification, it is probably a good idea to ensure that the resulting factor variables of predictions has the same levels as the input data.
 
@@ -327,7 +392,7 @@ The function should return a data frame with a column called \texttt{vars} that 
 
 For random forests, the function below uses \texttt{caret}'s \texttt{varImp} function to extract the random forest importances and orders them. For classification, \texttt{randomForest} will produce a column of importances for each class. In this case, the default ranking function orders the predictors by the averages importance across the classes.
 <<rfRank>>=
-rfFuncs$rank
+rfRFE$rank
 @ 
 
 \subsubsection{The \texttt{selectSize} Function}
@@ -408,7 +473,7 @@ This function should return a character string of predictor names (of length \te
 
 For random forests, only the first importance calculation (line \ref{A:rank0}) is used since these are the rankings on the full set of predictors. These importances are averaged and the top predictors are returned.
 <<rfSelectVar>>=
-rfFuncs$selectVar
+rfRFE$selectVar
 @ 
 Note that if the predictor rankings are recomputed at each iteration (line \ref{A:rank1}) the user will need to write their own selection function to use the other ranks.
 
@@ -416,7 +481,7 @@ Note that if the predictor rankings are recomputed at each iteration (line \ref{
 
 For random forest, we fit the same series of model sizes as the linear model. The option to save all the resampling results across subset sizes was changed for this model and are used to show the lattice plot function capabilities in Figure \ref{F:rf2}.
 <<rf>>=
-ctrl$functions <- rfFuncs
+ctrl$functions <- rfRFE
 ctrl$returnResamp <- "all"
 set.seed(10)
 rfProfile <- rfe(x, y,

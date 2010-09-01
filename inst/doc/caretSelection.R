@@ -72,25 +72,74 @@ dev.off()
 
 
 ###################################################
-### chunk number 7: rfModel
+### chunk number 7: rfeAlt
 ###################################################
-rfFuncs$fit
+rfRFE <-  list(summary = defaultSummary,
+                 fit = function(x, y, first, last, ...)
+                 {
+                   library(randomForest)
+                   randomForest(x, y, importance = first, ...)
+                 },
+                 pred = function(object, x)
+                 {
+                   predict(object, x)
+                 },
+                 rank = function(object, x, y)
+                 {
+                   vimp <- varImp(object)
+
+                   if(is.factor(y))
+                     {
+                       if(all(levels(y) %in% colnames(vimp)))
+                         {
+                           avImp <- apply(vimp[, levels(y), drop = TRUE],
+                                          1,
+                                          mean)
+                           vimp$Overall <- avImp
+                         }
+
+                     }
+                   
+                   vimp <- vimp[
+                                order(
+                                      vimp$Overall,
+                                      decreasing = TRUE)
+                                ,,
+                                drop = FALSE]
+                   
+                   vimp$var <- rownames(vimp)                  
+                   vimp
+                 },
+                 selectSize = pickSizeBest,
+                 selectVar = pickVars)
 
 
 ###################################################
-### chunk number 8: rfPredict
+### chunk number 8: rfSummary
 ###################################################
-rfFuncs$pred
+rfRFE$summary
 
 
 ###################################################
-### chunk number 9: rfRank
+### chunk number 9: rfModel
 ###################################################
-rfFuncs$rank
+rfRFE$fit
 
 
 ###################################################
-### chunk number 10: tolerance
+### chunk number 10: rfPredict
+###################################################
+rfRFE$pred
+
+
+###################################################
+### chunk number 11: rfRank
+###################################################
+rfRFE$rank
+
+
+###################################################
+### chunk number 12: tolerance
 ###################################################
   example <- data.frame(RMSE = c(
                           3.215, 2.819, 2.414, 2.144, 
@@ -102,7 +151,7 @@ example
 
 
 ###################################################
-### chunk number 11: tolerancePlot
+### chunk number 13: tolerancePlot
 ###################################################
 
 smallest <- pickSizeBest(example, metric = "RMSE", maximize = FALSE)
@@ -133,15 +182,15 @@ dev.off()
 
 
 ###################################################
-### chunk number 12: rfSelectVar
+### chunk number 14: rfSelectVar
 ###################################################
-rfFuncs$selectVar
+rfRFE$selectVar
 
 
 ###################################################
-### chunk number 13: rf
+### chunk number 15: rf
 ###################################################
-ctrl$functions <- rfFuncs
+ctrl$functions <- rfRFE
 ctrl$returnResamp <- "all"
 set.seed(10)
 rfProfile <- rfe(x, y,
@@ -151,7 +200,7 @@ print(rfProfile)
 
 
 ###################################################
-### chunk number 14: rfPlot
+### chunk number 16: rfPlot
 ###################################################
 pdf("rf.pdf", width = 5, height = 7)
    trellis.par.set(caretTheme())
@@ -168,7 +217,7 @@ dev.off()
 
 
 ###################################################
-### chunk number 15: rfPlot
+### chunk number 17: rfPlot
 ###################################################
 pdf("rf2.pdf", width = 6, height = 7.5)
    trellis.par.set(caretTheme())
@@ -180,13 +229,13 @@ dev.off()
 
 
 ###################################################
-### chunk number 16: rfSBFfit
+### chunk number 18: rfSBFfit
 ###################################################
 rfSBF$fit
 
 
 ###################################################
-### chunk number 17: sbf
+### chunk number 19: sbf
 ###################################################
 set.seed(10)
 rfWithFilter <- sbf(x, y,
@@ -198,7 +247,7 @@ print(rfWithFilter)
 
 
 ###################################################
-### chunk number 18: session
+### chunk number 20: session
 ###################################################
 toLatex(sessionInfo())
 
