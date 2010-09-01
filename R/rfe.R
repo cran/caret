@@ -29,10 +29,14 @@ rfeIter <- function(x, y,
                                             last = FALSE,
                                             ...)  
 
-      modelPred <- data.frame(pred = rfeControl$functions$pred(fitObject, .tx),
-                              obs = testY,
-                              subset = sizeValues[k])
-      
+      modelPred <- rfeControl$functions$pred(fitObject, .tx)
+      if(is.data.frame(modelPred) | is.matrix(modelPred))
+        {
+          if(is.matrix(modelPred)) modelPred <- as.data.frame(modelPred)
+          modelPred$obs <- testY
+          modelPred$subset <- sizeValues[k]
+        } else modelPred <- data.frame(pred = modelPred, obs = testY, subset = sizeValues[k])
+            
       rfePred <- if(k == 1) modelPred else rbind(rfePred, modelPred)
 
 
@@ -54,7 +58,7 @@ rfeIter <- function(x, y,
       finalVariables[[k]] <- subset(modImp, var %in% retained)
       
     }
-  names(rfePred) <- c("pred", "obs", "subset")
+  #names(rfePred) <- c("pred", "obs", "subset")
   list(finalVariables = finalVariables, pred = rfePred)
 
 }
@@ -138,6 +142,7 @@ rfe <- function (x, ...) UseMethod("rfe")
   require(caret)
 
   numFeat <- ncol(x)
+  classLevels <- levels(y)
 
   if(is.null(rfeControl$index))
     rfeControl$index <- switch(tolower(rfeControl$method),
@@ -147,21 +152,33 @@ rfe <- function (x, ...) UseMethod("rfe")
                                test = createDataPartition(y, 1, rfeControl$p),
                                lgocv = createDataPartition(y, rfeControl$number, rfeControl$p))
   
-  if(is.null(names(rfeControl$index)) | length(unique(names(rfeControl$index))) != length(rfeControl$index)) names(rfeControl$index) <- paste("Resample", seq(along = rfeControl$index), sep = "")
+  names(rfeControl$index) <- prettySeq(rfeControl$index)
 
   sizeValues <- sort(unique(sizes))
   sizeValues <- sizeValues[sizeValues <= ncol(x)]
 
 
   ## check summary function and metric
-  test <- rfeControl$functions$summary(data.frame(obs = y, pred = sample(y)))
-  if(!(metric %in% names(test))) stop("the specified metric is not produced by the summary function")
+  ## check summary function and metric
+  testOutput <- data.frame(pred = sample(y, min(10, length(y))),
+                           obs = sample(y, min(10, length(y))))
+
+  if(is.factor(y))
+    {
+      for(i in seq(along = classLevels)) testOutput[, classLevels[i]] <- runif(nrow(testOutput))
+    }
+  
+  test <- rfeControl$functions$summary(testOutput, lev = classLevels)
   perfNames <- names(test)
 
+  if(!(metric %in% perfNames))
+    {
+      warning(paste("Metric '", metric, "' is not created by the summary function; '",
+                    perfNames[1], "' will be used instead", sep = ""))
+      metric <- perfNames[1]
+    }
   
   selectedVars <- vector(mode = "list", length = length(rfeControl$index))
-
-### todo: do this over lapply for possible parallelization
 
   ## need to setup lists for each worker (!= each task)
 
@@ -194,8 +211,8 @@ rfe <- function (x, ...) UseMethod("rfe")
   rfePred <- do.call("rbind", rfePred)
 
   selectedVars <- lapply(rfeResults,
-                    function(x) lapply(x,
-                                       function(y) y$selectedVars))[[1]]
+                         function(x) lapply(x,
+                                            function(y) y$selectedVars))[[1]]
 
   #########################################################################
 
@@ -206,7 +223,7 @@ rfe <- function (x, ...) UseMethod("rfe")
                             perfNames,
                             paste(perfNames, "SD", sep = ""))
   
-  
+
   for(i in seq(along = subsets))
     {
       dataSubset <- subset(
@@ -217,9 +234,10 @@ rfe <- function (x, ...) UseMethod("rfe")
       byResample <- split(dataSubset, dataSubset$resampleIter)
       resampleResults <- lapply(
                                 byResample,
-                                rfeControl$functions$summary)
+                                rfeControl$functions$summary,
+                                lev = classLevels)
       resampleResults <- t(as.data.frame(resampleResults))
-      
+            
       externPerf[i, -1] <-  c(apply(resampleResults, 2, mean, na.rm = TRUE),
                               apply(resampleResults, 2, sd  , na.rm = TRUE))
       externPerf[i, 1] <- subsets[i]
@@ -446,12 +464,14 @@ caretFuncs <- list(summary = defaultSummary,
                    fit = function(x, y, first, last, ...) train(x, y, ...),
                    pred = function(object, x)
                    {
-                     modelPred <- extractPrediction(
-                                                    list(object),
-                                                    unkX = x,
-                                                    unkOnly = TRUE)
-                     modelPred <- modelPred[modelPred$dataType == "Unknown",]
-                     modelPred$pred
+                     tmp <- predict(object, x)
+                     if(object$modelType == "Classification" &
+                        modelLookup(object$method)$probModel[1])
+                       {
+                         out <- cbind(data.frame(pred = tmp),
+                                      as.data.frame(predict(object, x, type = "prob")))
+                       } else out <- tmp
+                     out
                    },
                    rank = function(object, x, y)
                    {
@@ -468,7 +488,7 @@ caretFuncs <- list(summary = defaultSummary,
                                             1,
                                             mean)
                              vimp$Overall <- avImp
-                           } else stop("need importance columns for each class")
+                           } 
                          
                        } 
                      vimp$var <- rownames(vimp)
@@ -489,7 +509,10 @@ ldaFuncs <- list(summary = defaultSummary,
                  },
                  pred = function(object, x)
                  {
-                   predict(object, x)$class
+                   tmp <- predict(object, x)
+                   out <- cbind(data.frame(pred = tmp$class),
+                                as.data.frame(tmp$posterior))
+                   out
                  },
                  rank = function(object, x, y)
                  {
@@ -518,7 +541,13 @@ treebagFuncs <- list(summary = defaultSummary,
                      },
                      pred = function(object, x)
                      {
-                       predict(object, x)
+                       tmp <- predict(object, x)
+                       if(is.factor(object$y))
+                         {
+                           out <- cbind(data.frame(pred = tmp),
+                                        as.data.frame(predict(object, x, type = "prob")))
+                         } else out <- tmp
+                       out
                      },
                      rank = function(object, x, y)
                      {
@@ -541,7 +570,13 @@ rfFuncs <-  list(summary = defaultSummary,
                  },
                  pred = function(object, x)
                  {
-                   predict(object, x)
+                   tmp <- predict(object, x)
+                   if(is.factor(object$y))
+                     {
+                       out <- cbind(data.frame(pred = tmp),
+                                    as.data.frame(predict(object, x, type = "prob")))
+                     } else out <- tmp
+                   out
                  },
                  rank = function(object, x, y)
                  {
@@ -609,7 +644,10 @@ nbFuncs <- list(summary = defaultSummary,
                 },
                 pred = function(object, x)
                 {
-                  predict(object, x)$class
+                   tmp <- predict(object, x)
+                   out <- cbind(data.frame(pred = tmp$class),
+                                as.data.frame(tmp$posterior))
+                   out
                 },
                 rank = function(object, x, y)
                 {

@@ -13,7 +13,7 @@ nullModel(x, ...)
 
 \method{nullModel}{default}(x = NULL, y, ...)
 
-\method{predict}{nullModel}(object, newdata = NULL, ...)
+\method{predict}{nullModel}(object, newdata = NULL, type = NULL, ...)
 }
 \arguments{
   \item{x}{
@@ -30,9 +30,12 @@ An object of class \code{nullModel}
   \item{newdata}{
 A matrix or data frame of predictors (only used to determine the number of predictions to return)
 }
+  \item{type}{
+Either "raw" (for regression), "class" or "prob" (for classification)
+}
 }
 \details{
-\code{nullModel} emulates other model building functions, but returns the simplest model possible given a training set: a single mean for numeric outcomes and the most prevalent class for factor outcomes.
+\code{nullModel} emulates other model building functions, but returns the simplest model possible given a training set: a single mean for numeric outcomes and the most prevalent class for factor outcomes. When class probabilities are requested, the percentage of the training set samples with the most prevalent class is returned.
 
 }
 \value{
@@ -40,6 +43,7 @@ The output of \code{nullModel} is a list of class \code{nullModel} with elements
   \item{call }{the function call}
   \item{value }{the mean of \code{y} or the most prevalent class}
   \item{levels }{when \code{y} is a factor, a vector of levels. \code{NULL} otherwise}
+  \item{pct }{when \code{y} is a factor, a data frame with a column for each class (\code{NULL} otherwise). The column for the most prevalent class has the proportion of the training samples with that class (the other columns are zero). }
   \item{n }{the number of elements in \code{y}}
 
 \code{predict.nullModel} returns a either a factor or numeric vector depending on the class of \code{y}. All predictions are always the same. }
