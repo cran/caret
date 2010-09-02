@@ -1,4 +1,10 @@
 -------------------
+Version: 4.60
+Date: 2010-09-02
+
+The feature selection vignette was updated slightly (again).
+
+-------------------
 Version: 4.59
 Date: 2010-09-01
 
@@ -8,7 +14,7 @@ in performance calculations.
 Also, the names of the resampling indices were harmonized
 across train(), rfe() and sbf().
 
-The feature seleciton vignette was updated slightly.
+The feature selection vignette was updated slightly.
 
 -------------------
 Version: 4.58

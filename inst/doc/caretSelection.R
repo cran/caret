@@ -15,9 +15,13 @@ p <- 40
 sigma <- 1
 set.seed(1)
 sim <- mlbench.friedman1(n, sd = sigma)
-x <- cbind(sim$x,  matrix(rnorm(n * p), nrow = n))
+colnames(sim$x) <- c(paste("real", 1:5, sep = ""),
+                     paste("bogus", 1:5, sep = ""))
+bogus <- matrix(rnorm(n * p), nrow = n)
+colnames(bogus) <- paste("bogus", 5+(1:ncol(bogus)), sep = "")
+x <- cbind(sim$x, bogus)
 y <- sim$y
-colnames(x) <- paste("var", 1:ncol(x), sep = "")
+
 
 
 ###################################################
@@ -247,7 +251,32 @@ print(rfWithFilter)
 
 
 ###################################################
-### chunk number 20: session
+### chunk number 20: resamps1
+###################################################
+bootValues <- resamples(
+                        list(lmRFE = lmProfile, 
+                             rfRFE = rfProfile, 
+                             rfFilter = rfWithFilter))
+
+
+###################################################
+### chunk number 21: resamps2
+###################################################
+differences <- diff(bootValues)
+summary(differences)
+
+
+###################################################
+### chunk number 22: resamps3
+###################################################
+pdf("resamps1.pdf", width = 5, height = 5)
+   trellis.par.set(caretTheme())
+   print(parallel(bootValues, metric = "Rsquared"))
+dev.off()
+
+
+###################################################
+### chunk number 23: session
 ###################################################
 toLatex(sessionInfo())
 

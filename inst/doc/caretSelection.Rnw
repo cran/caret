@@ -75,7 +75,7 @@
 
 Many models that can be accessed using \texttt{caret}'s \texttt{train} function produce prediction equations that do not necessarily use all the predictors. These models are thought to have built--in feature selection and include \texttt{rpart}, \texttt{gbm}, \texttt{ada}, \texttt{glmboost}, \texttt{gamboost}, \texttt{blackboost}, \texttt{ctree}, \texttt{sparseLDA}, \texttt{sddaLDA}, \texttt{sddaQDA}	\texttt{glmnet}, \texttt{lasso}, \texttt{lars}, \texttt{spls}, \texttt{earth}, \texttt{fda},   \texttt{bagEarth}, \texttt{bagFDA} , \texttt{pam} and others. Many of the functions have an ancillary method called \texttt{predictors} that returns a vector indicating which predictors were used in the final model.
 
-In many cases, using these models with built--in feature selection will be more efficient than algorithms where the search routine for the right predictors is external to the model (see Section 2). Built--in feature selection typically couples the predictor search algorithm with the parameter  estimation and are usually optimize with a single objective function (e.g. error rates or likelihood). 
+In many cases, using these models with built--in feature selection will be more efficient than algorithms where the search routine for the right predictors is external to the model (see Section 2). Built--in feature selection typically couples the predictor search algorithm with the parameter  estimation and are usually optimized with a single objective function (e.g. error rates or likelihood). 
 
 
 \section{Feature Selection Using Search Algorithms}
@@ -215,9 +215,13 @@ p <- 40
 sigma <- 1
 set.seed(1)
 sim <- mlbench.friedman1(n, sd = sigma)
-x <- cbind(sim$x,  matrix(rnorm(n * p), nrow = n))
+colnames(sim$x) <- c(paste("real", 1:5, sep = ""),
+                     paste("bogus", 1:5, sep = ""))
+bogus <- matrix(rnorm(n * p), nrow = n)
+colnames(bogus) <- paste("bogus", 5+(1:ncol(bogus)), sep = "")
+x <- cbind(sim$x, bogus)
 y <- sim$y
-colnames(x) <- paste("var", 1:ncol(x), sep = "")
+
 @ 
 Of the \Sexpr{ncol(x)} predictors, there are \Sexpr{ncol(x)-5} pure noise variables: 5 are uniform on [0, 1] and \Sexpr{p} are random univariate standard normals. The predictors are centered and scaled:
 <<preProc>>=
@@ -594,7 +598,7 @@ have been filtered using the \texttt{filter} function described
 above. The output of the \texttt{fit} function should be a fitted model.
 
 
-With some data sets, no predictors will survive the filter. In these cases, a model with predictors cannot be computed, but the lack of viable predictors should not be ignored in the final results. To account for this issue, \texttt{caret} contains a model function called \texttt{nullModel} that fits a simple model that is independent of any of the predictors. For problems where the outcome is numeric, the function predicts every sample using the simple mean o the training set outcomes. For classification, the model predicts all samples using the most prevalent class in the training data.
+With some data sets, no predictors will survive the filter. In these cases, a model with predictors cannot be computed, but the lack of viable predictors should not be ignored in the final results. To account for this issue, \texttt{caret} contains a model function called \texttt{nullModel} that fits a simple model that is independent of any of the predictors. For problems where the outcome is numeric, the function predicts every sample using the simple mean of the training set outcomes. For classification, the model predicts all samples using the most prevalent class in the training data.
 
 This function can be used in the \texttt{fit} component function to
 ``error-trap'' cases where no predictors are selected. For example,
@@ -635,6 +639,49 @@ used, but a few others are erroneous retained.
 
 Similar to \texttt{rfe}, there are methods for \texttt{predictors},
 \texttt{densityplot}, \texttt{histogram} and \texttt{varImp}.
+
+\section{Visualizing Resampling Results}
+
+As shown in the main \texttt{caret} vignette, the \texttt{resamples}
+class can be used to compare the resampling results of objects
+resulting from either \texttt{train()}, \texttt{rfe()} or \texttt{sbf()}.
+
+First, the resample results are collected together:
+<<resamps1>>=
+bootValues <- resamples(
+                        list(lmRFE = lmProfile, 
+                             rfRFE = rfProfile, 
+                             rfFilter = rfWithFilter))
+@ 
+After this, there are several Lattice plot methods: \texttt{xyplot},
+\texttt{dotplot}, \texttt{densityplot}, \texttt{bwplot},
+\texttt{splom} and \texttt{parallel}. Figure \ref{F:resamps1} show a
+parallel coordinate of the bootstrapped $R^2$ values. 
+
+The \texttt{diff} function can be applied to these objects to produce
+confidence intervals and hypothesis testing on the differences:
+<<resamps2>>=
+differences <- diff(bootValues)
+summary(differences)
+@ 
+There are several plot methods for the differences: 
+\texttt{dotplot}, \texttt{densityplot}, \texttt{bwplot} and
+\texttt{levelplot}. 
+
+\begin{figure}
+   \begin{center}		
+<<resamps3, echo = FALSE, results = hide>>=
+pdf("resamps1.pdf", width = 5, height = 5)
+   trellis.par.set(caretTheme())
+   print(parallel(bootValues, metric = "Rsquared"))
+dev.off()
+@
+      \includegraphics[clip]{resamps1}
+      \caption{Parallel coordinate of the bootstrapped $R^2$ values
+        from the random forests model with univariate filters and the RFE models using linear least squares and random forests. These plots were generated using \texttt{parallel(bootValues, metric = "Rsquared")}}
+      \label{F:resamps1} 
+    \end{center}
+\end{figure}
 
 
 \section{Session Information}
