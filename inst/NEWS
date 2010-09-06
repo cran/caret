@@ -1,4 +1,14 @@
 -------------------
+Version: 4.61
+Date: 2010-09-05
+
+Changed earth fit for classification models to use the 
+glm argument with a binomial family. 
+
+Added varImp.multinom, which is based on the absolute
+values of the model coefficients
+
+-------------------
 Version: 4.60
 Date: 2010-09-02
 

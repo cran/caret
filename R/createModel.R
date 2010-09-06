@@ -475,6 +475,7 @@
                                            degree = tuneValue$.degree,
                                            nprune = tuneValue$.nprune),
                                       theDots)
+                       if(type == "Classification") modelArgs$glm <- list(family=binomial)
                        
                        tmp <- do.call("earth", modelArgs)
 
