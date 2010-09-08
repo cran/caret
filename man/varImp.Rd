@@ -17,6 +17,7 @@
 \alias{varImp.dsa}
 \alias{varImp.fda}
 \alias{varImp.multinom}
+\alias{varImp.gam}
 
 \title{Calculation of variable importance for regression and classification models}
 
@@ -57,6 +58,8 @@ A generic method for calculating variable importance for objects produced by
 \method{varImp}{dsa}(object, cuts = NULL, ...)
 
 \method{varImp}{multinom}(object, ...)
+
+\method{varImp}{gam}(object, ...)
 }
 
 \arguments{

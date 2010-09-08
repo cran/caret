@@ -434,45 +434,55 @@ seqModList <- paste(paste("\\\\texttt{", unique(subset(modelLookup(), seq)$model
   by the \texttt{mstop} parameter. See the \texttt{mboost} package
   vignette for more details about AIC pruning. 
   
-  \item The partitioning model of Molinaro {\it et al.} (2010) has a
-    tuning parameter that is the number of partitions in the
-    model. The R function \texttt{partDSA} has the argument
-    \texttt{cut.off.growth} which is described as ``the maximum number
-    of terminal partitions to be considered when building the model.''
-    Since this is the maximum, the user might ask for a model with $X$
-    partitions but the model can only predict $Y < X$. In these cases,
-    the model predictions will be based on the largest model available
-    ($Y$). 
+\item The partitioning model of Molinaro {\it et al.} (2010) has a
+  tuning parameter that is the number of partitions in the
+  model. The R function \texttt{partDSA} has the argument
+  \texttt{cut.off.growth} which is described as ``the maximum number
+  of terminal partitions to be considered when building the model.''
+  Since this is the maximum, the user might ask for a model with $X$
+  partitions but the model can only predict $Y < X$. In these cases,
+  the model predictions will be based on the largest model available
+  ($Y$). 
 
-\item For some models (\Sexpr{seqModList}), the \texttt{train}
-  function will fit a model that can be used to derive predictions
-  for some sub-models. For example, for MARS (via the
-  \texttt{earth} function), for a fixed degree, a model with a
-  maximum number of terms will be fit and the predictions of all of
-  the requested models with the same degree and smaller number of
-  terms will be computed using \texttt{update.earth} instead of
-  fitting a new model. When the \texttt{verboseIter} option is
-  used, a line is printed for the ``top--level'' model (instead of
-  each model in the tuning grid). 
+    \item For generalized additive models, a formula is generated from
+      the data. First, predictors with degenerate distributions are
+      excluded (via the \texttt{nearZeroVar} function). Then, the
+      number of distinct values for each predictor is calculated. If
+      this value is less than 10, the predictor is entered into the
+      formula via a smoothed term (otherwise a linear term is
+      used). For models in the \texttt{gam} package, the smooth terms
+      have the same amount of smoothing applied to them (i.e. equal
+      \texttt{df} or \texttt{span} across all the smoothed predictors).
+      
+    \item For some models (\Sexpr{seqModList}), the \texttt{train}
+      function will fit a model that can be used to derive predictions
+      for some sub-models. For example, for MARS (via the
+      \texttt{earth} function), for a fixed degree, a model with a
+      maximum number of terms will be fit and the predictions of all of
+      the requested models with the same degree and smaller number of
+      terms will be computed using \texttt{update.earth} instead of
+      fitting a new model. When the \texttt{verboseIter} option is
+      used, a line is printed for the ``top--level'' model (instead of
+      each model in the tuning grid). 
 
-\item There are \texttt{print} and \texttt{plot} methods. The
-  \texttt{plot} method visualizes the profile of average resampled
-  performance values across the different tuning parameters using
-  scatter plots or level plots. See Figures \ref{f:plots1} and
-  \ref{f:plots2} for examples. Functions that visualize the individual
-  resampling results for \texttt{train} objects are discussed in
-  Section \ref{S:withinMod}.
-  
-\item Using the first set of tuning parameters that are
-  optimal (in the sense of accuracy or mean squared error),
-  \texttt{train} automatically fits a model with these
-  parameters to the entire training data set. That model
-  object is accessible in the \texttt{finalModel} object
-  within \texttt{train}. For example, \verb+svmFit$finalModel+
-  is the same object that would have been produced using a
-  direct call to the \texttt{ksvm} function with the final tuning
-  parameters. 
-  
+    \item There are \texttt{print} and \texttt{plot} methods. The
+      \texttt{plot} method visualizes the profile of average resampled
+      performance values across the different tuning parameters using
+      scatter plots or level plots. See Figures \ref{f:plots1} and
+      \ref{f:plots2} for examples. Functions that visualize the individual
+      resampling results for \texttt{train} objects are discussed in
+      Section \ref{S:withinMod}.
+      
+    \item Using the first set of tuning parameters that are
+      optimal (in the sense of accuracy or mean squared error),
+      \texttt{train} automatically fits a model with these
+      parameters to the entire training data set. That model
+      object is accessible in the \texttt{finalModel} object
+      within \texttt{train}. For example, \verb+svmFit$finalModel+
+      is the same object that would have been produced using a
+      direct call to the \texttt{ksvm} function with the final tuning
+      parameters. 
+      
   
 \end{itemize}
 
@@ -505,176 +515,180 @@ There is additional functionality in \texttt{train} that is described in the nex
              {\tt \href{http://cran.r-project.org/web/packages/MASS/index.html}{MASS}}       & 
             None & \\              
        
-       
-       
+     Generalized additive model &
+         \texttt{gam} & 
+           {\tt \href{http://cran.r-project.org/web/packages/mgcv/index.html}{mgcv}}    & 
+            \texttt{select}, \texttt{method}  & \\
+            
+&
+         \texttt{gamLoess} & 
+           {\tt \href{http://cran.r-project.org/web/packages/gam/index.html}{gam}}    & 
+            \texttt{span}, \texttt{degree}  & \\
+            
+&
+         \texttt{gamSpline} & 
+           {\tt \href{http://cran.r-project.org/web/packages/gam/index.html}{gam}}    & 
+            \texttt{df}& \\            
+            
+      
+\rowcolor[rgb]{.95, .95, .95}               
       Recursive Partitioning &
          \texttt{rpart} & 
              {\tt \href{http://cran.r-project.org/web/packages/rpart/index.html}{rpart}}     & 
             \texttt{maxdepth} & \\  
+\rowcolor[rgb]{.95, .95, .95}               
        &
          \texttt{ctree} & 
              {\tt \href{http://cran.r-project.org/web/packages/party/index.html}{party}}       & 
-            \texttt{mincriterion} & \\   
+            \texttt{mincriterion} & \\
+\rowcolor[rgb]{.95, .95, .95}               
        &
          \texttt{ctree2} & 
             {\tt \href{http://cran.r-project.org/web/packages/party/index.html}{party}}      & 
             \texttt{maxdepth} & \\   
 
-\rowcolor[rgb]{.95, .95, .95}         
-      Boosted Trees &
+     Boosted Trees &
          \texttt{gbm} & 
              {\tt \href{http://cran.r-project.org/web/packages/party/index.html}{gbm}}      & 
             \texttt{n.trees}, \texttt{shrinkage} &\\
-\rowcolor[rgb]{.95, .95, .95}                     
-            & & & \texttt{interaction.depth} & \\
-
-\rowcolor[rgb]{.95, .95, .95}         
-       &
+           & & & \texttt{interaction.depth} & \\
+      &
          \texttt{blackboost} & 
              {\tt \href{http://cran.r-project.org/web/packages/mboost/index.html}{mboost}}        & 
             \texttt{maxdepth}, \texttt{mstop} & \\
-\rowcolor[rgb]{.95, .95, .95}                     
-       &
+      &
          \texttt{ada} & 
             {\tt \href{http://cran.r-project.org/web/packages/ada/index.html}{ada}}       & 
             \texttt{maxdepth}, \texttt{iter}, \texttt{nu} & \\            
      
+\rowcolor[rgb]{.95, .95, .95}               
       Other Boosted Models &
          \texttt{glmboost} & 
             {\tt \href{http://cran.r-project.org/web/packages/mboost/index.html}{mboost}}       &          
             \texttt{mstop} & \\   
+\rowcolor[rgb]{.95, .95, .95}               
          &      
          \texttt{gamboost} & 
             {\tt \href{http://cran.r-project.org/web/packages/mboost/index.html}{mboost}}       &          
             \texttt{mstop} & \\      
 
-\rowcolor[rgb]{.95, .95, .95}                                        
-      Random Forests & 
+     Random Forests & 
          \texttt{rf} & 
             {\tt \href{http://cran.r-project.org/web/packages/randomForest/index.html}{randomForest}}        & 
             \texttt{mtry}  & \\
-\rowcolor[rgb]{.95, .95, .95}         
-          & 
+         & 
          \texttt{parRF} & 
              {\tt \href{http://cran.r-project.org/web/packages/randomForest/index.html}{randomForest}},  {\tt \href{http://cran.r-project.org/web/packages/foreach/index.html}{foreach}}        & 
             \texttt{mtry} & \\              
-
-\rowcolor[rgb]{.95, .95, .95}         
-                   & 
+                  & 
          \texttt{cforest} & 
             {\tt \href{http://cran.r-project.org/web/packages/party/index.html}{party}}     & 
             \texttt{mtry} & \\     
-                        
+
+            \rowcolor[rgb]{.95, .95, .95}   
       Bagging&
          \texttt{treebag} & 
              {\tt \href{http://cran.r-project.org/web/packages/ipred/index.html}{ipred}}       & 
             None & \\                 
-            
+\rowcolor[rgb]{.95, .95, .95}               
           &
          \texttt{bag} & 
              {\tt \href{http://cran.r-project.org/web/packages/caret/index.html}{caret}}       & 
             \texttt{vars} & \\               
-
+\rowcolor[rgb]{.95, .95, .95}   
           &
          \texttt{logicBag} & 
              {\tt \href{http://cran.r-project.org/web/packages/logicFS/index.html}{logicFS}}       & 
             \texttt{ntrees}, \texttt{nleaves} & \\               
             
             
-\rowcolor[rgb]{.95, .95, .95}            
-            Other Trees &
+           Other Trees &
             \texttt{nodeHarvest} & 
              {\tt \href{http://cran.r-project.org/web/packages/nodeHarvest/index.html}{nodeHarvest}}       & 
             \texttt{maxinter}, \texttt{mode}  & \\    
-
-\rowcolor[rgb]{.95, .95, .95}         
-            &
+           &
             \texttt{partDSA} & 
              {\tt \href{http://cran.r-project.org/web/packages/partDSA/index.html}{partDSA}}       & 
             \texttt{cut.off.growth}, \texttt{MPD}  & \\     
-            
+
+\rowcolor[rgb]{.95, .95, .95}               
       Multivariate Adaptive Regression Splines &
          \texttt{earth}, \texttt{mars} & 
              {\tt \href{http://cran.r-project.org/web/packages/earth/index.html}{earth}}      & 
             \texttt{degree}, \texttt{nprune} & \\            
 
-\rowcolor[rgb]{.95, .95, .95}                     
-      Bagged MARS &
+     Bagged MARS &
          \texttt{bagEarth} & 
             {\tt \href{http://cran.r-project.org/web/packages/caret/index.html}{caret}},   {\tt \href{http://cran.r-project.org/web/packages/earth/index.html}{earth}}      & 
             \texttt{degree}, \texttt{nprune} & \\ 
-           
+
+\rowcolor[rgb]{.95, .95, .95}               
       Logic Regression &
          \texttt{logreg} & 
             {\tt \href{http://cran.r-project.org/web/packages/LogicReg/index.html}{LogicReg}}  & 
             \texttt{ntrees}, \texttt{treesize} & \\ 
             
-\rowcolor[rgb]{.95, .95, .95}        
-      Elastic Net (glm) &               
+     Elastic Net (glm) &               
          \texttt{glmnet} & 
              {\tt \href{http://cran.r-project.org/web/packages/glmnet/index.html}{glmnet}}       &       
             \texttt{alpha}, \texttt{lambda} & \\ 
             
-                
+\rowcolor[rgb]{.95, .95, .95}                   
       Neural Networks &               
          \texttt{nnet} & 
              {\tt \href{http://cran.r-project.org/web/packages/nnet/index.html}{nnet}}       &       
             \texttt{decay}, \texttt{size} & \\      
 
-      
+\rowcolor[rgb]{.95, .95, .95}         
        &               
          \texttt{pcaNNet} & 
             {\tt \href{http://cran.r-project.org/web/packages/caret/index.html}{caret}},
             {\tt \href{http://cran.r-project.org/web/packages/nnet/index.html}{nnet}}&       
             \texttt{decay}, \texttt{size} & \\              
    
-\rowcolor[rgb]{.95, .95, .95}                    
-      Partial Least Squares &
+     Partial Least Squares &
          \texttt{pls} & 
              {\tt \href{http://cran.r-project.org/web/packages/pls/index.html}{pls}} ,  {\tt \href{http://cran.r-project.org/web/packages/caret/index.html}{caret}}       & 
             \texttt{ncomp} & \\      
 
-
+\rowcolor[rgb]{.95, .95, .95}   
       Sparse Partial Least Squares&
          \texttt{spls} & 
              {\tt \href{http://cran.r-project.org/web/packages/spls/index.html}{spls}} , 
              {\tt \href{http://cran.r-project.org/web/packages/caret/index.html}{caret}}      & 
             \texttt{K}, \texttt{eta}, \texttt{kappa} & \\   
 
-\rowcolor[rgb]{.95, .95, .95}        
-      Support Vector Machines  &
+     Support Vector Machines  &
          \texttt{svmLinear} & 
              {\tt \href{http://cran.r-project.org/web/packages/kernlab/index.html}{kernlab}}       & 
             none & \\              
- \rowcolor[rgb]{.95, .95, .95}             
-  &
+ &
          \texttt{svmRadial} & 
             {\tt \href{http://cran.r-project.org/web/packages/kernlab/index.html}{kernlab}}      & 
             \texttt{sigma}, \texttt{C} & \\             
- \rowcolor[rgb]{.95, .95, .95}             
-  &
+ &
          \texttt{svmPoly} & 
             {\tt \href{http://cran.r-project.org/web/packages/kernlab/index.html}{kernlab}}      & 
             \texttt{scale}, \texttt{degree}, \texttt{C} & \\            
 
+\rowcolor[rgb]{.95, .95, .95}   
            Gaussian Processes  &
          \texttt{gaussprLinear} & 
             {\tt \href{http://cran.r-project.org/web/packages/kernlab/index.html}{kernlab}}      & 
             none & \\             
-                       
+\rowcolor[rgb]{.95, .95, .95}                          
   &
          \texttt{gaussprRadial} & 
              {\tt \href{http://cran.r-project.org/web/packages/kernlab/index.html}{kernlab}}        & 
             \texttt{sigma} & \\              
 
-          
+\rowcolor[rgb]{.95, .95, .95}             
   &
          \texttt{gaussprPoly} & 
              {\tt \href{http://cran.r-project.org/web/packages/kernlab/index.html}{kernlab}}       & 
             \texttt{scale}, \texttt{degree} & \\            
 
-\rowcolor[rgb]{.95, .95, .95}                          
-      $k$ Nearest Neighbors &
+     $k$ Nearest Neighbors &
          \texttt{knn} & 
              {\tt \href{http://cran.r-project.org/web/packages/caret/index.html}{caret}}       & 
             \texttt{k} & \\   

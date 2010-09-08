@@ -524,3 +524,11 @@ predictors.logicBagg <- function(x, ...)
     if(length(varNums) > 0) colnames(x$data)[varNums] else NA    
   }
 
+
+predictors.gam <- function(x, ...)
+  {
+    library(mgcv)
+    tmp <- varImp(x, scale = FALSE)
+    rownames(tmp)[tmp$Overall > 0]
+  }
+

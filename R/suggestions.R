@@ -6,7 +6,7 @@ suggestions <- function(model)
            "nzv" = FALSE, "corr" = FALSE)
 
   if(model %in% c("enet", "gaussprLinear", "gaussprPoly",
-                  "gaussprRadial", "glmnet", "gpls",
+                  "gaussprRadial", "glmnet", "gpls", "knn",
                   "lars", "lars2", "lasso", "lssvmLinear",
                   "lssvmPoly", "lssvmRadial", "multinom",
                   "neuralnet", "nnet", "penalized", "pls",
@@ -14,7 +14,7 @@ suggestions <- function(model)
                   "rvmRadial", "smda", "sparseLDA", "spls",
                   "superpc", "svmLinear", "svmPoly", "svmRadial")) out["center"] <- TRUE
   if(model %in% c("gaussprLinear", "gaussprPoly",
-                  "gaussprRadial", "glmnet", "gpls",
+                  "gaussprRadial", "glmnet", "gpls", "knn",
                   "lars", "lars2", "lasso", "lssvmLinear",
                   "lssvmPoly", "lssvmRadial", "multinom",
                   "neuralnet", "nnet", "penalized", "pls",
@@ -23,7 +23,7 @@ suggestions <- function(model)
                   "superpc", "svmLinear", "svmPoly", "svmRadial")) out["scale"] <- TRUE
   if(model %in% c("enet", "gaussprLinear", "gaussprPoly",
                   "gaussprRadial", "gpls", "hda", "hdda", "icr",
-                  "knn", "lars", "lars2", "lasso", "lda",
+                  "knn", "lars", "lars2", "lasso", "lda", "knn",
                   "lm", "lmStepAIC", "glm", "glmStepAIC",
                   "lssvmLinear", "lssvmPoly", "lssvmRadial",
                   "lvq", "mda", "multinom", "nb",

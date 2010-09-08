@@ -877,3 +877,33 @@ depth2cp <- function(x, depth)
     out[depth > max(x[,"nsplit"])] <- min(x[,"CP"]) * .99
     out
   }
+
+
+
+
+
+gamFormula <- function(data, smoother = "s", cut = 10, df = 0, span = .5, degree = 1)
+  {
+    nzv <- nearZeroVar(data)
+    if(length(nzv) > 0) data <- data[, -nzv, drop = FALSE]
+
+    numValues <- sort(apply(data, 2, function(x) length(unique(x))))
+    prefix <- rep("", ncol(data))
+    suffix <- rep("", ncol(data))
+    prefix[numValues > cut] <- paste(smoother, "(", sep = "")
+    if(smoother == "s")
+      {
+        
+        suffix[numValues > cut] <- if(df == 0) ")" else paste(", df=", df, ")", sep = "")
+      } else {
+        suffix[numValues > cut] <- paste(", span=", span, ",degree=", degree, ")", sep = "")
+      }
+    rhs <- paste(prefix, names(numValues), suffix, sep = "")
+    rhs <- paste(rhs, collapse = "+")
+    form <- as.formula(paste(".outcome~", rhs, sep = ""))
+    form
+  }
+
+
+
+

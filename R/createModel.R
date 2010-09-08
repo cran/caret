@@ -1441,6 +1441,39 @@
                                      ntrees = tuneValue$.ntrees,
                                      nleaves = tuneValue$.nleaves,
                                      ...)
+                     },
+                     gam =
+                     {
+                       library(mgcv)
+                       mgcv:::gam(gamFormula(data[,!(names(data) %in% ".outcome")]),
+                                  data = data,
+                                  family = if(type == "Regression") gaussian() else  binomial(),
+                                  select = tuneValue$.select,
+                                  method = tuneValue$.method,
+                                  ...)
+                     },
+                     gamLoess =
+                     {
+                       library(gam)
+                       gam:::gam(gamFormula(data[,!(names(data) %in% ".outcome")],
+                                            smoother = "lo",
+                                            span = tuneValue$.span,
+                                            degree = tuneValue$.degree),
+                                 data = data,
+                                 family = if(type == "Regression") gaussian() else  binomial(),
+                                 ...)
+                                 
+                     },
+                     gamSpline =
+                     {
+                       library(gam)
+                       gam:::gam(gamFormula(data[,!(names(data) %in% ".outcome")],
+                                            smoother = "s",
+                                            df = tuneValue$.df),
+                                 data = data,
+                                 family = if(type == "Regression") gaussian() else  binomial(),
+                                 ...)
+                                 
                      }
                      )
   

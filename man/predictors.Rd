@@ -12,6 +12,7 @@
 \alias{predictors.earth}
 \alias{predictors.fda}
 \alias{predictors.formula}
+\alias{predictors.gam}
 \alias{predictors.gamboost}
 \alias{predictors.gausspr}
 \alias{predictors.gbm}
@@ -86,6 +87,8 @@ predictors(x, ...)
 \method{predictors}{foba}(x,  k = NULL, ...)
 
 \method{predictors}{formula}(x,  ...)
+
+\method{predictors}{gam}(x,  ...)
 
 \method{predictors}{gamboost}(x,  ...)
 

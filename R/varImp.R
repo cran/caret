@@ -28,3 +28,26 @@ varImp.multinom <- function(object, ...)
     rownames(out) <- names(coef(object))
     subset(out, rownames(out) != "(Intercept)")
   }
+
+
+varImp.gam <- function(object, ...)
+  {
+    library(mgcv)
+    tmp <- anova(object)
+    smoothed <- data.frame(Overall = tmp$s.table[, 4])
+
+    if(nrow(tmp$p.table) > 1)
+      {
+        linear <- data.frame(Overall = tmp$p.table[, 4])
+        out <- rbind(linear, smoothed)
+      } else out <- smoothed
+    out$Overall[!is.na(out$Overall)] <- -log10(out$Overall[!is.na(out$Overall)])
+
+    out$Overall[is.na(out$Overall)] <- 0
+
+    nms <- strsplit(rownames(out), "[()]")
+    nms <- unlist(lapply(nms, function(x) x[length(x)]))
+    rownames(out) <- nms
+    out <- subset(out, rownames(out) != "Intercept")
+    out
+  }
