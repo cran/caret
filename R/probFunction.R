@@ -330,7 +330,7 @@ probFunction <- function(method, modelFit, newdata, param = NULL)
                         if(!is.matrix(newdata)) newdata <- as.matrix(newdata)
                         sda::predict.sda(modelFit, newdata)$prob
                       },
-                      glm =
+                      glm =, gam =, gamLoess =, gamSpline =
                       {
                         
                         out <- predict(modelFit, newdata, type = "response")

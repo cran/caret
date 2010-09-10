@@ -44,7 +44,7 @@ train.default <- function(x, y,
       classLevels <- levels(y)
       if(length(classLevels) > 2 & (method %in% c("gbm", "glmboost", "ada", "gamboost", "blackboost", "penalized", "glm",
                                                   "earth", "nodeHarvest", "glmrob", "plr", "GAMens", "rocc",
-                                                  "logforest", "logreg")))
+                                                  "logforest", "logreg", "gam", "gamLoess", "gamSpline")))
         stop("This model is only implemented for two class problems")
       if(length(classLevels) < 3 & (method %in% c("vbmpRadial")))
         stop("This model is only implemented for 3+ class problems")      

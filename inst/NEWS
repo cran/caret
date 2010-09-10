@@ -1,4 +1,16 @@
 -------------------
+Version: 4.62
+Date: 2010-09-08
+
+Added mgcv:::gam (with smoothing splines and feature 
+selection) and gam:::gam (with basic splines and loess) 
+smoothers. For these models, a formula is derived
+from the data where "near zero variance" predictors
+(see ?nearZerVar) are excluded and predictors with
+less than 10 distinct values are entered as linear 
+(i.e. unsmoothed) terms.
+
+-------------------
 Version: 4.61
 Date: 2010-09-05
 

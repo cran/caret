@@ -199,6 +199,7 @@ S3method(varImp, dsa)
 S3method(varImp, plsda)
 S3method(varImp, fda)
 S3method(varImp, multinom)
+S3method(varImp, gam)
 
 S3method(densityplot, train)
 S3method(histogram,   train)
@@ -334,7 +335,7 @@ S3method(predictors, dsa)
 S3method(predictors, logreg)
 S3method(predictors, logforest)
 S3method(predictors, logicBagg)
-
+S3method(predictors, gam)
 
 S3method(confusionMatrix, table)
 
