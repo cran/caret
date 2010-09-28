@@ -451,8 +451,6 @@ diff.resamples <- function(x,
                     
                     left <- paste(models[i], metric[h], sep = "~")
                     right <- paste(models[j], metric[h], sep = "~")
-                    
-                                        # cat(right, left, "\n")
                     dif[,index] <- x$values[,left] - x$values[,right]
                     colnames(dif)[index] <- paste(models[i], models[j], sep = ".diff.")
                   }
@@ -494,7 +492,7 @@ bwplot.diff.resamples <- function(x, data, metric = x$metric, ...)
   {
     plotData <- lapply(x$difs,
                        function(x) stack(as.data.frame(x)))
-    plotData <- do.call("rbind", plotData)
+    plotData <-  do.call("rbind", plotData)
     plotData$Metric <- rep(x$metric, each = length(x$difs[[1]]))
     plotData$ind <- gsub(".diff.", " - ", plotData$ind, fixed = TRUE)
     plotData <- subset(plotData, Metric %in% metric)

@@ -1,4 +1,4 @@
-probFunction <- function(method, modelFit, newdata, param = NULL)
+probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL)
 {
   
   if(!any(modelLookup(method)$probModel))
@@ -36,6 +36,9 @@ probFunction <- function(method, modelFit, newdata, param = NULL)
     }
   
   if(any(colnames(newdata) == ".outcome")) newdata$.outcome <- NULL
+
+  if(!is.null(preProc)) newdata <- predict(preProc, newdata)
+
   
   classProb <- switch(method,
                       lda =, rda =, slda =, qda =

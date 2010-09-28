@@ -198,6 +198,18 @@
       expand.grid(.phi = seq(0.1, 0.9, length = len),
                   .lambda = 10^seq(log10(min(tmp$lambda)), log10(quantile(tmp$lambda, probs = .9)), length = len))
     }
+
+  lvqGrid <- function(data, len)
+    {
+      p <- ncol(data) - 1
+      ng <- length(levels(data$.outcome))
+      n <- nrow(data)
+      tmp <- min(round(0.4*ng*(ng-1 + p/2),0), n)
+      out <- expand.grid(.size = unique(floor(seq(tmp, 2*tmp, length = len))),
+                         .k = -4 + (1:len)*5)
+      out <- subset(out, .k <= .size & .size < n)
+      out
+    }
   
   trainGrid <- switch(method,
                       nnet =, pcaNNet = expand.grid(
@@ -216,7 +228,7 @@
                         .shrinkage = .1),
                       rf =, rfNWS =, rfLSF =, parRF =, qrf = rfTune(data, len),
                       gpls = data.frame(.K.prov =seq(1, len) ),
-                      lvq = data.frame(.k =seq(4, 3+len) ),
+                      lvq = lvqGrid(data, len),
                       rpart = rpartTune(data, len),
                       pcr =, pls =, plsTest =,PLS = data.frame(.ncomp = seq(1, min(dim(data)[2] - 1, len), by = 1)),
                       pam = pamTune(data, len),

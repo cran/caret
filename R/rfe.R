@@ -112,7 +112,8 @@ rfeChunk <- function(inTrain, x, y, cntl, sizes, ...)
     inTrainX <- x[inTrain, ]
     outTrainX <- x[-inTrain, ]
     inTrainY <- y[inTrain]
-    outTrainY <- y[-inTrain]      
+    outTrainY <- y[-inTrain]
+    
     rfeResults <- rfeIter(inTrainX, inTrainY,
                           outTrainX, outTrainY,
                           sizes,
@@ -141,24 +142,23 @@ rfe <- function (x, ...) UseMethod("rfe")
   funcCall <- match.call(expand.dots = TRUE)
   require(caret)
 
+  if(nrow(x) != length(y)) stop("there should be the same number of samples in x and y")
   numFeat <- ncol(x)
   classLevels <- levels(y)
 
-  if(is.null(rfeControl$index))
-    rfeControl$index <- switch(tolower(rfeControl$method),
-                               cv = createFolds(y, rfeControl$number, returnTrain = TRUE),
-                               loocv = createFolds(y, length(y), returnTrain = TRUE),
-                               boot = createResample(y, rfeControl$number),
-                               test = createDataPartition(y, 1, rfeControl$p),
-                               lgocv = createDataPartition(y, rfeControl$number, rfeControl$p))
-  
-  names(rfeControl$index) <- prettySeq(rfeControl$index)
+  if(is.null(rfeControl$index)) rfeControl$index <- switch(tolower(rfeControl$method),
+                                                           cv = createFolds(y, rfeControl$number, returnTrain = TRUE),
+                                                           repeatedcv = createMultiFolds(y, rfeControl$number, rfeControl$repeats),
+                                                           loocv = createFolds(y, length(y), returnTrain = TRUE),
+                                                           boot =, boot632 = createResample(y, rfeControl$number),
+                                                           test = createDataPartition(y, 1, rfeControl$p),
+                                                           lgocv = createDataPartition(y, rfeControl$number, rfeControl$p))
+
+  if(is.null(names(rfeControl$index))) names(rfeControl$index) <- prettySeq(rfeControl$index)
 
   sizeValues <- sort(unique(sizes))
   sizeValues <- sizeValues[sizeValues <= ncol(x)]
 
-
-  ## check summary function and metric
   ## check summary function and metric
   testOutput <- data.frame(pred = sample(y, min(10, length(y))),
                            obs = sample(y, min(10, length(y))))
@@ -208,7 +208,7 @@ rfe <- function (x, ...) UseMethod("rfe")
   rfePred <- lapply(rfeResults,
                     function(x) lapply(x,
                                        function(y) y$pred))[[1]]
-  rfePred <- do.call("rbind", rfePred)
+  rfePred <- rbind.fill(rfePred)
 
   selectedVars <- lapply(rfeResults,
                          function(x) lapply(x,
@@ -400,7 +400,8 @@ rfeControl <- function(functions = NULL,
                        rerank = FALSE,
                        method = "boot",
                        saveDetails = FALSE,
-                       number = ifelse(method == "cv", 10, 25),
+                       number = ifelse(method %in% c("cv", "repeatedcv"), 10, 25),
+                       repeats = ifelse(method %in% c("cv", "repeatedcv"), 1, number),
                        verbose = TRUE,
                        returnResamp = "all",
                        p = .75,
@@ -415,6 +416,7 @@ rfeControl <- function(functions = NULL,
        method = method,
        saveDetails = saveDetails,
        number = number,
+       repeats = repeats,
        returnResamp = returnResamp,
        verbose = verbose,
        p = p,

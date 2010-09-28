@@ -9,7 +9,8 @@ rfeControl(functions = NULL,
            rerank = FALSE,
            method = "boot",
            saveDetails = FALSE,
-           number = ifelse(method == "cv", 10, 25),
+           number = ifelse(method \%in\% c("cv", "repeatedcv"), 10, 25),
+           repeats = ifelse(method \%in\% c("cv", "repeatedcv"), 1, number),
            verbose = TRUE,
            returnResamp = "all",
            p = .75,
@@ -24,6 +25,7 @@ rfeControl(functions = NULL,
   \item{method}{The external resampling method: \code{boot}, \code{cv},
     \code{LOOCV} or  \code{LGOCV} (for repeated training/test splits}
   \item{number}{Either the number of folds or number of resampling iterations}
+  \item{repeats}{For repeated k-fold cross-validation only: the number of complete sets of folds to compute}
   \item{saveDetails}{a logical to save the predictions and variable importances from the selection process}
   \item{verbose}{a logical to print a log for each external resampling iteration}
   \item{returnResamp}{A character string indicating how much of the resampled summary metrics should be saved. Values can be ``final'', ``all'' or ``none''}

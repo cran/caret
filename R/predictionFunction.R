@@ -1,8 +1,11 @@
-predictionFunction <- function(method, modelFit, newdata, param = NULL)
+predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL)
 {
   if(any(colnames(newdata) == ".outcome")) newdata$.outcome <- NULL
 
   coerceChar <- function(x)  as.data.frame(lapply(x, as.character), stringsAsFactors = FALSE)
+
+
+  if(!is.null(preProc)) newdata <- predict(preProc, newdata)
   
   predictedValue <- switch(method,
                            lda =, rda =, gpls =, slda =, qda =

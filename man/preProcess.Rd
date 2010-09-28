@@ -10,25 +10,34 @@ Pre-processing transformation (centering, scaling etc) can be estimated from the
 \usage{
 preProcess(x, ...)
 
-\method{preProcess}{default}(x, method = c("center", "scale"), 
-           thresh = 0.95, na.remove = TRUE, ...)
+\method{preProcess}{default}(x, 
+           method = c("center", "scale"), 
+           thresh = 0.95, 
+           na.remove = TRUE, 
+           k = 5,
+           knnSummary = mean,
+           ...)
 
 \method{predict}{preProcess}(object, newdata, ...)
 }
 
 \arguments{
   \item{x}{a matrix or data frame. All variables must be numeric.}
-  \item{method}{a character vector specifying the type of processing. Possible values are "center", "scale", "pca" "ica" and "spartialSign" (see Details below)}
+  \item{method}{a character vector specifying the type of processing. Possible values are "center", "scale", "knnImpute", "pca" "ica" and "spatialSign" (see Details below)}
   \item{thresh}{a cutoff for the cumulative percent of variance to be retained by PCA}
   \item{na.remove}{a logical; should missing values be removed from the calculations?}
   \item{object}{an object of class \code{preProcess}}
   \item{newdata}{a matrix or data frame of new data to be pre-processed}
+  \item{k}{the number of nearest neighbors from the training set to use for imputation }
+  \item{knnSummary}{function to average the neighbor values per column during imputation}
   \item{\dots}{additional arguments to pass to \code{\link[fastICA]{fastICA}}, such as \code{n.comp}}
 }
 \details{
-The operations are applied in this order: centering, scaling, PCA, ICA then spatial sign. 
+The operations are applied in this order: imputation, centering, scaling, PCA, ICA then spatial sign. 
 
 If PCA is requested but scaling is not, the values will still be scaled. Similarly, when ICA is requested, the data are automatically centered.
+
+$k$-nearest neighbor imputation is carried out by finding the k closest samples (Euclidian distance) in the training set.
 
 A warning is thrown if both PCA and ICA are requested. ICA, as implemented bt the \code{\link[fastICA]{fastICA}} package automatically does a PCA decomposition prior to finding the ICA scores.
 

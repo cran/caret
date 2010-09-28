@@ -2,6 +2,7 @@
 \alias{createDataPartition}
 \alias{createResample}
 \alias{createFolds}
+\alias{createMultiFolds}
 \title{Data Splitting functions}
 \description{
   A series of test/training partitions are created using
@@ -17,6 +18,7 @@ createDataPartition(y,
                     groups = min(5, length(y)))
 createResample(y, times = 10, list = TRUE)
 createFolds(y, k = 10, list = TRUE, returnTrain = FALSE)
+createMultiFolds(y, k = 10, times = 5)
 }
 \arguments{
   \item{y}{a vector of outcomes}
@@ -43,6 +45,12 @@ createFolds(y, k = 10, list = TRUE, returnTrain = FALSE)
   on quantiles and sampling is done within these subgroups. Also, for
   very  small class sizes (<= 3) the classes may not show up in both the
   training and test data
+
+ For multiple k-fold cross-validation, completely independent folds are created. 
+ The names of the list objects will denote the fold membership using the pattern 
+ "Foldi.Repj" meaning the ith section (of k) of the jth cross-validation set 
+ (of \code{times}). Note that this function calls \code{createFolds} with 
+ \code{list = TRUE} and \code{returnTrain = TRUE}.
 }
 \value{
    A list or matrix of row position integers corresponding to the training

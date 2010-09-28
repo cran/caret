@@ -3,8 +3,6 @@ plotClassProbs <- function(object,
                            useObjects = FALSE,
                            ...)
 {
-  library(reshape)
-
   obsLevels <- levels(object$obs)
 
 

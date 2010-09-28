@@ -1,4 +1,56 @@
 -------------------
+Version: 4.63
+Date: 2010-09-19
+
+Misc:
+
+o A p-value from McNemar's test was added to confusionMatrix.
+
+o Updated print.train so that constant parameters are not
+  shown in the table (but a note is written below the table 
+  instead). Also, the output was changed slightly to be
+  more easily read (I hope)
+
+o Adapted varImp.gam to work with either mgcv or gam packages.
+
+o Expanded the tuning parameters for lvq.
+
+o Some of the examples in the Model Building vignette were changed
+
+Resampling:
+
+o Added bootstrap 632 rule and repeated cross-validation
+  to trainControl. A new function, createMultiFolds, is 
+  used to generate indices for repeated CV.
+
+o The various resampling functions now have *named* lists
+  as output (with prefixes "Fold" for cv and repeated cv 
+  and "Resample" otherwise)
+
+Pre-processing:
+
+o Pre-processing has been added to train with the preProcess
+  argument. This has been tested when caret function are used
+  with rfe() and sbf() (via caretFuncs and caretSBF, 
+  respectively).
+
+o When preProcess(method = "spatialSign"), centering and 
+  scaling is done automatically too. Also, a bug was fixed 
+  that stopped the transformation from being executed.
+
+o knn imputation was added to preProcess(). The RANN package
+  is used to find the neighbors (the knn impute function in
+  the impute library was consistently generating segmentation 
+  faults, so we wrote our own).
+
+o Changed the behavior of preProcess in situations where
+  scaling is requested but there is no variation in the  
+  predictor. Previously, the method would fail. Now a 
+  warning is issued and the value of the standard 
+  deviation is coerced to be one (so that scaling has
+  no effect).
+
+-------------------
 Version: 4.62
 Date: 2010-09-08
 

@@ -45,8 +45,26 @@
   if(list)
     {
       out <- split(seq(along = y), foldVector)
+      names(out) <- paste("Fold", gsub(" ", "0", format(seq(along = out))), sep = "")
       if(returnTrain) out <- lapply(out, function(data, y) y[-data], y = seq(along = y))
-
     } else out <- foldVector
   out
 }
+
+createMultiFolds <- function(y, k = 10, times = 5)
+  {
+    prettyNums <- paste("Rep", gsub(" ", "0", format(1:times)), sep = "")
+    for(i in 1:times)
+      {
+        tmp <- createFolds(y, k = k, list = TRUE, returnTrain = TRUE)
+        names(tmp) <- paste("Fold",
+                            gsub(" ", "0", format(seq(along = tmp))),
+                            ".",
+                            prettyNums[i],
+                            sep = "")
+        out <- if(i == 1) tmp else c(out, tmp)
+          
+      }
+    out
+  }
+

@@ -32,22 +32,38 @@ varImp.multinom <- function(object, ...)
 
 varImp.gam <- function(object, ...)
   {
-    library(mgcv)
-    tmp <- anova(object)
-    smoothed <- data.frame(Overall = tmp$s.table[, 4])
 
-    if(nrow(tmp$p.table) > 1)
+    if(any(names(object) == "mgcv.conv"))
       {
-        linear <- data.frame(Overall = tmp$p.table[, 4])
-        out <- rbind(linear, smoothed)
-      } else out <- smoothed
-    out$Overall[!is.na(out$Overall)] <- -log10(out$Overall[!is.na(out$Overall)])
+        library(mgcv)
+        tmp <- anova(object)
+        smoothed <- data.frame(Overall = tmp$s.table[, 4])
 
-    out$Overall[is.na(out$Overall)] <- 0
+        if(nrow(tmp$p.table) > 1)
+          {
+            linear <- data.frame(Overall = tmp$p.table[, 4])
+            out <- rbind(linear, smoothed)
+          } else out <- smoothed
+        out$Overall[!is.na(out$Overall)] <- -log10(out$Overall[!is.na(out$Overall)])
 
-    nms <- strsplit(rownames(out), "[()]")
-    nms <- unlist(lapply(nms, function(x) x[length(x)]))
-    rownames(out) <- nms
-    out <- subset(out, rownames(out) != "Intercept")
+        out$Overall[is.na(out$Overall)] <- 0
+
+        nms <- strsplit(rownames(out), "[()]")
+        nms <- unlist(lapply(nms, function(x) x[length(x)]))
+        rownames(out) <- nms
+        out <- subset(out, rownames(out) != "Intercept")
+      } else {
+        library(gam)
+        trms <- attr(test$terms, "term.labels")
+
+        vars <- all.vars(object$terms)[-1]
+        out <- data.frame(Overall = rep(NA, length(vars)))
+        rownames(out) <- vars
+        for(i in seq(along = trms))
+          {
+            reduced <- update(object, as.formula(paste("~.-", trms[i])))
+            out[i,1] <- -log10(gam:::anova.gam(object, reduced)[2, "P(>|Chi|)"])
+          }
+      }
     out
   }

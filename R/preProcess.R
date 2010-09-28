@@ -1,7 +1,10 @@
 preProcess <- function(x, ...)
   UseMethod("preProcess")
 
-preProcess.default <- function(x, method = c("center", "scale"), thresh = 0.95, na.remove = TRUE, ...)
+preProcess.default <- function(x, method = c("center", "scale"),
+                               thresh = 0.95, na.remove = TRUE, k = 5,
+                               knnSummary = mean,
+                               ...)
 {
 
   if(all(c("pca", "ica") %in% method))
@@ -10,8 +13,15 @@ preProcess.default <- function(x, method = c("center", "scale"), thresh = 0.95, 
       method <- method[method != "pca"]
     }
 
+  if(any(method == "spatialSign") & !(any(method == "scale"))) method  <- c(method, "scale")
+  if(any(method == "spatialSign") & !(any(method == "center"))) method  <- c(method, "center")
+  
   if(any(method == "pca") & !(any(method == "scale"))) method  <- c(method, "scale")
   if(any(method == "ica") & !(any(method == "center"))) method  <- c(method, "center")
+
+
+  method <- unique(method)
+  
   ## the row.norm option in fastICA states: "logical value indicating whether rows
   ## of the data matrix X should be standardized beforehand." Basically, this means that
   ## we would center *and* scale before the ICA step, so let's adjust the "scale" method too
@@ -34,17 +44,18 @@ preProcess.default <- function(x, method = c("center", "scale"), thresh = 0.95, 
     }
   
   theCall <- match.call(expand.dots = TRUE)
-  if(any(method  %in% c("center"))) centerValue <- apply(x, 2, mean, na.rm = na.remove) else centerValue <- NULL
-  if(any(method %in% c("scale"))) scaleValue <- apply(x, 2, sd, na.rm = na.remove) else scaleValue <- NULL
+  if(any(method  %in% c("center", "knnImpute"))) centerValue <- apply(x, 2, mean, na.rm = na.remove) else centerValue <- NULL
+  if(any(method %in% c("scale", "knnImpute"))) scaleValue <- apply(x, 2, sd, na.rm = na.remove) else scaleValue <- NULL
 
   if(any(scaleValue == 0))
     {
-      stop(
-           paste(
-                 "These variables have zero variances:",
-                 paste(
-                       names(scaleValue)[which(scaleValue == 0)],
-                       collapse = ", ")))
+      warning(
+              paste(
+                    "These variables have zero variances:",
+                    paste(
+                          names(scaleValue)[which(scaleValue == 0)],
+                          collapse = ", ")))
+      scaleValue[which(scaleValue == 0)] <- 1
     }
   
   if(any(method == "pca"))
@@ -73,6 +84,9 @@ preProcess.default <- function(x, method = c("center", "scale"), thresh = 0.95, 
     } else {
       ica <- NULL
     }
+
+    cols <- if(any(method == "knnImpute")) which(apply(x, 2, function(x) !any(is.na(x)))) else NULL
+
   
   out <- list(call = theCall,
               dim = dim(x),
@@ -83,7 +97,10 @@ preProcess.default <- function(x, method = c("center", "scale"), thresh = 0.95, 
               thresh = thresh,
               numComp = numComp,
               ica = ica,
-              data = if(any(method == "knnImpute")) x else NULL)
+              k = k,
+              knnSummary = knnSummary,
+              cols = cols,
+              data = if(any(method == "knnImpute")) scale(x) else NULL)
   structure(out, class = "preProcess")
   
 }
@@ -129,26 +146,28 @@ predict.preProcess <- function(object, newdata, ...)
 
 
   oldClass <- class(newdata)
-  if(any(object$method == "knnImpute"))
+  cc <- complete.cases(newdata)
+  if(any(object$method == "knnImpute") && any(cc))
     {
-      ## Look for missing values first
-      library(pamr)
-      nTrain <- nrow(object$data)
-      ## The knn imputation is imlemented such that it can be done
-      ## on a single data set
-      browser()
-      newdata <- rbind(object$data, newdata)
-      ## This uses Euclidean distance so we should center and scale prior so
-      ## that the distances are not overwhelmed by variables on larger scales.
-      #newdata <- scale(newdata)
-      #mns <- attr(newdata, "scaled:center")
-      #sds <- attr(newdata, "scaled:scale")
       
-      newdata <- pamr.knnimpute(list(x = t(object$data)))
-      newdata <- t(newdata$x)
-      newdata <- sweep(newdata, 2, sds, "*")
-      newdata <- sweep(newdata, 2, mns, "+")
-      newdata <- newdata[nTrain:nrow(newdata),, drop = FALSE]
+      ## First, center and scale
+      hasMiss <- newdata[!cc,,drop = FALSE]      
+      hasMiss <- sweep(hasMiss, 2, object$mean, "-")
+      hasMiss <- sweep(hasMiss, 2, object$std, "/")
+
+      hasMiss <- apply(hasMiss,
+                       1,
+                       nnimp,
+                       old = object$data,
+                       cols = object$cols,
+                       k = object$k,
+                       foo = object$knnSummary)
+      hasMiss <- t(hasMiss)
+
+      ## Transform back
+      hasMiss <- sweep(hasMiss, 2, object$std, "*")
+      hasMiss <- sweep(hasMiss, 2, object$mean, "+")
+      newdata[!cc,] <- hasMiss
     }
   
   if(any(object$method == "center")) newdata <- sweep(newdata, 2, object$mean, "-")
@@ -168,7 +187,7 @@ predict.preProcess <- function(object, newdata, ...)
   
   if(any(oldClass == "data.frame")) newdata <- as.data.frame(newdata)
 
-  if(any(object$method == "spatialsign")) newdata <- spatialSign(newdata)
+  if(any(object$method == "spatialSign")) newdata <- spatialSign(newdata)
   if(!(any(object$method %in% c("pca", "ica")))) colnames(newdata) <- dataNames
   newdata
 }
@@ -189,6 +208,25 @@ print.preProcess <- function(x, ...)
     }  
 }
 
+
+nnimp <- function(new, old, cols, k, foo)
+  {
+    library(RANN)
+    nms <- names(new)
+    cols2 <- which(!is.na(new))
+    new <- matrix(new, ncol = length(new))
+    colnames(new) <- nms
+    cols <- sort(intersect(cols2, cols))
+    nn <- nn2(old[, cols, drop = FALSE],
+              new[, cols, drop = FALSE],
+              k = k)
+    tmp <- old[nn$nn.idx, -cols, drop = FALSE]
+    subs <- apply(tmp, 2, foo)
+    new[, -cols] <- subs
+    new
+  }
+
+
 if(FALSE)
   {
     library(fastICA)
@@ -207,3 +245,4 @@ if(FALSE)
     head(pp$ica$S)
     head(test2)
   }
+

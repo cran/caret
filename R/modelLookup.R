@@ -100,7 +100,7 @@ modelLookup <- function(model = NULL)
             ## lssvmRadial
             'lssvmRadial', 
             ## lvq
-            'lvq', 
+            'lvq', 'lvq',
             ## M5Rules
             'M5Rules', 
             ## mars
@@ -311,7 +311,7 @@ modelLookup <- function(model = NULL)
               ## lssvmRadial
               'sigma', 
               ## lvq
-              'k', 
+              'size', 'k', 
               ## M5Rules
               'pruned', 
               ## mars
@@ -547,7 +547,7 @@ modelLookup <- function(model = NULL)
               ## lssvmRadial
               'Sigma',
               ## lvq
-              '#Prototypes',
+              'Codebook Size', '#Prototypes',
               ## M5Rules
               'Pruned',
               ## mars
@@ -787,7 +787,7 @@ modelLookup <- function(model = NULL)
              ## lssvmRadial
              FALSE, 
              ## lvq
-             FALSE, 
+             FALSE, FALSE, 
              ## M5Rules
              FALSE, 
              ## mars
@@ -997,7 +997,7 @@ modelLookup <- function(model = NULL)
                 ## lssvmRadial
                 FALSE, 
                 ## lvq
-                FALSE, 
+                FALSE, FALSE, 
                 ## M5Rules
                 TRUE, 
                 ## mars
@@ -1208,7 +1208,7 @@ modelLookup <- function(model = NULL)
                   ## lssvmRadial
                   TRUE, 
                   ## lvq
-                  TRUE, 
+                  TRUE, TRUE, 
                   ## M5Rules
                   FALSE, 
                   ## mars
@@ -1419,7 +1419,7 @@ modelLookup <- function(model = NULL)
                     ## lssvmRadial
                     FALSE, 
                     ## lvq
-                    FALSE, 
+                    FALSE, FALSE, 
                     ## M5Rules
                     FALSE, 
                     ## mars

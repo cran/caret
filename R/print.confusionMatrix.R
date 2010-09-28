@@ -26,13 +26,15 @@ print.confusionMatrix <- function(x, digits = max(3, getOption("digits") - 3), p
                        accCI,
                        paste(overall[c("AccuracyNull", "AccuracyPValue")]),
                        "",
-                       paste(overall["Kappa"]))
+                       paste(overall["Kappa"]),
+                       paste(overall["McnemarPValue"]))
 
       overallNames <- c("Accuracy", "95% CI",
                         "No Information Rate",
                         "P-Value [Acc > NIR]",
                         "",
-                        "Kappa")
+                        "Kappa",
+                        "Mcnemar's Test P-Value")
                         
       if(dim(x$table)[1] > 2)
       {

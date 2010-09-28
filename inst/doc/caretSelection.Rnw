@@ -109,7 +109,9 @@ The algorithm has an optional step (line \ref{A:rerank}) where the predictor ran
 
      \For{Each subset size $S_i$, $i=1\ldots S$}{
 
-         \vspace*{3pt} Keep the $S_i$ most important variables \vspace*{3pt}\;		  
+         \vspace*{3pt} Keep the $S_i$ most important variables \vspace*{3pt}\;
+         
+         \vspace*{3pt} [Optional] Pre--process the data\;
 			
          \vspace*{3pt} Tune/train the model on the training set using $S_i$ predictors \nllabel{A:resample}\vspace*{3pt}\;
 
@@ -162,7 +164,9 @@ While this will provide better estimates of performance, it is more computationa
 
      \For{Each subset size $S_i$, $i=1\ldots S$}{
 
-         \vspace*{3pt} Keep the $S_i$ most important variables \vspace*{3pt}\;		  
+         \vspace*{3pt} Keep the $S_i$ most important variables \vspace*{3pt}\;	
+         
+         \vspace*{3pt} [Optional] Pre--process the data\;
 			
          \vspace*{3pt} Tune/train the model on the training set using $S_i$ predictors\nllabel{A:fit1}\vspace*{3pt}\;
 
