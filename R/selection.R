@@ -60,9 +60,13 @@ byComplexity <- function(x, model)
            {
              x[order(x$size, -x$decay),]
            },
-           knn =, lvq =, multinom =
+           knn =, multinom =
            {
              x[order(-x[,1]),]
+           },
+           lvq =
+           {
+             x[order(-x$k, -x$size),]
            },
            mars =, earth =, fda =, bagEarth =, bagFDA =
            {

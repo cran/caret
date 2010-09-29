@@ -57,7 +57,7 @@ For more than two classes, these results are
 calculated comparing each factor level to the remaining levels
 (i.e. a "one versus all" approach). 
 
-The overall accuracy and unweighted Kappa statistic are calculated.
+The overall accuracy and unweighted Kappa statistic are calculated. A p-value from McNemar's test is also computed using \code{\link[stats]{mcnemar.test}} (which can produce \code{NA} values with sparse tables).
 
 The overall accuracy rate is computed along with a 95 percent confidence interval for this rate (using \code{\link[stats]{binom.test}}) and a one-sided test to see if the accuracy is better than the "no information rate," which is taken to be the largest class percentage in the data.
  

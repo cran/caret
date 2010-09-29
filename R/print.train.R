@@ -28,13 +28,32 @@
   
   if(!is.null(x$trainingData))
     {
+      chDim <- dim(x$trainingData)
+      chDim[2] <- chDim[2] - 1
+      chDim <- format(chDim)
       cat(
-          dim(x$trainingData)[1], 
+          chDim[1], 
           " samples\n", 
-          dim(x$trainingData)[2] - 1,
+          chDim[2],
           " predictors\n\n",
           sep = "")    
     }
+  if(!is.null(x$preProc))
+    {
+      ## Make things look a little nicer:
+      pp <- x$preProc$method
+      pp <- gsub("scale", "scaled", pp)
+      pp <- gsub("center", "centered", pp)
+      pp <- gsub("pca", "principal component signal extraction", pp)
+      pp <- gsub("ica", "independent component signal extraction", pp)
+      pp <- gsub("spatialSign", "spatial sign transformation", pp)
+
+      cat("Pre-processing:",
+          paste(pp, collapse = ", "),
+         "\n")
+    } else cat("No pre-processing\n")
+
+
   
   if(!is.null(x$control$index))
     {
@@ -42,15 +61,19 @@
       numResamp <- length(resampleN)
       
       resampName <- switch(tolower(x$control$method),
-                           boot = paste("bootstrap (", numResamp, " reps)", sep = ""),
-                           cv = paste("cross-validation (", x$control$number, " fold)", sep = ""),
-                           lgocv = paste("leave group out cross-validation (", numResamp, " reps)", sep = ""))
-      
+                           boot = paste("Bootstrap (", numResamp, " reps)", sep = ""),
+                           boot632 = paste("Bootstrap 632 Rule (", numResamp, " reps)", sep = ""),
+                           cv = paste("Cross-Validation (", x$control$number, " fold)", sep = ""),
+                           repeatedcv = paste("Cross-Validation (", x$control$number, " fold, repeated ",
+                                              x$control$repeats, " times)", sep = ""),
+                           lgocv = paste("Repeated Train/Test Splits (", numResamp, " reps, ",
+                             round(x$control$p, 2), "%)", sep = ""))
+      cat("Resampling:", resampName, "\n\n")      
       outLabel <- x$metric
 
       resampleN <- as.character(resampleN)
       if(numResamp > 5) resampleN <- c(resampleN[1:6], "...")
-      cat("summary of", resampName, "sample sizes:\n   ", paste(resampleN, collapse = ", "), "\n\n")
+      cat("Summary of sample sizes:", paste(resampleN, collapse = ", "), "\n\n")
 
       
       if(is.null(x$control$index) & x$control$number != numResamp)
@@ -65,7 +88,7 @@
   tuneAcc <- x$results 
   tuneAcc <- tuneAcc[, names(tuneAcc) != "parameter"]
 
-  cat(x$control$method, "resampled training results")
+  cat("Resampling results")
   if(dim(tuneAcc)[1] > 1) cat(" across tuning parameters:\n") else cat("\n")
   cat("\n")
 
@@ -80,12 +103,12 @@
 
       optValues <- paste(names(finalTune), "=", format(finalTune, digits = digits))
       optString <- paste(
-                         "\nThe final ",
-                         ifelse(numParam, "values", "value"),
-                         " used in the model ",
-                         ifelse(numParam, "were ", "was "),
+                         "The final ",
+                         ifelse(numParam > 1, "values", "value"),
+                         " used for the model ",
+                         ifelse(numParam > 1, "were ", "was "),
                          stringFunc(optValues),
-                         ".\n",
+                         ".",
                          sep = "")
 
       
@@ -105,7 +128,32 @@
       rmCols <- names(sdCheck)[sdCheck]
       tuneAcc <- tuneAcc[, !(names(tuneAcc) %in% rmCols)]	
     }
-  
+
+  params <- modelLookup(x$method)$parameter
+  if(!all(params == "parameter"))
+    {
+      numVals <- apply(tuneAcc[, params, drop = FALSE], 2, function(x) length(unique(x)))
+      if(any(numVals < 2))
+        {
+          constString <- NULL
+          for(i in seq(along = numVals))
+            {
+              if(numVals[i] == 1)
+                constString <- c(constString,
+                                 paste("Tuning parameter '",
+                                       names(numVals)[i],
+                                       "' was held constant at a value of ",
+                                       ifelse(is.character(tuneAcc[1,names(numVals)[i]]) |
+                                              is.factor(tuneAcc[1,names(numVals)[i]]),
+                                              paste("'", tuneAcc[1,names(numVals)[i]], "'", sep = ""),
+                                              tuneAcc[1,names(numVals)[i]]),
+                                       sep = ""))
+            }
+          discard <- names(numVals)[which(numVals == 1)]
+          tuneAcc <- tuneAcc[, !(names(tuneAcc) %in% discard), drop = FALSE]
+
+        } else constString <- NULL
+    } else constString <- NULL
   
   printList <- lapply(
                       tuneAcc, 
@@ -121,6 +169,14 @@
   
   print(printMat, quote = FALSE, print.gap = 2)
   cat("\n")
+
+  if(!is.null(constString))
+    {
+      cat(paste(constString, collapse = "\n"))
+      cat("\n")
+    }
+
+  
   if(dim(tuneAcc)[1] > 1)
     {
       cat(x$metric, "was used to select the optimal model using")
@@ -140,7 +196,7 @@
                      tolerance = " a tolerance rule.\n"))
         }
     }
-      
+  
   cat(optString)
   
   if(details)

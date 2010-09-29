@@ -1,6 +1,6 @@
 
 "createModel" <-
-  function(data, method, tuneValue, obsLevels, ...)
+  function(data, method, tuneValue, obsLevels, pp = NULL, ...)
 {
 
   ## pam and will crash if there is a resample with <2 observations
@@ -37,6 +37,8 @@
   ## a warning and randomForest throws an error). 
   if(type == "Classification") data$.outcome <- factor(as.character(data$.outcome), levels = obsLevels)
 
+  xNames <- names(data)[!(names(data) %in% ".outcome")]
+  
   ## Later, when we assign predictions, we will convert predictions to 
   ## character and then create factors from them with levels originally
   ## found in the object obsLevels.
@@ -60,13 +62,27 @@
                    "qrf", "scrda", "bag", "hdda", "logreg", "logforest", "logicBag"))
     {
       trainX <- data[,!(names(data) %in% ".outcome")]
-      trainY <- data[,".outcome"] 
+      trainY <- data[,".outcome"]
+      if(!is.null(pp))
+        {
+          ppObj <- preProcess(trainX, method = pp$options, thresh = pp$thresh, n.comp = pp$ica, k = pp$k)
+          trainX <- predict(ppObj, trainX)
+          data <- trainX
+          data$.outcome <- trainY
+        } else ppObj <- NULL
+    } else {
+      if(!is.null(pp))
+        {
+          y <- data$.outcome
+          data$.outcome <- NULL
+          ppObj <- preProcess(data, method = pp$options, thresh = pp$thresh, n.comp = pp$ica, k = pp$k)
+          data <- predict(ppObj, data)
+          data$.outcome <- y
+        } else ppObj <- NULL
     }
   
   if(method %in% c("gbm", "plr") & type == "Classification") 
     numClasses <- ifelse(trainY == obsLevels[1], 1, 0)
-
-  xNames <- names(data)[!(names(data) %in% ".outcome")]
   
   modelFit <- switch(method,
                      rda = 
@@ -380,7 +396,11 @@
                      lvq = 
                      {
                        library(class)      
-                       lvq3(trainX, trainY, lvqinit(trainX, trainY, k = tuneValue$.k), ...)
+                       lvq3(trainX, trainY,
+                            lvqinit(trainX, trainY,
+                                    size = tuneValue$.size,
+                                    k = tuneValue$.k),
+                            ...)
                      },         
                      rpart = 
                      {
@@ -1501,5 +1521,5 @@
       modelFit$obsLevels <- obsLevels
     }
 
-  modelFit
+  list(fit = modelFit, preProc = ppObj)
 }

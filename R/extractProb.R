@@ -1,123 +1,145 @@
 
 
 extractProb <- function(
-   models, 
-   testX = NULL, 
-   testY = NULL, 
-   unkX = NULL, 
-   unkOnly = !is.null(unkX) & is.null(testX), 
-   verbose = FALSE)
+                        models, 
+                        testX = NULL, 
+                        testY = NULL, 
+                        unkX = NULL, 
+                        unkOnly = !is.null(unkX) & is.null(testX), 
+                        verbose = FALSE)
 {
 
-   objectNames <- names(models)
-   if(is.null(objectNames)) objectNames <- paste("Object", 1:length(models), sep = "")
+  objectNames <- names(models)
+  if(is.null(objectNames)) objectNames <- paste("Object", 1:length(models), sep = "")
 
   
-   if(any(unlist(lapply(models, function(x) !modelLookup(x$method)$probModel))))
-      stop("only classification models that produce probabilities are allowed")
-   
-   obsLevels <- getClassLevels(models[[1]])
+  if(any(unlist(lapply(models, function(x) !modelLookup(x$method)$probModel))))
+    stop("only classification models that produce probabilities are allowed")
+  
+  obsLevels <- getClassLevels(models[[1]])
 
-   trainX <- models[[1]]$trainingData[,!(names(models[[1]]$trainingData) %in% ".outcome")]
-   trainY <- models[[1]]$trainingData$.outcome  
+  trainX <- models[[1]]$trainingData[,!(names(models[[1]]$trainingData) %in% ".outcome")]
+  trainY <- models[[1]]$trainingData$.outcome  
 
-   if(verbose)
-   {
+  if(verbose)
+    {
       cat("Number of training samples:", length(trainY), "\n")
       cat("Number of test samples:    ", length(testY), "\n\n")
-   }
-     
+    }
+  
 
-   predProb <- predClass <- obs <- modelName <- dataType <- objName <- NULL
-   if(!is.null(testX))
-   {
+  predProb <- predClass <- obs <- modelName <- dataType <- objName <- NULL
+  if(!is.null(testX))
+    {
       if(!is.data.frame(testX)) testX <- as.data.frame(testX)
       hasNa <- apply(testX, 1, function(data) any(is.na(data)))
       if(verbose) cat("There were ", sum(hasNa), "rows with missing values\n\n"); flush.console()
-   }
-   
-   for(i in seq(along = models))
-   {
+    }
+  
+  for(i in seq(along = models))
+    {
       modelFit <- models[[i]]$finalModel
       method <- models[[i]]$method
       if(verbose) cat("starting ", models[[i]]$method, "\n"); flush.console()         
       if(!unkOnly)
-      {
-         # Training Data
-         tempTrainPred  <- predictionFunction(method, modelFit, trainX)
-         tempTrainProb <- probFunction(method, modelFit, trainX)         
-         if(verbose) cat(models[[i]]$method, ":", length(tempTrainPred), "training predictions were added\n"); flush.console()         
-         
-         predProb <- if(is.null(predProb)) tempTrainProb else rbind(predProb, tempTrainProb)      
-         predClass <- c(predClass, as.character(tempTrainPred))         
-         obs <- c(obs, as.character(trainY))
-         modelName <- c(modelName, rep(models[[i]]$method, length(tempTrainPred)))
-         objName <- c(objName, rep(objectNames[[i]], length(tempTrainPred)))
-         dataType <- c(dataType, rep("Training", length(tempTrainPred)))         
-         
-         # Test Data         
-         if(!is.null(testX) & !is.null(testY))
-         {
-            if(models[[i]]$method %in% c("rpart", "treebag"))
+        {                                       
+          if(is.null(models[[i]]$preProcess))
             {
-               tempX <- testX
-               tempY <- testY
+              tempTrainPred <- predictionFunction(method, modelFit, trainX)
+              tempTrainProb <- probFunction(method, modelFit, trainX)
             } else {
-               tempX <- testX[!hasNa,]
-               tempY <- testY[!hasNa]         
-            }            
+              ppTrain <- predict(models[[i]]$preProcess, trainX)
+              tempTrainPred <- predictionFunction(method, modelFit, ppTrain)
+              tempTrainProb <- probFunction(method, modelFit, ppTrain)
+            }
+          
+          if(verbose) cat(models[[i]]$method, ":", length(tempTrainPred), "training predictions were added\n"); flush.console()         
+          
+          predProb <- if(is.null(predProb)) tempTrainProb else rbind(predProb, tempTrainProb)      
+          predClass <- c(predClass, as.character(tempTrainPred))         
+          obs <- c(obs, as.character(trainY))
+          modelName <- c(modelName, rep(models[[i]]$method, length(tempTrainPred)))
+          objName <- c(objName, rep(objectNames[[i]], length(tempTrainPred)))
+          dataType <- c(dataType, rep("Training", length(tempTrainPred)))         
+          
+                                        # Test Data         
+          if(!is.null(testX) & !is.null(testY))
+            {
+              if(models[[i]]$method %in% c("rpart", "treebag"))
+                {
+                  tempX <- testX
+                  tempY <- testY
+                } else {
+                  tempX <- testX[!hasNa,]
+                  tempY <- testY[!hasNa]         
+                }
+              tempX$.outcome <- NULL
+              if(is.null(models[[i]]$preProcess))
+                {
+                  tempTestPred <- predictionFunction(method, modelFit, tempX)
+                  tempTestProb <- probFunction(method, modelFit, tempX)
+                } else {
+                  ppTest <- predict(models[[i]]$preProcess, tempX)
+                  tempTestPred <- predictionFunction(method, modelFit, ppTest)
+                  tempTestProb <- probFunction(method, modelFit, ppTest)
+                }
+              
+              if(verbose) cat(models[[i]]$method, ":", length(tempTestPred), "test predictions were added\n")         
+              
+              predProb <- if(is.null(predProb)) tempTestProb else rbind(predProb, tempTestProb)             
+              predClass <- c(predClass, as.character(tempTestPred))         
+              obs <- c(obs, as.character(testY))
+              modelName <- c(modelName, rep(models[[i]]$method, length(tempTestPred)))
+              objName <- c(objName, rep(objectNames[[i]], length(tempTestPred)))
+              dataType <- c(dataType, rep("Test", length(tempTestPred)))                  
+            }      
+          
+        }
 
-            tempTestPred  <- predictionFunction(method, modelFit, tempX)  
-            tempTestProb <- probFunction(method, modelFit, tempX)       
-            if(verbose) cat(models[[i]]$method, ":", length(tempTestPred), "test predictions were added\n")         
-            
-            predProb <- if(is.null(predProb)) tempTestProb else rbind(predProb, tempTestProb)             
-            predClass <- c(predClass, as.character(tempTestPred))         
-            obs <- c(obs, as.character(testY))
-            modelName <- c(modelName, rep(models[[i]]$method, length(tempTestPred)))
-            objName <- c(objName, rep(objectNames[[i]], length(tempTestPred)))
-            dataType <- c(dataType, rep("Test", length(tempTestPred)))                  
-         }      
-         
-      }
-
-      # Unknown Data   
+                                        # Unknown Data   
       if(!is.null(unkX))
-      {
-         if(models[[i]]$method %in% c("rpart", "treebag"))
-         {
-            tempX <- unkX
-         } else {
-            if(!is.data.frame(unkX)) unkX <- as.data.frame(unkX)
-            hasNa <- apply(unkX, 1, function(data) any(is.na(data)))         
-            tempX <- unkX[!hasNa,]
-         }            
-  
-         tempUnkPred  <- predictionFunction(method, modelFit, tempX)
-         tempUnkProb <- probFunction(method, modelFit, tempX)
-      
-         if(verbose) cat(models[[i]]$method, ":", length(tempUnkPred), "unknown predictions were added\n")         
-         
-         predProb <- if(is.null(predProb)) tempUnkProb else rbind(predProb, tempUnkProb)      
-         predClass <- c(predClass, as.character(tempUnkPred))         
-         obs <- c(obs, rep(NA, length(tempUnkPred)))
-         modelName <- c(modelName, rep(models[[i]]$method, length(tempUnkPred)))
-         objName <- c(objName, rep(objectNames[[i]], length(tempUnkPred)))
-         dataType <- c(dataType, rep("Unknown", length(tempUnkPred)))        
-         
-      }
+        {
+          if(models[[i]]$method %in% c("rpart", "treebag"))
+            {
+              tempX <- unkX
+            } else {
+              if(!is.data.frame(unkX)) unkX <- as.data.frame(unkX)
+              hasNa <- apply(unkX, 1, function(data) any(is.na(data)))         
+              tempX <- unkX[!hasNa,]
+            }
+          tempX$.outcome <- NULL
+          if(is.null(models[[i]]$preProcess))
+            {
+              tempUnkPred <- predictionFunction(method, modelFit, tempX)
+              tempUnkProb <- probFunction(method, modelFit, tempX)
+            } else {
+              ppUnk <- predict(models[[i]]$preProcess, tempX)
+              tempUnkPred <- predictionFunction(method, modelFit, ppUnk)
+              tempUnkProb <- probFunction(method, modelFit, ppUnk)
+            }  
+          
+          if(verbose) cat(models[[i]]$method, ":", length(tempUnkPred), "unknown predictions were added\n")         
+          
+          predProb <- if(is.null(predProb)) tempUnkProb else rbind(predProb, tempUnkProb)      
+          predClass <- c(predClass, as.character(tempUnkPred))         
+          obs <- c(obs, rep(NA, length(tempUnkPred)))
+          modelName <- c(modelName, rep(models[[i]]$method, length(tempUnkPred)))
+          objName <- c(objName, rep(objectNames[[i]], length(tempUnkPred)))
+          dataType <- c(dataType, rep("Unknown", length(tempUnkPred)))        
+          
+        }
       if(verbose) cat("\n")           
-   }
-   
-   predClass <- factor(predClass, levels = obsLevels)
-   obs <- factor(obs, levels = obsLevels)
+    }
+  
+  predClass <- factor(predClass, levels = obsLevels)
+  obs <- factor(obs, levels = obsLevels)
 
-   out <- data.frame(predProb)
-   out$obs <- obs
-   out$pred <- predClass
-   out$model <- modelName
-   out$dataType <- dataType
-   out$object <- objName
-   out
+  out <- data.frame(predProb)
+  out$obs <- obs
+  out$pred <- predClass
+  out$model <- modelName
+  out$dataType <- dataType
+  out$object <- objName
+  out
 }
 

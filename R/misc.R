@@ -459,7 +459,7 @@ splitIndicies <- function(n, k)
 ## Note that the number of workers is need so that we can minimize the number of copies of the
 ## raw data. We only need one per worker.
 
-workerData <- function(data, ctrl, loop, method, lvls, workers = 1, caretVerbose, ...)
+workerData <- function(data, ctrl, loop, method, lvls, pp, workers = 1, caretVerbose, ...)
   {
 
     index <- ctrl$index
@@ -491,6 +491,9 @@ workerData <- function(data, ctrl, loop, method, lvls, workers = 1, caretVerbose
                                  TRUE, FALSE),              ## constant across the workers
                                classProbs = ctrl$classProbs,## constant across the workers
                                func = ctrl$summaryFunction, ## constant across the workers
+                               preProc = list(options = pp, ## constant across the workers
+                                              thresh = ctrl$PCAthresh,
+                                              ica = ctrl$ICAcomp),                
                                caretVerbose = caretVerbose, ## constant across the workers
                                dots = d),                   ## constant across the workers
                           m = method,
@@ -574,9 +577,9 @@ workerData <- function(data, ctrl, loop, method, lvls, workers = 1, caretVerbose
 
 workerTasks <- function(x)
   {
+  
     ## If this function is being executed remotly, check to see if the package is loaded
     if(!("caret" %in% loadedNamespaces())) library(caret)
-
 
     ## This function recreates the model specifications
     expand <- function(fixed, seq)
@@ -619,6 +622,7 @@ workerTasks <- function(x)
         args <- list(data = x$data,
                      method = x$method,
                      tuneValue = x$fixed,
+                     pp = x$preProc,
                      obsLevels = x$obsLevels)
         if(length(x$dots) > 0) args <- c(args, x$dots)
 
@@ -627,43 +631,53 @@ workerTasks <- function(x)
         ## NOTE: in the case of oob resampling, we return the summarized performance
         ## instead of the predicted values
         out <- switch(
-                      class(modelObj)[1],
-                      randomForest = rfStats(modelObj),
-                      RandomForest = cforestStats(modelObj),
-                      bagEarth =, bagFDA = bagEarthStats(modelObj),
-                      regbagg =, classbagg = ipredStats(modelObj))
+                      class(modelObj$fit)[1],
+                      randomForest = rfStats(modelObj$fit),
+                      RandomForest = cforestStats(modelObj$fit),
+                      bagEarth =, bagFDA = bagEarthStats(modelObj$fit),
+                      regbagg =, classbagg = ipredStats(modelObj$fit))
         out <- cbind(as.data.frame(t(out)), params)
         
       } else {
         
         for(i in 1:numResamples)
-          {
-           args <- list(data = x$data[x$index[[i]],],
+          {            
+            args <- list(data = x$data[x$index[[i]],],
                          method = x$method,
                          tuneValue = x$fixed,
+                         pp = x$preProc,
                          obsLevels = x$obsLevels)
             if(length(x$dots) > 0) args <- c(args, x$dots)
 
             modelObj <- do.call(createModel, args)
 
-            holdBack <-  x$data[-x$index[[i]],]
+            ## Check to see if the index is the entire data set
+            ## and number of resamples is 1.
+            ## If yes, then make holdback the entire data set to
+            ## get apparent error rate
+            if(length(x$index) == 1 & length(x$index[[1]]) == nrow(x$data))
+              {
+                holdBack <-  if(all.equal(sort(x$index[[1]]), seq(along  = x$data$.outcome))) x$data else x$data[-x$index[[i]],]
+              } else holdBack <-  x$data[-x$index[[i]],]
             observed <- holdBack$.outcome
             holdBack$.outcome <- NULL
-           if(any(colnames(holdBack) == ".modelWeights")) holdBack$.modelWeights <- NULL
+            if(any(colnames(holdBack) == ".modelWeights")) holdBack$.modelWeights <- NULL
 
-           ## If we have seqeuntial parameters, predicted is a list, otherwise
-           ## it is a vector            
-           predicted <- caret:::predictionFunction(x$method,
-                                                   modelObj,
-                                                   holdBack,
-                                                   x$seq)
-           if(x$classProbs)
-             {
-               probValues <- caret:::probFunction(x$method,
-                                                  modelObj,
-                                                  holdBack,
-                                                  x$seq)
-             }
+            ## If we have seqeuntial parameters, predicted is a list, otherwise
+            ## it is a vector            
+            predicted <- caret:::predictionFunction(method = x$method,
+                                                    modelFit = modelObj$fit,
+                                                    newdata = holdBack,
+                                                    preProc = modelObj$preProc,
+                                                    param = x$seq)
+            if(x$classProbs)
+              {
+                probValues <- caret:::probFunction(method = x$method,
+                                                    modelFit = modelObj$fit,
+                                                    newdata = holdBack,
+                                                    preProc = modelObj$preProc,
+                                                    param = x$seq)
+              }
 
             if(!x$isLOO)
               {
@@ -683,13 +697,20 @@ workerTasks <- function(x)
                       {
                         for(k in seq(along = predicted)) predicted[[k]] <- cbind(predicted[[k]], probValues[[k]])
                       }
-                   
-                    thisResample <- do.call("rbind",
-                                            lapply(predicted,
-                                                   x$func,
-                                                   lev = x$obsLevels,
-                                                   model = x$method))
-                    thisResample <- cbind(thisResample, params)
+
+                    thisResample <-  lapply(predicted,
+                                            x$func,
+                                            lev = x$obsLevels,
+                                            model = x$method)
+
+                    pNames <- names(thisResample[[1]])
+                    ##On 9/10/10 10:24 AM, "Hadley Wickham" <hadley@rice.edu> wrote:
+                    thisResample <-matrix(unlist(thisResample),
+                                          nrow = length(thisResample),
+                                          dimnames = list(NULL, NULL),
+                                          byrow = TRUE)
+                    colnames(thisResample) <- pNames
+                    thisResample <- cbind(as.data.frame(thisResample), params)
                     thisResample$Resample <- names(x$index)[i]                  
                   } else {
                     if(is.factor(observed)) predicted <- factor(as.character(predicted),
@@ -697,7 +718,7 @@ workerTasks <- function(x)
                     tmp <-  data.frame(pred = predicted,
                                        obs = observed)
                     if(x$classProbs) tmp <- cbind(tmp, probValues)
-                    #browser()
+                                        #browser()
                     thisResample <- x$func(tmp,
                                            lev = x$obsLevels,
                                            model = x$method)

@@ -12,6 +12,7 @@ train(x, ...)
 
 \method{train}{default}(x, y, 
       method = "rf",  
+      preProcess = NULL,
       ..., 
       weights = NULL,
       metric = ifelse(is.factor(y), "Accuracy", "RMSE"),   
@@ -33,7 +34,8 @@ train(x, ...)
 \item{contrasts}{a list of contrasts to be used for some or all of the factors appearing as variables in the model formula.}
   \item{method}{a string specifying which classification or regression model to use. Possible values are: \code{ada}, \code{bag}, \code{bagEarth}, \code{bagFDA}, \code{blackboost}, \code{cforest}, \code{ctree}, \code{ctree2}, \code{earth}, \code{enet}, \code{fda}, \code{foba}, \code{gam}, \code{gamboost}, \code{gamLoess}, \code{gamSpline}, \code{gaussprPoly}, \code{gaussprRadial}, \code{gaussprLinear}, \code{gbm}, \code{glm}, \code{glmboost}, \code{glmnet}, \code{gpls}, \code{hda},  \code{hdda}, \code{icr}, \code{J48}, \code{JRip}, \code{knn}, \code{lars}, \code{lasso}, \code{lda}, \code{Linda}, \code{lm}, \code{lmStepAIC}, \code{LMT}, \code{logforest}, \code{logitBoost}, \code{logreg}, \code{lssvmPoly}, \code{lssvmRadial}, \code{lvq}, \code{M5Rules}, \code{mda}, \code{multinom}, \code{nb}, \code{neuralnet}, \code{nnet}, \code{nodeHarvest}, \code{OneR}, \code{pam}, \code{parRF}, \code{partDSA}, \code{pcaNNet}, \code{pcr}, \code{pda}, \code{pda2}, \code{penalized}, \code{plr}, \code{pls}, \code{ppr}, \code{qda}, \code{QdaCov}, \code{rda}, \code{rf}, \code{rlm}, \code{rocc}, \code{rpart}, \code{rvmLinear}, \code{rvmPoly}, \code{rvmRadial}, \code{sda}, \code{sddaLDA}, \code{sddaQDA}, \code{slda}, \code{smda}, \code{sparseLDA}, \code{spls}, \code{stepLDA}, \code{stepQDA}, \code{superpc}, \code{svmPoly}, \code{svmRadial}, \code{svmLinear}, \code{treebag} and  \code{vbmpRadial}. See the Details section below.}  
   \item{\ldots}{ arguments passed to the classification or regression routine (such as \code{\link[randomForest]{randomForest}}). Errors will occur if values
-         for tuning parameters are passed here.}  
+         for tuning parameters are passed here.} 
+\item{preProcess}{a string vector that defines an pre-processing of the predictor data. Current possibilities are \code{center}, \code{scale}, \code{spatialSign}, \code{pca}, \code{ica}, and \code{knnImpute}. See \code{\link{preProcess}} and \code{\link{trainControl}} on the procedures and how to adjust them.} 
   \item{metric}{a string that specifies what summary metric will be used to select the optimal model. By default, possible values are "RMSE" and "Rsquared" for regression and "Accuracy" and "Kappa" for classification. If custom performance metrics are used (via the \code{summaryFunction} argument in \code{\link{trainControl}}, the value of \code{metric} should match one of the arguments. If it does not, a warning is issued and the first metric given by the \code{summaryFunction} is used. (NOTE: If given, this argument must be named.)}         
   \item{maximize}{a logical: should the metric be maximized or minimized?}
   \item{trControl}{a list of values that define how this function acts. See \code{\link{trainControl}}. (NOTE: If given, this argument must be named.)}
@@ -142,7 +144,7 @@ Nearest shrunken centroids \tab \code{pam} \tab \pkg{pamr} \tab \code{threshold}
                            \tab \code{scrda} \tab \pkg{rda} \tab \code{alpha}, \code{delta} \cr 
 Naive Bayes \tab \code{nb} \tab \pkg{klaR} \tab \code{usekernel} \cr
 Generalized partial least squares\tab \code{gpls} \tab \pkg{gpls} \tab \code{K.prov} \cr
-Learned vector quantization \tab \code{lvq} \tab \pkg{class} \tab  \code{k} \cr
+Learned vector quantization \tab \code{lvq} \tab \pkg{class} \tab  \code{size}, \code{k} \cr
 ROC Curves \tab \code{rocc} \tab \code{rocc} \tab \code{xgenes} 
 }
 
@@ -191,18 +193,22 @@ TrainData <- iris[,1:4]
 TrainClasses <- iris[,5]
 
 knnFit1 <- train(TrainData, TrainClasses,
-                 "knn",
+                 method = "knn",
+                 preProcess = c("center", "scale"),
                  tuneLength = 10,
                  trControl = trainControl(method = "cv"))
 
 knnFit2 <- train(TrainData, TrainClasses,
-                 "knn", tuneLength = 10, 
+                 method = "knn",
+                 preProcess = c("center", "scale"),
+                 tuneLength = 10, 
                  trControl = trainControl(method = "boot"))
 
 
 library(MASS)
 nnetFit <- train(TrainData, TrainClasses,
-                 "nnet", 
+                 method = "nnet",
+                 preProcess = c("center", "scale"), 
                  tuneLength = 2,
                  trace = FALSE,
                  maxit = 100)

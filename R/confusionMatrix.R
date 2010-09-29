@@ -77,10 +77,11 @@ confusionMatrix.table <- function(data, positive = NULL, prevalence = NULL, ...)
   overall <- c(
                unlist(classAgreement(data))[c("diag", "kappa")],
                propCI(data),
-               propTest(data))
+               propTest(data),
+               mcnemar.test(data)$p.value)
   
   
-  names(overall) <- c("Accuracy", "Kappa", "AccuracyLower", "AccuracyUpper", "AccuracyNull", "AccuracyPValue")  
+  names(overall) <- c("Accuracy", "Kappa", "AccuracyLower", "AccuracyUpper", "AccuracyNull", "AccuracyPValue", "McnemarPValue")  
 
   if(numLevels == 2)
     {
