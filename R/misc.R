@@ -192,6 +192,13 @@ tuneScheme <- function(model, grid, useOOB = FALSE)
                loop <- grid[1,,drop = FALSE]
                seqParam <- list(grid[-1,,drop = FALSE])
              },
+
+             ## About ctree ...
+             ## It used to be a seqeuntial model, but teh prediciotn function cannot create
+             ## class probabilities in a sequential manner (as it can for predicting the class or
+             ## regression output). I left this code here in case that changes, but the seq
+             ## flag by modelLookup has been changed to FALSE so this next block never gets
+             ## executed.
              ctree = 
              {
                                         # there is an exception here:
@@ -577,7 +584,7 @@ workerData <- function(data, ctrl, loop, method, lvls, pp, workers = 1, caretVer
 
 workerTasks <- function(x)
   {
-  
+
     ## If this function is being executed remotly, check to see if the package is loaded
     if(!("caret" %in% loadedNamespaces())) library(caret)
 
@@ -711,6 +718,7 @@ workerTasks <- function(x)
                                           byrow = TRUE)
                     colnames(thisResample) <- pNames
                     thisResample <- cbind(as.data.frame(thisResample), params)
+                 
                     thisResample$Resample <- names(x$index)[i]                  
                   } else {
                     if(is.factor(observed)) predicted <- factor(as.character(predicted),

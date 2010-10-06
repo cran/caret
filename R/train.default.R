@@ -255,7 +255,7 @@ train.default <- function(x, y,
 
   ## Get the predictions (or summaries for OOB)
   listOutput <- do.call(trControl$computeFunction, argList)
- 
+
   if(trControl$method != "oob")
     {
       resampleResults <- rbind.fill(listOutput)

@@ -195,9 +195,10 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
  
                       earth =, bagEarth =
                       {
-                        library(mda)
                         library(earth)
-                        out <- predict(modelFit, newdata, type= "prob")                        
+                        out <- predict(modelFit, newdata, type= "response")
+                        out <- cbind(1-out, out)
+                        colnames(out) <-  modelFit$obsLevels
                         out
                       },
 
