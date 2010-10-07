@@ -158,8 +158,8 @@ sbf <- function (x, ...) UseMethod("sbf")
 
   sbfPred <- lapply(sbfResults,
                     function(x) lapply(x,
-                                       function(y) y$pred))[[1]]
-  sbfPred <- do.call("rbind", sbfPred)
+                                       function(y) y$pred))
+  sbfPred <- do.call("rbind", lapply(sbfPred, function(x) rbind.fill(x)))
 
   sbfPred <- split(sbfPred, sbfPred$resampleIter)
   resamples <- lapply(sbfPred,
@@ -186,6 +186,7 @@ sbf <- function (x, ...) UseMethod("sbf")
   selectedVars <- lapply(sbfResults,
                     function(x) lapply(x,
                                        function(y) y$selectedVars))
+  selectedVars <- do.call("c", selectedVars)
   varList <- unique(unlist(selectedVars))
 
   scores <- apply(x, 2, sbfControl$functions$score, y = y)

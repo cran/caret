@@ -100,7 +100,7 @@ preProcess.default <- function(x, method = c("center", "scale"),
               k = k,
               knnSummary = knnSummary,
               cols = cols,
-              data = if(any(method == "knnImpute")) scale(x) else NULL)
+              data = if(any(method == "knnImpute")) scale(x[complete.cases(x),]) else NULL)
   structure(out, class = "preProcess")
   
 }
@@ -147,7 +147,7 @@ predict.preProcess <- function(object, newdata, ...)
 
   oldClass <- class(newdata)
   cc <- complete.cases(newdata)
-  if(any(object$method == "knnImpute") && any(cc))
+  if(any(object$method == "knnImpute") && any(!cc))
     {
       
       ## First, center and scale
@@ -221,7 +221,8 @@ nnimp <- function(new, old, cols, k, foo)
               new[, cols, drop = FALSE],
               k = k)
     tmp <- old[nn$nn.idx, -cols, drop = FALSE]
-    subs <- apply(tmp, 2, foo)
+    ##TODO deal with cases where training set has missing data
+    subs <- apply(tmp, 2, foo, na.rm = TRUE)
     new[, -cols] <- subs
     new
   }

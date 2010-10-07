@@ -1,4 +1,20 @@
 -------------------
+Version: 4.64
+Date: 2010-10-06
+
+Fixed bug introduced in the last version with
+createDataPartition(... list = FALSE).
+
+Fixed a bug predicting class probabilities when using 
+earth/glm models
+
+Fixed a bug that occurred when train() was used with
+ctree or ctree2 methods.
+
+Fixed bugs in rfe() and sbf() when running in
+parallel; not all the resampling results were saved
+
+-------------------
 Version: 4.63
 Date: 2010-09-19
 

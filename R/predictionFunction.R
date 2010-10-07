@@ -339,6 +339,8 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                              library(party)
 
                              out <- predict(modelFit, newdata)
+                             if(!is.null(modelFit@responses@levels$.outcome)) out <- as.character(out)
+                             if(is.matrix(out)) out <- out[,1]
                              out
                            },
 
@@ -348,6 +350,7 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
 
                              out <- predict(modelFit, newdata)
                              if(!is.null(modelFit@responses@levels$.outcome)) out <- as.character(out)
+                             if(is.matrix(out)) out <- out[,1]
                              out
                            },                           
                            

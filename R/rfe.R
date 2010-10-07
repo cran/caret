@@ -80,10 +80,12 @@ rfeIter <- function(x, y,
 
 rfeWrapper <- function(X)
   {
+ 
     ## iterate over the resampling iterations
     index <- X$index
     X$index <- NULL
     out <- vector(mode = "list", length = length(index))
+    
     for(i in seq(along = index))
       {
         out[[i]] <- do.call("rfeChunk",
@@ -202,19 +204,21 @@ rfe <- function (x, ...) UseMethod("rfe")
   ## Append the extra objects needed to do the work (See the parallel examples in
   ## ?train to see examples
   if(!is.null(rfeControl$computeArgs)) argList <- c(argList, rfeControl$computeArgs)
- 
-  rfeResults <- do.call(rfeControl$computeFunction, argList)
   
+  rfeResults <- do.call(rfeControl$computeFunction, argList)
+
   rfePred <- lapply(rfeResults,
                     function(x) lapply(x,
-                                       function(y) y$pred))[[1]]
-  rfePred <- rbind.fill(rfePred)
+                                       function(y) y$pred))
+  rfePred <- do.call("rbind", lapply(rfePred, function(x) rbind.fill(x)))
 
   selectedVars <- lapply(rfeResults,
                          function(x) lapply(x,
-                                            function(y) y$selectedVars))[[1]]
+                                            function(y) y$selectedVars))
 
-  #########################################################################
+  selectedVars <- do.call("c", selectedVars)
+
+#########################################################################
 
   subsets <- sort(unique(rfePred$subset), decreasing = TRUE)
 

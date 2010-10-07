@@ -14,7 +14,10 @@ createResample <- function(y, times = 10, list = TRUE)
       out <- as.data.frame(out)
       attributes(out) <- NULL
       names(out) <- prettySeq(out)
+    } else {
+      colnames(out) <- caret:::prettySeq(1:ncol(out))
     }
+  
   out
 }
 
