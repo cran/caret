@@ -65,14 +65,9 @@ extractProb <- function(
                                         # Test Data         
           if(!is.null(testX) & !is.null(testY))
             {
-              if(models[[i]]$method %in% c("rpart", "treebag"))
-                {
-                  tempX <- testX
-                  tempY <- testY
-                } else {
-                  tempX <- testX[!hasNa,]
-                  tempY <- testY[!hasNa]         
-                }
+              if(!is.data.frame(testX)) testX <- as.data.frame(testX)
+              tempX <- testX
+              tempY <- testY
               tempX$.outcome <- NULL
               if(is.null(models[[i]]$preProcess))
                 {
@@ -99,14 +94,8 @@ extractProb <- function(
                                         # Unknown Data   
       if(!is.null(unkX))
         {
-          if(models[[i]]$method %in% c("rpart", "treebag"))
-            {
-              tempX <- unkX
-            } else {
-              if(!is.data.frame(unkX)) unkX <- as.data.frame(unkX)
-              hasNa <- apply(unkX, 1, function(data) any(is.na(data)))         
-              tempX <- unkX[!hasNa,]
-            }
+          if(!is.data.frame(unkX)) unkX <- as.data.frame(unkX)
+          tempX <- unkX
           tempX$.outcome <- NULL
           if(is.null(models[[i]]$preProcess))
             {

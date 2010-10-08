@@ -28,6 +28,12 @@ filterVarImp <- function(x, y, nonpara = FALSE, ...)
                               2, 
                               function(x, class, pos)
                               {
+                                isMissing <- is.na(x) | is.na(class) 
+                                if(isMissing)
+                                  {
+                                    x <- x[!isMissing]
+                                    class <- class[!isMissing]
+                                  }
                                 outResults <- if(length(unique(x)) > 200) roc(x, class = class, positive = pos)
                                 else roc(x, class = class, dataGrid = FALSE, positive = pos)
                                 aucRoc(outResults)
@@ -47,7 +53,7 @@ filterVarImp <- function(x, y, nonpara = FALSE, ...)
       outStat <- data.frame(outStat)
     } else {
 
-      paraFoo <- function(data, y) abs(coef(summary(lm(y ~ data)))[2, "t value"])
+      paraFoo <- function(data, y) abs(coef(summary(lm(y ~ data, na.action = na.omit)))[2, "t value"])
       nonparaFoo <- function(x, y, ...)
         {
           meanMod <- sum((y - mean(y, rm.na = TRUE))^2)
@@ -56,9 +62,9 @@ filterVarImp <- function(x, y, nonpara = FALSE, ...)
           if(nzv$zeroVar) return(NA)
           if(nzv$percentUnique < 20)
             {
-              regMod <- lm(y~x, ...)
+              regMod <- lm(y~x, na.action = na.omit, ...)
             } else {
-              regMod <- try(loess(y~x, ...), silent = TRUE)
+              regMod <- try(loess(y~x, na.action = na.omit, ...), silent = TRUE)
               
               if(class(regMod) == "try-error" | any(is.nan(regMod$residuals))) try(regMod <- lm(y~x, ...))
               if(class(regMod) == "try-error") return(NA)

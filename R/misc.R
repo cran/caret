@@ -500,7 +500,8 @@ workerData <- function(data, ctrl, loop, method, lvls, pp, workers = 1, caretVer
                                func = ctrl$summaryFunction, ## constant across the workers
                                preProc = list(options = pp, ## constant across the workers
                                               thresh = ctrl$PCAthresh,
-                                              ica = ctrl$ICAcomp),                
+                                              ica = ctrl$ICAcomp,
+                                              k = ctrl$k),                
                                caretVerbose = caretVerbose, ## constant across the workers
                                dots = d),                   ## constant across the workers
                           m = method,

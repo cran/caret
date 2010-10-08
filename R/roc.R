@@ -5,7 +5,10 @@ roc <- function(data, class, dataGrid = TRUE, gridLength = 100, positive = level
   if(!(positive %in%  levels(class))) stop("wrong level specified")
   if(length(levels(class)) != 2) stop("wrong number of levels")
   if(dataGrid) cutoffDF <- data.frame(value = sort(unique(data)))
-  else cutoffDF <- data.frame(value = seq(from = min(data), to = max(data), length = gridLength))
+  else cutoffDF <- data.frame(value = seq(
+                                from = min(data, na.rm = TRUE),
+                                to = max(data, na.rm = TRUE),
+                                length = gridLength))
   numCuts <- dim(cutoffDF)[1]
   out <- matrix(NA, ncol = 3, nrow = numCuts + 1)
   

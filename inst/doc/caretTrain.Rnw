@@ -1599,29 +1599,36 @@ marsFit <- train(trainBH, trainMedv,
                                           returnResamp = "all"))
 
 @
-\end{small}
-To obtain predictions  for the PLS model, \texttt{predict.mvr} can be
-used. In this case, the number of components must be manually
-specified or all of the sub-models are predicted: 
+\end{small} 
+To obtain predictions  for the MARS model, \texttt{predict.earth} can be
+used. 
 
 \begin{small}
-<<plsPrediction1>>=
-plsPred1 <- predict(plsFit$finalModel, newdata = as.matrix(testBH))
-dim(plsPred1)
+<<marPrediction1>>=
+marsPred1 <- predict(marsFit$finalModel, newdata = testBH)
+head(marsPred1)
 @ 
 \end{small}
 Alternatively, \texttt{predict.train} can be used to get a vector of predictions for the optimal model only:
 \begin{small}
-<<plsPrediction1>>=
-plsPred2 <- predict(plsFit, newdata = testBH)
-length(plsPred2)
+<<marsPrediction2>>=
+marsPred2 <- predict(marsFit, newdata = testBH)
+head(marsPred2)
 @
 \end{small}
+Note that the \texttt{plsFit} object used pre--processing. In this
+case, we cannot directly call \texttt{predict.mvr} and expect to get
+the same answers as \texttt{predict.train}. The latter function knows
+that centering and scaling is required and execute these calculations
+on the new samples, whereas \texttt{predict.mvr} does not. For the
+\texttt{pls} function, there is an argument called \texttt{scale} that
+can be used instead of the pre--processing options in the
+\texttt{train} function.
+
 For multiple models, the objects can be grouped using a list and predicted simultaneously:
 \begin{small}
 <<bhPrediction1>>=
-bhModels <- list(
-                 pls = plsFit,
+bhModels <- list(pls = plsFit,
                  mars = marsFit)
 
 bhPred1 <- predict(bhModels, newdata = testBH)
