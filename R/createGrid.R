@@ -133,6 +133,7 @@
   pamTune <- function(data, len)
     {
       library(pamr)
+      data <- data[complete.cases(data),,drop = FALSE]
       train.x <- data[!(names(data) %in% ".outcome")]
       train.y <- data[,".outcome"]
       initialThresh <- pamr.train(list(x=t(train.x), y=train.y))$threshold
@@ -248,7 +249,7 @@
                                    .C = 10 ^((1:len) - 2)),
                                         # For 4 different data sets using rvm, I've seen that the default sigma
                                         # causes numerical issue in chol.default (leading minor is not
-                                        # positive definite), so we'll use the high value form sigest
+                                        # positive definite), so we'll use the high value from sigest
                       rvmRadial = data.frame(.sigma = rbfTune(data, len, FALSE)),
                       lssvmRadial =, gaussprRadial = data.frame(.sigma = rbfTune(data, len)),  
                       rvmPoly =, lssvmPoly =, gaussprPoly = expand.grid(

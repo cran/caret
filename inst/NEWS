@@ -1,4 +1,14 @@
 -------------------
+Version: 4.65
+Date: 2010-10-08
+
+Fixed a bug where train() would not allow knn imputation.
+
+filterVarImp() and roc() now check for missing values and
+use complete data for each predictor (instead of case-
+wise deletion across all predictors).
+
+-------------------
 Version: 4.64
 Date: 2010-10-06
 

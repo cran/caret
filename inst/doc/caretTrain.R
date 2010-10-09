@@ -234,24 +234,23 @@ marsFit <- train(trainBH, trainMedv,
 
 
 ###################################################
-### chunk number 16: plsPrediction1
+### chunk number 16: marPrediction1
 ###################################################
-plsPred1 <- predict(plsFit$finalModel, newdata = as.matrix(testBH))
-dim(plsPred1)
+marsPred1 <- predict(marsFit$finalModel, newdata = testBH)
+head(marsPred1)
 
 
 ###################################################
-### chunk number 17: plsPrediction1
+### chunk number 17: marsPrediction2
 ###################################################
-plsPred2 <- predict(plsFit, newdata = testBH)
-length(plsPred2)
+marsPred2 <- predict(marsFit, newdata = testBH)
+head(marsPred2)
 
 
 ###################################################
 ### chunk number 18: bhPrediction1
 ###################################################
-bhModels <- list(
-                 pls = plsFit,
+bhModels <- list(pls = plsFit,
                  mars = marsFit)
 
 bhPred1 <- predict(bhModels, newdata = testBH)

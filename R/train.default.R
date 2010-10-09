@@ -35,8 +35,8 @@ train.default <- function(x, y,
                                       "either 0 or 1"))
     }
 
-  if(!is.null(preProcess) && !(all(preProcess %in% c("center", "scale", "pca", "ica", "spatialSign"))))
-    stop('pre-processing methods are limited to center, scale, pca, ica and spatialSign')
+  if(!is.null(preProcess) && !(all(preProcess %in% c("center", "scale", "pca", "ica", "spatialSign", "knnImpute"))))
+    stop('pre-processing methods are limited to center, scale, pca, ica, knnImpute and spatialSign')
 
   
   if(modelType == "Classification")
@@ -409,7 +409,8 @@ train.default <- function(x, y,
                             obsLevels = classLevels,
                             pp = list(options = preProcess,
                                       thresh = trControl$PCAthresh,
-                                      ica = trControl$ICAcomp),
+                                      ica = trControl$ICAcomp,
+                                      k = trControl$k),
                             ...)
 
   ## get pp info
