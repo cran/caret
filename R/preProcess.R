@@ -19,7 +19,9 @@ preProcess.default <- function(x, method = c("center", "scale"),
   if(any(method == "pca") & !(any(method == "scale"))) method  <- c(method, "scale")
   if(any(method == "ica") & !(any(method == "center"))) method  <- c(method, "center")
 
-
+  if(any(method == "knnImpute") & any(method == "bagImpute"))
+    stop("please pick only one imputation method")
+    
   method <- unique(method)
   
   ## the row.norm option in fastICA states: "logical value indicating whether rows
@@ -57,6 +59,19 @@ preProcess.default <- function(x, method = c("center", "scale"),
                           collapse = ", ")))
       scaleValue[which(scaleValue == 0)] <- 1
     }
+
+  cols <- if(any(method == "knnImpute")) which(apply(x, 2, function(x) !any(is.na(x)))) else NULL
+
+  if(any(method == "bagImpute"))
+    {
+      bagModels <- as.list(colnames(x))
+      names(bagModels) <- colnames(x)
+      bagModels <- lapply(bagModels,
+                          bagImp,
+                          x = x)    
+    } else bagModels <- NULL
+  
+  x <- x[complete.cases(x),]
   
   if(any(method == "pca"))
     {
@@ -85,7 +100,6 @@ preProcess.default <- function(x, method = c("center", "scale"),
       ica <- NULL
     }
 
-    cols <- if(any(method == "knnImpute")) which(apply(x, 2, function(x) !any(is.na(x)))) else NULL
 
   
   out <- list(call = theCall,
@@ -99,6 +113,7 @@ preProcess.default <- function(x, method = c("center", "scale"),
               ica = ica,
               k = k,
               knnSummary = knnSummary,
+              bagImp = bagModels,
               cols = cols,
               data = if(any(method == "knnImpute")) scale(x[complete.cases(x),]) else NULL)
   structure(out, class = "preProcess")
@@ -170,6 +185,26 @@ predict.preProcess <- function(object, newdata, ...)
       newdata[!cc,] <- hasMiss
     }
   
+  if(any(object$method == "bagImpute") && any(!cc))
+    {
+      library(ipred)
+      hasMiss <- newdata[!cc,,drop = FALSE]
+      missingVars <- apply(hasMiss,
+                           2,
+                           function(x) any(is.na(x)))
+      missingVars <- names(missingVars)[missingVars]
+      for(i in seq(along = missingVars))
+        {
+          preds <- predict(object$bagImp[[missingVars[i]]]$model,
+                           hasMiss[, !colnames(hasMiss) %in% missingVars[i]])
+          
+          hasMiss[is.na(hasMiss[,missingVars[i]]),
+                  missingVars[i]] <- preds[is.na(hasMiss[,missingVars[i]])]
+        }
+      newdata[!cc,] <- hasMiss
+    }
+  
+  
   if(any(object$method == "center")) newdata <- sweep(newdata, 2, object$mean, "-")
   if(any(object$method %in% c("scale"))) newdata <- sweep(newdata, 2, object$std, "/")
   if(any(object$method == "pca"))
@@ -196,6 +231,19 @@ print.preProcess <- function(x, ...)
 {
   cat("\nCall:\n", deparse(x$call), "\n\n", sep = "")
   cat("Created from", x$dim[1], "samples and", x$dim[2], "variables\n")
+
+  pp <- x$method
+  pp <- gsub("scale", "scaled", pp)
+  pp <- gsub("center", "centered", pp)
+  pp <- gsub("pca", "principal component signal extraction", pp)
+  pp <- gsub("ica", "independent component signal extraction", pp)
+  pp <- gsub("spatialSign", "spatial sign transformation", pp)
+  pp <- gsub("knnImpute", paste(x$k, "nearest neighbor imputation"), pp)
+  pp <- gsub("bagImpute", "bagged tree imputation", pp)  
+
+  cat("Pre-processing:",
+      paste(pp, collapse = ", "),
+      "\n")
   
   if(any(x$method == "pca"))
     {
@@ -227,6 +275,20 @@ nnimp <- function(new, old, cols, k, foo)
     new
   }
 
+bagImp <- function(var, x, B = 10)
+  {
+    library(ipred)
+    ## The formula interface is much slower than the
+    ## (y, X) interface, but the latter would have to
+    ## do case-wise deletion of samples from the
+    ## training set.
+    mod <- bagging(as.formula(paste(var, "~.")),
+                   data = x,
+                   nbagg = B)
+    list(var = var,
+         model = mod)
+  }
+
 
 if(FALSE)
   {
@@ -234,10 +296,14 @@ if(FALSE)
     library(caret)
     data(BloodBrain)
 
-    data <- bbbDescr[, -nearZeroVar(bbbDescr)]
+    data <- bbbDescr[, -nearZeroVar(bbbDescr)][, 1:20]
+    data[1, 1:20] <- NA
+    data[2:10, 4] <- NA
+
+    trainData <- data
 
     set.seed(1)
-    pp <- preProcess(data, method = c("center", "scale", "ica"), n.comp = 7, row.norm = TRUE)
+    pp <- preProcess(data, method = c("center", "scale", "bagImpute", "ica"))
     test2 <- predict(pp, data)
 
     ## You will need to uncomment a line in preProcess.default for this to work...
@@ -245,5 +311,29 @@ if(FALSE)
 
     head(pp$ica$S)
     head(test2)
+
+
+
+    library(caret)
+    data(BloodBrain)
+
+    data(BloodBrain)
+
+    data <- bbbDescr[, -nearZeroVar(bbbDescr)]
+    data2 <- data
+    data2[1, 1:20] <- NA
+    data2[2:10, 4] <- NA
+
+    trainData <- data2[11:nrow(data2),]
+    testData <- data2[1:10,]
+    
+    set.seed(1)
+    pp1 <- preProcess(trainData, method = c("bagImpute"))
+    pp2 <- preProcess(trainData, method = c("knnImpute"))
+
+    data3 <- predict(pp1, testData)
+    data4 <- predict(pp2, testData)
+    splom(~cbind(data[1:10,"a_aro"], data3[, "a_aro"], data4[,"a_aro"]))
+    
   }
 

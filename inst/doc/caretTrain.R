@@ -84,6 +84,10 @@ gbmGrid <-  expand.grid(.interaction.depth = c(1, 3),
                         .n.trees = c(10, 50, 100, 150, 200, 250, 300), 
                         .shrinkage = 0.1)
 
+
+###################################################
+### chunk number 7: mdrrGridFit
+###################################################
 set.seed(3)
 gbmFit <- train(trainDescr, trainMDRR, 
                 method = "gbm", 
@@ -96,7 +100,7 @@ gbmFit
 
 
 ###################################################
-### chunk number 7: summaryFunc
+### chunk number 8: summaryFunc
 ###################################################
 Rand <- function (data, lev, model)
 {
@@ -109,7 +113,7 @@ Rand <- function (data, lev, model)
 
 
 ###################################################
-### chunk number 8: reTune
+### chunk number 9: reTune
 ###################################################
 fitControl$summaryFunction <- Rand
 set.seed(2)
@@ -123,7 +127,7 @@ svmNew
 
 
 ###################################################
-### chunk number 9: svmRoc
+### chunk number 10: svmRoc
 ###################################################
 fitControl <- trainControl(method = "LGOCV",
                            p = .75,
@@ -142,7 +146,7 @@ svmROC
 
 
 ###################################################
-### chunk number 10: bestGBM
+### chunk number 11: bestGBM
 ###################################################
 printSelected <- function(x)
   {
@@ -160,7 +164,7 @@ getTrainPerf <- function(x)
 
 
 ###################################################
-### chunk number 11: tolerance
+### chunk number 12: tolerance
 ###################################################
 whichTwoPct <- tolerance(gbmFit$results, "Accuracy", 2, TRUE)  
 cat("best model within 2 pct of best:\n")
@@ -168,7 +172,7 @@ gbmFit$results[whichTwoPct,]
 
 
 ###################################################
-### chunk number 12: makePlots
+### chunk number 13: makePlots
 ###################################################
 pdf(paste(getwd(), "/svm1.pdf", sep = ""), width = 5, height = 5)
    trellis.par.set(caretTheme(), warn = FALSE)
@@ -194,7 +198,7 @@ dev.off()
 
 
 ###################################################
-### chunk number 13: bhExample
+### chunk number 14: bhExample
 ###################################################
 library(mlbench)
 data(BostonHousing)
@@ -203,7 +207,7 @@ bhDesignMatrix <-  model.matrix(medv ~. - 1, BostonHousing)
 
 
 ###################################################
-### chunk number 14: bhSplit
+### chunk number 15: bhSplit
 ###################################################
 set.seed(4)
 inTrain <- createDataPartition(BostonHousing$medv, p = .8, list = FALSE, times = 1)
@@ -215,7 +219,7 @@ testMedv <- BostonHousing$medv[-inTrain]
 
 
 ###################################################
-### chunk number 15: bhModels
+### chunk number 16: bhModels
 ###################################################
 set.seed(5)
 plsFit <- train(trainBH, trainMedv, 
@@ -234,21 +238,21 @@ marsFit <- train(trainBH, trainMedv,
 
 
 ###################################################
-### chunk number 16: marPrediction1
+### chunk number 17: marPrediction1
 ###################################################
 marsPred1 <- predict(marsFit$finalModel, newdata = testBH)
 head(marsPred1)
 
 
 ###################################################
-### chunk number 17: marsPrediction2
+### chunk number 18: marsPrediction2
 ###################################################
 marsPred2 <- predict(marsFit, newdata = testBH)
 head(marsPred2)
 
 
 ###################################################
-### chunk number 18: bhPrediction1
+### chunk number 19: bhPrediction1
 ###################################################
 bhModels <- list(pls = plsFit,
                  mars = marsFit)
@@ -258,7 +262,7 @@ str(bhPred1)
 
 
 ###################################################
-### chunk number 19: bhPrediction1
+### chunk number 20: bhPrediction1
 ###################################################
 allPred <- extractPrediction(bhModels,
                              testX = testBH,
@@ -273,7 +277,7 @@ by(
 
 
 ###################################################
-### chunk number 20: mbrConfusion
+### chunk number 21: mbrConfusion
 ###################################################
 mbrrPredictions <- extractPrediction(list(svmFit), testX = testDescr, testY = testMDRR)
 mbrrPredictions <- mbrrPredictions[mbrrPredictions$dataType == "Test",]
@@ -282,7 +286,7 @@ confusionMatrix(mbrrPredictions$pred, mbrrPredictions$obs)
 
 
 ###################################################
-### chunk number 21: mbrrROC
+### chunk number 22: mbrrROC
 ###################################################
 mbrrProbs <- extractProb(list(svmFit), testX = testDescr, testY = testMDRR)
 mbrrProbs <- mbrrProbs[mbrrProbs$dataType == "Test",]
@@ -291,7 +295,7 @@ aucRoc(mbrrROC)
 
 
 ###################################################
-### chunk number 22: mbrrPlots
+### chunk number 23: mbrrPlots
 ###################################################
 pdf(paste(getwd(), "/roc.pdf", sep = ""), width = 6.5, height = 7)
    plot(1 - mbrrROC[,"specificity"], mbrrROC[, "sensitivity"], type = "s", xlab = "1 - Specificity", ylab = "Sensitivity")
@@ -305,7 +309,7 @@ dev.off()
 
 
 ###################################################
-### chunk number 23: bhPredPlot
+### chunk number 24: bhPredPlot
 ###################################################
 pdf("bhPredPlot.pdf", width = 8, height = 5)
 trellis.par.set(caretTheme(), warn = FALSE)
@@ -314,7 +318,7 @@ dev.off()
 
 
 ###################################################
-### chunk number 24: makeResampPlots
+### chunk number 25: makeResampPlots
 ###################################################
 pdf(paste(getwd(), "/marsXY.pdf", sep = ""), width = 7, height = 5)
    trellis.par.set(caretTheme(), warn = FALSE)
@@ -327,7 +331,7 @@ dev.off()
 
 
 ###################################################
-### chunk number 25: loadData
+### chunk number 26: loadData
 ###################################################
 ## If we compute the above models, the vignettes takes too long for cran, 
 ## so we load the data from a remote source
@@ -335,7 +339,7 @@ load(url("http://caret.r-forge.r-project.org/Classification_and_Regression_Train
 
 
 ###################################################
-### chunk number 26: resamps
+### chunk number 27: resamps
 ###################################################
 resamps <- resamples(list(CART = rpartFit,
                           CondInfTree = ctreeFit,
@@ -346,7 +350,7 @@ summary(resamps)
 
 
 ###################################################
-### chunk number 27: resamplePlots
+### chunk number 28: resamplePlots
 ###################################################
 bwplot(resamps, metric = "RMSE")
 
@@ -360,7 +364,7 @@ splom(resamps, metric = "RMSE")
 
 
 ###################################################
-### chunk number 28: resamplePlots2
+### chunk number 29: resamplePlots2
 ###################################################
 pdf("resampleScatter.pdf", width = 6, height = 6)
 trellis.par.set(caretTheme())
@@ -378,7 +382,7 @@ dev.off()
 
 
 ###################################################
-### chunk number 29: diffs
+### chunk number 30: diffs
 ###################################################
 difValues <- diff(resamps)
 
@@ -388,7 +392,7 @@ summary(difValues)
 
 
 ###################################################
-### chunk number 30: diffPlots
+### chunk number 31: diffPlots
 ###################################################
 dotplot(difValues)
 
@@ -404,7 +408,7 @@ levelplot(difValues, what = "differences")
 
 
 ###################################################
-### chunk number 31: diffPlots2
+### chunk number 32: diffPlots2
 ###################################################
 pdf("diffLevel.pdf", width = 7.5, height = 6)
 trellis.par.set(caretTheme())
@@ -422,7 +426,7 @@ dev.off()
 
 
 ###################################################
-### chunk number 32: session
+### chunk number 33: session
 ###################################################
 toLatex(sessionInfo())
 

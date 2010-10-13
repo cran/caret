@@ -1019,7 +1019,7 @@ tuning/complexity parameters and building the final model.
 As previously mentioned, \texttt{train} can pre--process the data in
 various ways prior to model fitting. The \texttt{caret} function
 \texttt{preProcess} is automatically used. This function can be used
-for centering and scaling, imputation (via $k$--nearest neighbors),
+for centering and scaling, imputation (see details below),
 applying the spatial sign transformation and feature extraction via
 principal component analysis or independent component
 analysis. Options to the \texttt{preProcess} function can be passed
@@ -1030,6 +1030,27 @@ generated using \texttt{predict.train}, \texttt{extractPrediction} or
 \texttt{extractProbs} (see Section \ref{S:probs}  later in this document). The
 pre--processing would {\bf not} be applied to predictions that
 directly use the \verb+object$finalModel+ object.  
+
+For imputation, there are two methods currently implemented:
+\begin{itemize}
+\item $k$--nearest neighbors takes a sample with missing values and
+  finds the $k$ closest samples in the training set. The average of
+  the $k$ training set values for that predictor are used as a
+  substitute for the original data. When calculating the distances to
+  the training set samples, the predictors used in the calculation are
+  the ones with no missing values for that sample and no missing
+  values in the training set.
+\item another approach is to fit a bagged tree model for each
+  predictor using the training set samples. This is usually a fairly
+  accurate model and can handle missing values. When a predictor for a
+  sample requires imputation, the values for the other predictors are
+  fed through the bagged tree and the prediction is used as the new
+  value. This model can have significant computational cost.
+\end{itemize}
+
+If there are missing values in the training set, PCA and ICA models
+only use complete samples.
+
 
 \subsection{Alternate Tuning Grids}\label{S:altTune}
 
@@ -1052,14 +1073,15 @@ tuning parameters:
 \end{itemize}
 We can fix the learning rate and evaluate more than three values of
 \texttt{n.trees}: 
-\pagebreak
 
 \begin{small}
 <<mdrrGrid>>=
 gbmGrid <-  expand.grid(.interaction.depth = c(1, 3), 
                         .n.trees = c(10, 50, 100, 150, 200, 250, 300), 
                         .shrinkage = 0.1)
+@ 
 
+<<mdrrGridFit>>=
 set.seed(3)
 gbmFit <- train(trainDescr, trainMDRR, 
                 method = "gbm", 

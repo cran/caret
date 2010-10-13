@@ -2,6 +2,8 @@
 \alias{rfe}
 \alias{rfe.default}
 \alias{rfeIter}
+\alias{predict.rfe}
+
 \title{Backwards Feature Selection}
 \description{
 A simple backwards selection, a.k.a. recursive feature selection (RFE), algorithm
@@ -21,6 +23,8 @@ rfeIter(x, y,
         sizes, 
         rfeControl = rfeControl(), 
         ...)
+
+\method{predict}{rfe}(object, newdata, ...)
 }
 
 \arguments{
@@ -32,7 +36,9 @@ rfeIter(x, y,
   \item{metric}{a string that specifies what summary metric will be used to select the optimal model. By default, possible values are "RMSE" and "Rsquared" for regression and "Accuracy" and "Kappa" for classification. If custom performance metrics are used (via the \code{functions} argument in \code{\link{rfeControl}}, the value of \code{metric} should match one of the arguments.}         
   \item{maximize}{a logical: should the metric be maximized or minimized?}
   \item{rfeControl}{a list of options, including functions for fitting and prediction. See the package vignette or \code{\link{rfeControl}} for examples}
-  \item{\dots}{options to pass to the model fitting function}
+  \item{object}{an object of class \code{rfe}}
+  \item{newdata}{a matrix or data frame of new samples for prediction}
+  \item{\dots}{options to pass to the model fitting function (ignored in \code{predict.rfe})}
 }
 \details{
 This function implements backwards selection of predictors based on predictor importance ranking. The predictors are ranked and the less important ones are sequentially eliminated. The package vignette for feature selection has detailed descriptions of the algorithms.
