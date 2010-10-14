@@ -274,6 +274,7 @@ S3method(predict, nullModel)
 S3method(predict, sbf)
 S3method(predict, icr)
 S3method(predict, bag)
+S3method(predict, rfe)
 
 S3method(summary, bagEarth)
 S3method(summary, bagFDA)

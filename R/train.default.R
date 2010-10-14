@@ -35,8 +35,8 @@ train.default <- function(x, y,
                                       "either 0 or 1"))
     }
 
-  if(!is.null(preProcess) && !(all(preProcess %in% c("center", "scale", "pca", "ica", "spatialSign", "knnImpute"))))
-    stop('pre-processing methods are limited to center, scale, pca, ica, knnImpute and spatialSign')
+  if(!is.null(preProcess) && !(all(preProcess %in% c("center", "scale", "pca", "ica", "spatialSign", "knnImpute", "bagImpute")))) 
+    stop('pre-processing methods are limited to center, scale, pca, ica, knnImpute, bagImpute and spatialSign')
 
   
   if(modelType == "Classification")

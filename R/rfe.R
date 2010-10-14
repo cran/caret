@@ -99,6 +99,8 @@ rfeWrapper <- function(X)
 
 rfeChunk <- function(inTrain, x, y, cntl, sizes, ...)
   {
+    library(plyr)
+    library(caret)
     findMatch <- function(x, y)
       {
         if(length(x) != length(y)) return(FALSE)
@@ -143,6 +145,7 @@ rfe <- function (x, ...) UseMethod("rfe")
 {
   funcCall <- match.call(expand.dots = TRUE)
   require(caret)
+  library(plyr)
 
   if(nrow(x) != length(y)) stop("there should be the same number of samples in x and y")
   numFeat <- ncol(x)
@@ -773,10 +776,13 @@ predictors.rfe <- function(x, ...) x$optVariables
 
 varImp.rfe <- function(object, drop = FALSE, ...)
   {
-
-    sizeIndex <- which(object$results$Variables == object$optsize)
-    getImp <- function(u, i) u[[i]]
-    imp <- lapply(object$variables, getImp, i = sizeIndex)
+    getImp <- function(u, best)
+      {
+        sizes <- unlist(lapply(u, nrow))
+        bestSubsetSize <- which(sizes == best)
+        u[[bestSubsetSize]]
+      }
+    imp <- lapply(object$variables, getImp, best = object$optsize)
     k <- length(imp)
     imp <- do.call("rbind", imp)
     if(drop) imp <- subset(imp, var %in% object$optVar)
@@ -789,4 +795,31 @@ varImp.rfe <- function(object, drop = FALSE, ...)
 
   }
 
+predict.rfe <- function(object, newdata, ...)
+  {
+    if(length(list(...)) > 0)
+      warning("... are ignored for predict.rfe")
 
+    if(inherits(object, "rfe.formula"))
+      {
+        newdata <- as.data.frame(newdata)
+        rn <- row.names(newdata)
+        Terms <- delete.response(object$terms)
+        m <- model.frame(Terms, newdata, na.action = na.omit, 
+                         xlev = object$xlevels)
+        if (!is.null(cl <- attr(Terms, "dataClasses"))) 
+          .checkMFClasses(cl, m)
+        keep <- match(row.names(m), rn)
+        newdata <- model.matrix(Terms, m, contrasts = object$contrasts)
+        xint <- match("(Intercept)", colnames(newdata), nomatch = 0)
+        if (xint > 0)  newdata <- newdata[, -xint, drop = FALSE]   
+      }
+
+    checkCols <- colnames(newdata) %in% object$optVar
+    if(!all(checkCols))
+      stop(paste("missing columns from newdata:",
+                 paste(names(checkCols)[!checkCols], collapse = ", ")))
+    
+    newdata <- newdata[, object$optVar, drop = FALSE]
+    object$control$functions$pred(object$fit, newdata)
+  }

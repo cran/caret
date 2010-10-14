@@ -394,6 +394,8 @@ defaultSummary <- function(data, lev = NULL, model = NULL)
 
 twoClassSummary <- function(data, lev = NULL, model = NULL)
   {
+    if(!all(levels(data[, "pred"]) == levels(data[, "obs"])))
+      stop("levels of observed and predicted data do not match")
     out <- c(sensitivity(data[, "pred"], data[, "obs"], lev[1]),
              specificity(data[, "pred"], data[, "obs"], lev[2]),
              aucRoc(roc(data[, lev[1]], data$obs, positive = lev[1])))
