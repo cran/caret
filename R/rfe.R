@@ -100,7 +100,8 @@ rfeWrapper <- function(X)
 rfeChunk <- function(inTrain, x, y, cntl, sizes, ...)
   {
     library(plyr)
-    library(caret)
+    if(!("caret" %in% loadedNamespaces())) library(caret)
+
     findMatch <- function(x, y)
       {
         if(length(x) != length(y)) return(FALSE)
@@ -144,8 +145,7 @@ rfe <- function (x, ...) UseMethod("rfe")
            rfeControl = rfeControl(), ...)
 {
   funcCall <- match.call(expand.dots = TRUE)
-  require(caret)
-  library(plyr)
+  if(!("caret" %in% loadedNamespaces())) library(caret)
 
   if(nrow(x) != length(y)) stop("there should be the same number of samples in x and y")
   numFeat <- ncol(x)

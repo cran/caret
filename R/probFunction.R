@@ -199,6 +199,21 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
                         out <- predict(modelFit, newdata, type= "response")
                         out <- cbind(1-out, out)
                         colnames(out) <-  modelFit$obsLevels
+                        if(!is.null(param))
+                          {
+                            tmp <- vector(mode = "list", length = nrow(param) + 1)
+                            tmp[[1]] <- out
+                            
+                            for(j in seq(along = param$.nprune))
+                              {
+                                prunedFit <- update(modelFit, nprune = param$.nprune[j])
+                                tmp2 <- predict(modelFit, newdata, type= "response")
+                                tmp2 <- cbind(1-tmp2, tmp2)
+                                colnames(tmp2) <-  modelFit$obsLevels
+                                tmp[[j+1]] <- tmp2
+                              }
+                            out <- tmp
+                          }
                         out
                       },
 
