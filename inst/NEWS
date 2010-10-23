@@ -1,4 +1,20 @@
 -------------------
+Version: 4.68
+Date: 2010-10-21
+
+Added two functions, checkResamples() and checkConditionalX() that
+identify predictor data with degenerate distributions when conditioned
+on a factor.
+
+Added a high content screening data set (segmentedData) from Hill et 
+al. Impact of image segmentation on high-content screening data quality 
+for SK-BR-3 cells. BMC bioinformatics (2007) vol. 8 (1) pp. 340.
+
+Fixed bugs in how sbf objects were printed (when using repeated 
+CV) and classification models with earth and classProbs = TRUE. 
+
+
+-------------------
 Version: 4.67
 Date: 2010-10-13
 

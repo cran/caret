@@ -148,7 +148,9 @@ export(
        bagControl,
        modelLookup,
        twoClassSummary,
-       createMultiFolds
+       createMultiFolds,
+       checkConditionalX,
+       checkResamples
        )
 
 S3method(confusionMatrix, default)

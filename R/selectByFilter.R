@@ -251,15 +251,18 @@ print.sbf <- function(x, top = 5, digits = max(3, getOption("digits") - 3), ...)
 
   cat("\nSelection By Filter\n\n")
 
-  cat("Outer resamping method was",
-      x$control$number,
-      "iterations of",
-      switch(x$control$method,
-             "boot" = "the bootstrap.",
-             "LGOCV" = "leave group out cross-validation.",
-             "LOOCV" = "leave one out cross-validation.",
-             "cv" = "cross-validation."),
-      "\n")
+  resampleN <- unlist(lapply(x$control$index, length))
+  numResamp <- length(resampleN)
+  
+  resampName <- switch(tolower(x$control$method),
+                       boot = paste("Bootstrap (", numResamp, " reps)", sep = ""),
+                       boot632 = paste("Bootstrap 632 Rule (", numResamp, " reps)", sep = ""),
+                       cv = paste("Cross-Validation (", x$control$number, " fold)", sep = ""),
+                       repeatedcv = paste("Cross-Validation (", x$control$number, " fold, repeated ",
+                         x$control$repeats, " times)", sep = ""),
+                       lgocv = paste("Repeated Train/Test Splits (", numResamp, " reps, ",
+                         round(x$control$p, 2), "%)", sep = ""))
+  cat("Outer resamping method:", resampName, "\n")      
 
   cat("\nResampling performance:\n\n")
   print(format(x$results, digits = digits), row.names = FALSE)
@@ -285,7 +288,7 @@ print.sbf <- function(x, top = 5, digits = max(3, getOption("digits") - 3), ...)
   top <- min(top, length(vars))
   
   smallVars <- vars[1:top]
-  smallVars <- round(smallVars/x$control$number*100, 1)
+  smallVars <- round(smallVars/length(x$control$index)*100, 1)
 
   varText <- paste(names(smallVars), " (",
                    smallVars, "%)", sep = "")
@@ -302,11 +305,11 @@ print.sbf <- function(x, top = 5, digits = max(3, getOption("digits") - 3), ...)
           "\n\n",
           sep = "")
       cat("On average, ",
-          round(mean(unlist(lapply(x$variables[[1]], length))), 1),
+          round(mean(unlist(lapply(x$variables, length))), 1),
           " variables were selected (min = ",
-          round(min(unlist(lapply(x$variables[[1]], length))), 1),
+          round(min(unlist(lapply(x$variables, length))), 1),
           ", max = ",
-          round(max(unlist(lapply(x$variables[[1]], length))), 1),
+          round(max(unlist(lapply(x$variables, length))), 1),
           ")\n",
           sep = "")
     } else {
@@ -663,7 +666,7 @@ predictors.sbf <- function(x, ...) x$optVariables
 varImp.sbf <- function(object, onlyFinal = TRUE, ...)
   {
 
-    vars <- sort(table(unlist(object$variables)), decreasing = TRUE)/object$control$number
+    vars <- sort(table(unlist(object$variables)), decreasing = TRUE)/length(object$control$index)
     
     
     out <- as.data.frame(vars)

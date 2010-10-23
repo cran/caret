@@ -691,14 +691,12 @@ workerTasks <- function(x)
 
             if(!x$isLOO)
               {
-
                 if(!is.null(x$seq))
                   {
                     predicted <- lapply(predicted,
                                         function(x, y, lv)
                                         {
-                                          if(is.factor(x)) y <- factor(as.character(y),
-                                                                       levels = lv)
+                                          if(!is.factor(x) & is.character(x)) x <- factor(as.character(x), levels = lv)
                                           data.frame(pred = x, obs = y)
                                         },
                                         y = observed,

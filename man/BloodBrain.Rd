@@ -8,7 +8,7 @@
 Mente and Lombardo (2005) develop models to predict the log of the ratio of the concentration of a
 compound in the brain and the concentration in blood. For each compound, they computed three
 sets of molecular descriptors: MOE 2D, rule-of-five and Charge Polar Surface Area (CPSA). In
-all, 134 descriptors were calcualted. Included in this package are 208 non-proprietary literature
+all, 134 descriptors were calculated. Included in this package are 208 non-proprietary literature
 compounds. The vector \code{logBBB} contains the concentration ratio and the data fame \code{bbbDescr}
 contains the descriptor values.
 }
@@ -16,7 +16,7 @@ contains the descriptor values.
 \usage{data(BloodBrain)}
 
 \value{
-  \item{bbbDescr}{data frame of chemical descriptros}
+  \item{bbbDescr}{data frame of chemical descriptors}
   \item{logBBB}{vector of assay results}
   }
 
