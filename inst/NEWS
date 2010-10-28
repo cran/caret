@@ -1,4 +1,14 @@
 -------------------
+Version: 4.69
+Date: 2010-10-28
+
+Fixed a bug in predict.rfe where an error was thrown even though
+the required predictors were in newdata.
+
+Changed preProcess() so that centering and scaling are both automatic
+when PCA or ICA are requested.
+
+-------------------
 Version: 4.68
 Date: 2010-10-21
 

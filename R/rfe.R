@@ -815,7 +815,7 @@ predict.rfe <- function(object, newdata, ...)
         if (xint > 0)  newdata <- newdata[, -xint, drop = FALSE]   
       }
 
-    checkCols <- colnames(newdata) %in% object$optVar
+    checkCols <- object$optVar %in% colnames(newdata) 
     if(!all(checkCols))
       stop(paste("missing columns from newdata:",
                  paste(names(checkCols)[!checkCols], collapse = ", ")))

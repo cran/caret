@@ -17,6 +17,9 @@ preProcess.default <- function(x, method = c("center", "scale"),
   if(any(method == "spatialSign") & !(any(method == "center"))) method  <- c(method, "center")
   
   if(any(method == "pca") & !(any(method == "scale"))) method  <- c(method, "scale")
+  if(any(method == "pca") & !(any(method == "center"))) method  <- c(method, "center")
+  
+  if(any(method == "ica") & !(any(method == "scale"))) method  <- c(method, "scale")
   if(any(method == "ica") & !(any(method == "center"))) method  <- c(method, "center")
 
   if(any(method == "knnImpute") & any(method == "bagImpute"))
