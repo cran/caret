@@ -1,4 +1,23 @@
 -------------------
+Version: 4.70
+Date: 2010-11-09
+
+Added a warning to train when class levels are not valid R variable
+names.
+
+Fixed a bug in the variable importance function for multinom objects.
+
+Added p-value adjustments to summary.diff.resamples. Confidence intervals
+in dotplot.diff.resamples are adjusted accordingly if the Bonferroni is
+used.
+
+For dotplot.resamples, no point was plotted when the upper and/or
+lower interval values were NaN. Now, the point is plotted but without
+the interval bars.
+
+Updated print.rfe to correctly describe new resampling methods.
+
+-------------------
 Version: 4.69
 Date: 2010-10-28
 
