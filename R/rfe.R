@@ -341,15 +341,18 @@ print.rfe <- function(x, top = 5, digits = max(3, getOption("digits") - 3), ...)
 
   cat("\nRecursive feature selection\n\n")
 
-  cat("Outer resamping method was",
-      x$control$number,
-      "iterations of",
-      switch(x$control$method,
-             "boot" = "the bootstrap.",
-             "LGOCV" = "leave group out cross-validation.",
-             "LOOCV" = "leave one out cross-validation.",
-             "cv" = "cross-validation."),
-      "\n")
+  resampleN <- unlist(lapply(x$control$index, length))
+  numResamp <- length(resampleN)
+  
+  resampName <- switch(tolower(x$control$method),
+                       boot = paste("Bootstrap (", numResamp, " reps)", sep = ""),
+                       boot632 = paste("Bootstrap 632 Rule (", numResamp, " reps)", sep = ""),
+                       cv = paste("Cross-Validation (", x$control$number, " fold)", sep = ""),
+                       repeatedcv = paste("Cross-Validation (", x$control$number, " fold, repeated ",
+                         x$control$repeats, " times)", sep = ""),
+                       lgocv = paste("Repeated Train/Test Splits (", numResamp, " reps, ",
+                         round(x$control$p, 2), "%)", sep = ""))
+  cat("Outer resamping method:", resampName, "\n")      
 
   cat("\nResampling performance over subset size:\n\n")
   x$results$Selected <- ""
@@ -818,7 +821,7 @@ predict.rfe <- function(object, newdata, ...)
     checkCols <- object$optVar %in% colnames(newdata) 
     if(!all(checkCols))
       stop(paste("missing columns from newdata:",
-                 paste(names(checkCols)[!checkCols], collapse = ", ")))
+                 paste(object$optVar[!checkCols], collapse = ", ")))
     
     newdata <- newdata[, object$optVar, drop = FALSE]
     object$control$functions$pred(object$fit, newdata)

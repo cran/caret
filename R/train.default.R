@@ -47,6 +47,15 @@ train.default <- function(x, y,
       ## important with multiclass systems where one or more classes have low sample sizes
       ## relative to the others
       classLevels <- levels(y)
+
+      if(any(classLevels != make.names(classLevels)))
+         {
+           warning(paste("At least one of the class levels are not valid R variables names;",
+                         "This may cause errors if class probabilities are generated because",
+                         "the variables names will be converted to:",
+                         paste(make.names(classLevels), collapse = ", ")))
+         }
+      
       if(length(classLevels) > 2 & (method %in% c("gbm", "glmboost", "ada", "gamboost", "blackboost", "penalized", "glm",
                                                   "earth", "nodeHarvest", "glmrob", "plr", "GAMens", "rocc",
                                                   "logforest", "logreg", "gam", "gamLoess", "gamSpline")))

@@ -24,8 +24,15 @@ varImp.dsa <- function(object, cuts = NULL, ...)
 
 varImp.multinom <- function(object, ...)
   {
-    out <- data.frame(Overall = abs(coef(object)))
-    rownames(out) <- names(coef(object))
+    out <- abs(coef(object))
+    if(is.vector(out))
+      {
+        out <- data.frame(Overall = out)
+        rownames(out) <- names(coef(object))
+      } else {
+        out <- as.data.frame(apply(out, 2, sum))
+        names(out)[1] <- "Overall"
+      }
     subset(out, rownames(out) != "(Intercept)")
   }
 

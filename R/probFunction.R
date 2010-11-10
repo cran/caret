@@ -123,7 +123,8 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
                             
                             for(j in seq(along = param$.ncomp))
                               {
-                                tmpProb <- predict(modelFit, newdata, type = "prob",  ncomp = param$.ncomp[j])[,,1]
+                                tmpProb <- predict(modelFit, newdata, type = "prob",  ncomp = param$.ncomp[j])
+                                if(length(dim(tmpProb)) == 3) tmpProb <- tmpProb[,,1]
                                 tmp[[j+1]] <- as.data.frame(tmpProb[, modelFit$obsLevels])
                               }
                             out <- tmp
