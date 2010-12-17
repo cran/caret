@@ -17,7 +17,8 @@ bag(x, ...)
 
 bagControl(fit = NULL, 
            predict = NULL, 
-           aggregate = NULL)
+           aggregate = NULL,
+           downSample = FALSE)
 
 
 \method{predict}{bag}(object, newdata = NULL, ...)
@@ -47,6 +48,7 @@ a function that generates predictions for each sub-model. The function should ha
   \item{aggregate}{
 a function with arguments \code{x} and \code{type}. The function that takes the output of the \code{predict} function and reduces the bagged predictions to a single prediction per sample. the \code{type} argument can be used to switch between predicting classes or class probabilities for classification models.
 }
+ \item{downSample}{a logical: for classification, should the data set be randomly sampled so that each class has the same number of samples as the smallest class?}
   \item{vars}{
 an integer. If this argument is not \code{NULL}, a random sample of size \code{vars} is taken of the predictors in each bagging iteration. If \code{NULL}, all predictors are used. 
 }
@@ -168,6 +170,7 @@ bagLDA <- bag(mdrrDescr, mdrrClass,
               vars = 10,
               bagControl = bagControl(fit = ldaFit,
                                       predict = ldaPred,
+                                      downSample = TRUE,
                                       aggregate = ldaAg))
 
 \dontrun{

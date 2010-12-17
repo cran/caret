@@ -96,9 +96,9 @@ The algorithm has an optional step (line \ref{A:rerank}) where the predictor ran
 \begin{algorithm}
    \caption{Recursive feature elimination}
    \label{A:rfe}
-   \SetLine
-   \restylealgo{plain}
-   \dontprintsemicolon
+   \SetAlgoLined
+   \RestyleAlgo{plain}
+   \DontPrintSemicolon
 
 
     \vspace*{3pt} Tune/train the model on the training set using all predictors\vspace*{3pt}\; 
@@ -148,9 +148,9 @@ While this will provide better estimates of performance, it is more computationa
 \begin{algorithm}
    \caption{Recursive feature elimination incorporating resampling}
    \label{A:rfe2}
-   \SetLine
-   \restylealgo{plain}
-   \dontprintsemicolon
+   \SetAlgoLined
+   \RestyleAlgo{plain}
+   \DontPrintSemicolon
 
    \For{Each Resampling Iteration\nllabel{A:outer}}{
 	

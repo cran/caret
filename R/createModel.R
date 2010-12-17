@@ -61,7 +61,7 @@
                    "parRF", "plr", "rocc", "foba", "partDSA", "hda", "icr",
                    "qrf", "scrda", "bag", "hdda", "logreg", "logforest", "logicBag"))
     {
-      trainX <- data[,!(names(data) %in% ".outcome")]
+      trainX <- data[,!(names(data) %in% ".outcome"), drop = FALSE]
       trainY <- data[,".outcome"]
       if(!is.null(pp))
         {
@@ -1465,7 +1465,7 @@
                      gam =
                      {
                        library(mgcv)
-                       mgcv:::gam(gamFormula(data[,!(names(data) %in% ".outcome")]),
+                       mgcv:::gam(gamFormula(data[,!(names(data) %in% ".outcome"), drop = FALSE]),
                                   data = data,
                                   family = if(type == "Regression") gaussian() else  binomial(),
                                   select = tuneValue$.select,
@@ -1475,7 +1475,7 @@
                      gamLoess =
                      {
                        library(gam)
-                       gam:::gam(gamFormula(data[,!(names(data) %in% ".outcome")],
+                       gam:::gam(gamFormula(data[,!(names(data) %in% ".outcome"), drop = FALSE],
                                             smoother = "lo",
                                             span = tuneValue$.span,
                                             degree = tuneValue$.degree),
@@ -1487,7 +1487,7 @@
                      gamSpline =
                      {
                        library(gam)
-                       gam:::gam(gamFormula(data[,!(names(data) %in% ".outcome")],
+                       gam:::gam(gamFormula(data[,!(names(data) %in% ".outcome"), drop = FALSE],
                                             smoother = "s",
                                             df = tuneValue$.df),
                                  data = data,

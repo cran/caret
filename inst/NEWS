@@ -1,4 +1,30 @@
 -------------------
+Version: 4.72
+Date: 2010-12-17
+
+A new function for RFE with gam:::gam was added.
+
+"Down-sampling" was implemented with bag() so that, for 
+classification models, each class has the same number of classes
+as the smallest class.
+
+Added a new class, dummyVars, that creates an entire set of
+binary dummy variables (instead of the reduced, full rank set).
+The initial code was suggested by Gabor Grothendieck on R-Help.
+The predict method is used to create dummy variables for any
+data set.
+
+Added R2 and RMSE functions for evaluating regression models
+
+Bug fixes:
+ - varImp.gam() failed to recognize objects from mgcv
+ - a small fix to test a logical vector filterVarImp()
+ - when diff.resamples calculated the number of comparisons,
+   the "models" argument was ignored.
+ - predict.bag was ignoring type = "prob"
+ - minor updates to conform to R 2.13.0
+
+-------------------
 Version: 4.70
 Date: 2010-11-09
 
@@ -11,7 +37,7 @@ Added p-value adjustments to summary.diff.resamples. Confidence intervals
 in dotplot.diff.resamples are adjusted accordingly if the Bonferroni is
 used.
 
-For dotplot.resamples, no point was plotted when the upper and/or
+For dotplot.resamples(), no point was plotted when the upper and/or
 lower interval values were NaN. Now, the point is plotted but without
 the interval bars.
 

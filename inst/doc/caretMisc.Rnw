@@ -210,8 +210,8 @@ While there are some models that thrive on correlated predictors (such as \textt
 Given a correlation matrix, the \texttt{findCorrelation} function uses the following algorithm to flag predictors for removal:
 
 \begin{algorithm}[H]
-	\SetLine
-	\restylealgo{boxed}
+	\SetAlgoLined
+	\RestyleAlgo{boxed}
 	\Repeat{no correlations are above a threshold}{
 	Find the pair of predictors with the largest absolute correlation;
 	

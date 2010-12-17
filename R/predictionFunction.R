@@ -148,7 +148,7 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                              out
                            },
 
-                           pcr=, pls =,
+                           pcr=, pls =
                            {
                              library(pls)
                              
@@ -402,7 +402,7 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                              predict(modelFit, as.matrix(newdata), type = "class")
                            },
 
-                           logitBoost =,
+                           logitBoost =
                            {
                              library(caTools)
 
@@ -852,8 +852,7 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                                      as.character(predict(modelFit, newData = newdata))
                                    }
                                } else predict(modelFit, newData = newdata)
-                           }
-                           )
+                           })
   predictedValue
 }
 
