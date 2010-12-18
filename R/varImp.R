@@ -40,10 +40,10 @@ varImp.multinom <- function(object, ...)
 varImp.gam <- function(object, ...)
   {
 
-    if(any(names(object) == "mgcv.conv"))
+    if(any(names(object) %in% c("edf", "mgcv.conv", "gcv.ubre")))
       {
         library(mgcv)
-        tmp <- anova(object)
+        tmp <- mgcv:::anova.gam(object)
         smoothed <- data.frame(Overall = tmp$s.table[, 4])
 
         if(nrow(tmp$p.table) > 1)
@@ -61,7 +61,7 @@ varImp.gam <- function(object, ...)
         out <- subset(out, rownames(out) != "Intercept")
       } else {
         library(gam)
-        trms <- attr(test$terms, "term.labels")
+        trms <- attr(object$terms, "term.labels")
 
         vars <- all.vars(object$terms)[-1]
         out <- data.frame(Overall = rep(NA, length(vars)))

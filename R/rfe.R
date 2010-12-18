@@ -574,6 +574,65 @@ treebagFuncs <- list(summary = defaultSummary,
                      selectVar = pickVars)
 
 
+
+
+gamFuncs <- list(summary = defaultSummary,
+                 fit = function(x, y, first, last, ...)
+                 {
+                   loaded <- search()
+                   gamLoaded <- any(loaded == "package:gam")
+                   if(gamLoaded) detach(package:gam)
+                   library(mgcv)
+                   dat <- if(is.data.frame(x)) x else as.data.frame(x)
+                   dat$y <- y
+                   args <- list(formula = caret:::gamFormula(x, smoother = "s", y = "y"),
+                                data = dat,
+                                family = if(!is.factor(y)) gaussian else  binomial)
+                   do.call("gam", args)
+                 },
+                 pred = function(object, x)
+                 {
+                                        #browser()
+                   loaded <- search()
+                   gamLoaded <- any(loaded == "package:gam")
+                   if(gamLoaded) detach(package:gam)
+                   library(mgcv)
+                   rsp <- predict(object, newdata = x, type = "response")
+                   if(object$family$family == "binomial")
+                     {
+                       lvl <- levels(object$model$y)
+                       out <- data.frame(p1 = rsp,
+                                         p2 = 1-rsp,
+                                         pred = factor(ifelse(rsp > .5, lvl[2], lvl[1]),
+                                           levels = lvl))
+                       colnames(out)[1:2] <- make.names(lvl)
+                       out
+                     } else out <- data.frame(pred = rsp)
+                   out
+                   
+                 },
+                 rank = function(object, x, y)
+                 {
+
+                   loaded <- search()
+                   gamLoaded <- any(loaded == "package:gam")
+                   if(gamLoaded) detach(package:gam)
+                   library(mgcv)
+                   vimp <- varImp(object)
+                   vimp$var <- rownames(vimp)
+                   if(any(!(colnames(x) %in% rownames(vimp))))
+                     {
+                       missing <- colnames(x)[!(colnames(x) %in% rownames(vimp))]
+                       tmpdf <- data.frame(var = missing,
+                                           Overall = rep(0, length(missing)))
+                       vimp <- rbind(vimp, tmpdf)
+                     }
+                   vimp
+                 },
+                 selectSize = pickSizeBest,
+                 selectVar = pickVars)
+
+
 rfFuncs <-  list(summary = defaultSummary,
                  fit = function(x, y, first, last, ...)
                  {

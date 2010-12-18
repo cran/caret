@@ -203,7 +203,7 @@ predictors(x, ...)
 \details{
 For \code{\link[randomForest]{randomForest}}, \code{\link[party]{cforest}}, \code{\link[party]{ctree}}, \code{\link[rpart]{rpart}}, \code{\link[ipred:bagging]{ipredbagg}},  \code{\link[ipred]{bagging}},  \code{\link[earth]{earth}},  \code{\link[mda]{fda}},  \code{\link[pamr]{pamr.train}},   \code{\link[superpc]{superpc.train}},  \code{\link{bagEarth}} and  \code{\link{bagFDA}}, an attempt was made to report the predictors that were actually used in the final model. 
 
-In cases where the predictors cannot be determined, \code{NA} is returned. For example, \code{\link[nnet]{nnet}} may retrun missing values from \code{predictors}.
+In cases where the predictors cannot be determined, \code{NA} is returned. For example, \code{\link[nnet]{nnet}} may return missing values from \code{predictors}.
 }
 \value{
 a character string of predictors or \code{NA}.

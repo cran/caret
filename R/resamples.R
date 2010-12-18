@@ -371,9 +371,13 @@ dotplot.resamples <- function (x, data = NULL, models = x$models, metric = x$met
   results <- lapply(plotData,
                     function(x, cl)
                     {
-                      ttest <- t.test(x$value, conf.level = cl)
-                      out <- c(ttest$conf.int, ttest$estimate)
-                      names(out) <- c("LowerLimit", "UpperLimit", "Estimate")
+                      ttest <- try(t.test(x$value, conf.level = cl),
+                                   silent = TRUE)
+                      if(class(ttest)[1] == "htest")
+                        {
+                          out <- c(ttest$conf.int, ttest$estimate)
+                          names(out) <- c("LowerLimit", "UpperLimit", "Estimate")
+                        } else out <- rep(NA, 3)
                       out
                     },
                     cl = conf.level)
@@ -432,6 +436,7 @@ diff.resamples <- function(x,
     allDif <- vector(mode = "list", length = length(metric))
     names(allDif) <- metric
 
+    x$models <- x$models[x$models %in% models]
     p <- length(x$models)
     ncomp <- choose(p, 2)
     if(adjustment == "bonferroni") confLevel <- 1 - ((1 - confLevel)/ncomp)

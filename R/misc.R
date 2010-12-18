@@ -386,6 +386,20 @@ decoerce <- function(x, grid, dot = FALSE)
 }  
 
 
+
+
+R2 <- function(pred, obs, formula = "corr", na.rm = FALSE)
+  {
+    n <- sum(complete.cases(pred))
+    switch(formula,
+           corr = cor(obs, pred, use = ifelse(na.rm, "complete.obs", "everything"))^2,
+           traditional = 1 - (sum((obs-pred)^2, na.rm = na.rm)/((n-1)*var(obs, na.rm = na.rm))))
+  }
+
+
+RMSE <- function(pred, obs, na.rm = FALSE) sqrt(mean((pred - obs)^2, na.rm = na.rm))
+
+
 defaultSummary <- function(data, lev = NULL, model = NULL)
   {
     if(is.character(data$obs)) data$obs <- factor(data$obs, levels = lev)
@@ -912,7 +926,7 @@ depth2cp <- function(x, depth)
 
 
 
-gamFormula <- function(data, smoother = "s", cut = 10, df = 0, span = .5, degree = 1)
+gamFormula <- function(data, smoother = "s", cut = 10, df = 0, span = .5, degree = 1, y = ".outcome")
   {
     nzv <- nearZeroVar(data)
     if(length(nzv) > 0) data <- data[, -nzv, drop = FALSE]
@@ -930,7 +944,7 @@ gamFormula <- function(data, smoother = "s", cut = 10, df = 0, span = .5, degree
       }
     rhs <- paste(prefix, names(numValues), suffix, sep = "")
     rhs <- paste(rhs, collapse = "+")
-    form <- as.formula(paste(".outcome~", rhs, sep = ""))
+    form <- as.formula(paste(y, rhs, sep = "~"))
     form
   }
 

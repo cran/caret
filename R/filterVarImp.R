@@ -29,7 +29,7 @@ filterVarImp <- function(x, y, nonpara = FALSE, ...)
                               function(x, class, pos)
                               {
                                 isMissing <- is.na(x) | is.na(class) 
-                                if(isMissing)
+                                if(any(isMissing))
                                   {
                                     x <- x[!isMissing]
                                     class <- class[!isMissing]

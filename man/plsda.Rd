@@ -28,7 +28,7 @@ splsda(x, ...)
   \item{y}{a factor or indicator matrix for the discrete outcome. If a matrix, the entries must be either 0 or 1 and rows must sum to one}
   \item{ncomp}{the number of components to include in the model. Predictions can be made for models with values less than \code{ncomp}. }
   \item{probMethod}{either "softmax" or "Bayes" (see Details)}
-  \item{prior}{a vector or prior probabilities for the classes (only used for \code{probeMethod = "Bayes"}}
+  \item{prior}{a vector or prior probabilities for the classes (only used for \code{probeMethod = "Bayes"})}
   \item{\dots}{arguments to pass to \code{\link[pls:mvr]{plsr}} or \code{\link[spls]{spls}}. For \code{splsda}, this is the method for passing tuning parameters specifications (e.g. \code{K}, \code{eta} or \code{kappa})}
   \item{object}{an object produced by \code{plsda}}
   \item{newdata}{a matrix or data frame of predictors}

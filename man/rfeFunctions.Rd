@@ -2,6 +2,7 @@
 \alias{caretFuncs}
 \alias{lmFuncs}
 \alias{rfFuncs}
+\alias{gamFuncs}
 \alias{treebagFuncs}
 \alias{ldaFuncs}
 \alias{nbFuncs}
@@ -25,6 +26,7 @@ rfFuncs
 treebagFuncs
 ldaFuncs
 nbFuncs
+gamFuncs
 }
 
 \arguments{

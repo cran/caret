@@ -136,9 +136,9 @@ More formally:
 
 \begin{algorithm}[H]
    \label{A:tune}
-   \SetLine
-   \restylealgo{plain}
-   \dontprintsemicolon
+   \SetAlgoLined
+   \RestyleAlgo{plain}
+   \DontPrintSemicolon
   Define  sets of model parameter values to evaluate \nllabel{A:grid}\;
   \For{each parameter set}{
 

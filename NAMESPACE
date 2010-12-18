@@ -150,7 +150,14 @@ export(
        twoClassSummary,
        createMultiFolds,
        checkConditionalX,
-       checkResamples
+       checkResamples,
+       dummyVars,
+       dummyVars.default,
+       predict.dummyVars,
+       contr.dummy,
+       gamFuncs,
+       R2,
+       RMSE
        )
 
 S3method(confusionMatrix, default)
@@ -176,6 +183,7 @@ S3method(nullModel,       default)
 S3method(resamples,       default)
 S3method(icr,             default)
 S3method(bag,             default)
+S3method(dummyVars,       default)
 
 S3method(train,   formula)
 S3method(pcaNNet, formula)
@@ -219,7 +227,7 @@ S3method(histogram,   sbf)
 
 S3method(densityplot, resamples)
 S3method(bwplot,      resamples)
-S3method(dotplot,      resamples)
+S3method(dotplot,     resamples)
 S3method(splom,       resamples)
 S3method(xyplot,      resamples)
 S3method(parallel,    resamples)
@@ -259,6 +267,7 @@ S3method(print, summary.diff.resamples)
 S3method(print, icr)
 S3method(print, bag)
 S3method(print, prcomp.resamples)
+S3method(print, dummyVars)
 
 S3method(predict, PLS)
 S3method(predict, plsda)
@@ -277,6 +286,7 @@ S3method(predict, sbf)
 S3method(predict, icr)
 S3method(predict, bag)
 S3method(predict, rfe)
+S3method(predict, dummyVars)
 
 S3method(summary, bagEarth)
 S3method(summary, bagFDA)
@@ -356,6 +366,7 @@ S3method(as.table,  confusionMatrix)
 S3method(as.matrix, confusionMatrix)
 
 S3method(summary, resamples)
+S3method(summary, bag)
 
 S3method(diff, resamples)
 
