@@ -1,4 +1,13 @@
 -------------------
+Version: 4.73
+Date: 2010-12-21
+
+Bug fixes to preProcess related to complete.cases and a single predictor.
+
+For knn models (knn3 and knnreg), added automatic conversion of data frames
+to matrices
+
+-------------------
 Version: 4.72
 Date: 2010-12-17
 
