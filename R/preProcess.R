@@ -74,7 +74,7 @@ preProcess.default <- function(x, method = c("center", "scale"),
                           x = x)    
     } else bagModels <- NULL
   
-  x <- x[complete.cases(x),]
+  x <- x[complete.cases(x),,drop = FALSE]
   
   if(any(method == "pca"))
     {
@@ -118,7 +118,7 @@ preProcess.default <- function(x, method = c("center", "scale"),
               knnSummary = knnSummary,
               bagImp = bagModels,
               cols = cols,
-              data = if(any(method == "knnImpute")) scale(x[complete.cases(x),]) else NULL)
+              data = if(any(method == "knnImpute")) scale(x[complete.cases(x),,drop = FALSE]) else NULL)
   structure(out, class = "preProcess")
   
 }

@@ -8,9 +8,10 @@ knnreg.default <- function(x, ...)
 knnreg.formula <- function (formula, data, subset, na.action, k = 5, ...) 
 {
   cl <- match.call()
-  if (missing(formula) || (length(formula) != 3) || (length(attr(terms(formula[-2], 
-                                   data = data), "term.labels")) < 1) || (length(attr(terms(formula[-3], 
-                                     data = data), "term.labels")) != 1)) 
+  if (missing(formula) ||
+      (length(formula) != 3) ||
+      (length(attr(terms(formula[-2],  data = data), "term.labels")) < 1) ||
+      (length(attr(terms(formula[-3],  data = data), "term.labels")) != 1)) 
     stop("formula missing or incorrect")
   m <- match.call(expand.dots = FALSE)
   if (is.matrix(eval(m$data, parent.frame()))) 
@@ -48,7 +49,7 @@ knnreg.formula <- function (formula, data, subset, na.action, k = 5, ...)
 
 knnreg.matrix <- function(x, y, k = 5, ...)
 {
-  if(!is.matrix(x)) stop("x must be a matrix")
+  if(!is.matrix(x)) x <- as.matrix(x)
   if(!is.numeric(y)) stop("y must be numeric")
   RET <- list(learn = list(y = y, X = x))
   RET$k <- k
