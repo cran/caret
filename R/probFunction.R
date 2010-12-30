@@ -131,7 +131,7 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
                           }                        
                         out
                       },
-                      rf =, treebag  =, parRF =
+                      rf =, treebag  =, parRF =, Boruta = 
                       {
                         library(randomForest)
                         out <- predict(modelFit, newdata, type = "prob")            
@@ -218,6 +218,14 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
                         out
                       },
 
+                      gcvEarth =
+                      {
+                        library(earth)
+                        out <- predict(modelFit, newdata, type= "response")
+                        out <- cbind(1-out, out)
+                        colnames(out) <-  modelFit$obsLevels
+                        out
+                      },
                       
                       fda =
                       {
@@ -359,6 +367,13 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
                         dimnames(out)[[2]] <-  modelFit$obsLevels
                         out
                       },
+                      #plsGlmBinomial =
+                      #{                      
+                      #  out <- predict(modelFit$FinalModel, newdata, type = "response")
+                      #  out <- cbind(1-out, out)
+                      #  dimnames(out)[[2]] <-  modelFit$obsLevels
+                      #  out
+                      #},
                       mda =, pda =, pda2 =
                       {
                         library(mda)

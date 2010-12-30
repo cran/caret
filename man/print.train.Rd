@@ -7,8 +7,9 @@
 \usage{
 \method{print}{train}(x, 
       digits = min(3, getOption("digits") - 3), 
-      printCall = TRUE, 
+      printCall = FALSE, 
       details = FALSE, 
+      selectCol = FALSE,
       ...)
 }
 \arguments{
@@ -20,6 +21,7 @@
   final model. In some cases (such as \code{gbm}, \code{knn},
   \code{lvq}, naive Bayes and bagged tree models), no information will
   be printed even if \code{details = TRUE}}
+  \item{selectCol}{a logical to a column with a star next to the final model}
   
   \item{\ldots}{options passed to the generic print method}
 }

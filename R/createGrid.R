@@ -227,7 +227,7 @@
                         .interaction.depth = seq(1, len),
                         .n.trees = floor((1:len) * 50),
                         .shrinkage = .1),
-                      rf =, rfNWS =, rfLSF =, parRF =, qrf = rfTune(data, len),
+                      rf =, rfNWS =, rfLSF =, parRF =, qrf =, Boruta = rfTune(data, len),
                       gpls = data.frame(.K.prov =seq(1, len) ),
                       lvq = lvqGrid(data, len),
                       rpart = rpartTune(data, len),
@@ -239,14 +239,15 @@
                       bagEarth =, bagFDA =, earth =,
                       earthTest =, mars =,
                       fda = expand.grid(.degree = 1, .nprune = marsSeq(data, len)),
-                      svmLinear = data.frame(.C = 10 ^((1:len) - 2)), 
+                      gcvEarth = expand.grid(.degree = 1),
+                      svmLinear = data.frame(.C = 2 ^((1:len) - 3)), 
                       svmradial =, svmRadial = expand.grid(
                                      .sigma = rbfTune(data, len),
-                                     .C = 10 ^((1:len) - 2)),   
+                                     .C = 2 ^((1:len) - 3)),   
                       svmpoly =, svmPoly = expand.grid(
                                    .degree = seq(1, min(len, 3)),      
                                    .scale = 10 ^((1:len) - 4),
-                                   .C = 10 ^((1:len) - 2)),
+                                   .C = 2 ^((1:len) - 3)),
                                         # For 4 different data sets using rvm, I've seen that the default sigma
                                         # causes numerical issue in chol.default (leading minor is not
                                         # positive definite), so we'll use the high value from sigest
@@ -331,6 +332,11 @@
                       gam = expand.grid(.select = c(TRUE, FALSE), .method = "GCV.Cp"),
                       gamLoess = expand.grid(.span = .5, .degree = 1:2),
                       gamSpline = expand.grid(.df = seq(1, 3, length = len)),
+                      plsGlmBinomial =, plsGlmGaussian =, plsGlmGamma =, plsGlmPoisson = data.frame(.nt = 1:len),
+                      qrnn = expand.grid(
+                                .n.hidden = ((1:len) * 2) - 1, 
+                                .penalty = c(0, 10 ^ seq(-1, -4, length = len - 1)),
+                                .bag = FALSE),
                       lda =, lm =, treebag =, sddaLDA =, sddaQDA =,
                       glm =, qda =, OneR =, rlm =,
                       rvmLinear =, lssvmLinear =, gaussprLinear =,

@@ -1,4 +1,28 @@
 -------------------
+Version: 4.75
+Date: 2010-12-27
+
+New model types:
+
+  - 'gcvEearth' which is the basic MARS model. The pruning procedure 
+    is the nominal one based on GCV; only the degree is tuned by train().
+  - 'qrnn' for quantile regression neural networks from the qrnn package. 
+  - 'Boruta' for random forests models with feature selection via the
+    Boruta package. 
+
+-------------------
+Version: 4.74
+Date: 2010-12-27
+
+Some changes to print.train:
+ - the call is not automatically printed (but can be when print.train is
+   explicitly invoked)
+ - the "Selected" column is also not automatically printed (buy can be)
+ - non-table text now respects options("width")
+ - only significant digits are now printed when tuning parameters are 
+   kept at a constant value
+
+-------------------
 Version: 4.73
 Date: 2010-12-21
 

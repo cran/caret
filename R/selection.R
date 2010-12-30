@@ -25,7 +25,7 @@ byComplexity <- function(x, model)
            },
            rf =, rfNWS =, rfLSF =, parRF =, gpls =, pcr =, pls =, PLS =, pam =, cforest =,
            nb =, rpart =, ctree2 =, logitBoost=, J48 =, LMT =, ppr =, mda =, pda =, pda2 =,
-           lars =, lars2 =, Linda =, QdaCov =, icr =, qrf =
+           lars =, lars2 =, Linda =, QdaCov =, icr =, qrf =,Boruta =
            {
              x[order(x[,1]),]
            },
@@ -60,6 +60,10 @@ byComplexity <- function(x, model)
            {
              x[order(x$size, -x$decay),]
            },
+           qrnn =
+           {
+             x[order(x$n.hidden, -x$penalty),]
+           },           
            knn =, multinom =
            {
              x[order(-x[,1]),]
@@ -72,6 +76,10 @@ byComplexity <- function(x, model)
            {
              x[order(x$degree, x$nprune),]
            },
+           gcvEarth =
+           {
+             x[order(x$degree),]
+           },           
            treebag =, lda =, lm =, sddaLDA =, sddaQDA =,
            glmStepAIC =,lmStepAIC =, slda =, glm =, qda =, OneR =,
            rvmLinear =, lssvmLinear =, gaussprLinear =,
@@ -149,6 +157,10 @@ byComplexity <- function(x, model)
            hdda =
            {
              x[order(-x$threshold),]
+           },
+           plsGlmBinomial =, plsGlmGaussian =, plsGlmGamma =, plsGlmPoisson =
+           {
+             x[order(x$nt),]
            },
            logreg = x[order(x$ntrees, x$treesize),],
            logicBag = x[order(x$ntrees, x$nleaves),],

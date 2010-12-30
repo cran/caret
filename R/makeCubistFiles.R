@@ -93,13 +93,13 @@ makeCubistFiles <- function(x, y,
 
         write.table(test.data,
                     sep = ",",
-                    file = paste(prefix, ".cases", sep = ""),
+                    file = paste(prefix, ".test", sep = ""),
                     quote = FALSE,
                     row.names = FALSE,
                     col.names = FALSE)
         
-        if(!file.exists(paste(prefix, ".cases", sep = "")))
-          stop(paste("error creating", paste(prefix, ".cases", sep = "")))
+        if(!file.exists(paste(prefix, ".test", sep = "")))
+          stop(paste("error creating", paste(prefix, ".test", sep = "")))
       }
 
     
@@ -109,7 +109,7 @@ makeCubistFiles <- function(x, y,
 
 fitCubist <- function(path = NULL, prefix = "model", numCom = 1, nn = 5, rules = 5)
   {
-    if(is.null(path)) path <- "/grid/gro/vol/ccdev/cscoe/Cubist/PfeCubistModel/bin/PfeCubistModel64"
+    if(is.null(path)) path <- "~/Downloads/Cubist/cubist"
     fitCall <- paste(path,
                      "-f", prefix,
                      "-C", numCom,
@@ -128,9 +128,9 @@ fitCubist <- function(path = NULL, prefix = "model", numCom = 1, nn = 5, rules =
     invisible(fitCall)
   }
 
-cubistPred <- function(path = NULL, prefix = "model", cleanup = TRUE)
+cubistPred <- function(path = NULL, prefix = "model", cleanup = FALSE)
   {
-    if(is.null(path)) path <- "/grid/gro/vol/ccdev/cscoe/Cubist/PfeCubistPredict/bin/PfeCubistPredict64"
+    if(is.null(path)) path <- "~/Downloads/Cubist/cubist"
     
     predCall <- paste(path,"-f", prefix,
                       ">", paste(prefix, ".csv", sep = ""))
@@ -139,11 +139,20 @@ cubistPred <- function(path = NULL, prefix = "model", cleanup = TRUE)
                      intern = FALSE)
     if(doPred == 0)
       {
-        if(!file.exists(paste(prefix, ".csv", sep = "")))
-          stop("csv file was not created")
+        if(!file.exists(paste(prefix, ".pred", sep = "")))
+          stop(".pred file was not created")
       } else stop("system call returned an error")
 
-    ret <- read.csv(paste(prefix, ".csv", sep = ""))
+   # tmp <- read.delim(paste(prefix, ".pred", sep = ""), sep = "\n", header = FALSE, stringsAsFactors = FALSE)
+   # startRow <- grep("--", tmp$V1) - 1
+    ret <- read.delim(paste(prefix, ".pred", sep = ""),
+                      skip = 6,
+                      sep = "\n",
+                      stringsAsFactors = FALSE,
+                      header = FALSE)[,1]
+    splitUp <- strsplit(ret, " ")
+    obs <- as.numeric(unlist(lapply(splitUp, function(x)x[x != ""][1])))
+    pred <- as.numeric(unlist(lapply(splitUp, function(x)x[x != ""][2])))
     if(cleanup)
       {
         try(unlink(paste(prefix, ".data", sep = "")), silent = TRUE)
@@ -153,7 +162,7 @@ cubistPred <- function(path = NULL, prefix = "model", cleanup = TRUE)
         try(unlink(paste(prefix, ".csv", sep = "")), silent = TRUE)
         try(unlink(paste(prefix, ".cases", sep = "")), silent = TRUE)
       }
-    ret
+    data.frame(obs = obs, pred = pred)
   }
 
 
