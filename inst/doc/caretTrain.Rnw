@@ -412,7 +412,8 @@ seqModList <- paste(paste("\\\\texttt{", unique(subset(modelLookup(), seq)$model
 
 \item [] Alternate model training schemes can be used by passing
   \texttt{nk} and/or \texttt{pmethod} to the \texttt{earth}
-  function. 
+  function. Also, using \texttt{method = 'gcvEearth'} will use the
+  basic GCV pruning procedure and only tune the degree.
 
 \item [] Also, there may be cases where the message such as
   ``specified 'nprune' 29 is greater than the number of available
@@ -587,6 +588,11 @@ There is additional functionality in \texttt{train} that is described in the nex
             {\tt \href{http://cran.r-project.org/web/packages/party/index.html}{party}}     & 
             \texttt{mtry} & \\     
 
+                  & 
+         \texttt{Boruta} & 
+            {\tt \href{http://cran.r-project.org/web/packages/Boruta/index.html}{Boruta}}     & 
+            \texttt{mtry} & \\                 
+            
             \rowcolor[rgb]{.95, .95, .95}   
       Bagging&
          \texttt{treebag} & 
@@ -617,7 +623,13 @@ There is additional functionality in \texttt{train} that is described in the nex
       Multivariate Adaptive Regression Splines &
          \texttt{earth}, \texttt{mars} & 
              {\tt \href{http://cran.r-project.org/web/packages/earth/index.html}{earth}}      & 
-            \texttt{degree}, \texttt{nprune} & \\            
+            \texttt{degree}, \texttt{nprune} & \\    
+ 
+\rowcolor[rgb]{.95, .95, .95}             
+&
+         \texttt{gcvEarth} & 
+             {\tt \href{http://cran.r-project.org/web/packages/earth/index.html}{earth}}      & 
+            \texttt{degree} & \\                  
 
      Bagged MARS &
          \texttt{bagEarth} & 
@@ -736,7 +748,12 @@ There is additional functionality in \texttt{train} that is described in the nex
       Quantile Regression Forests &
          \texttt{qrf} & 
              {\tt \href{http://cran.r-project.org/web/packages/quantregForest/index.html}{quantregForest}}       & 
-            \texttt{mtry} & \\                 
+            \texttt{mtry} & \\      
+            
+        Quantile Regression Neural Networks &
+        \texttt{qrnn} &
+         {\tt \href{http://cran.r-project.org/web/packages/qrnn/index.html}{qrnn}}    & 
+            \texttt{n.hidden}, \texttt{penalty}, \texttt{bag}  & \\             
                    
  \rowcolor[rgb]{.95, .95, .95}   
       Rule--Based Models &
@@ -1408,7 +1425,7 @@ pdf(paste(getwd(), "/svm1.pdf", sep = ""), width = 5, height = 5)
 dev.off()
 pdf(paste(getwd(), "/svm2.pdf", sep = ""), width = 5, height = 5)
    trellis.par.set(caretTheme(), warn = FALSE)
-   print(plot(svmFit, xTrans = function(u) log(u, base = 10)))
+   print(plot(svmFit, xTrans = function(u) log(u, base = 2)))
 dev.off()
 pdf(paste(getwd(), "/gbm1.pdf", sep = ""), width = 5, height = 5)
    trellis.par.set(caretTheme(), warn = FALSE)

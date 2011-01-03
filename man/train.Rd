@@ -32,7 +32,7 @@ train(x, ...)
 \item{subset}{An index vector specifying the cases to be used in the training sample. (NOTE: If given, this argument must be named.)}
 \item{na.action}{A function to specify the action to be taken if NAs are found. The default action is for the procedure to fail. An alternative is na.omit, which leads to rejection of cases with missing values on any required variable. (NOTE: If given, this argument must be named.)}
 \item{contrasts}{a list of contrasts to be used for some or all of the factors appearing as variables in the model formula.}
-  \item{method}{a string specifying which classification or regression model to use. Possible values are: \code{ada}, \code{bag}, \code{bagEarth}, \code{bagFDA}, \code{blackboost}, \code{cforest}, \code{ctree}, \code{ctree2}, \code{earth}, \code{enet}, \code{fda}, \code{foba}, \code{gam}, \code{gamboost}, \code{gamLoess}, \code{gamSpline}, \code{gaussprPoly}, \code{gaussprRadial}, \code{gaussprLinear}, \code{gbm}, \code{glm}, \code{glmboost}, \code{glmnet}, \code{gpls}, \code{hda},  \code{hdda}, \code{icr}, \code{J48}, \code{JRip}, \code{knn}, \code{lars}, \code{lasso}, \code{lda}, \code{Linda}, \code{lm}, \code{lmStepAIC}, \code{LMT}, \code{logforest}, \code{logitBoost}, \code{logreg}, \code{lssvmPoly}, \code{lssvmRadial}, \code{lvq}, \code{M5Rules}, \code{mda}, \code{multinom}, \code{nb}, \code{neuralnet}, \code{nnet}, \code{nodeHarvest}, \code{OneR}, \code{pam}, \code{parRF}, \code{partDSA}, \code{pcaNNet}, \code{pcr}, \code{pda}, \code{pda2}, \code{penalized}, \code{plr}, \code{pls}, \code{ppr}, \code{qda}, \code{QdaCov}, \code{rda}, \code{rf}, \code{rlm}, \code{rocc}, \code{rpart}, \code{rvmLinear}, \code{rvmPoly}, \code{rvmRadial}, \code{sda}, \code{sddaLDA}, \code{sddaQDA}, \code{slda}, \code{smda}, \code{sparseLDA}, \code{spls}, \code{stepLDA}, \code{stepQDA}, \code{superpc}, \code{svmPoly}, \code{svmRadial}, \code{svmLinear}, \code{treebag} and  \code{vbmpRadial}. See the Details section below.}  
+  \item{method}{a string specifying which classification or regression model to use. Possible values are: \code{ada}, \code{bag}, \code{bagEarth}, \code{bagFDA}, \code{blackboost}, \code{Boruta}, \code{cforest}, \code{ctree}, \code{ctree2}, \code{earth}, \code{enet}, \code{fda}, \code{foba}, \code{gam}, \code{gamboost}, \code{gamLoess}, \code{gamSpline}, \code{gaussprPoly}, \code{gaussprRadial}, \code{gaussprLinear}, \code{gbm}, \code{gcvEarth}, \code{glm}, \code{glmboost}, \code{glmnet}, \code{gpls}, \code{hda},  \code{hdda}, \code{icr}, \code{J48}, \code{JRip}, \code{knn}, \code{lars}, \code{lasso}, \code{lda}, \code{Linda}, \code{lm}, \code{lmStepAIC}, \code{LMT}, \code{logforest}, \code{logitBoost}, \code{logreg}, \code{lssvmPoly}, \code{lssvmRadial}, \code{lvq}, \code{M5Rules}, \code{mda}, \code{multinom}, \code{nb}, \code{neuralnet}, \code{nnet}, \code{nodeHarvest}, \code{OneR}, \code{pam}, \code{parRF}, \code{partDSA}, \code{pcaNNet}, \code{pcr}, \code{pda}, \code{pda2}, \code{penalized}, \code{plr}, \code{pls}, \code{ppr}, \code{qda}, \code{QdaCov}, \code{qrnn}, \code{rda}, \code{rf}, \code{rlm}, \code{rocc}, \code{rpart}, \code{rvmLinear}, \code{rvmPoly}, \code{rvmRadial}, \code{sda}, \code{sddaLDA}, \code{sddaQDA}, \code{slda}, \code{smda}, \code{sparseLDA}, \code{spls}, \code{stepLDA}, \code{stepQDA}, \code{superpc}, \code{svmPoly}, \code{svmRadial}, \code{svmLinear}, \code{treebag} and  \code{vbmpRadial}. See the Details section below.}  
   \item{\ldots}{ arguments passed to the classification or regression routine (such as \code{\link[randomForest]{randomForest}}). Errors will occur if values
          for tuning parameters are passed here.} 
 \item{preProcess}{a string vector that defines an pre-processing of the predictor data. Current possibilities are \code{center}, \code{scale}, \code{spatialSign}, \code{pca}, \code{ica}, and \code{knnImpute}. See \code{\link{preProcess}} and \code{\link{trainControl}} on the procedures and how to adjust them.} 
@@ -59,57 +59,60 @@ Generalized additive model \tab \code{gam} \tab \pkg{mgcv} \tab \code{select}, \
                            \tab \code{gamLoess} \tab \pkg{gam} \tab \code{span}, \code{degree} \cr      
                            \tab \code{gamSpline} \tab \pkg{gam} \tab \code{df} \cr     
 Recursive partitioning \tab \code{rpart} \tab \pkg{rpart} \tab \code{maxdepth} \cr  
-\tab \code{ctree} \tab \pkg{party} \tab \code{mincriterion} \cr   
-\tab \code{ctree2} \tab \pkg{party} \tab \code{maxdepth} \cr
+                       \tab \code{ctree} \tab \pkg{party} \tab \code{mincriterion} \cr   
+                       \tab \code{ctree2} \tab \pkg{party} \tab \code{maxdepth} \cr
 Boosted trees \tab \code{gbm} \tab \pkg{gbm} \tab \code{interaction depth}, \cr
-\tab \tab \tab \code{n.trees}, \code{shrinkage}  \cr
-\tab \code{blackboost} \tab \pkg{mboost} \tab \code{maxdepth}, \code{mstop}\cr
-\tab \code{ada} \tab \pkg{ada} \tab \code{maxdepth}, \code{iter}, \code{nu}\cr            
+              \tab \tab \tab \code{n.trees}, \code{shrinkage}  \cr
+              \tab \code{blackboost} \tab \pkg{mboost} \tab \code{maxdepth}, \code{mstop}\cr
+              \tab \code{ada} \tab \pkg{ada} \tab \code{maxdepth}, \code{iter}, \code{nu}\cr            
 Boosted regression models \tab \code{glmboost} \tab \pkg{mboost} \tab \code{mstop}\cr   
-\tab \code{gamboost} \tab \pkg{mboost} \tab  \code{mstop}\cr    
-\tab \code{logitBoost} \tab \pkg{caTools} \tab  \code{nIter}\cr    
+                          \tab \code{gamboost} \tab \pkg{mboost} \tab  \code{mstop}\cr    
+                          \tab \code{logitBoost} \tab \pkg{caTools} \tab  \code{nIter}\cr    
 Random forests \tab  \code{rf} \tab \pkg{randomForest} \tab \code{mtry} \cr
-\tab \code{parRF} \tab \pkg{randomForest}, \pkg{foreach} \tab \code{mtry} \cr   
-\tab \code{cforest} \tab \pkg{party} \tab \code{mtry} \cr   
+               \tab \code{parRF} \tab \pkg{randomForest}, \pkg{foreach} \tab \code{mtry} \cr   
+               \tab \code{cforest} \tab \pkg{party} \tab \code{mtry} \cr   
+               \tab \code{Boruta} \tab \pkg{Boruta} \tab \code{mtry} \cr 
 Bagging \tab \code{treebag} \tab \pkg{ipred} \tab None \cr 
         \tab \code{bag}     \tab \pkg{caret} \tab \code{vars} \cr
 	\tab \code{logicBag}\tab \pkg{logicFS}\tab \code{ntrees}, \code{nleaves}\cr
 Other Trees \tab \code{nodeHarvest} \tab \pkg{nodeHarvest} \tab \code{maxinter}, \code{node} \cr 
             \tab \code{partDSA} \tab \pkg{partDSA} \tab \code{cut.off.growth}, \code{MPD} \cr 
-Logic Regression \tab \code{logreg} \tab \pkg{LogicReg} \tab \code{ntrees}, code{treesize} \cr
+Logic Regression \tab \code{logreg} \tab \pkg{LogicReg} \tab \code{ntrees}, \code{treesize} \cr
 Elastic net (glm) \tab  \code{glmnet} \tab \pkg{glmnet} \tab \code{alpha}, \code{lambda} \cr
 Neural networks \tab  \code{nnet} \tab \pkg{nnet} \tab \code{decay}, \code{size} \cr
                 \tab \code{neuralnet} \tab \pkg{neuralnet} \tab \code{layer1}, \code{layer2}, \code{layer3} \cr
-\tab \code{pcaNNet} \tab  \pkg{caret} \tab \code{decay}, \code{size} \cr
+                \tab \code{pcaNNet} \tab  \pkg{caret} \tab \code{decay}, \code{size} \cr
 Projection pursuit regression \tab \code{ppr} \tab \pkg{stats} \tab \code{nterms} \cr
 Principal component regression \tab \code{pcr} \tab \pkg{pls} \tab \code{ncomp} \cr
 Independent component regression \tab \code{icr} \tab \pkg{caret} \tab \code{n.comp} \cr
 Partial least squares \tab \code{pls} \tab \pkg{pls}, \pkg{caret} \tab \code{ncomp} \cr
 Sparse partial least squares \tab \code{spls} \tab \pkg{spls}, \pkg{caret} \tab \code{K}, \code{eta}, \code{kappa} \cr
 Support vector machines  \tab \code{svmLinear} \tab \pkg{kernlab} \tab \code{C}\cr 
-  \tab \code{svmRadial} \tab \pkg{kernlab} \tab \code{sigma}, \code{C}\cr 
-  \tab \code{svmPoly} \tab \pkg{kernlab} \tab \code{scale}, \code{degree}, \code{C}\cr 
+                         \tab \code{svmRadial} \tab \pkg{kernlab} \tab \code{sigma}, \code{C}\cr 
+                         \tab \code{svmPoly} \tab \pkg{kernlab} \tab \code{scale}, \code{degree}, \code{C}\cr 
 Relevance vector machines \tab \code{rvmLinear} \tab \pkg{kernlab} \tab none\cr 
-  \tab \code{rvmRadial} \tab \pkg{kernlab} \tab \code{sigma}\cr 
-  \tab \code{rvmPoly} \tab \pkg{kernlab} \tab \code{scale}, \code{degree}\cr 
+                          \tab \code{rvmRadial} \tab \pkg{kernlab} \tab \code{sigma}\cr 
+                          \tab \code{rvmPoly} \tab \pkg{kernlab} \tab \code{scale}, \code{degree}\cr 
 Least squares support vector machines   \tab \code{lssvmRadial} \tab \pkg{kernlab} \tab \code{sigma}\cr 
 Gaussian processes  \tab \code{guassprLinearl} \tab \pkg{kernlab} \tab none\cr 
-  \tab \code{guassprRadial} \tab \pkg{kernlab} \tab \code{sigma}\cr 
-  \tab \code{guassprPoly} \tab \pkg{kernlab} \tab \code{scale}, \code{degree}\cr 
+                    \tab \code{guassprRadial} \tab \pkg{kernlab} \tab \code{sigma}\cr 
+                    \tab \code{guassprPoly} \tab \pkg{kernlab} \tab \code{scale}, \code{degree}\cr 
 Linear least squares \tab \code{lm} \tab \pkg{stats} \tab None \cr 
                      \tab \code{lmStepAIC} \tab \pkg{MASS} \tab None \cr 
 Robust linear regression \tab \code{rlm} \tab \pkg{MASS} \tab None \cr 
 Multivariate adaptive regression splines \tab \code{earth} \tab \pkg{earth} \tab \code{degree}, \code{nprune} \cr
+                                         \tab \code{gcvEarth} \tab \pkg{earth} \tab \code{degree} \cr
 Bagged MARS \tab \code{bagEarth} \tab \pkg{caret},  \pkg{earth}\tab \code{degree}, \code{nprune} \cr 
 Rule Based Regression \tab \code{M5Rules} \tab \pkg{RWeka} \tab \code{pruned} \cr 
 Penalized linear models \tab \code{penalized} \tab \pkg{penalized} \tab \code{lambda1}, \code{lambda2}\cr
-   \tab \code{enet} \tab \pkg{elasticnet} \tab \code{lambda}, \code{fraction} \cr
-   \tab \code{lars} \tab \pkg{lars} \tab \code{fraction} \cr
-                       \tab \code{lars2} \tab \pkg{lars} \tab \code{steps} \cr
-   \tab \code{enet} \tab \pkg{elasticnet} \tab \code{fraction} \cr
-   \tab \code{foba} \tab \pkg{foba} \tab \code{lambda}, \code{k} \cr
+                        \tab \code{enet} \tab \pkg{elasticnet} \tab \code{lambda}, \code{fraction} \cr
+                        \tab \code{lars} \tab \pkg{lars} \tab \code{fraction} \cr
+                        \tab \code{lars2} \tab \pkg{lars} \tab \code{steps} \cr
+                        \tab \code{enet} \tab \pkg{elasticnet} \tab \code{fraction} \cr
+                        \tab \code{foba} \tab \pkg{foba} \tab \code{lambda}, \code{k} \cr
 Supervised principal components \tab \code{superpc} \tab \pkg{superpc} \tab \code{n.components}, \code{threshold} \cr 
-Quantile Regression Forests \tab \code{qrf} \tab \pkg{quantregForest} \tab \code{mtry} \cr
+Quantile regression forests \tab \code{qrf} \tab \pkg{quantregForest} \tab \code{mtry} \cr
+Quantile regression neural networks \tab \code{qrnn} \tab \pkg{qrnn} \tab \code{n.hidden}, \code{penalty}, \code{bag} \cr 
 Linear discriminant analysis \tab \code{lda} \tab \pkg{MASS} \tab  None\cr 
                              \tab \code{Linda} \tab \pkg{rrcov} \tab  None\cr 
 Quadratic discriminant analysis \tab \code{qda} \tab \pkg{MASS} \tab  None\cr 
@@ -117,16 +120,16 @@ Quadratic discriminant analysis \tab \code{qda} \tab \pkg{MASS} \tab  None\cr
 Stabilized linear discriminant analysis \tab \code{slda} \tab \pkg{ipred} \tab  None\cr 
 Heteroscedastic discriminant analysis \tab \code{hda} \tab \pkg{hda} \tab \code{newdim}, \code{lambda}, \code{gamma} \cr
 Stepwise discriminant analysis \tab \code{stepLDA} \tab \pkg{klaR} \tab \code{maxvar}, \code{direction} \cr
- \tab \code{stepQDA} \tab \pkg{klaR} \tab \code{maxvar}, \code{direction} \cr
+                               \tab \code{stepQDA} \tab \pkg{klaR} \tab \code{maxvar}, \code{direction} \cr
 Stepwise diagonal discriminant analysis \tab \code{sddaLDA} \tab \pkg{SDDA} \tab None \cr
- \tab \code{sddaQDA} \tab \pkg{SDDA} \tab None \cr
+                                        \tab \code{sddaQDA} \tab \pkg{SDDA} \tab None \cr
 Shrinkage discriminant analysis \tab \code{sda} \tab \pkg{sda} \tab \code{diagonal} \cr
 Sparse linear discriminant analysis \tab \code{sparseLDA} \tab \pkg{sparseLDA} \tab \code{NumVars}, \code{lambda} \cr
 Regularized discriminant analysis \tab \code{rda} \tab \pkg{klaR} \tab \code{lambda}, \code{gamma} \cr
 Mixture discriminant analysis \tab \code{mda} \tab \pkg{mda} \tab \code{subclasses} \cr
 Sparse mixture discriminant analysis \tab \code{smda} \tab \pkg{sparseLDA} \tab \code{NumVars}, \code{R}, \code{lambda} \cr
 Penalized discriminant analysis \tab \code{pda} \tab \pkg{mda} \tab \code{lambda}\cr
-\tab \code{pda2} \tab \pkg{mda} \tab \code{df}\cr
+                                \tab \code{pda2} \tab \pkg{mda} \tab \code{df}\cr
 Stabilised linear discriminant analysis \tab \code{slda} \tab \pkg{ipred} \tab None\cr
 High dimensional discriminant analysis \tab \code{hdda} \tab \pkg{HDclassif} \tab \code{model}, \code{threshold} \cr
 Flexible discriminant analysis (MARS) \tab \code{fda} \tab \pkg{mda}, \pkg{earth} \tab \code{degree}, \code{nprune} \cr
@@ -134,9 +137,9 @@ Bagged FDA \tab \code{bagFDA} \tab \pkg{caret},  \pkg{earth} \tab \code{degree},
 Logistic/multinomial regression \tab \code{multinom} \tab \pkg{nnet} \tab \code{decay}\cr 
 Penalized logistic regression \tab \code{plr} \tab \pkg{stepPlr} \tab \code{lambda}, \code{cp}\cr 
 Rule--based classification \tab \code{J48} \tab \pkg{RWeka} \tab \code{C}\cr 
- \tab \code{OneR} \tab \pkg{RWeka} \tab None\cr
- \tab \code{PART} \tab \pkg{RWeka} \tab \code{threshold}, \code{pruned}\cr
- \tab \code{JRip} \tab \pkg{RWeka} \tab \code{NumOpt}\cr
+                           \tab \code{OneR} \tab \pkg{RWeka} \tab None\cr
+                           \tab \code{PART} \tab \pkg{RWeka} \tab \code{threshold}, \code{pruned}\cr
+                           \tab \code{JRip} \tab \pkg{RWeka} \tab \code{NumOpt}\cr
 Logic Forests \tab \code{logforest} \tab \pkg{LogicForest} \tab None \cr
 Bayesian multinomial probit model \tab \code{vbmpRadial} \tab \pkg{vbmp} \tab \code{estimateTheta} \cr
 k nearest neighbors \tab \code{knn3} \tab \pkg{caret} \tab \code{k} \cr 

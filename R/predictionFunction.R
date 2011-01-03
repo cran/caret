@@ -54,7 +54,7 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                              out
                            },
                            
-                           rf =, parRF =
+                           rf =, parRF =, Boruta = 
                            {
                              if(modelFit$problemType == "Classification")
                                {
@@ -275,6 +275,19 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                                  
                                  out <- if(modelFit$problemType == "Classification") lapply(tmp, as.character) else tmp
                                }
+                             out
+                           },
+                           
+                           gcvEarth =
+                           {
+                             library(earth)
+                             if(modelFit$problemType == "Classification")
+                               {
+                                 out <- as.character(predict(modelFit, newdata,  type = "class"))
+                               } else {
+                                 out <- predict(modelFit, newdata)
+                               }
+                             if(is.matrix(out)) out <- out[,1]
                              out
                            },
                            
@@ -852,6 +865,21 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                                      as.character(predict(modelFit, newData = newdata))
                                    }
                                } else predict(modelFit, newData = newdata)
+                           },
+                          # plsGlmBinomial =, plsGlmGaussian =, plsGlmGamma =, plsGlmPoisson =
+                          # {
+                           #  library(plsRglm)
+                           #  out <- predict(modelFit$FinalModel, newdata = newdata, type = "response")
+                           #  ## glm models the second factor level. See Details in ?glm
+                           #  if(modelFit$family$family == "binomial")  out <- ifelse(out> .5,
+                           #       modelFit$obsLevel[2],
+                           #       modelFit$obsLevel[1])
+                           #  out
+                          #  },
+                           qrnn =
+                           {
+                             library(qrnn)
+                             qrnn.predict(as.matrix(newdata), modelFit)[,1]
                            })
   predictedValue
 }

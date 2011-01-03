@@ -46,7 +46,7 @@
   ## Some routines dont have formula inputs (or dont handle them well)
   ## so extract the feature matrix and class factor.
   if(method %in% c("glmboost", "blackboost", "gamboost", "earth", "earthTest",
-                   "bagFDA", "bagEarth", "lda", "enet", "lasso", "nnet",
+                   "bagFDA", "bagEarth", "lda", "enet", "lasso", "nnet", "gcvEarth",
                    "lvq", "pls", "plsTest", "gbm", "pam", "rf", "logitBoost",
                    "ada", "knn", "PLS", "rfNWS", "rfLSF", "pcaNNet",
                    "mars", "rda",  "gpls", "svmpoly", "svmradial",
@@ -58,8 +58,9 @@
                    "qda", "relaxo", "lars", "lars2", "rlm", "vbmpRadial",
                    "superpc", "ppr", "sda", "penalized", "sparseLDA",
                    "nodeHarvest", "Linda", "QdaCov", "stepLDA", "stepQDA",
-                   "parRF", "plr", "rocc", "foba", "partDSA", "hda", "icr",
-                   "qrf", "scrda", "bag", "hdda", "logreg", "logforest", "logicBag"))
+                   "parRF", "plr", "rocc", "foba", "partDSA", "hda", "icr", "Boruta",
+                   "plsGlmBinomial", "plsGlmGaussian", "plsGlmGamma", "plsGlmPoisson",
+                   "qrf", "scrda", "bag", "hdda", "logreg", "logforest", "logicBag", "qrnn"))
     {
       trainX <- data[,!(names(data) %in% ".outcome"), drop = FALSE]
       trainY <- data[,".outcome"]
@@ -503,6 +504,26 @@
                        tmp$call["degree"] <-  tuneValue$.degree
                        tmp  
                      },
+                     gcvEarth =
+                     {
+                       library(earth)
+                       
+                       theDots <- list(...)
+                       theDots$keepxy <- TRUE 
+                       
+                       modelArgs <- c(
+                                      list(
+                                           x = trainX,
+                                           y = trainY,
+                                           degree = tuneValue$.degree),
+                                      theDots)
+                       if(type == "Classification") modelArgs$glm <- list(family=binomial)
+                       
+                       tmp <- do.call("earth", modelArgs)
+
+                       tmp$call["degree"] <-  tuneValue$.degree
+                       tmp  
+                     },                     
                      
                      fda =
                      {
@@ -1494,6 +1515,39 @@
                                  family = if(type == "Regression") gaussian() else  binomial(),
                                  ...)
                                  
+                     },
+                     #plsGlmBinomial =, plsGlmGaussian =, plsGlmGamma =, plsGlmPoisson =
+                     #{
+                     #  library(plsRglm)
+                     #  modType <- switch(method,
+                     #                    plsGlmBinomial = "pls-glm-logistic",
+                     #                    plsGlmGaussian = "pls-glm-gaussian",
+                     #                    plsGlmGamma = "pls-glm-Gamma",
+                     #                    plsGlmPoisson = "pls-glm-poisson")
+                     #  if(method == "plsGlmBinomial") trainY <- ifelse(trainY == levels(trainY)[1], 1, 0)
+                     #  plsRglm(trainY, trainX, nt = tuneValue$.nt, modele = modType, ...)
+                     #},
+                     qrnn =
+                     {
+                       library(qrnn)
+
+                       qrnn.fit(as.matrix(trainX), matrix(trainY),
+                                n.hidden = tuneValue$.n.hidden,
+                                print.level = 0,
+                                penalty =  tuneValue$.penalty,
+                                bag= tuneValue$.bag,
+                                ...)
+
+                     },
+                     Boruta =
+                     {
+                       library(Boruta)
+                       library(randomForest)
+                       fs <- Boruta(trainX, trainY, mtry = tuneValue$.mtry, ...)
+                       keepers <- as.character(names(fs$finalDecision)[fs$finalDecision == "Confirmed"])
+                       out <- randomForest(trainX[,keepers, drop = FALSE], trainY, mtry = tuneValue$.mtry, ...)
+                       out$Boruta <- fs
+                       out
                      }
                      )
   

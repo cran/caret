@@ -1,8 +1,10 @@
 "print.train" <-
   function(x,
            digits = min(3, getOption("digits") - 3),
-           printCall = TRUE,
-           details = FALSE, ...)
+           printCall = FALSE,
+           details = FALSE,
+           selectCol = FALSE,
+           ...)
 {
   stringFunc <- function (x) 
     {
@@ -146,7 +148,7 @@
                                        ifelse(is.character(tuneAcc[1,names(numVals)[i]]) |
                                               is.factor(tuneAcc[1,names(numVals)[i]]),
                                               paste("'", tuneAcc[1,names(numVals)[i]], "'", sep = ""),
-                                              tuneAcc[1,names(numVals)[i]]),
+                                              signif(tuneAcc[1,names(numVals)[i]], digits)),
                                        sep = ""))
             }
           discard <- names(numVals)[which(numVals == 1)]
@@ -166,26 +168,28 @@
   printMat <- as.matrix(as.data.frame(printList))      
   rownames(printMat) <- rep("", dim(printMat)[1])
   colnames(printMat) <- gsub("SD", " SD", colnames(printMat))
-  
+
+  if(!selectCol) printMat <- printMat[, colnames(printMat) != "Selected", drop = FALSE]
+
   print(printMat, quote = FALSE, print.gap = 2)
   cat("\n")
 
   if(!is.null(constString))
     {
-      cat(paste(constString, collapse = "\n"))
+      cat(truncateText(paste(constString, collapse = "\n")))
       cat("\n")
     }
 
   
   if(dim(tuneAcc)[1] > 1)
     {
-      cat(x$metric, "was used to select the optimal model using")
+      met <- paste(x$metric, "was used to select the optimal model using")
       if(is.function(x$control$selectionFunction))
         {
-          cat(" a custom selection rule.\n")
+          met <- paste(met, " a custom selection rule.\n")
         } else {
 
-          cat(
+          met <- paste(met,
               switch(
                      x$control$selectionFunction,
                      best = paste(
@@ -195,9 +199,10 @@
                      oneSE = " the one SE rule.\n",
                      tolerance = " a tolerance rule.\n"))
         }
+      cat(truncateText(met))
     }
   
-  cat(optString)
+  cat(truncateText(optString), "\n")
   
   if(details)
     {
@@ -235,3 +240,25 @@
 }
 
 
+truncateText <- function(x)
+  {
+    w <- options("width")$width
+    if(nchar(x) <= w) return(x)
+
+    cont <- TRUE
+    out <- x
+    while(cont)
+      {
+        
+        tmp <- out[length(out)]
+        
+        spaceIndex <- gregexpr("[[:space:]]", tmp)[[1]]
+        stopIndex <- max(spaceIndex[spaceIndex < w])
+        tmp <- c(substring(tmp, 1, stopIndex),
+               substring(tmp, stopIndex + 1))
+        out <- if(length(out) == 1) tmp else c(out[1:(length(x)-1)], tmp)
+        if(all(nchar(out) <= w)) cont <- FALSE
+      }
+
+    paste(out, collapse = "\n")
+  }
