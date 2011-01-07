@@ -1,9 +1,26 @@
+cubistType <- function (x, ...) UseMethod("cubistType")
+cubistType.numeric <- function(x, ...) "continuous."
+cubistType.factor <- function(x, ...) paste(paste(levels(x), collapse = ","), ".", sep = "")
+cubistType.character <- function(x, ...) paste(paste(unique(x), collapse = ","), ".", sep = "")
+cubistType.ordered <- function(x, ...) paste("[ordered]", paste(levels(x), collapse = ","), ".", sep = "")
+cubistType.matrix <- function(x, ...)
+{
+  if(is.numeric(x)) out <- rep("continuous.", ncol(x))
+  if(is.character(x)) out <- apply(x, 2, cubistType)
+  out
+}
+
+cubistType.data.frame <- function(x, ...) unlist(lapply(x, cubistType))
+
+
 makeCubistFiles <- function(x, y,
                             testX = NULL, testY = NULL,
                             ylab = "outcome",
-                            prefix = NULL)
+                            prefix = NULL,
+                            cubist = "cubist",
+                            numCom = 1, nn = 5, rules = 5)
   {
-    if(is.null(prefix)) prefix <- paste("data", format(Sys.time(), "%Y%m%d_%H%M%S"), sep = "_")
+    if(is.null(prefix)) prefix <- paste("data", format(Sys.time(), "%Y%m%d%H%M%S"), sep = "_")
     ## check for consistent train and test sizes
     ## check for commas in rownames
     
@@ -14,56 +31,37 @@ makeCubistFiles <- function(x, y,
     
     if(nrow(x) != length(y)) stop("the number of samples in x and y must be the same")
 
-
-    #########################################################
-    ## Determine variable types
+  fileHeader <- paste("| autmatically created using", R.version.string,
+                            "on",  format(Sys.time(), "%a %b %d %H:%M:%S %Y"),
+                      "\n| Call: ", paste(deparse(call), collapse = ""), "\n")
     
-    if(is.matrix(x))
-      {
-        if(is.numeric(x))
-          {
-            varType <- rep("continuous", ncol(x))
-          } else {
-            varType <- rep("discrete", ncol(x))
-          }
-      } else {
-        foo <- function(x) if(is.numeric(x)) "continuous" else "discrete"
-        varType <- unlist(lapply(x, foo))
-      }
-
     #########################################################
     ## Setup and write names attributes
-    
-    nameData <- c(ylab, "sample_ids:label")
-    nameData <- c(nameData,
-                  paste(ylab, "continuous", sep = ":")) ## can also use "target" ?
-    nameData <- c(nameData,
-                  paste(names(varType),
-                        varType,
-                        sep = ":"))
-    nameData <- as.matrix(nameData, ncol = 1)
 
-    cat(paste(nameData, collapse = "\n"),
-        file = paste(prefix, ".names", sep = ""))
+
+    dataTypes <- cubistType(x)
+    dataTypes <- c(dataTypes, "continuous.")
+    if(any(names(dataTypes) == ylab)) stop("the outcome label is in the 'x' data. please pick another name")
+    names(dataTypes)[length(dataTypes)] <- ylab                            
+    nameFileData <- paste(names(dataTypes), dataTypes, sep = "\t")
+    nameFileData <- paste(nameFileData, collapse = "\n")
+    nameFileData <- paste(fileHeader, nameFileData, sep = "\n")
+    cat(nameFileData, file = paste(prefix, ".names", sep = ""))
     
     if(!file.exists(paste(prefix, ".names", sep = "")))
       stop(paste("error creating", paste(prefix, ".names", sep = "")))
 
+    
     #########################################################
     ## Setup and write training data
 
-    train.ids <- rownames(x)
-    if(is.null(train.ids)) train.ids <- paste("sample", 1:nrow(x), sep = "")
-
-    if(any(duplicated(train.ids))) stop("please use unique row names in training set")
-
-    train.data <- data.frame(sample = train.ids,
-                             .outcome = y)
-    train.data <- cbind(train.data, x)
-    if(length(nameData) -1 != ncol(train.data)) stop("problem creating the files - incompatible dimensions")
-
-    write.table(train.data,
+    if(!is.data.frame(x)) x <- as.data.frame(x)
+     train <- x
+    train$.outcome <- y
+ 
+    write.table(train,
                 sep = ",",
+                na = "?",
                 file = paste(prefix, ".data", sep = ""),
                 quote = FALSE,
                 row.names = FALSE,
@@ -71,28 +69,19 @@ makeCubistFiles <- function(x, y,
     
     if(!file.exists(paste(prefix, ".data", sep = "")))
       stop(paste("error creating", paste(prefix, ".data", sep = "")))
-    
-    if(!is.null(testX))
+
+     #########################################################
+    ## Optionally write test data
+
+    if(!is.null(testX) & !is.null(testY))
       {
-
-        #########################################################
-        ## Setup and write training data
-
-        test.ids <- rownames(testX)
-        if(is.null(test.ids)) test.ids <- paste("sample", nrow(x) + (1:nrow(testX)), sep = "")
-
-        if(any(duplicated(test.ids))) stop("please use unique row names in test set")
-
-        if(is.null(testY)) testY <- rep(0, nrow(testX))
+        if(!is.data.frame(testX)) testX <- as.data.frame(testX)
+        test <- testX
+        test$.outcome <- testY
         
-        test.data <- data.frame(sample = test.ids,
-                                .outcome = testY)
-        test.data <- cbind(test.data, testX)
-        if(length(nameData) - 1 != ncol(test.data))
-          stop("problem creating the files - incompatible dimensions between training and test")
-
-        write.table(test.data,
+        write.table(test,
                     sep = ",",
+                    na = "?",
                     file = paste(prefix, ".test", sep = ""),
                     quote = FALSE,
                     row.names = FALSE,
@@ -101,10 +90,17 @@ makeCubistFiles <- function(x, y,
         if(!file.exists(paste(prefix, ".test", sep = "")))
           stop(paste("error creating", paste(prefix, ".test", sep = "")))
       }
-
+     #########################################################
+    ## Write out system commands
+        run <- paste(cubist,
+                     "-f", prefix,
+                     "-C", numCom,
+                     "-n", nn,
+                     "-a",
+                     "-r", rules)
+    cat("To run the cubist model,  use:\n\n\t", run, "\n")
     
-    #########################################################
-    ##     
+    
   }
 
 fitCubist <- function(path = NULL, prefix = "model", numCom = 1, nn = 5, rules = 5)

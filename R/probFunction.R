@@ -59,7 +59,8 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
                         out
                         
                       },
-                      
+
+                      svmLinear =, svmlinear =,
                       svmradial =, svmpoly =,
                       svmRadial =, svmPoly =,
                       lssvmRadial =,

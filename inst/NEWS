@@ -1,4 +1,10 @@
 -------------------
+Version: 4.76
+Date: 2011-01-07
+
+Fixed a bug where linear SVM models were not working for classification
+
+-------------------
 Version: 4.75
 Date: 2010-12-27
 
