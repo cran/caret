@@ -13,7 +13,7 @@ cubistType.matrix <- function(x, ...)
 cubistType.data.frame <- function(x, ...) unlist(lapply(x, cubistType))
 
 
-makeCubistFiles <- function(x, y,
+makeCubistFiles2 <- function(x, y,
                             testX = NULL, testY = NULL,
                             ylab = "outcome",
                             prefix = NULL,
@@ -24,7 +24,7 @@ makeCubistFiles <- function(x, y,
     ## check for consistent train and test sizes
     ## check for commas in rownames
     
-    if(!is.numeric(y)) stop("outcome variable must be numeric")
+    #if(!is.numeric(y)) stop("outcome variable must be numeric")
     call <- match.call()
     ## See http://www.rulequest.com/cubist-win.html
     ## for file sepcifications

@@ -745,9 +745,9 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                                  ## use best Tune
                                  if(modelFit$problemType == "Classification")
                                    {
-                                     out <- as.character(predict(modelFit, newdata)[[modelFit$.cut.off.growth]])
+                                     out <- as.character(predict(modelFit, newdata)[[modelFit$cut.off.growth]])
                                    } else {
-                                     out <- predict(modelFit, newdata)[,modelFit$.cut.off.growth]
+                                     out <- predict(modelFit, newdata)[,modelFit$cut.off.growth]
                                    }
                                }
                              out
@@ -774,7 +774,9 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                            qrf =
                            {
                              library(quantregForest)
-                             predict(modelFit, newdata, quantiles = .5)
+                             out <- predict(modelFit, newdata, quantiles = .5)
+                             if(is.matrix(out)) out <- out[,1]
+                             out
                            },
                            scrda =
                            {

@@ -12,7 +12,7 @@ extractPrediction <- function(
   objectNames <- names(models)
   if(is.null(objectNames)) objectNames <- paste("Object", 1:length(models), sep = "")
   
-  trainX <- models[[1]]$trainingData[,!(names(models[[1]]$trainingData) %in% ".outcome")]
+  trainX <- models[[1]]$trainingData[,!(names(models[[1]]$trainingData) %in% ".outcome"), drop = FALSE]
   trainY <- models[[1]]$trainingData$.outcome  
 
   obsLevels <- getClassLevels(models[[1]])

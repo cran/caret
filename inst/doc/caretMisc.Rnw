@@ -105,7 +105,11 @@ to ensure that all the needed packages are installed.
 
 \section{Example Data}
 
-There are a few data sets included in \texttt{caret}. The first three are computational chemistry problems where the object is to relate the molecular structure of compounds (via molecular descriptors) to some property of interest (\href{ http://dx.doi.org/10.1016/S1359-6446(99)01451-8}{Blake (2000)}, Clark and Pickett (2000). The fourth data set listed is a typical spectroscopy data set from chemometrics. The last data set is a pattern recognition problem with a large number of classes, some of which do not have many observations.
+There are a few data sets included in \texttt{caret}. The first three
+are computational chemistry problems where the object is to relate the
+molecular structure of compounds (via molecular descriptors) to some
+property of interest (\href{http://dx.doi.org/10.1016/S1359-6446(99)01451-8}{Blake (2000)}, Clark and Pickett (2000). Similar data sets can be found in the
+\texttt{QSARdata} R pacakge. The fourth data set listed is a typical spectroscopy data set from chemometrics. The last data set is a pattern recognition problem with a large number of classes, some of which do not have many observations.
 
 \subsection{Blood--Brain Barrier Data}
 
@@ -159,6 +163,32 @@ table(oilType)
 
 As a note, the paper states on page 32 that there are 37 unknown samples while the table on pages 33 and 34 shows that there are 34 unknowns. 
 
+\subsection{German Credit Data}
+
+Data from Dr. Hans Hofmann of the University of Hamburg and stored at
+the \href{http://archive.ics.uci.edu/ml/datasets/Statlog+%28German+Credit+Data%29}{UC Irvine Machine Learning Repository}.
+
+These data have two classes for the credit worthiness: good or bad. There are predictors related to attributes, such as: checking account status, duration, credit history, purpose of the loan, amount of the loan, savings accounts or bonds, employment duration, Installment rate in percentage of disposable income, personal information, other debtors/guarantors, residence duration, property, age, other installment plans, housing, number of existing credits, job information, Number of people being liable to provide maintenance for, telephone, and foreign worker status.
+
+Many of these predictors are discrete and have been expanded into several 0/1 indicator variables
+
+\subsection{Kelly Blue Book resale data for 2005 model year GM cars}
+
+\href{http://www.amstat.org/publications/jse/v16n3/datasets.kuiper.html}{Kuiper (2008)} collected data on Kelly Blue Book resale data for 804 GM cars (2005 model year). 
+
+\texttt{cars} is data frame of the suggested retail price (column Price) and various characteristics of each car (columns Mileage, Cylinder, Doors, Cruise, Sound, Leather, Buick, Cadillac, Chevy, Pontiac, Saab, Saturn, convertible, coupe, hatchback, sedan and wagon)
+
+\subsection{DHFR Inhibition}
+  
+\href{http://www.springerlink.com/content/q5m5xp1q356p2071/}{Sutherland and Weaver (2004)} discuss QSAR models for dihydrofolate reductase (DHFR) inhibition. This data set contains values for 325 compounds. For each compound, 228 molecular descriptors have been calculated. Additionally, each samples is designated as ``active'' or``inactive''.
+
+The data frame \texttt{dhfr} contains a column called \texttt{Y} with the outcome classification. The remainder of the columns are molecular descriptor values.
+
+\subsection{Cell Body Segmentation Data}
+
+\href{http://www.biomedcentral.com/1471-2105/8/340}{Hill, LaPan, Li and Haney (2007)} develop models to predict which cells in a high content screen were well segmented. The data consists of 119 imaging measurements on 2019. The original analysis used 1009 for training and 1010 as a test set (see the column called Case).
+
+The outcome class is contained in a factor variable called Class with levels ``PS'' for poorly segmented and ``WS'' for well segmented.
 
 
 \section{Data Pre--Processing Functions}
@@ -691,14 +721,27 @@ toLatex(sessionInfo())
 
    \item Clark, D. E., Pickett, S. D. (2000), ``Computational methods for the prediction of 'drug--likeness','' {\it Drug Discov Today}, 5, 49--58.
 
+     
+     \item Hill, LaPan, Li and Haney (2007). ``Impact of image
+       segmentation on high-content screening data quality for SK-BR-3
+       cells'', {\it BMC Bioinformatics}, Vol. 8, pg. 340
+       
 	\item Irizarry, RA, Bolstad BM, Collin, F, Cope, LM, Hobbs, B, and, Speed, TP (2003), ``Summaries of Affymetrix Genechip probe level data,''  {\it Nucleic Acids Research}, 31, e15
 
+        \item Kuiper, S. (2008). ``Introduction to Multiple Regression:
+          How Much Is Your Car Worth?'', {\it Journal of Statistics Education}, Vol. 16,  
+          
    \item Mente, S. R., Lombardo, F. (2005), ``A recursive-partitioning model for blood--brain barrier permeation,'' {\it Journal of Computer--Aided Molecular Design}, 19, 465--481.
 
 
    \item Serneels, S., De Nolf, E. and Van Espen, P. J. (2006), ``Spatial sign preprocessing: a simple way to impart moderate robustness to multivariate estimators,'' {\it Journal of Chemical Information and Modeling}, 46, 1402--1409.
 
    \item Sutherland, J.J., O'Brien L.A. and Weaver D.F. (2004), ``A comparison of methods for modeling quantitative structure-activity relationships,'' {\it Journal of Medicinal Chemistry}, 47, 5541--5554.
+     
+     \item Sutherland, J.J. and Weaver,
+       D.F. (2004). ``Three-dimensional quantitative
+       structure-activity and structure-selectivity relationships of
+       dihydrofolate reductase inhibitors'',{\it  Journal of Computer-Aided Molecular Design}, Vol. 18, pg. 309–331.
 
    \item Svetnik, V., Wang, T., Tong, C., Liaw, A., Sheridan, R. P. and Song, Q. (2005), ``Boosting: An ensemble learning tool for compound classification and QSAR modeling,'' {\it Journal of Chemical Information and Modeling}, 45, 786 --799.
 

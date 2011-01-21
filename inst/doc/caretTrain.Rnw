@@ -1117,8 +1117,8 @@ gbmFit
 The function \texttt{trainControl}, generates parameters that further
 control how models are resampled with possible values: 
 \begin{itemize}
-\item \texttt{method}: The resampling method: \texttt{boot},
-  \texttt{cv}, \texttt{LOOCV}, \texttt{LGOCV}  and \texttt{oob}. The
+\item \texttt{method}: The resampling method: \texttt{boot}, \texttt{boot632},
+  \texttt{cv}, \texttt{LOOCV}, \texttt{LGOCV}, \texttt{repeatedcv}  and \texttt{oob}. The
   last value, out--of--bag estimates, can only be used by random
   forest, bagged trees, bagged earth, bagged flexible discriminant
   analysis, or conditional tree forest models. GBM models are not

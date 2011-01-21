@@ -12,10 +12,14 @@ preProcess(x, ...)
 
 \method{preProcess}{default}(x, 
            method = c("center", "scale"), 
-           thresh = 0.95, 
-           na.remove = TRUE, 
+           thresh = 0.95,
+           na.remove = TRUE,
            k = 5,
            knnSummary = mean,
+           outcome = NULL,
+           fudge = .2,
+           numUnique = 3,
+           verbose = FALSE,
            ...)
 
 \method{predict}{preProcess}(object, newdata, ...)
@@ -23,21 +27,32 @@ preProcess(x, ...)
 
 \arguments{
   \item{x}{a matrix or data frame. All variables must be numeric.}
-  \item{method}{a character vector specifying the type of processing. Possible values are "center", "scale", "knnImpute", "bagImpute", "pca" "ica" and "spatialSign" (see Details below)}
+  \item{method}{a character vector specifying the type of processing. Possible values are "BoxCox", "center", "scale", "knnImpute", "bagImpute", "pca" "ica" and "spatialSign" (see Details below)}
   \item{thresh}{a cutoff for the cumulative percent of variance to be retained by PCA}
   \item{na.remove}{a logical; should missing values be removed from the calculations?}
   \item{object}{an object of class \code{preProcess}}
   \item{newdata}{a matrix or data frame of new data to be pre-processed}
   \item{k}{the number of nearest neighbors from the training set to use for imputation }
   \item{knnSummary}{function to average the neighbor values per column during imputation}
+  \item{outcome}{a numeric or factor vector for the training set outcomes. This can be used to help estimate the Box-Cox transformation of the predictor variables (see Details below)}
+    \item{fudge}{
+    a tolerance value: Box-Cox transformation lambda values within +/-fudge will be coerced to 0 and within 1+/-fudge will be coerced to 1
+    }
+      \item{numUnique}{
+      how many unique values should \code{y} have to estimate the Box-Cox transformation?
+      }
+  \item{verbose}{a logical: prints a log as the computations proceed}
+
   \item{\dots}{additional arguments to pass to \code{\link[fastICA]{fastICA}}, such as \code{n.comp}}
 }
 \details{
-The operations are applied in this order: imputation, centering, scaling, PCA, ICA then spatial sign. 
+The Box-Co transformation has been "repurposed" here: it is being used to transform the predictor variables. This method was developed for transforming the response variable while another method, the Box-Tidwell transformation, was created to estimate transformations of predictor data. However, the Box-Cox method is simpler, more computationally efficient and is equally effective for estimating power transformations.
+
+The operations are applied in this order: Box-Cox transformation, centering, scaling, imputation, PCA, ICA then spatial sign. This is a departure from versions of \pkg{caret} prior to version 4.76 (where imputation was done first) and is not backwards compatible if bagging was used for imputation.
 
 If PCA is requested but centering and scaling are not, the values will still be centered and scaled. Similarly, when ICA is requested, the data are automatically centered and scaled.
 
-$k$-nearest neighbor imputation is carried out by finding the k closest samples (Euclidian distance) in the training set. Imputation via bagging fits a bagged tree model for each predictor (as a function of all the others). This method is simple, accurate and accepts missing values, but it has much higher computational cost.
+k-nearest neighbor imputation is carried out by finding the k closest samples (Euclidian distance) in the training set. Imputation via bagging fits a bagged tree model for each predictor (as a function of all the others). This method is simple, accurate and accepts missing values, but it has much higher computational cost.
 
 A warning is thrown if both PCA and ICA are requested. ICA, as implemented bt the \code{\link[fastICA]{fastICA}} package automatically does a PCA decomposition prior to finding the ICA scores.
 
@@ -47,6 +62,7 @@ The function will throw an error of any variables in \code{x} has less than two 
 \code{preProcess} results in a list with elements
   \item{call}{the function call}
   \item{dim}{the dimensions of \code{x}}
+  \item{bc}{Box-Cox transformation values, see \code{\link{BoxCoxTrans}}}
   \item{mean}{a vector of means (if centering was requested)}
   \item{std}{a vector of standard deviations (if scaling or PCA was requested)}
   \item{rotation}{a matrix of eigenvectors if PCA was requested}
@@ -58,9 +74,14 @@ The function will throw an error of any variables in \code{x} has less than two 
 
 \author{ Max Kuhn }
 
-\references{Kuhn (2008), ``Building Predictive Models in R Using the caret'' (\url{http://www.jstatsoft.org/v28/i05/})}
+\references{Kuhn (2008), ``Building Predictive Models in R Using the caret'' (\url{http://www.jstatsoft.org/v28/i05/})
 
-\seealso{\code{\link[stats]{prcomp}}, \code{\link[fastICA]{fastICA}}, \code{\link{spatialSign}}}
+Box, G. E. P. and Cox, D. R. (1964) An analysis of transformations (with discussion). Journal of the Royal Statistical Society B, 26, 211-252.
+
+Box, G. E. P. and Tidwell, P. W. (1962) Transformation of the independent variables. Technometrics 4, 531-550.
+}
+
+\seealso{\code{\link{BoxCoxTrans}}, \code{\link[MASS]{boxcox}}, \code{\link[stats]{prcomp}}, \code{\link[fastICA]{fastICA}}, \code{\link{spatialSign}}}
 
 \examples{
 data(BloodBrain)
