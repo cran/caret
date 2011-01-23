@@ -21,13 +21,8 @@
       out
     }   
 
-  if(printCall)
-    {
-      cat("\nCall:\n")
-      print(x$call)
-    }
-  cat("\n")
-  
+  if(printCall) cat("\nCall:\n", truncateText(deparse(x$call, width.cutoff = 500)), "\n\n", sep = "")
+
   if(!is.null(x$trainingData))
     {
       chDim <- dim(x$trainingData)
@@ -44,15 +39,17 @@
     {
       ## Make things look a little nicer:
       pp <- x$preProc$method
+      pp <- gsub("BoxCox", "Box-Cox transformation", pp)  
       pp <- gsub("scale", "scaled", pp)
       pp <- gsub("center", "centered", pp)
       pp <- gsub("pca", "principal component signal extraction", pp)
       pp <- gsub("ica", "independent component signal extraction", pp)
       pp <- gsub("spatialSign", "spatial sign transformation", pp)
+      pp <- gsub("knnImpute", paste(x$k, "nearest neighbor imputation"), pp)
+      pp <- gsub("bagImpute", "bagged tree imputation", pp)  
 
-      cat("Pre-processing:",
-          paste(pp, collapse = ", "),
-         "\n")
+      ppText <- paste("Pre-processing:", paste(pp, collapse = ", "))
+      cat(truncateText(ppText), "\n")
     } else cat("No pre-processing\n")
 
 
@@ -242,6 +239,7 @@
 
 truncateText <- function(x)
   {
+    if(length(x) > 1) x <- paste(x, collapse = "")
     w <- options("width")$width
     if(nchar(x) <= w) return(x)
 
@@ -251,10 +249,11 @@ truncateText <- function(x)
       {
         
         tmp <- out[length(out)]
+        tmp2 <- substring(tmp, 1, w)
         
-        spaceIndex <- gregexpr("[[:space:]]", tmp)[[1]]
-        stopIndex <- max(spaceIndex[spaceIndex < w])
-        tmp <- c(substring(tmp, 1, stopIndex),
+        spaceIndex <- gregexpr("[[:space:]]", tmp2)[[1]]
+        stopIndex <- spaceIndex[length(spaceIndex) - 1] - 1
+        tmp <- c(substring(tmp2, 1, stopIndex),
                substring(tmp, stopIndex + 1))
         out <- if(length(out) == 1) tmp else c(out[1:(length(x)-1)], tmp)
         if(all(nchar(out) <= w)) cont <- FALSE

@@ -175,68 +175,70 @@
         
       } else if(numTune == 3)  
         {
+             if(plotType == "scatter")
+             {
+               if(is.null(xTrans))
+                 {
+                   xTrans <- I
+                 } else {
+                   plotLabels[1] <- paste(plotLabels[1], " (transformed)", sep = "")      
+                 }  
+             }
+
+             if(names(resultsCopy)[3] == "interaction.depth")
+             {
+               stripVar <- paste(plotLabels[2], ": ", format(resultsCopy[,3]), sep = "")
+             } else stripVar <- paste(plotLabels[2], ": ", factor(paste(prettyVal(resultsCopy[,3], 3))), sep = "")
+             
+             performancePlot <- switch(plotType,      
+                                       level = levelplot(
+                                         resultsCopy[,metricName] ~ factor(resultsCopy[,2]) * factor(resultsCopy[,4])|stripVar, 
+                                         xlab = plotLabels[1], 
+                                         ylab = plotLabels[3], 
+                                         sub =yLabel, ...),
+                                       line = stripplot(
+                                         resultsCopy[,metricName] ~ factor(resultsCopy[,2])|stripVar, 
+                                         groups = factor(resultsCopy[,4]),
+                                         panel = interactionPlot, 
+                                         xlab = plotLabels[1], 
+                                         ylab = yLabel,  
+                                         key = list(
+                                           title =plotLabels[3],  
+                                           cex.title = 1,             
+                                           columns = min(4, length(unique(resultsCopy[,4]))),
+                                           text=list(
+                                             lab = as.character(unique(signif(resultsCopy[,4], 3)))),
+                                           lines=list(
+                                             col=lineStyle$col[1:length(unique(resultsCopy[,4]))],
+                                             lwd = lineStyle$lwd[1:length(unique(resultsCopy[,4]))],
+                                             lty=lineStyle$lty[1:length(unique(resultsCopy[,4]))]),
+                                           points = list(
+                                             col=pchStyle$col[1:length(unique(resultsCopy[,4]))],
+                                             pch = pchStyle$pch[1:length(unique(resultsCopy[,4]))])),
+                                         ...),               
+                                       scatter = xyplot(
+                                         resultsCopy[,metricName] ~ xTrans(resultsCopy[,2])|stripVar, 
+                                         groups = factor(resultsCopy[,4]),
+                                         type = "o", 
+                                         xlab = plotLabels[1], 
+                                         ylab = yLabel, 
+                                         key = list(
+                                           title =plotLabels[3],  
+                                           cex.title = 1,             
+                                           columns = min(4, length(unique(resultsCopy[,4]))),
+                                           text=list(
+                                             lab = as.character(unique(prettyVal(resultsCopy[,4], 3)))),
+                                           lines=list(
+                                             col=lineStyle$col[1:length(unique(resultsCopy[,4]))],
+                                             lwd = lineStyle$lwd[1:length(unique(resultsCopy[,4]))],
+                                             lty=lineStyle$lty[1:length(unique(resultsCopy[,4]))]),
+                                           points = list(
+                                             col=pchStyle$col[1:length(unique(resultsCopy[,4]))],
+                                             pch = pchStyle$pch[1:length(unique(resultsCopy[,4]))])),
+                                         ...))
+           }
           
-          if(plotType == "scatter")
-            {
-              if(is.null(xTrans))
-                {
-                  xTrans <- I
-                } else {
-                  plotLabels[2] <- paste(plotLabels[2], " (transformed)", sep = "")      
-                }  
-            }
-          
-          stripVar <- paste(plotLabels[2], ": ", factor(paste(prettyVal(resultsCopy[,3], 3))), sep = "")
-          
-          performancePlot <- switch(plotType,      
-                                    level = levelplot(
-                                      resultsCopy[,metricName] ~ factor(resultsCopy[,2]) * factor(resultsCopy[,4])|stripVar, 
-                                      xlab = plotLabels[1], 
-                                      ylab = plotLabels[3], 
-                                      sub =yLabel, ...),
-                                    line = stripplot(
-                                      resultsCopy[,metricName] ~ factor(resultsCopy[,2])|stripVar, 
-                                      groups = factor(resultsCopy[,4]),
-                                      panel = interactionPlot, 
-                                      xlab = plotLabels[1], 
-                                      ylab = yLabel,  
-                                      key = list(
-                                        title =plotLabels[3],  
-                                        cex.title = 1,             
-                                        columns = min(4, length(unique(resultsCopy[,4]))),
-                                        text=list(
-                                          lab = as.character(unique(signif(resultsCopy[,4], 3)))),
-                                        lines=list(
-                                          col=lineStyle$col[1:length(unique(resultsCopy[,4]))],
-                                          lwd = lineStyle$lwd[1:length(unique(resultsCopy[,4]))],
-                                          lty=lineStyle$lty[1:length(unique(resultsCopy[,4]))]),
-                                        points = list(
-                                          col=pchStyle$col[1:length(unique(resultsCopy[,4]))],
-                                          pch = pchStyle$pch[1:length(unique(resultsCopy[,4]))])),
-                                      ...),               
-                                    scatter = xyplot(
-                                      resultsCopy[,metricName] ~ xTrans(resultsCopy[,2])|stripVar, 
-                                      groups = factor(resultsCopy[,4]),
-                                      type = "o", 
-                                      xlab = plotLabels[1], 
-                                      ylab = yLabel, 
-                                      key = list(
-                                        title =plotLabels[3],  
-                                        cex.title = 1,             
-                                        columns = min(4, length(unique(resultsCopy[,4]))),
-                                        text=list(
-                                          lab = as.character(unique(prettyVal(resultsCopy[,4], 3)))),
-                                        lines=list(
-                                          col=lineStyle$col[1:length(unique(resultsCopy[,4]))],
-                                          lwd = lineStyle$lwd[1:length(unique(resultsCopy[,4]))],
-                                          lty=lineStyle$lty[1:length(unique(resultsCopy[,4]))]),
-                                        points = list(
-                                          col=pchStyle$col[1:length(unique(resultsCopy[,4]))],
-                                          pch = pchStyle$pch[1:length(unique(resultsCopy[,4]))])),
-                                      ...))
+          performancePlot
         }
-  
-  performancePlot
-}
 
 
