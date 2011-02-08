@@ -46,7 +46,8 @@
       pp <- gsub("ica", "independent component signal extraction", pp)
       pp <- gsub("spatialSign", "spatial sign transformation", pp)
       pp <- gsub("knnImpute", paste(x$k, "nearest neighbor imputation"), pp)
-      pp <- gsub("bagImpute", "bagged tree imputation", pp)  
+      pp <- gsub("bagImpute", "bagged tree imputation", pp)
+      if(length(pp) == 0) pp <- "None"
 
       ppText <- paste("Pre-processing:", paste(pp, collapse = ", "))
       cat(truncateText(ppText), "\n")

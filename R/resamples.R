@@ -87,6 +87,31 @@ prcomp.resamples <- function(x, metric = x$metrics[1],  ...)
     out
   }
 
+
+cluster.resamples <- function(x, metric = x$metrics[1],  ...)
+  {
+    
+    if(length(metric) != 1) stop("exactly one metric must be given")
+
+    tmpData <- x$values[, grep(paste("~", metric, sep = ""),
+                               names(x$value),
+                               fixed = TRUE),
+                        drop = FALSE]
+    names(tmpData) <- gsub(paste("~", metric, sep = ""),
+                           "",
+                           names(tmpData),
+                           fixed = TRUE)
+
+    tmpData <- t(tmpData)
+    dt <- dist(tmpData)
+    out <- hclust(dt, ...)
+    out$metric <- metric
+    out$call <- match.call()
+    class(out) <- c("cluster.resamples", "hclust")
+    out
+  }
+
+
 plot.prcomp.resamples <- function(x, what = "scree", dims = max(2, ncol(x$rotation)), ...)
 {
   if(length(what) > 1) stop("one plot at a time please")

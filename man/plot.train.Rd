@@ -9,7 +9,7 @@
 \method{plot}{train}(x, 
      plotType = "scatter",
      metric = x$perfNames[1],
-     digits = getOption("digits") - 5, 
+     digits = getOption("digits") - 3, 
      xTrans = NULL, 
      ...)
 }
@@ -19,11 +19,10 @@
   \item{plotType}{a string describing the type of plot (\code{"scatter"}, \code{"level"} or \code{"line"})}
   \item{digits}{an integer specifying the number of significant digits used to label the parameter value.}
   \item{xTrans}{a fuction that will be used to scale the x-axis in scatter plots.}
-  \item{\dots}{specifications to be passed to \code{\link[lattice]{levelplot}} or \code{\link[lattice:xyplot]{bwplot}} (for line plots). 
-   These values should not be axis labels, panel functions, or titles. }
+  \item{\dots}{specifications to be passed to \code{\link[lattice]{levelplot}}, \code{\link[lattice]{xyplot}}, \code{\link[lattice:xyplot]{stripplot}} (for line plots). The function automatically sets some arguments (e.g. axis labels) but passing in values here will over-ride the defaults }
 }
 \details{
-If there are no tuning parameters, or none were varied, a plot of the resampling distirbution is produced via \code{\link{resampleHist}}.
+If there are no tuning parameters, or none were varied, an error is produced.
   
 If the model has one tuning parameter with multiple candidate values, a
 plot is produced showing the profile of the results over the
@@ -45,21 +44,22 @@ parameters, this plot is created inside conditioning panels.
 
 \references{Kuhn (2008), ``Building Predictive Models in R Using the caret'' (\url{http://www.jstatsoft.org/v28/i05/})}
 
-\seealso{ \code{\link{train}} }
+\seealso{ \code{\link{train}}, \code{\link[lattice]{levelplot}}, \code{\link[lattice]{xyplot}}, \code{\link[lattice:xyplot]{stripplot}} }
 \examples{
-data(iris)
-TrainData <- iris[,1:4]
-TrainClasses <- iris[,5]
 
-library(e1071)
-rpartFit <- train(TrainData, TrainClasses, "rpart", 
-                  tuneLength=15)
-plot(rpartFit, scales = list(x = list(rot = 90)))
+pamFit <- train(Species ~ .,
+                  data = iris, 
+                  "pam", 
+                  tuneLength = 15)
+plot(pamFit, scales = list(x = list(rot = 90)))
 
 library(klaR)
-rdaFit <- train(TrainData, TrainClasses, "rda", 
+rdaFit <- train(Species ~ .,
+                data = iris, 
+                "rda", 
                 control = trainControl(method = "cv"))
-plot(rdaFit, plotType = "line", auto.key = TRUE)
+plot(rdaFit, plotType = "line")
+plot(rdaFit, plotType = "level")
  }
    
 \keyword{hplot} 

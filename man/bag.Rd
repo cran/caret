@@ -4,6 +4,14 @@
 \alias{bagControl}
 \alias{predict.bag}
 
+\alias{ldaBag}
+\alias{plsBag}
+\alias{nbBag}
+\alias{ctreeBag}
+\alias{svmBag}
+\alias{nnetBag}
+
+
 \title{
 A General Framework For Bagging
 }
@@ -20,6 +28,12 @@ bagControl(fit = NULL,
            aggregate = NULL,
            downSample = FALSE)
 
+ldaBag
+plsBag
+nbBag
+ctreeBag
+svmBag
+nnetBag
 
 \method{predict}{bag}(object, newdata = NULL, ...)
 }
@@ -40,13 +54,13 @@ a list of options.
 arguments to pass to the model function
 }
   \item{fit}{
-a function that has arguments \code{x}, \code{y} and \code{...} and produces a model object that can later be used for prediction
+a function that has arguments \code{x}, \code{y} and \code{...} and produces a model object that can later be used for prediction. Example functions are found in \code{ldaBag}, \code{plsBag}, \code{nbBag}, \code{svmBag} and \code{nnetBag}.
 }
   \item{predict}{
-a function that generates predictions for each sub-model. The function should have arguments \code{object} and \code{x}. The output of the function can be any type of object (see the example below where posterior probabilities are generated)
+a function that generates predictions for each sub-model. The function should have arguments \code{object} and \code{x}. The output of the function can be any type of object (see the example below where posterior probabilities are generated. Example functions are found in \code{ldaBag}, \code{plsBag}, \code{nbBag}, \code{svmBag} and \code{nnetBag}.)
 }
   \item{aggregate}{
-a function with arguments \code{x} and \code{type}. The function that takes the output of the \code{predict} function and reduces the bagged predictions to a single prediction per sample. the \code{type} argument can be used to switch between predicting classes or class probabilities for classification models.
+a function with arguments \code{x} and \code{type}. The function that takes the output of the \code{predict} function and reduces the bagged predictions to a single prediction per sample. the \code{type} argument can be used to switch between predicting classes or class probabilities for classification models. Example functions are found in \code{ldaBag}, \code{plsBag}, \code{nbBag}, \code{svmBag} and \code{nnetBag}.
 }
  \item{downSample}{a logical: for classification, should the data set be randomly sampled so that each class has the same number of samples as the smallest class?}
   \item{vars}{
@@ -61,7 +75,7 @@ a matrix or data frame of samples for prediction. Note that this argument must h
 }
 
 \details{
-The function is basically a framework where users can plug in any model in to assess the effect of bagging.
+The function is basically a framework where users can plug in any model in to assess the effect of bagging. Examples functions can be found in \code{ldaBag}, \code{plsBag}, \code{nbBag}, \code{svmBag} and \code{nnetBag}. Each has elements \code{fit}, \code{pred} and \code{aggregate}.
 
 One note: when \code{vars} is not \code{NULL}, the sub-setting occurs prior to the \code{fit} and \code{predict} functions are called. In this way, the user probably does not need to account for the change in predictors in their functions.
 
@@ -89,33 +103,10 @@ Max Kuhn
 ## A simple example of bagging conditional inference regression trees:
 data(BloodBrain)
 
-## Fit a model with the default values
-ctreeFit <- function(x, y, ...)
-  {
-    library(party)
-    data <- as.data.frame(x)
-    data$y <- y
-    ctree(y~., data = data)
-  }
-
-## Generate simple predictions of the outcome
-ctreePred <- function(object, x)
-  {
-    predict(object, x)[,1]
-  }
-
-## Take the median of the bagged predictions
-ctreeAg <- function(x, type = NULL)
-  {
-    ## x is a list of vectors, so we convert them to a matrix
-    preds <- do.call("cbind", x)
-    apply(preds, 1, median)
-  }
-
 treebag <- bag(bbbDescr, logBBB, B = 10,
-               bagControl = bagControl(fit = ctreeFit,
-                                       predict = ctreePred,
-                                       aggregate = ctreeAg))
+               bagControl = bagControl(fit = ctreeBag$fit,
+                                       predict = ctreeBag$pred,
+                                       aggregate = ctreeBag$aggregate))
 
 
 
@@ -127,61 +118,15 @@ data(mdrr)
 mdrrDescr <- mdrrDescr[, -nearZeroVar(mdrrDescr)]
 mdrrDescr <- mdrrDescr[, -findCorrelation(cor(mdrrDescr), .95)]
 
-
-## The fit and predict functions are stright-forward:
-ldaFit <- function(x, y, ...)
-  {
-    library(MASS)
-    lda(x, y, ...)
-  }
-
-ldaPred <- function(object, x)
-  {
-    predict(object, x)$posterior
-  }
-
-
-## For the aggregation function, we take the median of the bagged
-## posterior probabilities and pick the largest as the class
-ldaAg <- function(x, type = "class")
-  {
-    ## The class probabilities come in as a list of matrices
-    ## For each class, we can pool them then average over them
-
-    pooled <- x[[1]] & NA
-    classes <- colnames(pooled)
-    for(i in 1:ncol(pooled))
-      {
-        tmp <- lapply(x, function(y, col) y[,col], col = i)
-        tmp <- do.call("rbind", tmp)
-        pooled[,i] <- apply(tmp, 2, median)
-      }
-    if(type == "class")
-      {
-        out <- factor(classes[apply(pooled, 1, which.max)],
-                      levels = classes)
-      } else out <- pooled
-    out
-  }
-
-
-bagLDA <- bag(mdrrDescr, mdrrClass, 
-              B = 10,
-              vars = 10,
-              bagControl = bagControl(fit = ldaFit,
-                                      predict = ldaPred,
-                                      downSample = TRUE,
-                                      aggregate = ldaAg))
-
 \dontrun{
 basicLDA <- train(mdrrDescr, mdrrClass, "lda")
 
 bagLDA2 <- train(mdrrDescr, mdrrClass, 
                  "bag", 
                  B = 10, 
-                 bagControl(fit = ldaFit,
-                            predict = ldaPred,
-                            aggregate = ldaAg),
+                 bagControl(fit = ldaBag$fit,
+                            predict = ldaBag$pred,
+                            aggregate = ldaBag$aggregate),
                  tuneGrid = data.frame(.vars = c((1:10)*10 , ncol(mdrrDescr))))
 }
 }

@@ -158,7 +158,13 @@ export(
        gamFuncs,
        R2,
        RMSE,
-       BoxCoxTrans
+       BoxCoxTrans,
+       ldaBag,
+       plsBag,
+       nbBag,
+       ctreeBag,
+       svmBag,
+       nnetBag
        )
 
 S3method(confusionMatrix, default)

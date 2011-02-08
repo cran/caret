@@ -45,3 +45,76 @@ minDiss <- function(u) min(u, na.rm = TRUE)
 
 sumDiss <- function(u) sum(u, na.rm = TRUE)
 
+
+
+
+
+
+
+splitter <- function(x, p = .8, start = NULL, ...)
+  {
+    n <- nrow(x)
+    if(is.null(start)) start <- sample(1:n, 1)
+    n2 <- n - length(start)
+    m <- ceiling(p * n2)
+    pool <- maxDissim(x[ start,,drop = FALSE],
+                      x[-start,,drop = FALSE],
+                      n = m,
+                      ...)
+    c(start, pool)
+  }
+
+
+splitByDissim <- function(x, p = .8, y = NULL, start = NULL, ...)
+  {
+    library(plyr)
+    if(!is.data.frame(x)) x <- as.data.frame(x)
+    
+    if(!is.null(y))
+      {
+        if(!is.factor(y)) y <- as.factor(y)
+        lvl <- levels(y)
+        
+        ind <- split(seq(along = y), y)
+        ind2 <- lapply(ind, function(x) seq(along = x))
+        start2 <- lapply(ind, function(x, start) which(x %in% start),
+                         start = start)
+        for(i in seq(along = lvl))
+          {
+            tmp <- splitter(x[ind[[i]],, drop = FALSE],
+                            p = p,
+                            start = start2[[i]],
+                            ...)
+            tmp2 <- ind[[i]][which(ind2[[i]] %in% tmp)]
+            out <- if(i == 1) tmp2 else c(tmp2, out)
+          }
+      } else {
+        out <- splitter(x, p = p, start = start, ...)
+      }
+    out
+  }
+
+
+
+if(FALSE)
+  {
+    ind <- splitByDissim(iris[, 1:2],  p = .1, y = iris$Species, start = c(1:2, 51:52, 101:102))
+    iris$Group <- "train"
+    iris$Group[ind] <- "test"
+    xyplot(Sepal.Length ~ Sepal.Width|Species, data = iris, groups = Group)
+
+    plotTheme <- caretTheme()
+    plotTheme$superpose.symbol$col[1] <- "lightgrey"
+    trellis.par.set(plotTheme)
+
+    data(mdrr)
+    set.seed(100)
+    strt <- createDataPartition(mdrrClass, p = .05)[[1]]
+    ind <- splitByDissim(mdrrDescr[, 1:2],  p = .15, y = mdrrClass, start = strt)
+    mdrrDescr$Group <- "pool"
+    mdrrDescr$Group[ind[!(ind %in% strt)]] <- "selected"
+    mdrrDescr$Group[strt] <- "start"
+    
+    xyplot(MW ~ AMW|mdrrClass, data = mdrrDescr, groups = Group, auto.key = list(columns = 3))
+
+  }

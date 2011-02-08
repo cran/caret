@@ -182,7 +182,8 @@ ldaBag <- list(fit = function(x, y, ...)
                  ## The class probabilities come in as a list of matrices
                  ## For each class, we can pool them then average over them
 
-                 pooled <- x[[1]] & NA
+                 pooled <- x[[1]] * NA
+                 n <- nrow(pooled)
                  classes <- colnames(pooled)
                  for(i in 1:ncol(pooled))
                    {
@@ -191,11 +192,12 @@ ldaBag <- list(fit = function(x, y, ...)
                      pooled[,i] <- apply(tmp, 2, median)
                    }
                  pooled <- apply(pooled, 1, function(x) x/sum(x))
+                 if(n != nrow(pooled)) pooled <- t(pooled)
                  if(type == "class")
                    {
                      out <- factor(classes[apply(pooled, 1, which.max)],
                                    levels = classes)
-                   } else out <- pooled
+                   } else out <- as.data.frame(pooled)
                  out
                })
 
@@ -213,7 +215,7 @@ plsBag <- list(fit = function(x, y,  ...)
                aggregate = function(x, type = "class")
                {
                 
-                 pooled <- x[[1]] & NA
+                 pooled <- x[[1]] * NA
                  classes <- colnames(pooled)
                  for(i in 1:ncol(pooled))
                    {
@@ -225,13 +227,41 @@ plsBag <- list(fit = function(x, y,  ...)
                    {
                      out <- factor(classes[apply(pooled, 1, which.max)],
                                    levels = classes)
-                   } else out <- pooled
+                   } else out <- as.data.frame(pooled)
+                 out
+               })
+
+nbBag <- list(fit = function(x, y,  ...)
+               {
+                 library(klaR)
+                 NaiveBayes(x, y, usekernel = TRUE, fL = 2, ...)
+               },
+
+               pred = function(object, x)
+               {
+                 as.data.frame(predict(object, x)$posterior)
+               },
+               aggregate = function(x, type = "class")
+               {
+                 pooled <- x[[1]] * NA
+                 classes <- colnames(pooled)
+                 for(i in 1:ncol(pooled))
+                   {
+                     tmp <- lapply(x, function(y, col) y[,col], col = i)
+                     tmp <- do.call("rbind", tmp)
+                     pooled[,i] <- apply(tmp, 2, median)
+                   }
+                 if(type == "class")
+                   {
+                     out <- factor(classes[apply(pooled, 1, which.max)],
+                                   levels = classes)
+                   } else out <- as.data.frame(pooled)
                  out
                })
 
 
 
-treeBag <- list(fit = function(x, y,  ...)
+ctreeBag <- list(fit = function(x, y,  ...)
                 {
                   library(party)
                   data <- as.data.frame(x)
@@ -241,32 +271,148 @@ treeBag <- list(fit = function(x, y,  ...)
 
                 pred = function(object, x)
                 {
-                 
+                  
                   obsLevels <-  levels(object@data@get("response")[,1])
-                  rawProbs <- treeresponse(object, x)
-                  probMatrix <- matrix(unlist(rawProbs), ncol = length(obsLevels), byrow = TRUE)
-                  out <- data.frame(probMatrix)
-                  colnames(out) <- obsLevels
-                  rownames(out) <- NULL
+                  if(!is.null(obsLevels))
+                    {
+                      rawProbs <- treeresponse(object, x)
+                      probMatrix <- matrix(unlist(rawProbs), ncol = length(obsLevels), byrow = TRUE)
+                      out <- data.frame(probMatrix)
+                      colnames(out) <- obsLevels
+                      rownames(out) <- NULL
+                    } else out <- unlist(treeresponse(object, x))
                   out
                 },
                 aggregate = function(x, type = "class")
+                 {
+                   if(is.matrix(x[[1]]))
+                     {
+                       pooled <- x[[1]] & NA
+                       
+                       classes <- colnames(pooled)
+                       for(i in 1:ncol(pooled))
+                         {
+                           tmp <- lapply(x, function(y, col) y[,col], col = i)
+                           tmp <- do.call("rbind", tmp)
+                           pooled[,i] <- apply(tmp, 2, median)
+                         }
+                       if(type == "class")
+                         {
+                           out <- factor(classes[apply(pooled, 1, which.max)],
+                                         levels = classes)
+                         } else out <- as.data.frame(pooled)
+                     } else {
+                       x <- matrix(unlist(x), ncol = length(x))
+                       out <- apply(x, 1, median)
+                     }
+                   out
+                })
+
+
+
+svmBag <- list(fit = function(x, y,  ...)
+                {
+
+                  library(kernlab)
+                  
+                  out <- ksvm(as.matrix(x), y, prob.model = is.factor(y), ...)
+                  out
+                },
+
+                pred = function(object, x)
                 {
                   
-                  pooled <- x[[1]] & NA
-                  classes <- colnames(pooled)
-                  for(i in 1:ncol(pooled))
+                  if(is.character(lev(object)))
                     {
-                      tmp <- lapply(x, function(y, col) y[,col], col = i)
-                      tmp <- do.call("rbind", tmp)
-                      pooled[,i] <- apply(tmp, 2, median)
-                    }
-                  if(type == "class")
-                    {
-                      out <- factor(classes[apply(pooled, 1, which.max)],
-                                    levels = classes)
-                    } else out <- pooled
+                      out <- predict(object, as.matrix(x), type = "probabilities")                   
+                      colnames(out) <- lev(object)
+                      rownames(out) <- NULL
+                    } else out <-  predict(object, as.matrix(x))[,1]
                   out
+                },
+                aggregate = function(x, type = "class")
+                 {
+                   if(is.matrix(x[[1]]))
+                     {
+                       pooled <- x[[1]] & NA
+                       
+                       classes <- colnames(pooled)
+                       for(i in 1:ncol(pooled))
+                         {
+                           tmp <- lapply(x, function(y, col) y[,col], col = i)
+                           tmp <- do.call("rbind", tmp)
+                           pooled[,i] <- apply(tmp, 2, median)
+                         }
+                       if(type == "class")
+                         {
+                           out <- factor(classes[apply(pooled, 1, which.max)],
+                                         levels = classes)
+                         } else out <- as.data.frame(pooled)
+                     } else {
+                       x <- matrix(unlist(x), ncol = length(x))
+                       out <- apply(x, 1, median)
+                     }
+                   out
+                })
+
+
+
+
+nnetBag <- list(fit = function(x, y,  ...)
+                {
+
+                  library(nnet)
+                  factorY <- is.factor(y)
+                  ## class.ind form nnet library
+                  class.ind <- function(cl) {
+                    n <- length(cl)
+                    x <- matrix(0, n, length(levels(cl)))
+                    x[(1:n) + n * (as.vector(unclass(cl)) - 1)] <- 1
+                    dimnames(x) <- list(names(cl), levels(cl))
+                    x
+                  }
+                  if(factorY) y <- class.ind(y)
+
+                  out <- nnet(x, y, linout = !factorY, trace = FALSE, ...)
+                  out$classification <- factorY
+                  out
+                },
+
+                pred = function(object, x)
+                {
+                  
+                  out <- predict(object, x, type= "raw")  
+                  if(object$classification)
+                    {
+                                         
+                      colnames(out) <- colnames(object$fitted.values)
+                      rownames(out) <- NULL
+                    } else out <- predict(object, x, type= "raw")[,1]
+                  out
+                },
+                aggregate = function(x, type = "class")
+                 {
+                   if(is.matrix(x[[1]]))
+                     {
+                       pooled <- x[[1]] & NA
+                       
+                       classes <- colnames(pooled)
+                       for(i in 1:ncol(pooled))
+                         {
+                           tmp <- lapply(x, function(y, col) y[,col], col = i)
+                           tmp <- do.call("rbind", tmp)
+                           pooled[,i] <- apply(tmp, 2, median)
+                         }
+                       if(type == "class")
+                         {
+                           out <- factor(classes[apply(pooled, 1, which.max)],
+                                         levels = classes)
+                         } else out <- as.data.frame(pooled)
+                     } else {
+                       x <- matrix(unlist(x), ncol = length(x))
+                       out <- apply(x, 1, median)
+                     }
+                   out
                 })
 
 
