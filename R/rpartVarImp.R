@@ -1,73 +1,56 @@
-varImp.rpart <- function(object, ...) 
-{
-  outcomeName <- as.character(formula(object$terms)[[2]])
-  dataTypes <- attributes(object$terms)$dataClasses
-  isClassification <- if(dataTypes[names(dataTypes) == outcomeName] == "numeric") FALSE else TRUE
+varImp.rpart <- function(object, surrogates = FALSE, competes = TRUE, ...)
+  {
+    tmp <- rownames(object$splits)
+    rownames(object$splits) <- 1:nrow(object$splits)
+    splits <- data.frame(object$splits)
+    splits$var <- tmp
+    splits$type <- ""
 
-  frame <- object$frame[, 1:8]
-  splitData <- object$split
-  splitVar <- dimnames(splitData)[[1]]
-  dimnames(splitData)[[1]] <- seq(along = splitVar)
-  
-  frame$node <- as.numeric(row.names(frame))
-  frame$parent <- ifelse(frame$node == 1, 1, floor(frame$node/2))
+    frame <- as.data.frame(object$frame)
+    index <- 0
+    for(i in 1:nrow(frame))
+      {
+        if(frame$var[i] != "<leaf>")
+          {
+            index <- index + 1
+            splits$type[index] <- "primary"
+            if(frame$ncompete[i] > 0)
+              {
+                for(j in 1:frame$ncompete[i])
+                  {
+                    index <- index + 1
+                    splits$type[index] <- "competing"
+                  }
+              }
+            if(frame$nsurrogate[i] > 0)
+              {
+                for(j in 1:frame$nsurrogate[i])
+                  {
+                    index <- index + 1
+                    splits$type[index] <- "surrogate"
+                  }
+              }
+          }
+      }
+    splits$var <- factor(as.character(splits$var))
+    if(!surrogates) splits <- subset(splits, type != "surrogate")
+    if(!competes) splits <- subset(splits, type != "competing")
+    out <- aggregate(splits$improve,
+                     list(Variable = splits$var),
+                     sum,
+                     na.rm = TRUE)
 
+    allVars <- colnames(attributes(object$terms)$factors)
+    if(!all(allVars %in% out$Variable))
+      {
+        missingVars <- allVars[!(allVars %in% out$Variable)]
+        zeros <- data.frame(x = rep(0, length(missingVars)),
+                            Variable = missingVars)
+        out <- rbind(out, zeros)
+      }
 
-  if(sum(frame$ncompete) + sum(frame$nsurrogate) > 0)
-    {
-      ## The start and end variables are denote the rows of object$split that
-      ## can be used to figure out which splits were the primary, competing and
-      ## surrogate splits.
-      frame$end <- cumsum((frame$ncompete >0) + frame$ncompete + frame$nsurrogate)
-      frame$start <- frame$end - (frame$ncompete + frame$nsurrogate)
-      frame$end[frame$ncompete == 0] <- NA
-      frame$start[frame$ncompete == 0] <- NA
-      
-      frame$improve <- splitData[frame$start, "improve"]
-      frame <- frame[order(-frame$node, decreasing = TRUE),]
-      
-      
-      splitInfo <- data.frame(
-                              Node = rep(0, dim(splitData)[1]),
-                              isCompeting = rep(FALSE, dim(splitData)[1]),   
-                              isSurrogate = rep(FALSE, dim(splitData)[1]))
-      
-      noLeaves <- frame[frame$var != "<leaf>",]
-      for(i in 1:dim(noLeaves)[1])
-        {
-          splitInfo$Node[noLeaves[i, "start"]:noLeaves[i, "end"]] <- noLeaves[i, "node"]
-          if(noLeaves[i, "ncompete"] > 0)
-            {
-              splitInfo$isCompeting[(noLeaves[i, "start"] + 1):(noLeaves[i, "start"] + noLeaves[i, "ncompete"])] <- TRUE
-            }
-          if(noLeaves[i, "nsurrogate"] > 0)
-            {
-              splitInfo$isSurrogate[(noLeaves[i, "end"] - noLeaves[i, "nsurrogate"] + 1):noLeaves[i, "end"]] <- TRUE
-            }     
-        }   
-      
-      splitData <- cbind(data.frame(splitData), splitInfo)
-      splitData$splitVar <- splitVar   
-      rpartImp <- tapply(splitData$improve[!splitData$isSurrogate], splitData$splitVar[!splitData$isSurrogate], sum)
+    out2 <- data.frame(Overall = out$x)
+    rownames(out2) <- out$Variable
+    out2
 
-      impDF <- merge(data.frame(Feature = attributes(object$terms)$term.labels),
-                     data.frame(Feature = names(rpartImp), importance = rpartImp), all = TRUE)
-      impDF$importance[is.na(impDF$importance)] <- 0
-    } else {
-      ## In this case, things are simple since every row in object$split is
-      ## a primary split
-      splitData <- as.data.frame(object$split,
-                                 row.names = paste(1:nrow((object$split))))                        
-      splitData$Feature <- rownames(object$split)
-      impVals <- aggregate(splitData$improve,
-                           list(Feature = splitData$Feature),
-                           sum)
-      names(impVals)[2] <- "importance"
-      impDF <- merge(impVals,
-                     data.frame(Feature =  attributes(object$terms)$term.labels))
-    }
-  out <- data.frame(Overall = impDF$importance)
-  rownames(out) <- impDF$Feature
-  out
-}
-
+  }

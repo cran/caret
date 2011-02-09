@@ -1,4 +1,29 @@
 -------------------
+Version: 4.78
+Date: 2011-02-08
+
+Added a few bagging modules. See ?bag.
+
+Added basic timings of the entire call to train(), rfe() and sbf()
+as well as the fit time of the final model. These are stored in an element 
+called "times". 
+
+The data files were updated to use better compression, which added a 
+higher R version dependency.
+
+plot.train was pretty much re-written to more effectively use trellis theme
+defaults and to allow arguments (e.g. axis labels, keys, etc) to be passed
+in to over-ride the defaults.
+
+Fixed bugs for:
+
+  - lda bagging function
+  - print.trian when preProc is NULL
+  - predict.BoxCoxTrans would go all klablooey if there were missing 
+    values
+  - varImp.rpart was failing with some models (thanks to Maria Delgado)
+
+-------------------
 Version: 4.77
 Date: 2011-01-21
 
@@ -6,7 +31,7 @@ A new class was added or estimating and *applying* the Box-Cox
 transformation to data called BoxCoxTrans. This is also included as an
 option to transform *predictor* variables. Although the Box-Tidwell
 transformation was invented for this purpose, the Box-Cox transformation
-is more strightforward, less prone to numerical issues and just as
+is more straightforward, less prone to numerical issues and just as
 effective. This method was also added to preProcess.
 
 Fixed mis-labelled x axis in plot.train when a transformation is applied
@@ -15,7 +40,7 @@ for models with three tuning parameters.
 When plotting a train object with method == "gbm" and multiple values
 of the shrinkage parameter, the ordering of panels was improved.
 
-Fixed bugs for regression prediciton using partDSA and qrf. Another bug,
+Fixed bugs for regression prediction using partDSA and qrf. Another bug,
 reported by Jan Lammertyn, related to extractPrediciton with a single
 predictor was also fixed. 
 

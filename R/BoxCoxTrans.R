@@ -66,7 +66,7 @@ predict.BoxCoxTrans <- function(object, newdata, ...)
      } else {
        if(object$lambda < object$fudge & object$lambda > -object$fudge)
          {
-           if(any(newdata <= 0)) warning("newdata should have values > 0")
+           if(any(newdata[!is.na(newdata)] <= 0)) warning("newdata should have values > 0")
            out <- log(newdata)
          } else {
            if(object$lambda < 1+object$fudge & object$lambda > 1-object$fudge)

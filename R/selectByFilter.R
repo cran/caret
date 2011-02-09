@@ -104,6 +104,7 @@ sbf <- function (x, ...) UseMethod("sbf")
   function(x, y,
            sbfControl = sbfControl(), ...)
 {
+  startTime <- proc.time()
   funcCall <- match.call(expand.dots = TRUE)
 
   numFeat <- ncol(x)
@@ -192,14 +193,19 @@ sbf <- function (x, ...) UseMethod("sbf")
   scores <- apply(x, 2, sbfControl$functions$score, y = y)
   retained <- sbfControl$functions$filter(scores, x, y)
   
-  fit <- sbfControl$functions$fit(x[, retained, drop = FALSE],
-                                  y,
-                                  ...)
+  finalTime <- system.time(
+                           fit <- sbfControl$functions$fit(x[, retained, drop = FALSE],
+                                                           y,
+                                                           ...))
 
   resamples <- switch(sbfControl$returnResamp,
                       none = NULL, 
                       all = resamples)
 
+  endTime <- proc.time()
+  times <- list(everything = endTime - startTime,
+                final = finalTime)
+  
   #########################################################################
   ## Now, based on probability or static ranking, figure out the best vars
   ## and the best subset size and fit final model
@@ -215,6 +221,7 @@ sbf <- function (x, ...) UseMethod("sbf")
                  control = sbfControl,
                  resample = resamples,
                  metrics = perfNames,
+                 times = times, 
                  dots = list(...)),
             class = "sbf")
 }

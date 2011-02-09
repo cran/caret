@@ -1,244 +1,155 @@
-"plot.train" <-
-  function(x,
-           plotType = "scatter",
-           metric = x$perfNames[1],
-           digits = getOption("digits") - 5,
-           xTrans = NULL,
-           ...)
-{
-  if(!(plotType %in% c("level", "scatter", "line"))) stop("plotType must be either level, scatter or line")
-  require(lattice)
+"plot.train" <-  function(x,
+                    plotType = "scatter",
+                    metric = x$perfNames[1],
+                    digits = getOption("digits") - 3,
+                    xTrans = NULL,
+                    ...)
+  {
+    
 
-  modelInfo <- modelLookup(x$method)
-
-  if(all(modelInfo$parameter == "parameter")) 
-    stop("This model type does not have a plot method (no tuning parameter)")
-  
-  performance <- x$results[, names(x$results) %in% metric]
-
-  perfNames <- x$perfNames
-  metricName <- metric[metric %in% perfNames]
-  yLabel <- paste(x$control$method, "resampled training", tolower(metricName))   
-
-  ## check to see if some of the tuning parameters were not varied  
-  tuneGrid <- x$results[, !(names(x$results) %in% perfNames), drop = FALSE]
-  theseParam <- modelInfo$parameter
-  tuneGrid <- tuneGrid[, theseParam,drop = FALSE]
-  
-  
-  nonConstantParam <- apply(tuneGrid, 2, function(u) length(unique(u))) > 1
-  numTune <- sum(nonConstantParam)
-  if(numTune < 1) return(resampleHist(x, ...))
-  tuneNames <- names(tuneGrid)[nonConstantParam]
-  
-  ## we need to pretty-up some of the values   
-  prettyVal <- function(u, dig) if(is.numeric(u)) signif(u, digits = dig) else as.character(u)
-
-  ## make a copy with only the tuning parameters which are changing
-  resultsCopy <- x$results[, names(x$results) %in% c(metricName, tuneNames), drop = FALSE]
-  resultsCopy <- resultsCopy[, c(metricName, tuneNames)]
-  resultsCopy[,tuneNames] <- as.data.frame(
-                                           lapply(
-                                                  resultsCopy[,tuneNames, drop = FALSE], 
-                                                  prettyVal, 
-                                                  dig = digits))
-  
-  if(x$method == "nb")
-    {
-      resultsCopy$usekernel <- factor(ifelse(resultsCopy$usekernel == 1, "Nonparametric", "Parametric"))  
-    }
-  
-  interactionPlot <- function(x, y, groups, subscripts)
-    {
-      group.values <- unique(groups)
-      for (i in seq(along=group.values)) 
-        {
-          id <- (groups[subscripts] == group.values[i])
-          current.val <- group.values[i]
-          panel.stripplot(
-                          x[id], y[id],
-                          jitter.data = FALSE, horizontal = FALSE,
-                          col = pchStyle$col[i], pch = pchStyle$pch[i])
-          panel.linejoin(
-                         x[id], y[id], horizontal=F,
-                         col = lineStyle$col[i], lty = lineStyle$lty[i], lwd = lineStyle$lwd[i])
-        }
-    }
-
-  pchStyle <- trellis.par.get("superpose.symbol")
-  lineStyle <- trellis.par.get("superpose.line") 
-  
-
-  plotLabels <- modelInfo$label[theseParam %in% tuneNames]  
-  
-  if(numTune == 1)
-    {
-      
-      if(plotType == "scatter")
-        {
-          if(is.null(xTrans))
-            {
-              xTrans = I
-            } else {
-              plotLabels <- paste(plotLabels, " (transformed)", sep = "")      
-            }  
-        }
-      
-      performancePlot <- switch(plotType,
-                                scatter = xyplot(
-                                  resultsCopy[,metricName] ~ xTrans(resultsCopy[,2]), 
-                                  xlab = plotLabels,
-                                  ylab = yLabel, 
-                                  type = "o",
-                                  ...),
-                                level = bwplot(
-                                  resultsCopy[,metricName] ~ factor(resultsCopy[,2]), 
-                                  panel = "panel.xyplot", 
-                                  type = "o", 
-                                  xlab = plotLabels,
-                                  ylab = yLabel, 
-                                  ...),
-                                line = bwplot(
-                                  resultsCopy[,metricName] ~ factor(resultsCopy[,2]), 
-                                  panel = "panel.xyplot", 
-                                  type = "o", 
-                                  xlab = plotLabels,
-                                  ylab = yLabel, 
-                                  ...))   
-
-    } else if(numTune == 2)
-      {
-        if(plotType == "scatter")
+    ## Error trap
+    if(!(plotType %in% c("level", "scatter", "line"))) stop("plotType must be either level, scatter or line")
+    
+    
+    ## define some functions
+    prettyVal <- function(u, dig, Name = NULL)
+      { 
+        if(is.numeric(u))
           {
-            if(is.null(xTrans))
-              {
-                xTrans <- I
-              } else {
-                plotLabels[1] <- paste(plotLabels[1], " (transformed)", sep = "")      
-              }  
-          }
-        
-        performancePlot <- switch(plotType,      
-                                  level = 
-                                  {
-                                    levelplot(
-                                              resultsCopy[,metricName] ~ factor(resultsCopy[,2]) * factor(resultsCopy[,3]), 
-                                              xlab = plotLabels[1], 
-                                              ylab = plotLabels[2], 
-                                              sub = yLabel, 
-                                              ...)      
-                                  },
-                                  line = stripplot(
-                                    resultsCopy[,metricName] ~ factor(resultsCopy[,2]),
-                                    groups = factor(resultsCopy[,3]),
-                                    panel = interactionPlot, 
-                                    xlab = plotLabels[1], 
-                                    ylab = yLabel, 
-                                    key = list(
-                                      title =plotLabels[2],  
-                                      cex.title = 1,                  
-                                      columns = min(3, length(unique(resultsCopy[,3]))),
-                                      text=list(
-                                        lab = as.character(unique(signif(resultsCopy[,3], 3)))),
-                                      lines=list(
-                                        col=lineStyle$col[1:length(unique(resultsCopy[,3]))],
-                                        lwd = lineStyle$lwd[1:length(unique(resultsCopy[,3]))],
-                                        lty=lineStyle$lty[1:length(unique(resultsCopy[,3]))]),
-                                      points = list(
-                                        col=pchStyle$col[1:length(unique(resultsCopy[,3]))],
-                                        pch = pchStyle$pch[1:length(unique(resultsCopy[,3]))])),
-                                    ...),
-                                  scatter = 
-                                  {
-                                    xyplot(
-                                           resultsCopy[,metricName] ~ xTrans(resultsCopy[,2]),
-                                           groups = factor(prettyVal(resultsCopy[,3], digits)),
-                                           type = "o", 
-                                           xlab = plotLabels[1], 
-                                           ylab = yLabel,  
-                                           key = list(
-                                             title =plotLabels[2],  
-                                             cex.title = 1,                  
-                                             columns = min(3, length(unique(resultsCopy[,3]))),
-                                             text=list(
-                                               lab = as.character(unique(prettyVal(resultsCopy[,3], 3)))),
-                                             lines=list(
-                                               col=lineStyle$col[1:length(unique(resultsCopy[,3]))],
-                                               lwd = lineStyle$lwd[1:length(unique(resultsCopy[,3]))],
-                                               lty=lineStyle$lty[1:length(unique(resultsCopy[,3]))]),
-                                             points = list(
-                                               col=pchStyle$col[1:length(unique(resultsCopy[,3]))],
-                                               pch = pchStyle$pch[1:length(unique(resultsCopy[,3]))])),
-                                           ...)               
-                                  })
-        
-        
-      } else if(numTune == 3)  
-        {
-             if(plotType == "scatter")
-             {
-               if(is.null(xTrans))
-                 {
-                   xTrans <- I
-                 } else {
-                   plotLabels[1] <- paste(plotLabels[1], " (transformed)", sep = "")      
-                 }  
-             }
+            if(!is.null(Name)) u <- paste(gsub(".", " ", Name, fixed = TRUE),
+                                          ": ", 
+                                          format(u, digits = dig), sep = "")
+            return(factor(u))
+          } else return(if(!is.factor(u)) as.factor(u) else u)
+      }
 
-             if(names(resultsCopy)[3] == "interaction.depth")
-             {
-               stripVar <- paste(plotLabels[2], ": ", format(resultsCopy[,3]), sep = "")
-             } else stripVar <- paste(plotLabels[2], ": ", factor(paste(prettyVal(resultsCopy[,3], 3))), sep = "")
-             
-             performancePlot <- switch(plotType,      
-                                       level = levelplot(
-                                         resultsCopy[,metricName] ~ factor(resultsCopy[,2]) * factor(resultsCopy[,4])|stripVar, 
-                                         xlab = plotLabels[1], 
-                                         ylab = plotLabels[3], 
-                                         sub =yLabel, ...),
-                                       line = stripplot(
-                                         resultsCopy[,metricName] ~ factor(resultsCopy[,2])|stripVar, 
-                                         groups = factor(resultsCopy[,4]),
-                                         panel = interactionPlot, 
-                                         xlab = plotLabels[1], 
-                                         ylab = yLabel,  
-                                         key = list(
-                                           title =plotLabels[3],  
-                                           cex.title = 1,             
-                                           columns = min(4, length(unique(resultsCopy[,4]))),
-                                           text=list(
-                                             lab = as.character(unique(signif(resultsCopy[,4], 3)))),
-                                           lines=list(
-                                             col=lineStyle$col[1:length(unique(resultsCopy[,4]))],
-                                             lwd = lineStyle$lwd[1:length(unique(resultsCopy[,4]))],
-                                             lty=lineStyle$lty[1:length(unique(resultsCopy[,4]))]),
-                                           points = list(
-                                             col=pchStyle$col[1:length(unique(resultsCopy[,4]))],
-                                             pch = pchStyle$pch[1:length(unique(resultsCopy[,4]))])),
-                                         ...),               
-                                       scatter = xyplot(
-                                         resultsCopy[,metricName] ~ xTrans(resultsCopy[,2])|stripVar, 
-                                         groups = factor(resultsCopy[,4]),
-                                         type = "o", 
-                                         xlab = plotLabels[1], 
-                                         ylab = yLabel, 
-                                         key = list(
-                                           title =plotLabels[3],  
-                                           cex.title = 1,             
-                                           columns = min(4, length(unique(resultsCopy[,4]))),
-                                           text=list(
-                                             lab = as.character(unique(prettyVal(resultsCopy[,4], 3)))),
-                                           lines=list(
-                                             col=lineStyle$col[1:length(unique(resultsCopy[,4]))],
-                                             lwd = lineStyle$lwd[1:length(unique(resultsCopy[,4]))],
-                                             lty=lineStyle$lty[1:length(unique(resultsCopy[,4]))]),
-                                           points = list(
-                                             col=pchStyle$col[1:length(unique(resultsCopy[,4]))],
-                                             pch = pchStyle$pch[1:length(unique(resultsCopy[,4]))])),
-                                         ...))
-           }
-          
-          performancePlot
-        }
+    ## Get tuning parameter info
+
+    params <- modelLookup(x$method)$parameter
+    plotIt <- "yes"
+    if(all(params == "parameter"))
+      {
+        plotIt <- "There are no tuning parameters for this model."
+      } else {
+        ## Check to see which tuning parameters were varied        
+        dat <- x$results
+        paramValues <- apply(dat[,params,drop = FALSE],
+                             2,
+                             function(x) length(unique(x)))
+        ##paramValues <- paramValues[order(paramValues)]
+        if(any(paramValues > 1))
+          {
+            params <- names(paramValues)[paramValues > 1]
+          } else plotIt <- "There are no tuning parameters with more than 1 value."         
+      }
+
+    if(plotIt == "yes")
+      {
+        p <- length(params)
+        dat <- dat[, c(metric, params)]
+        
+        ## The conveintion is that the first parameter (in
+        ## position #2 of dat) is plotted on the x-axis,
+        ## the second parameter is the grouping variable
+        ## and the rest are conditioning variables
+        if(!is.null(xTrans) & plotType == "scatter") dat[,2] <- xTrans(dat[,2])
+
+        ## We need to pretty-up some of the values of grouping
+        ## or conditioning variables
+
+
+        resampName <- switch(tolower(x$control$method),
+                             boot = "(Bootstrap)",
+                             boot632 = "(Bootstrap 632 Rule)",
+                             cv = "(Cross-Validation)",
+                             repeatedcv = "(Repeated Cross-Validation)",
+                             lgocv = "(Repeated Train/Test Splits)")
+        
+        if(plotType %in% c("line", "scatter"))
+          {
+
+            if(plotType == "scatter")
+              {
+                if(p >= 2) for(i in 3:ncol(dat))
+                  dat[,i] <- prettyVal(dat[,i], dig = digits, Name = if(i > 3) params[i-1] else  NULL)
+              } else {
+                for(i in 2:ncol(dat))
+                  dat[,i] <- prettyVal(dat[,i], dig = digits, Name = if(i > 3) params[i-1] else  NULL)
+              }
+            for(i in 2:ncol(dat)) if(is.logical(dat[,i])) dat[,i] <- factor(dat[,i])
+            
+            ## make formula
+            form <- if(p <= 2)
+              {          
+                as.formula(
+                           paste(metric, "~", params[1], sep = ""))
+              } else as.formula(paste(metric, "~", params[1], "|",
+                                      paste(params[-(1:2)], collapse = "*"),
+                                      sep = ""))
+            defaultArgs <- list(x = form,
+                                data = dat,
+                                groups = if(p > 1) dat[,params[2]] else NULL)
+            if(length(list(...)) > 0) defaultArgs <- c(defaultArgs, list(...))
+            lNames <- names(defaultArgs)
+            if(!("ylab" %in% lNames))  defaultArgs$ylab <- paste(metric, resampName)
+            
+            if(!("type" %in% lNames) & plotType == "scatter") defaultArgs$type <- c("g", "o")
+            if(!("type" %in% lNames) & plotType == "line") defaultArgs$type <- c("g", "o")
+            paramLabs <- subset(modelLookup(x$method),
+                                parameter %in% params)$label    
+            if(p > 1)
+              {
+                groupCols <- if(length(unique(dat[,3])) > 3) 3 else length(unique(dat[,3]))
+                
+                if(!(any(c("key", "auto.key") %in% lNames)))
+                  defaultArgs$auto.key <- list(columns = groupCols, lines = TRUE, title = paramLabs[2], cex.title = 1)
+              }
+            if(!("xlab" %in% lNames)) defaultArgs$xlab <- paramLabs[1]
+            
+            if(plotType == "scatter")
+              {
+                out <- do.call("xyplot", defaultArgs)
+              } else {
+                ## line plot #########################
+                out <- do.call("stripplot", defaultArgs)
+              }
+            
+          }
+
+        if(plotType == "level")
+          {
+            if(p == 1) stop("There must be at least 2 tuning parameters with multiple values")
+
+            for(i in 2:ncol(dat))
+              dat[,i] <- prettyVal(dat[,i], dig = digits, Name = if(i > 3) params[i-1] else  NULL)
+            
+            ## make formula
+            form <- if(p <= 2)
+              {          
+                as.formula(paste(metric, "~", params[1], "*", params[2], sep = ""))
+              } else as.formula(paste(metric, "~", params[1], "*", params[2], "|",
+                                      paste(params[-(1:2)], collapse = "*"),
+                                      sep = ""))
+            defaultArgs <- list(x = form, data = dat)
+            if(length(list(...)) > 0) defaultArgs <- c(defaultArgs, list(...))
+            lNames <- names(defaultArgs)
+            if(!("sub" %in% lNames)) defaultArgs$sub <- paste(metric, resampName)
+
+            paramLabs <- subset(modelLookup(x$method),
+                                parameter %in% params)$label    
+            if(!("xlab" %in% lNames)) defaultArgs$xlab <- paramLabs[1]
+            if(!("ylab" %in% lNames)) defaultArgs$ylab <- paramLabs[2]
+
+            
+            
+            out <- do.call("levelplot", defaultArgs)
+          }        
+        
+      } else stop(plotIt)
+ 
+    out
+    
+
+  }
 
 

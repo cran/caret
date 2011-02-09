@@ -76,8 +76,7 @@ lmProfile2 <- rfe(x, logBBB,
                                          rerank = TRUE, 
                                          number = 200))
 
-xyplot(lmProfile$results$RMSE + lmProfile2$results$RMSE +
-       rfProfile$results$RMSE + rfProfile2$results$RMSE ~ 
+xyplot(lmProfile$results$RMSE + lmProfile2$results$RMSE  ~ 
        lmProfile$results$Variables, 
        type = c("g", "p", "l"), 
        auto.key = TRUE)

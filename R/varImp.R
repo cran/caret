@@ -24,6 +24,7 @@ varImp.dsa <- function(object, cuts = NULL, ...)
 
 varImp.multinom <- function(object, ...)
   {
+    library(nnet)
     out <- abs(coef(object))
     if(is.vector(out))
       {

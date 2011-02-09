@@ -144,6 +144,7 @@ rfe <- function (x, ...) UseMethod("rfe")
            maximize = ifelse(metric == "RMSE", FALSE, TRUE),
            rfeControl = rfeControl(), ...)
 {
+  startTime <- proc.time()
   funcCall <- match.call(expand.dots = TRUE)
   if(!("caret" %in% loadedNamespaces())) library(caret)
 
@@ -266,11 +267,12 @@ rfe <- function (x, ...) UseMethod("rfe")
 
   bestVar <- rfeControl$functions$selectVar(selectedVars, bestSubset)  
 
-  fit <- rfeControl$functions$fit(x[, bestVar, drop = FALSE],
-                                  y,
-                                  first = FALSE,
-                                  last = TRUE,
-                                  ...)
+  finalTime <- system.time(
+                           fit <- rfeControl$functions$fit(x[, bestVar, drop = FALSE],
+                                                           y,
+                                                           first = FALSE,
+                                                           last = TRUE,
+                                                           ...))
 
   resamples <- switch(rfeControl$returnResamp,
                       none = NULL, 
@@ -285,6 +287,9 @@ rfe <- function (x, ...) UseMethod("rfe")
                         out
                       })
 
+  endTime <- proc.time()
+  times <- list(everything = endTime - startTime,
+                final = finalTime)
 
 #########################################################################
   ## Now, based on probability or static ranking, figure out the best vars
@@ -305,6 +310,7 @@ rfe <- function (x, ...) UseMethod("rfe")
                  metric = metric,
                  maximize = maximize,
                  perfNames = perfNames,
+                 times = times,
                  dots = list(...)),
             class = "rfe")
 }

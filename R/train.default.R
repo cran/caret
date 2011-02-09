@@ -15,6 +15,7 @@ train.default <- function(x, y,
                           tuneLength = 3)
 {
 
+  startTime <- proc.time()
   funcCall <- match.call(expand.dots = TRUE)
   
   modelType <- if(is.factor(y)) "Classification"  else "Regression"
@@ -35,7 +36,7 @@ train.default <- function(x, y,
                                       "either 0 or 1"))
     }
 
-  if(!is.null(preProcess) && !(all(preProcess %in% c("center", "scale", "pca", "ica", "spatialSign", "knnImpute", "bagImpute")))) 
+  if(!is.null(preProcess) && !(all(preProcess %in% c("center", "scale", "pca", "ica", "BoxCox", "spatialSign", "knnImpute", "bagImpute")))) 
     stop('pre-processing methods are limited to center, scale, pca, ica, knnImpute, bagImpute and spatialSign')
 
   
@@ -412,15 +413,16 @@ train.default <- function(x, y,
     }
     
   ## Make the final model based on the tuning results
-  finalModel <- createModel(data = trainData, 
-                            method = method, 
-                            tuneValue = bestTune, 
-                            obsLevels = classLevels,
-                            pp = list(options = preProcess,
-                                      thresh = trControl$PCAthresh,
-                                      ica = trControl$ICAcomp,
-                                      k = trControl$k),
-                            ...)
+  finalTime <- system.time(
+                           finalModel <- createModel(data = trainData, 
+                                                     method = method, 
+                                                     tuneValue = bestTune, 
+                                                     obsLevels = classLevels,
+                                                     pp = list(options = preProcess,
+                                                       thresh = trControl$PCAthresh,
+                                                       ica = trControl$ICAcomp,
+                                                       k = trControl$k),
+                                                     ...))
 
   ## get pp info
   pp <- finalModel$preProc
@@ -442,6 +444,10 @@ train.default <- function(x, y,
       finalModel$xData <- x
       finalModel$yData <- y
     }     
+
+  endTime <- proc.time()
+  times <- list(everything = endTime - startTime,
+                final = finalTime)
   
   structure(list(
                  method = method,
@@ -457,7 +463,8 @@ train.default <- function(x, y,
                  trainingData = outData,
                  resample = byResample,
                  perfNames = perfNames,
-                 maximize = maximize
+                 maximize = maximize,
+                 times = times
                  ), 
             class = "train")
 }

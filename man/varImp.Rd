@@ -33,7 +33,7 @@ A generic method for calculating variable importance for objects produced by
 
 \method{varImp}{fda}(object, value = "gcv", ...)
 
-\method{varImp}{rpart}(object, ...)
+\method{varImp}{rpart}(object, surrogates = FALSE, competes = TRUE, ...)
 
 \method{varImp}{randomForest}(object, ...)
 
@@ -76,6 +76,8 @@ A generic method for calculating variable importance for objects produced by
    \item{data}{the training set predictors (\code{pamr} models only)}        
    \item{value}{the statistic that will be used to calculate importance:
      either \code{gcv}, \code{nsubsets}, or \code{rss}}
+   \item{surrogates}{should surrogate splits contribute to the importance calculation?}
+   \item{competes}{should competing splits contribute to the importance calculation?}
    \item{estimate}{which estimate of performance should be used? See \code{\link[pls]{mvrVal}}}  
    \item{normalize}{a logical: should the importance values be divided by their standard deviations?}
    \item{drop}{a logical: should variables not included in the final set be calculated?}
