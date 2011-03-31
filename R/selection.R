@@ -40,6 +40,10 @@ byComplexity <- function(x, model)
              # complex boundaries
              x[order(x$C, -x$sigma),]
            },
+           svmRadialCost =
+           {
+             x[order(x$C),]
+           },
            svmpoly =, svmPoly =
            {
              x[order(x$degree, x$C, x$scale),]

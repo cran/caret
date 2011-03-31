@@ -105,11 +105,11 @@ to ensure that all the needed packages are installed.
 
 \section{Example Data}
 
-There are a few data sets included in \texttt{caret}. The first three
+There are a few data sets included in \texttt{caret}. The first four
 are computational chemistry problems where the object is to relate the
 molecular structure of compounds (via molecular descriptors) to some
 property of interest (\href{http://dx.doi.org/10.1016/S1359-6446(99)01451-8}{Blake (2000)}, Clark and Pickett (2000). Similar data sets can be found in the
-\texttt{QSARdata} R pacakge. The fourth data set listed is a typical spectroscopy data set from chemometrics. The last data set is a pattern recognition problem with a large number of classes, some of which do not have many observations.
+\texttt{QSARdata} R pacakge. 
 
 \subsection{Blood--Brain Barrier Data}
 
@@ -122,6 +122,14 @@ From  \href{http://pubs.acs.org/cgi-bin/abstract.cgi/jmcmar/2004/47/i22/abs/jm04
 values).'' A set of 255 descriptors (MOE2D and QikProp) were generated. To classify the data, we used a cutoff of $2^{2.5}$ to determine activity.
 
 Using \texttt{data(cox2)} exposes three R objects: \texttt{cox2Descr} is a data frame with the descriptor data, \texttt{cox2IC50} is a numeric vector of IC50 assay values and \texttt{cox2Class} is a factor vector with the activity results.
+
+
+\subsection{DHFR Inhibition}
+  
+\href{http://www.springerlink.com/content/q5m5xp1q356p2071/}{Sutherland and Weaver (2004)} discuss QSAR models for dihydrofolate reductase (DHFR) inhibition. This data set contains values for 325 compounds. For each compound, 228 molecular descriptors have been calculated. Additionally, each samples is designated as ``active'' or``inactive''.
+
+The data frame \texttt{dhfr} contains a column called \texttt{Y} with the outcome classification. The remainder of the columns are molecular descriptor values.
+
 
 \subsection{Multidrug Resistance Reversal (MDRR) Agent Data}
 
@@ -178,12 +186,6 @@ Many of these predictors are discrete and have been expanded into several 0/1 in
 
 \texttt{cars} is data frame of the suggested retail price (column Price) and various characteristics of each car (columns Mileage, Cylinder, Doors, Cruise, Sound, Leather, Buick, Cadillac, Chevy, Pontiac, Saab, Saturn, convertible, coupe, hatchback, sedan and wagon)
 
-\subsection{DHFR Inhibition}
-  
-\href{http://www.springerlink.com/content/q5m5xp1q356p2071/}{Sutherland and Weaver (2004)} discuss QSAR models for dihydrofolate reductase (DHFR) inhibition. This data set contains values for 325 compounds. For each compound, 228 molecular descriptors have been calculated. Additionally, each samples is designated as ``active'' or``inactive''.
-
-The data frame \texttt{dhfr} contains a column called \texttt{Y} with the outcome classification. The remainder of the columns are molecular descriptor values.
-
 \subsection{Cell Body Segmentation Data}
 
 \href{http://www.biomedcentral.com/1471-2105/8/340}{Hill, LaPan, Li and Haney (2007)} develop models to predict which cells in a high content screen were well segmented. The data consists of 119 imaging measurements on 2019. The original analysis used 1009 for training and 1010 as a test set (see the column called Case).
@@ -191,9 +193,34 @@ The data frame \texttt{dhfr} contains a column called \texttt{Y} with the outcom
 The outcome class is contained in a factor variable called Class with levels ``PS'' for poorly segmented and ``WS'' for well segmented.
 
 
+
+\section{Creating Dummy Variables}
+
+The function \texttt{dummyVars} can be used to generate a complete (less than full rank parameterized) set of dummy variables from one or more factors. The function takes a formula and a data set and outputs an object that can be used to create the dummy variables using the predict method.
+
+<<etitanic0, results = hide, echo = FALSE>>=
+library(earth)
+data(etitanic)
+@ 
+ 
+
+For example, the \texttt{etitanic} data set in the \texttt{earth} includes two factors: \texttt{pclass} with levels \Sexpr{paste(levels(etitanic$pclass),  collapse = ", ")} and \texttt{sex} with levels \Sexpr{paste(levels(etitanic$sex),  collapse = ", ")}. The base R function \texttt{model.matrix} would generate the following variables:
+<<etitanic1>>=
+library(earth)
+data(etitanic)
+head(model.matrix(survived ~ ., data = etitanic))
+@ 
+Using \texttt{dummyVars}:'
+<<etitanic1>>=
+dummies <- dummyVars(survived ~ ., data = etitanic)
+head(predict(dummies, newdata = etitanic))
+@ 
+Note there is no intercept and each factor has a dummy variable for each level, so this parameterization may not be useful for some model functions, such as \texttt{lm}.
+
+
 \section{Data Pre--Processing Functions}
 
-\texttt{caret} includes several functions to pre--process the predictor data.  Assumes that all of the data are numeric (i.e. factors have been converted to dummy variables via \texttt{model.matrix} or other means).
+\texttt{caret} includes several functions to pre--process the predictor data.  Assumes that all of the data are numeric (i.e. factors have been converted to dummy variables via \texttt{model.matrix}, \texttt{dummaryVars}  or other means).
 
 \subsection{Zero-- and Near Zero--Variance Predictors}
 
@@ -304,7 +331,7 @@ These types of dependencies can arise when large numbers of binary chemical fing
 
 \subsection{Centering and Scaling}
 
-The \texttt{preProcess} class can be used for many operations on predictors, including centering and scaling\footnote{Two functions, \texttt{processData} and \texttt{applyProcessing}, are being replaced by \texttt{preProcess}. They are still in the package, but will not be in upcoming versions}. The functiontextt{preProcess} estimates the required parameters for each operation and \texttt{predict.preProcess} is used to apply them to specific data sets.
+The \texttt{preProcess} class can be used for many operations on predictors, including centering and scaling\footnote{Two functions, \texttt{processData} and \texttt{applyProcessing}, are being replaced by \texttt{preProcess}. They are still in the package, but will not be in upcoming versions}. The function \texttt{preProcess} estimates the required parameters for each operation and \texttt{predict.preProcess} is used to apply them to specific data sets.
 
 
 In the example below, the half of the MDRR data are used to estimate the location and scale of the predictors. The function \texttt{preProcess} doesn't actually pre--process the data. \texttt{predict.preProcess} is used to pre--process this and other data sets.
@@ -325,6 +352,8 @@ testDescr <- predict(preProcValues, test)
 @
 \end{small}
 
+The \texttt{preProcess} option \texttt{"ranges"} scales the data to the interval [0, 1].
+
 \subsection{Transforming Predictors}
 
 In some cases, there is a need to use principal component analysis (PCA) to transform the data to a smaller sub--space where the new variable are uncorrelated with one another. The \texttt{preProcess} class can apply this transformation by including \texttt{"pca"} in the \texttt{method} argument. Doing this will also force scaling of the predictors. Note that when PCA is requested, \texttt{predict.preProcess} changes the column names to \texttt{PC1},  \texttt{PC2} and so on.
@@ -335,6 +364,8 @@ such that the components are independent (as opposed to uncorrelated in
 PCA). The new variables will be labeled as  \texttt{IC1},  \texttt{IC2} and so on.
 
 The ``spatial sign" transformation (\href{http://pubs.acs.org/cgi-bin/abstract.cgi/jcisd8/2006/46/i03/abs/ci050498u.html}{Serneels {\it et al}, 2006}) projects the data for a predictor to the unit circle in $p$ dimensions, where $p$ is the number of predictors. Essentially, a vector of data is divided by its norm. Figures \ref{f:descSplom} and \ref{f:descSplomTrans} show two centered and scaled descriptors from the MDRR data before and after the spatial sign transformation. The predictors should be centered and scaled before applying this transformation.
+
+Another option, \texttt{"BoxCox"} will estimate a Box--Cox transformation on the {\em predictors} if the data are greater than zero.
 
 This transformation can also be applied using the \texttt{preProcess} class.
 
@@ -644,9 +675,13 @@ Multivariate adaptive regression splines (MARS) models, like classification/regr
 
 Also, flexible discriminant analysis is a generalization of linear discriminant analysis that can use non--linear features as inputs. One way of doing this is the use MARS--type features to classify samples. The function \texttt{bagFDA} fits FDA models of a set of bootstrap samples and aggregates the predictions to reduce noise.  
 
+This function is deprecated in favor of the \texttt{bag} function.
+
 \subsection{Neural Networks with a Principal Component Step}
 
 Neural networks can be affected by severe amounts of multicollinearity in the predictors. The function \texttt{pcaNNet} is a wrapper around the \texttt{preProcess} and \texttt{nnet} functions that will run principal component analysis on the predictors before using them as inputs into a neural network. The function will keep enough components that will capture some pre-defined threshold on the cumulative proportion of variance (see the \texttt{thresh} argument). For new samples, the same transformation is applied to the new predictor values (based on the loadings from the training set). The function is available for both regression and classification. 
+
+This function is deprecated in favor of the \texttt{train} function using \texttt{method = "nnet"} and \texttt{preProc = "pca"}.
 
 \subsection{Class Distance Calculations}
 
@@ -741,7 +776,7 @@ toLatex(sessionInfo())
      \item Sutherland, J.J. and Weaver,
        D.F. (2004). ``Three-dimensional quantitative
        structure-activity and structure-selectivity relationships of
-       dihydrofolate reductase inhibitors'',{\it  Journal of Computer-Aided Molecular Design}, Vol. 18, pg. 309–331.
+       dihydrofolate reductase inhibitors'',{\it  Journal of Computer-Aided Molecular Design}, Vol. 18, pg. 309--331.
 
    \item Svetnik, V., Wang, T., Tong, C., Liaw, A., Sheridan, R. P. and Song, Q. (2005), ``Boosting: An ensemble learning tool for compound classification and QSAR modeling,'' {\it Journal of Chemical Information and Modeling}, 45, 786 --799.
 

@@ -12,6 +12,9 @@ preProcess.default <- function(x, method = c("center", "scale"),
                                ...)
 {
 
+  if(any(method %in% "range") & any(method %in% c("center", "scale", "BoxCox")))
+    stop("centering, scaling and/or Box-Cox transformations are inconsistent with scaling to a range of [0, 1]")
+  
   if(all(c("pca", "ica") %in% method))
     {
       warning("fastICA automatically uncorrelates the data using PCA. method = 'pca' is not needed")
@@ -49,6 +52,8 @@ preProcess.default <- function(x, method = c("center", "scale"),
   
   theCall <- match.call(expand.dots = TRUE)
 
+
+  
   if(any(method == "BoxCox"))
     {
       if(verbose) cat("Estimating Box-Cox transformations for the predictors...")
@@ -74,6 +79,12 @@ preProcess.default <- function(x, method = c("center", "scale"),
       scaleValue <- apply(x, 2, sd, na.rm = na.remove)
     } else scaleValue <- NULL
 
+  if(any(method == "range"))
+    {
+      ranges <- apply(x, 2, function(x) c(min(x, na.rm = na.remove), max(x, na.rm = na.remove)))
+    } else ranges <- NULL
+
+  
   if(any(scaleValue == 0))
     {
       warning(
@@ -136,6 +147,7 @@ preProcess.default <- function(x, method = c("center", "scale"),
               bc = bc,
               mean = centerValue,
               std = scaleValue,
+              ranges = ranges,
               rotation = rot,
               method = method,
               thresh = thresh,
@@ -181,6 +193,7 @@ predict.preProcess <- function(object, newdata, ...)
             }
         }
     }
+  
   if(!is.null(object$rotation))
     {
       if(!all(names(object$rotation) %in% dataNames))
@@ -194,8 +207,30 @@ predict.preProcess <- function(object, newdata, ...)
 
 
   if(!is.null(object$bc))
-    for(i in seq(along = object$bc)) newdata[,names(object$bc)[i]] <- predict(object$bc[[i]], newdata[,names(object$bc)[i]])
+    {
+      lam <- unlist(lapply(object$bc, function(x) x$lambda))
+      lamIndex <- which(!is.na(lam))
+      if(length(lamIndex) > 0)
+        {
+          for(i in names(lamIndex))
+            {
+              tt<- newdata[,i]
+              tt <- tt[!is.na(tt)]
+              if(any(tt <= 0))
+                {
+                  cat(i, "\n")
+                }
+              newdata[,i] <- predict(object$bc[[i]], newdata[,i])
+            }
+        }
+    }
 
+  if(any(object$method == "range"))
+    {
+      newdata <- sweep(newdata, 2, object$ranges[1,], "-")
+      newdata <- sweep(newdata, 2, object$ranges[2,] - object$ranges[1,], "/")
+    }
+  
   if(any(object$method == "center")) newdata <- sweep(newdata, 2, object$mean, "-")
   if(any(object$method %in% c("scale"))) newdata <- sweep(newdata, 2, object$std, "/")
   
@@ -270,6 +305,7 @@ print.preProcess <- function(x, ...)
   pp <- gsub("spatialSign", "spatial sign transformation", pp)
   pp <- gsub("knnImpute", paste(x$k, "nearest neighbor imputation"), pp)
   pp <- gsub("bagImpute", "bagged tree imputation", pp)  
+  pp <- gsub("range", "re-scaling to [0, 1]", pp)  
 
   ppText <- paste("Pre-processing:", paste(pp, collapse = ", "))
   cat(truncateText(ppText), "\n\n")

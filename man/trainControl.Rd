@@ -46,6 +46,6 @@ trainControl(method = "boot",
 \value{
  An echo of the parameters specified
 }
-\author{max Kuhn}
+\author{Max Kuhn}
 
 \keyword{utilities}

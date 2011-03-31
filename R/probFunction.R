@@ -6,7 +6,7 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
   
   
   if(method %in% c(
-                   "svmradial", "svmpoly",
+                   "svmradial", "svmpoly", "svmRadialCost",
                    "svmRadial", "svmPoly", "svmLinear",
                    "gaussprRadial", "gaussprPoly", "gaussprLinear",
                    "lssvmRadial", "lssvmLinear",
@@ -17,6 +17,7 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
       obsLevels <- switch(method,
                           svmradial =, svmpoly =, 
                           svmRadial =, svmPoly =, svmLinear =,
+                          svmRadialCost =, 
                           gaussprRadial =, gaussprPoly =, gaussprLinear =,
                           lssvmRadial =, lssvmLinear =
                           {
@@ -26,7 +27,7 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
 
                           Linda =, QdaCov = names(modelFit@prior),
                           
-                          ctree =, cforest =
+                          ctree =, ctree2 =, cforest =
                           {
                             library(party)
                             levels(modelFit@data@get("response")[,1])
@@ -41,7 +42,7 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
 
   
   classProb <- switch(method,
-                      lda =, rda =, slda =, qda =
+                      lda =, rda =, slda1 =, qda =
                       {
                         switch(method,
                                lda =, qda =  library(MASS),
@@ -64,11 +65,20 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
                       svmradial =, svmpoly =,
                       svmRadial =, svmPoly =,
                       lssvmRadial =,
-                      gaussprRadial =, gaussprPoly =
+                      gaussprRadial =, gaussprPoly =,
+                      svmRadialCost =
                       {
                         library(kernlab)
                         
                         out <- predict(modelFit, newdata, type="probabilities")
+                        ## There are times when the SVM probability model will
+                        ## produce negative class probabilities, so we
+                        ## induce vlaues between 0 and 1
+                        if(any(out < 0))
+                          {
+                            out[out < 0] <- 0
+                            out <- t(apply(out, 1, function(x) x/sum(x)))
+                          }
                         out <- out[, lev(modelFit), drop = FALSE]
                         out
                       },
@@ -368,13 +378,13 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
                         dimnames(out)[[2]] <-  modelFit$obsLevels
                         out
                       },
-                      #plsGlmBinomial =
-                      #{                      
-                      #  out <- predict(modelFit$FinalModel, newdata, type = "response")
-                      #  out <- cbind(1-out, out)
-                      #  dimnames(out)[[2]] <-  modelFit$obsLevels
-                      #  out
-                      #},
+                      plsGlmBinomial =
+                      {                      
+                        out <- predict(modelFit$FinalModel, newdata, type = "response")
+                        out <- cbind(1-out, out)
+                        dimnames(out)[[2]] <-  modelFit$obsLevels
+                        out
+                      },
                       mda =, pda =, pda2 =
                       {
                         library(mda)

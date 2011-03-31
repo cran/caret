@@ -27,7 +27,7 @@ preProcess(x, ...)
 
 \arguments{
   \item{x}{a matrix or data frame. All variables must be numeric.}
-  \item{method}{a character vector specifying the type of processing. Possible values are "BoxCox", "center", "scale", "knnImpute", "bagImpute", "pca" "ica" and "spatialSign" (see Details below)}
+  \item{method}{a character vector specifying the type of processing. Possible values are "BoxCox", "center", "scale", "range", "knnImpute", "bagImpute", "pca" "ica" and "spatialSign" (see Details below)}
   \item{thresh}{a cutoff for the cumulative percent of variance to be retained by PCA}
   \item{na.remove}{a logical; should missing values be removed from the calculations?}
   \item{object}{an object of class \code{preProcess}}
@@ -46,15 +46,17 @@ preProcess(x, ...)
   \item{\dots}{additional arguments to pass to \code{\link[fastICA]{fastICA}}, such as \code{n.comp}}
 }
 \details{
-The Box-Co transformation has been "repurposed" here: it is being used to transform the predictor variables. This method was developed for transforming the response variable while another method, the Box-Tidwell transformation, was created to estimate transformations of predictor data. However, the Box-Cox method is simpler, more computationally efficient and is equally effective for estimating power transformations.
+The Box-Cox transformation has been "repurposed" here: it is being used to transform the predictor variables. This method was developed for transforming the response variable while another method, the Box-Tidwell transformation, was created to estimate transformations of predictor data. However, the Box-Cox method is simpler, more computationally efficient and is equally effective for estimating power transformations.
 
-The operations are applied in this order: Box-Cox transformation, centering, scaling, imputation, PCA, ICA then spatial sign. This is a departure from versions of \pkg{caret} prior to version 4.76 (where imputation was done first) and is not backwards compatible if bagging was used for imputation.
+The "range" transformation scales the data to be within [0, 1]. If new samples have values larger or smaller than those in the training set, values will be outside of this range.
+
+The operations are applied in this order: Box-Cox transformation, centering, scaling, range, imputation, PCA, ICA then spatial sign. This is a departure from versions of \pkg{caret} prior to version 4.76 (where imputation was done first) and is not backwards compatible if bagging was used for imputation.
 
 If PCA is requested but centering and scaling are not, the values will still be centered and scaled. Similarly, when ICA is requested, the data are automatically centered and scaled.
 
 k-nearest neighbor imputation is carried out by finding the k closest samples (Euclidian distance) in the training set. Imputation via bagging fits a bagged tree model for each predictor (as a function of all the others). This method is simple, accurate and accepts missing values, but it has much higher computational cost.
 
-A warning is thrown if both PCA and ICA are requested. ICA, as implemented bt the \code{\link[fastICA]{fastICA}} package automatically does a PCA decomposition prior to finding the ICA scores.
+A warning is thrown if both PCA and ICA are requested. ICA, as implemented by the \code{\link[fastICA]{fastICA}} package automatically does a PCA decomposition prior to finding the ICA scores.
 
 The function will throw an error of any variables in \code{x} has less than two unique values. 
 }
@@ -68,6 +70,7 @@ The function will throw an error of any variables in \code{x} has less than two 
   \item{rotation}{a matrix of eigenvectors if PCA was requested}
   \item{method}{the value of\code{method}}
   \item{thresh}{the value of\code{thresh}}
+  \item{ranges}{a matrix of min and max values for each predictor when \code{method} includes "range" (and \code{NULL} otherwise)}
   \item{numComp}{the number of principal components required of capture the specified amount of variance}
   \item{ica}{contains values for the \code{W} and \code{K} matrix of the decomposition}
 }

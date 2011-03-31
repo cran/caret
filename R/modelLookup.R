@@ -220,7 +220,9 @@ modelLookup <- function(model = NULL)
             ## svmradial
             'svmradial', 'svmradial', 
             ## svmRadial
-            'svmRadial', 'svmRadial', 
+            'svmRadial', 'svmRadial',
+            ## svmRadialCost
+            'svmRadialCost',              
             ## treebag
             'treebag', 
             ## vbmpRadial
@@ -445,7 +447,9 @@ modelLookup <- function(model = NULL)
               ## svmradial
               'C', 'sigma', 
               ## svmRadial
-              'C', 'sigma', 
+              'C', 'sigma',
+              ## svmRadialCost
+              'C',               
               ## treebag
               'parameter', 
               ## vbmpRadial
@@ -725,6 +729,8 @@ modelLookup <- function(model = NULL)
               ## svmRadial
               'Cost',
               'Sigma',
+              ## svmRadialCost
+              'Cost',
               ## treebag
               'none',
               ## vbmpRadial
@@ -949,7 +955,9 @@ modelLookup <- function(model = NULL)
              ## svmradial
              FALSE, FALSE, 
              ## svmRadial
-             FALSE, FALSE, 
+             FALSE, FALSE,
+             ## svmRadialCost
+             FALSE,               
              ## treebag
              FALSE, 
              ## vbmpRadial
@@ -1174,6 +1182,8 @@ modelLookup <- function(model = NULL)
                 TRUE, TRUE, 
                 ## svmRadial
                 TRUE, TRUE, 
+                ## svmRadialCost
+                TRUE,
                 ## treebag
                 TRUE, 
                 ## vbmpRadial
@@ -1399,6 +1409,8 @@ modelLookup <- function(model = NULL)
                   TRUE, TRUE, 
                   ## svmRadial
                   TRUE, TRUE, 
+                  ## svmRadialCost
+                  TRUE,
                   ## treebag
                   TRUE, 
                   ## vbmpRadial
@@ -1624,6 +1636,8 @@ modelLookup <- function(model = NULL)
                     TRUE, TRUE, 
                     ## svmRadial
                     TRUE, TRUE, 
+                    ## svmRadialCost
+                    TRUE,
                     ## treebag
                     TRUE, 
                     ## vbmpRadial

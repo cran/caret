@@ -1,5 +1,6 @@
 \name{prcomp.resamples}
 \alias{prcomp.resamples}
+\alias{cluster.resamples}
 \alias{plot.prcomp.resamples}
 \title{
 Principal Components Analysis of Resampling Results
@@ -10,6 +11,9 @@ Performs a principal components analysis on an object of class \code{\link{resam
 }
 \usage{
 \method{prcomp}{resamples}(x, metric = x$metrics[1], ...)
+
+\method{cluster}{resamples}(x, metric = x$metrics[1], ...)
+
 
 \method{plot}{prcomp.resamples}(x, what = "scree", dims = max(2, ncol(x$rotation)), ...)
 
@@ -29,7 +33,7 @@ The number of dimensions to plot when \code{what = "loadings"} or \code{what = "
 }
 
   \item{\dots}{
-For \code{prcomp.resamples}, options to pass to \code{\link[stats]{prcomp}} and for \code{plot.prcomp.resamples}, options to pass to Lattice objects (see Details below).
+For \code{prcomp.resamples}, options to pass to \code{\link[stats]{prcomp}}, for \code{plot.prcomp.resamples}, options to pass to Lattice objects (see Details below) and, for \code{cluster.resamples}, options to pass to \code{hclust}.
 }
 }
 \details{
@@ -39,6 +43,8 @@ The plot method uses lattice graphics. When \code{what = "scree"} or \code{what 
 When \code{what = "loadings"} or \code{what = "components"}, either \code{\link[lattice:xyplot]{xyplot}} or \code{\link[lattice:splom]{splom}} are used (the latter when \code{dims} > 2). Options can be passed to these methods using \code{...}.
 
 When  \code{what = "loadings"} or \code{what = "components"}, the plots are put on a common scale so that later components are less likely to be over-interpreted. See Geladi et al (2003) for examples of why this can be important.
+
+For clustering, \code{\link[stats]{hclust}} is used to determine clusters of models based on the resampled performance values. 
 }
 
 \value{
@@ -55,7 +61,7 @@ For \code{plot.prcomp.resamples}, a Lattice object (see Details above)
 Max Kuhn}
 
 \seealso{
-\code{\link{resamples}}, \code{\link[lattice:xyplot]{barchart}}, \code{\link[lattice:xyplot]{xyplot}}, \code{\link[lattice:splom]{splom}}}
+\code{\link{resamples}}, \code{\link[lattice:xyplot]{barchart}}, \code{\link[lattice:xyplot]{xyplot}}, \code{\link[lattice:splom]{splom}}, \code{\link[stats]{hclust}}}
 
 \examples{
 \dontrun{
