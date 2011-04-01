@@ -358,7 +358,7 @@ print.rfe <- function(x, top = 5, digits = max(3, getOption("digits") - 3), ...)
                          x$control$repeats, " times)", sep = ""),
                        lgocv = paste("Repeated Train/Test Splits (", numResamp, " reps, ",
                          round(x$control$p, 2), "%)", sep = ""))
-  cat("Outer resamping method:", resampName, "\n")      
+  cat("Outer resampling method:", resampName, "\n")      
 
   cat("\nResampling performance over subset size:\n\n")
   x$results$Selected <- ""
