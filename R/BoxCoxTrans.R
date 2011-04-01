@@ -1,6 +1,9 @@
 BoxCoxTrans <- function(y, ...) UseMethod("BoxCoxTrans")
 
 
+##TODO add an epsilon?
+## TODO add exclusion list to preProc?
+
 BoxCoxTrans.default <- function(y, x = rep(1, length(y)), fudge = .2, numUnique = 3,  na.rm = FALSE, ...)
   {
     if(na.rm && (any(is.na(y)) | any(is.na(x))))

@@ -162,3 +162,57 @@ cubistPred <- function(path = NULL, prefix = "model", cleanup = FALSE)
   }
 
 
+
+QuinlanAttributes <- function (x, ...) UseMethod("QuinlanAttributes")
+QuinlanAttributes.numeric <- function(x, ...) "continuous."
+QuinlanAttributes.factor <- function(x, ...) paste(paste(levels(x), collapse = ","), ".", sep = "")
+QuinlanAttributes.character <- function(x, ...) paste(paste(unique(x), collapse = ","), ".", sep = "")
+QuinlanAttributes.ordered <- function(x, ...) paste("[ordered]", paste(levels(x), collapse = ","), ".", sep = "")
+QuinlanAttributes.matrix <- function(x, ...) apply(x, 2, QuinlanDescription)
+QuinlanAttributes.data.frame <- function(x, ...) unlist(lapply(x,  QuinlanDescription))
+
+
+formatAttributes <- function(x)
+  {
+    ## gsub special chars with escapes
+    x
+  }
+
+makeNamesFile <- function(x, y, label = "outcome", comments = TRUE)
+  {
+    if(comments)
+      {
+        call <- match.call()
+        out <- paste("| Generated using ", R.version.string, "\n",
+                     "| on ", format(Sys.time(), "%a %b %d %H:%M:%S %Y"), "\n",
+                     "| function call: ", paste(deparse(call)),
+                     sep = "")
+      } else out <- ""
+
+    out <- paste(out,
+                 "\n", label, ".\n",
+                 "\n", label, ": continuous.",
+                 sep = "")
+    varData <- QuinlanAttributes(x)
+    varData <- paste(names(varData), ": ", varData, sep = "", collapse = "\n")
+    out <- paste(out, "\n", varData, sep = "")
+    out
+
+
+  }
+
+
+makeDataFile <- function(x, y)
+  {
+    if(!is.data.frame(x)) x <- as.data.frame(x)
+    x <- cbind(y, x)
+    out <- capture.output(
+                          write.table(x,
+                                      sep = ",",
+                                      na = "?",
+                                      file = "",
+                                      quote = FALSE,
+                                      row.names = FALSE,
+                                      col.names = FALSE))
+    paste(out, collapse = "\n")
+  }

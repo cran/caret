@@ -425,7 +425,7 @@ getClassLevels <- function(x)
                                         "rvmRadial", "rvmPoly", "rvmLinear",
                                         "lssvmRadial", "lssvmPoly", "lssvmLinear",
                                         "gaussprRadial", "gaussprPoly", "gaussprLinear",
-                                        "ctree", "ctree2", "cforest",
+                                        "ctree", "ctree2", "cforest", "svmRadialCost",
                                         "penalized", "Linda", "QdaCov")))
       
       {
@@ -433,6 +433,7 @@ getClassLevels <- function(x)
                             penalized = NULL,
                             svmradial =, svmpoly =, svmlinear =, 
                             rvmradial =, rvmpoly =, svmlinear =,
+                            svmradialcost = ,
                             lssvmradial =, lssvmpoly =,  lssvmlinear =,
                             gaussprpadial =, gaussprpoly =, gaussprlinear =
                             {

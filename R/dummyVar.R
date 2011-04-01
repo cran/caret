@@ -28,6 +28,11 @@ dummyVars.default <- function (formula, data, sep = ".", levelsOnly = FALSE, ...
   if(!is.data.frame(data)) data <- as.data.frame(data)
 
   vars <- all.vars(formula)
+  if(any(vars == "."))
+    {
+      vars <- vars[vars != "."]
+      vars <- unique(c(vars, colnames(data)))
+    }
   isFac <- unlist(lapply(data[,vars,drop = FALSE], is.factor))
   if(sum(isFac) > 0)
     {

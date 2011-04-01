@@ -49,7 +49,7 @@
                    "bagFDA", "bagEarth", "lda", "enet", "lasso", "nnet", "gcvEarth",
                    "lvq", "pls", "plsTest", "gbm", "pam", "rf", "logitBoost",
                    "ada", "knn", "PLS", "rfNWS", "rfLSF", "pcaNNet",
-                   "mars", "rda",  "gpls", "svmpoly", "svmradial",
+                   "mars", "rda",  "gpls", "svmpoly", "svmradial", "svmRadialCost",
                    "svmPoly", "svmRadial", "svmLinear",
                    "lssvmPoly", "lssvmRadial", "lssvmLinear",
                    "rvmRadial", "rvmPoly", "rvmLinear",
@@ -146,6 +146,7 @@
                        library(kernlab)
                        if(type == "Classification")
                          {
+                           useProbModel <- !(any(names(list(...)) == "class.weights"))
                            out <- ksvm(
                                        as.matrix(trainX),
                                        trainY,
@@ -154,7 +155,7 @@
                                          scale = tuneValue$.scale,
                                          offset = 1),
                                        C = tuneValue$.C,
-                                       prob.model = TRUE,
+                                       prob.model = useProbModel,
                                        ...)
                          } else out <- ksvm(
                                             as.matrix(trainX),
@@ -172,12 +173,13 @@
                        library(kernlab)      
                        if(type == "Classification")
                          {
+                           useProbModel <- !(any(names(list(...)) == "class.weights"))
                            out <- ksvm(
                                        as.matrix(trainX),
                                        trainY,
                                        kernel = rbfdot(sigma = tuneValue$.sigma),
                                        C = tuneValue$.C,
-                                       prob.model = TRUE,
+                                       prob.model = useProbModel,
                                        ...)
                          } else {
                            out <- ksvm(
@@ -189,17 +191,39 @@
                          }
                        out         
                      },
+                     svmRadialCost = 
+                     {      
+                       library(kernlab)      
+                       if(type == "Classification")
+                         {
+                           useProbModel <- !(any(names(list(...)) == "class.weights"))
+                           out <- ksvm(
+                                       as.matrix(trainX),
+                                       trainY,
+                                       C = tuneValue$.C,
+                                       prob.model = useProbModel,
+                                       ...)
+                         } else {
+                           out <- ksvm(
+                                       as.matrix(trainX),
+                                       trainY,
+                                       C = tuneValue$.C,
+                                       ...)
+                         }
+                       out         
+                     },                     
                      svmLinear = 
                      {      
                        library(kernlab)      
                        if(type == "Classification")
                          {
+                           useProbModel <- !(any(names(list(...)) == "class.weights"))
                            out <- ksvm(
                                        as.matrix(trainX),
                                        trainY,
                                        kernel = vanilladot(),
                                        C = tuneValue$.C,
-                                       prob.model = TRUE,
+                                       prob.model = useProbModel,
                                        ...)
                          } else {
                            out <- ksvm(
@@ -1516,17 +1540,17 @@
                                  ...)
                                  
                      },
-                     #plsGlmBinomial =, plsGlmGaussian =, plsGlmGamma =, plsGlmPoisson =
-                     #{
-                     #  library(plsRglm)
-                     #  modType <- switch(method,
-                     #                    plsGlmBinomial = "pls-glm-logistic",
-                     #                    plsGlmGaussian = "pls-glm-gaussian",
-                     #                    plsGlmGamma = "pls-glm-Gamma",
-                     #                    plsGlmPoisson = "pls-glm-poisson")
-                     #  if(method == "plsGlmBinomial") trainY <- ifelse(trainY == levels(trainY)[1], 1, 0)
-                     #  plsRglm(trainY, trainX, nt = tuneValue$.nt, modele = modType, ...)
-                     #},
+#                     plsGlmBinomial =, plsGlmGaussian =, plsGlmGamma =, plsGlmPoisson =
+#                     {
+#                       library(plsRglm)
+#                       modType <- switch(method,
+#                                         plsGlmBinomial = "pls-glm-logistic",
+#                                         plsGlmGaussian = "pls-glm-gaussian",
+#                                         plsGlmGamma = "pls-glm-Gamma",
+#                                         plsGlmPoisson = "pls-glm-poisson")
+#                       if(method == "plsGlmBinomial") trainY <- ifelse(trainY == levels(trainY)[1], 1, 0)
+#                       plsRglm(trainY, trainX, nt = tuneValue$.nt, modele = modType, ...)
+ #                    },
                      qrnn =
                      {
                        library(qrnn)
@@ -1562,7 +1586,7 @@
 
   ## for models using S4 classes, you can't easily append data, so 
   ## exclude these and we'll use other methods to get this information
-  if(!(tolower(method) %in% tolower(c("svmRadial", "svmPoly", "svmLinear",
+  if(!(tolower(method) %in% tolower(c("svmRadial", "svmPoly", "svmLinear", "svmRadialCost",
                                       "rvmRadial", "rvmPoly", "rvmLinear",
                                       "lssvmRadial", "lssvmPoly", "lssvmLinear",
                                       "gaussprRadial", "gaussprPoly", "gaussprLinear",

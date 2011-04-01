@@ -681,6 +681,10 @@ There is additional functionality in \texttt{train} that is described in the nex
             {\tt \href{http://cran.r-project.org/web/packages/kernlab/index.html}{kernlab}}      & 
             \texttt{sigma}, \texttt{C} & \\             
  &
+         \texttt{svmRadialCost} & 
+            {\tt \href{http://cran.r-project.org/web/packages/kernlab/index.html}{kernlab}}      & 
+            \texttt{C} & \\   
+ &
          \texttt{svmPoly} & 
             {\tt \href{http://cran.r-project.org/web/packages/kernlab/index.html}{kernlab}}      & 
             \texttt{scale}, \texttt{degree}, \texttt{C} & \\            

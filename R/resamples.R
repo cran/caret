@@ -88,6 +88,8 @@ prcomp.resamples <- function(x, metric = x$metrics[1],  ...)
   }
 
 
+"cluster" <- function(x, ...) UseMethod("cluster")
+
 cluster.resamples <- function(x, metric = x$metrics[1],  ...)
   {
     

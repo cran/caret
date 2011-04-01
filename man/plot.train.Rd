@@ -15,7 +15,7 @@
 }
 \arguments{
   \item{x}{an object of class \code{\link{train}}.}
-  \item{metric}{What measure of performance to plot. Possible values are "RMSE", "Rsquared", "Accuracy" or "Kappa"}
+  \item{metric}{What measure of performance to plot. Examples of possible values are "RMSE", "Rsquared", "Accuracy" or "Kappa". Other values can be used depending n what metrics have been calculated.}
   \item{plotType}{a string describing the type of plot (\code{"scatter"}, \code{"level"} or \code{"line"})}
   \item{digits}{an integer specifying the number of significant digits used to label the parameter value.}
   \item{xTrans}{a fuction that will be used to scale the x-axis in scatter plots.}

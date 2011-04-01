@@ -244,6 +244,7 @@
                       svmradial =, svmRadial = expand.grid(
                                      .sigma = rbfTune(data, len),
                                      .C = 2 ^((1:len) - 3)),   
+                      svmRadialCost = data.frame(.C = 2 ^((1:len) - 3)), 
                       svmpoly =, svmPoly = expand.grid(
                                    .degree = seq(1, min(len, 3)),      
                                    .scale = 10 ^((1:len) - 4),

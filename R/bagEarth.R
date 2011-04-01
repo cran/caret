@@ -99,15 +99,15 @@
   library(earth)
   getTrainPred <- function(x)
     {
-      byObs <- tapply(x$fitted.values, list(index = x$index), x$summary)      
+      byObs <- tapply(x$fitted.values, list(index = x$index), x$summary)
       out <- vector(mode = "numeric", length = length(x$index)) * NA
       out[sort(unique(x$index))] <- byObs
       out
-      
+
     }
-  
+
   if(is.null(newdata) & !is.null(object$x)) newdata <- object$x
-  
+
   if(is.null(newdata))
     {
       pred <- lapply(object$fit, getTrainPred)
@@ -116,7 +116,7 @@
       pred <- lapply(object$fit,
                      function(x, y)
                      {
-                       if(all(is.na(x$levels))) predict(x, newdata = y) else  predict(x, newdata = y, type = "response")
+                       if(is.null(x$glm.list)) predict(x, newdata = y) else predict(x, newdata = y, type = "response")
                      },
                      y = newdata
                      )
@@ -142,8 +142,9 @@
         }
     }
   out
-  
+
 }
+
 
 print.bagEarth <- function (x, ...) 
 {

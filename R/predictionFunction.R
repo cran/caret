@@ -69,7 +69,8 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                            svmRadial =, svmPoly =, svmLinear =,
                            rvmRadial =, rvmPoly =, rvmLinear =,
                            lssvmRadial =, lssvmPoly =, lssvmLinear =,
-                           gaussprRadial =, gaussprPoly =, gaussprLinear =
+                           gaussprRadial =, gaussprPoly =, gaussprLinear =,
+                           svmRadialCost =
                            {
                              library(kernlab)
                              if(is.character(lev(modelFit)))
@@ -868,16 +869,17 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                                    }
                                } else predict(modelFit, newData = newdata)
                            },
-                          # plsGlmBinomial =, plsGlmGaussian =, plsGlmGamma =, plsGlmPoisson =
-                          # {
-                           #  library(plsRglm)
-                           #  out <- predict(modelFit$FinalModel, newdata = newdata, type = "response")
-                           #  ## glm models the second factor level. See Details in ?glm
-                           #  if(modelFit$family$family == "binomial")  out <- ifelse(out> .5,
-                           #       modelFit$obsLevel[2],
-                           #       modelFit$obsLevel[1])
-                           #  out
-                          #  },
+#                           plsGlmBinomial =, plsGlmGaussian =, plsGlmGamma =, plsGlmPoisson =
+#                           {
+#                             library(plsRglm)
+#                             out <- predict(modelFit$FinalModel, newdata = newdata, type = "response")
+#                             ## glm models the second factor level. See Details in ?glm
+#                             if(modelFit$family$family == "binomial")
+#                               {
+#                                 out <- ifelse(out> .5, modelFit$obsLevel[2], modelFit$obsLevel[1])
+#                               }
+#                             out
+#                           },
                            qrnn =
                            {
                              library(qrnn)
