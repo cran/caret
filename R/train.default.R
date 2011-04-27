@@ -477,6 +477,7 @@ train.default <- function(x, y,
                  resample = byResample,
                  perfNames = perfNames,
                  maximize = maximize,
+                 yLimits = if(is.numeric(y)) range(y) else NULL,
                  times = times
                  ), 
             class = "train")

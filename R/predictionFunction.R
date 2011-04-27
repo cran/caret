@@ -278,6 +278,25 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                                }
                              out
                            },
+                           cubist =
+                           {
+                             library(Cubist)
+                             
+                             out <- predict(modelFit, newdata, neighbors = modelFit$tuneValue$.neighbors)
+                             
+                             if(!is.null(param))
+                               {
+                                 tmp <- vector(mode = "list", length = nrow(param) + 1)
+                                 tmp[[1]] <- out
+                                 
+                                 for(j in seq(along = param$.neighbors))
+                                   {
+                                     tmp[[j+1]] <- predict(modelFit, newdata, neighbors = param$.neighbors[j])
+                                   }
+                                 out <- tmp
+                               }
+                             out
+                           },                           
                            
                            gcvEarth =
                            {
@@ -884,6 +903,11 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                            {
                              library(qrnn)
                              qrnn.predict(as.matrix(newdata), modelFit)[,1]
+                           },
+                           cubist =
+                           {
+                             library(Cubist)
+                             predict(modelFit, newdata)
                            })
   predictedValue
 }

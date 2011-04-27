@@ -14,7 +14,6 @@ byComplexity <- function(x, model)
            },
            hda =
            {
-             
              x[order(x$newdim, -x$lambda, x$gamma),] 
            },           
            gbm =
@@ -165,6 +164,10 @@ byComplexity <- function(x, model)
            plsGlmBinomial =, plsGlmGaussian =, plsGlmGamma =, plsGlmPoisson =
            {
              x[order(x$nt),]
+           },
+           cubist =
+           {
+             x[order(x$committees,  x$neighbors),]
            },
            logreg = x[order(x$ntrees, x$treesize),],
            logicBag = x[order(x$ntrees, x$nleaves),],

@@ -338,6 +338,7 @@
                                 .n.hidden = ((1:len) * 2) - 1, 
                                 .penalty = c(0, 10 ^ seq(-1, -4, length = len - 1)),
                                 .bag = FALSE),
+                      cubist = expand.grid(.committees = c(1, 10, 20), .neighbors = c(0, 5, 9)),
                       lda =, lm =, treebag =, sddaLDA =, sddaQDA =,
                       glm =, qda =, OneR =, rlm =,
                       rvmLinear =, lssvmLinear =, gaussprLinear =,

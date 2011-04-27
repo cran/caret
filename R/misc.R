@@ -137,6 +137,24 @@ tuneScheme <- function(model, grid, useOOB = FALSE)
                loop <- grid[1,,drop = FALSE]
                seqParam <- list(grid[-1,,drop = FALSE])
              },
+             cubist = 
+             {
+               grid <- grid[order(-grid$.committees, grid$.neighbors, decreasing = TRUE),, drop = FALSE]
+               
+               uniqueCom <- unique(grid$.committees)
+               
+               loop <- data.frame(.committees = uniqueCom)
+               loop$.neighbors <- NA
+               
+               seqParam <- vector(mode = "list", length = length(uniqueCom))
+               
+               for(i in seq(along = uniqueCom))
+                 {
+                   subK <- grid[grid$.committees == uniqueCom[i],".neighbors"]
+                   loop$.neighbors[loop$.committees == uniqueCom[i]] <- subK[which.max(subK)]
+                   seqParam[[i]] <- data.frame(.neighbors = subK[-which.max(subK)])
+                 }
+             },            
              earth = 
              {
                grid <- grid[order(grid$.degree, grid$.nprune, decreasing = TRUE),, drop = FALSE]

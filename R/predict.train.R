@@ -58,9 +58,57 @@ predict.train <- function(object, newdata = NULL, type = "raw", ...)
                                  unkOnly = TRUE,
                                  ...)$pred
       }
+    
+    if(object$modelType == "Regression" &&
+       is.logical(object$control$predictionBounds) &&
+       any(object$control$predictionBounds))
+      {
+        if(object$control$predictionBounds[1]) out <- ifelse(out < object$yLimit[1], object$yLimit[1], out)
+        if(object$control$predictionBounds[2]) out <- ifelse(out > object$yLimit[2], object$yLimit[2], out)         
+      }
+
+    if(object$modelType == "Regression" &&
+       is.numeric(object$control$predictionBounds) &&
+       any(!is.na(object$control$predictionBounds)))
+      {
+        if(!is.na(object$control$predictionBounds[1])) out <- ifelse(out < object$control$predictionBounds[1], object$control$predictionBounds[1], out)
+        if(!is.na(object$control$predictionBounds[2])) out <- ifelse(out > object$control$predictionBounds[2], object$control$predictionBounds[2], out)
+      }
 
     out  
+}
+
+
+
+if(FALSE)
+  {
+    library(caret)
+    library(mlbench)
+    data(BostonHousing)
+
+
+    lmFit <- train(medv ~ . + rm:lstat, "lm",
+                   data = BostonHousing)
+
+    lmFit2 <- train(medv ~ . + rm:lstat,
+                    data = BostonHousing, 
+                    "lm", trControl = trainControl(predictionBounds = rep(TRUE, 2)))
+    lmFit5 <- train(medv ~ . + rm:lstat,
+                    data = BostonHousing, 
+                    "lm", trControl = trainControl(predictionBounds = c(TRUE, FALSE)))
+
+    lmFit3 <- train(medv ~ . + rm:lstat,
+                    data = BostonHousing, 
+                    "lm", trControl = trainControl(predictionBounds = c(NA, 20)))
+
+    lmFit4 <- train(medv ~ . + rm:lstat,
+                    data = BostonHousing, 
+                    "lm", trControl = trainControl(predictionBounds = c(10, 20)))
+
+    summary(predict(lmFit, BostonHousing[, -14]))
+    summary(predict(lmFit2, BostonHousing[, -14]))
+    summary(predict(lmFit3, BostonHousing[, -14]))
+    summary(predict(lmFit4, BostonHousing[, -14]))
+    summary(predict(lmFit5, BostonHousing[, -14]))
+    
   }
-
-
-
