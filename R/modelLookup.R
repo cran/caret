@@ -18,7 +18,9 @@ modelLookup <- function(model = NULL)
             ## ctree
             'ctree', 
             ## ctree2
-            'ctree2', 
+            'ctree2',
+            ## Cubist
+            'cubist', 'cubist',            
             ## earth
             'earth', 'earth', 
             ## earthTest
@@ -245,7 +247,9 @@ modelLookup <- function(model = NULL)
               ## ctree
               'mincriterion', 
               ## ctree2
-              'maxdepth', 
+              'maxdepth',
+              ## Cubist
+              'committees', 'neighbors', 
               ## earth
               'nprune', 'degree', 
               ## earthTest
@@ -390,8 +394,8 @@ modelLookup <- function(model = NULL)
               'parameter', 
               ## QdaCov
               'parameter',
-            ## qrnn
-            'n.hidden', 'penalty', 'bag',              
+              ## qrnn
+              'n.hidden', 'penalty', 'bag',              
               ## qrf
               'mtry', 
               ## rda
@@ -463,10 +467,10 @@ modelLookup <- function(model = NULL)
               ## bag
               '#Randomly Selected Predictors',
               ## bagEarth
-              '#Retained Terms',
+              '#Terms',
               'Product Degree',
               ## bagFDA
-              '#Retained Terms',
+              '#Terms',
               'Product Degree',
               ## blackboost
               '#Trees',
@@ -479,17 +483,19 @@ modelLookup <- function(model = NULL)
               'P-Value Threshold',
               ## ctree2
               'Max Tree Depth',
+              ## Cubist
+              '#Committees', '#Instances', 
               ## earth
-              '#Retained Terms',
+              '#Terms',
               'Product Degree',
               ## earthTest
-              '#Retained Terms',
+              '#Terms',
               'Product Degree',
               ## enet
               'Fraction of Full Solution',
               'Weight Decay',
               ## fda
-              '#Retained Terms',
+              '#Terms',
               'Product Degree',
               ## foba
               '#Variables Retained',
@@ -519,7 +525,7 @@ modelLookup <- function(model = NULL)
               'Interaction Depth',
               'Learning Rate',
               ## gcvEarth
-              '#Retained Terms',
+              '#Terms',
               ## glm
               'none',
               ## glmboost
@@ -587,7 +593,7 @@ modelLookup <- function(model = NULL)
               ## M5Rules
               'Pruned',
               ## mars
-              '#Retained Terms',
+              '#Terms',
               'Product Degree',
               ## mda
               '#Subclasses Per Class',
@@ -637,7 +643,7 @@ modelLookup <- function(model = NULL)
               'Complexity Parameter',
               ## pls
               '#Components',
-               ## pls glm binomial
+              ## pls glm binomial
               '#Components',
               ## pls glm Gaussian
               '#Components',
@@ -653,8 +659,8 @@ modelLookup <- function(model = NULL)
               'none',
               ## QdaCov
               'none',
-            ## qrnn
-             '#Hidden Units', ' Weight Decay', 'Bagged Models?',                     
+              ## qrnn
+              '#Hidden Units', ' Weight Decay', 'Bagged Models?',                     
               ## qrf
               '#Randomly Selected Predictors',
               ## rda
@@ -753,7 +759,9 @@ modelLookup <- function(model = NULL)
              ## ctree actually is a sequential model, but treeresponse can't do probs from multiple models
              FALSE, 
              ## ctree2
-             FALSE, 
+             FALSE,
+             ## Cubist
+             FALSE, TRUE, 
              ## earth
              TRUE, FALSE, 
              ## earthTest
@@ -882,14 +890,14 @@ modelLookup <- function(model = NULL)
              FALSE, FALSE, 
              ## pls
              TRUE,
-               ## pls glm binomial
-              FALSE,
-              ## pls glm Gaussian
-              FALSE,
-              ## pls glm Gamma
-              FALSE,
-              ## pls glm Poisson
-              FALSE,                
+             ## pls glm binomial
+             FALSE,
+             ## pls glm Gaussian
+             FALSE,
+             ## pls glm Gamma
+             FALSE,
+             ## pls glm Poisson
+             FALSE,                
              ## plsTest
              FALSE, 
              ## ppr
@@ -898,8 +906,8 @@ modelLookup <- function(model = NULL)
              FALSE, 
              ## QdaCov
              FALSE,
-            ## qrnn
-            FALSE, FALSE, FALSE,                 
+             ## qrnn
+             FALSE, FALSE, FALSE,                 
              ## qrf
              FALSE, 
              ## rda
@@ -979,7 +987,9 @@ modelLookup <- function(model = NULL)
                 ## ctree
                 TRUE, 
                 ## ctree2
-                TRUE, 
+                TRUE,
+                ## Cubist
+                TRUE, TRUE,
                 ## earth
                 TRUE, TRUE, 
                 ## earthTest
@@ -1108,14 +1118,14 @@ modelLookup <- function(model = NULL)
                 FALSE, FALSE, 
                 ## pls
                 TRUE,
-              ## pls glm binomial
-              FALSE,
-              ## pls glm Gaussian
-              TRUE,
-              ## pls glm Gamma
-              TRUE,
-              ## pls glm Poisson
-              TRUE,                          
+                ## pls glm binomial
+                FALSE,
+                ## pls glm Gaussian
+                TRUE,
+                ## pls glm Gamma
+                TRUE,
+                ## pls glm Poisson
+                TRUE,                          
                 ## plsTest
                 TRUE, 
                 ## ppr
@@ -1124,8 +1134,8 @@ modelLookup <- function(model = NULL)
                 FALSE, 
                 ## QdaCov
                 FALSE,
-            ## qrnn
-             TRUE, TRUE, TRUE,                
+                ## qrnn
+                TRUE, TRUE, TRUE,                
                 ## qrf
                 TRUE, 
                 ## rda
@@ -1206,7 +1216,9 @@ modelLookup <- function(model = NULL)
                   ## ctree
                   TRUE, 
                   ## ctree2
-                  TRUE, 
+                  TRUE,
+                  ## Cubist
+                  FALSE, FALSE,
                   ## earth
                   TRUE, TRUE, 
                   ## earthTest
@@ -1335,14 +1347,14 @@ modelLookup <- function(model = NULL)
                   TRUE, TRUE, 
                   ## pls
                   TRUE,
-              ## pls glm binomial
-              TRUE,
-              ## pls glm Gaussian
-              FALSE,
-              ## pls glm Gamma
-              FALSE,
-              ## pls glm Poisson
-              FALSE,                          
+                  ## pls glm binomial
+                  TRUE,
+                  ## pls glm Gaussian
+                  FALSE,
+                  ## pls glm Gamma
+                  FALSE,
+                  ## pls glm Poisson
+                  FALSE,                          
                   ## plsTest
                   TRUE, 
                   ## ppr
@@ -1351,8 +1363,8 @@ modelLookup <- function(model = NULL)
                   TRUE, 
                   ## QdaCov
                   TRUE,
-            ## qrnn
-             FALSE, FALSE, FALSE,                  
+                  ## qrnn
+                  FALSE, FALSE, FALSE,                  
                   ## qrf
                   FALSE, 
                   ## rda
@@ -1433,7 +1445,9 @@ modelLookup <- function(model = NULL)
                     ## ctree
                     TRUE, 
                     ## ctree2
-                    TRUE, 
+                    TRUE,
+                    ## Cubist
+                    FALSE, FALSE,
                     ## earth
                     TRUE, TRUE, 
                     ## earthTest
@@ -1562,14 +1576,14 @@ modelLookup <- function(model = NULL)
                     TRUE, TRUE, 
                     ## pls
                     TRUE,
-              ## pls glm binomial
-              TRUE,
-              ## pls glm Gaussian
-              FALSE,
-              ## pls glm Gamma
-              FALSE,
-              ## pls glm Poisson
-              FALSE,                        
+                    ## pls glm binomial
+                    TRUE,
+                    ## pls glm Gaussian
+                    FALSE,
+                    ## pls glm Gamma
+                    FALSE,
+                    ## pls glm Poisson
+                    FALSE,                        
                     ## plsTest
                     TRUE, 
                     ## ppr
@@ -1578,8 +1592,8 @@ modelLookup <- function(model = NULL)
                     TRUE, 
                     ## QdaCov
                     TRUE,
-            ## qrnn
-             FALSE, FALSE, FALSE,                        
+                    ## qrnn
+                    FALSE, FALSE, FALSE,                        
                     ## qrf
                     FALSE, 
                     ## rda

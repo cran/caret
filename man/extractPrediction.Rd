@@ -43,7 +43,7 @@ extractProb(models,
 \details{
 These functions are wrappers for the specific prediction functions in each modeling package. In each case, the optimal tuning values given in the \code{tuneValue} slot of the \code{finalModel} object are used to predict.
 
-To get simple predictions for a new data set, the \code{predict} function can be used. 
+To get simple predictions for a new data set, the \code{predict} function can be used. Limits can be imposed on the range of predictions. See \code{\link{trainControl}} for more information.
 
 To get predictions for a series of models at once, a list of \code{\link{train}} objects can be passes to the \code{predict} function and a list of model predictions will be returned.
 
@@ -52,7 +52,7 @@ The two extraction functions can be used to get the predictions and observed out
 }
 \value{
 
-  For \code{predict.train}, a vector of predictions if \code{type =  "raw"} or a data frame of class probabilites for \code{type =  "probs"}. In the latter case, there are columns for each class.
+  For \code{predict.train}, a vector of predictions if \code{type =  "raw"} or a data frame of class probabilities for \code{type =  "probs"}. In the latter case, there are columns for each class.
 
   For \code{predict.list}, a list results. Each element is produced by \code{predict.train}.
 
@@ -72,7 +72,7 @@ The two extraction functions can be used to get the predictions and observed out
 
 \references{Kuhn (2008), ``Building Predictive Models in R Using the caret'' (\url{http://www.jstatsoft.org/v28/i05/})}
 
-\seealso{\code{\link{plotObsVsPred}}, \code{\link{plotClassProbs}}}
+\seealso{\code{\link{plotObsVsPred}}, \code{\link{plotClassProbs}}, \code{\link{trainControl}}}
 
 \examples{
    \dontrun{

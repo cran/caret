@@ -765,7 +765,12 @@ There is additional functionality in \texttt{train} that is described in the nex
             {\tt \href{http://cran.r-project.org/web/packages/RWeka/index.html}{RWeka}}    & 
             \texttt{pruned}  & \\             
 
-
+ \rowcolor[rgb]{.95, .95, .95}   
+      &
+         \texttt{cubist} & 
+            {\tt \href{http://cran.r-project.org/web/packages/Cubist/index.html}{Cubist}}    & 
+            \texttt{committees}, \texttt{neighbors}  & \\    
+            
       Projection Pursuit Regression  &
          \texttt{ppr} & 
             \texttt{stats}       & 

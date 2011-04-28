@@ -50,7 +50,7 @@
                    "lvq", "pls", "plsTest", "gbm", "pam", "rf", "logitBoost",
                    "ada", "knn", "PLS", "rfNWS", "rfLSF", "pcaNNet",
                    "mars", "rda",  "gpls", "svmpoly", "svmradial", "svmRadialCost",
-                   "svmPoly", "svmRadial", "svmLinear",
+                   "svmPoly", "svmRadial", "svmLinear", "cubist",
                    "lssvmPoly", "lssvmRadial", "lssvmLinear",
                    "rvmRadial", "rvmPoly", "rvmLinear",
                    "gaussprRadial", "gaussprPoly", "gaussprLinear",
@@ -1572,6 +1572,13 @@
                        out <- randomForest(trainX[,keepers, drop = FALSE], trainY, mtry = tuneValue$.mtry, ...)
                        out$Boruta <- fs
                        out
+                     },
+                     cubist =
+                     {
+                       library(Cubist)
+                       cubist(trainX, trainY,
+                              committees =  tuneValue$.committees,
+                              ...)
                      }
                      )
   

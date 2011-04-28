@@ -1,4 +1,17 @@
 -------------------
+Version: 4.87
+Date: 2011-04-27
+
+Altered the earth/MARS/FDA labels to be more exact.
+
+Added cubist models from the Cubist package.
+
+A new option to trainControl was added to allow users to constrain
+the possible predicted values of the model to the range seen in the
+training set or a user-defined range. One-sided ranges are also 
+allowed.
+
+-------------------
 Version: 4.85
 Date: 2011-04-01
 
