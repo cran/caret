@@ -161,6 +161,9 @@ variable to the model are available
         training set predictions must be supplied when an object of
         class \texttt{pamrtrained} is given to \texttt{varImp}. 
 
+    \item {\bf Cubist}: The Cubist output contains variable usage statistics. It gives the percentage of times where each variable was used in a condition and/or a linear model. Note that this output will probably be inconsistent with the rules shown in the output from \texttt{summary.cubist}. At each split of the tree, Cubist saves a linear model (after feature selection) that is allowed to have terms for each variable used in the current split or any split above it. Quinlan (1992) discusses a smoothing algorithm where each model prediction is a linear combination of the parent and child model along the tree. As such, the final prediction is a function of all the linear models from the initial node to the terminal node. The percentages shown in the Cubist output reflects all the models involved in prediction (as opposed to the terminal models shown in the output). The variable importance used here is a linear combination of the usage in the rule conditions and the model. 
+   
+        
 \end{itemize}   
 
 \subsection{Model Independent Metrics}
@@ -247,6 +250,12 @@ Figure \ref{f:varImpInd} demonstrates the \texttt{plot} method for object of cla
    \end{center}
 \end{figure}
 
+\section{References}
+
+\begin{description}
+  \item Quinlan. Learning with continuous classes. Proceedings of the 5th Australian Joint Conference On Artificial Intelligence (1992) pp. 343--348
+\end{description}
+    
 \section{Session Information}
 
 <<<session, echo=FALSE, results=tex>>=

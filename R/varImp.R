@@ -17,9 +17,6 @@ varImp.dsa <- function(object, cuts = NULL, ...)
     out <- data.frame(Overall = tmp)
     rownames(out) <- names(tmp)
     out
-
-
-
   }
 
 varImp.multinom <- function(object, ...)
@@ -73,5 +70,15 @@ varImp.gam <- function(object, ...)
             out[i,1] <- -log10(gam:::anova.gam(object, reduced)[2, "P(>|Chi|)"])
           }
       }
+    out
+  }
+
+
+varImp.cubist <- function(object, weights = c(0.5, 0.5), ...)
+  {
+    if(length(weights) != 2) stop("two weights must be given")
+    weights <- weights/sum(weights)
+    out <- data.frame(Overall = object$usage$Conditions*weights[1] + object$usage$Model*weights[2])
+    rownames(out) <- object$usage$Variable
     out
   }

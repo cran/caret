@@ -18,6 +18,7 @@
 \alias{varImp.fda}
 \alias{varImp.multinom}
 \alias{varImp.gam}
+\alias{varImp.cubist}
 
 \title{Calculation of variable importance for regression and classification models}
 
@@ -60,6 +61,8 @@ A generic method for calculating variable importance for objects produced by
 \method{varImp}{multinom}(object, ...)
 
 \method{varImp}{gam}(object, ...)
+
+\method{varImp}{cubist}(object, weights = c(0.5, 0.5), ...)
 }
 
 \arguments{
@@ -82,6 +85,8 @@ A generic method for calculating variable importance for objects produced by
    \item{normalize}{a logical: should the importance values be divided by their standard deviations?}
    \item{drop}{a logical: should variables not included in the final set be calculated?}
    \item{cuts}{the number of rule sets to use in the model (for \code{partDSA} only)}
+   \item{weights}{a numeric vector of length two that weighs the usage of variabels in the rule conditions and the usuage in the linear models (see details below).}
+
 }
 
 \value{
@@ -152,6 +157,7 @@ Otherwise:
    
   \bold{Nearest shrunken centroids}: The difference between the class centroids and the overall centroid is used to measure the variable influence (see \code{pamr.predict}). The larger the difference between   the class centroid and the overall center of the data, the larger the separation between the classes. The training set predictions must be supplied when an object of class \code{pamrtrained} is given to \code{varImp}. 
 
+  \bold{Cubist}: The Cubist output contains variable usage statistics. It gives the percentage of times where each variable was used in a condition and/or a linear model. Note that this output will probably be inconsistent with the rules shown in the output from \code{\link[Cubist]{summary.cubist}}. At each split of the tree, Cubist saves a linear model (after feature selection) that is allowed to have terms for each variable used in the current split or any split above it. Quinlan (1992) discusses a smoothing algorithm where each model prediction is a linear combination of the parent and child model along the tree. As such, the final prediction is a function of all the linear models from the initial node to the terminal node. The percentages shown in the Cubist output reflects all the models involved in prediction (as opposed to the terminal models shown in the output). The variable importance used here is a linear combination of the usage in the rule conditions and the model. 
   
 
 }
