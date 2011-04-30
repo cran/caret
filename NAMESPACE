@@ -220,6 +220,7 @@ S3method(varImp, plsda)
 S3method(varImp, fda)
 S3method(varImp, multinom)
 S3method(varImp, gam)
+S3method(varImp, cubist)
 
 S3method(densityplot, train)
 S3method(histogram,   train)
