@@ -108,7 +108,7 @@ modelLookup <- function(model = NULL)
             ## lvq
             'lvq', 'lvq',
             ## M5Rules
-            'M5Rules', 
+            'M5Rules', 'M5Rules', 
             ## mars
             'mars', 'mars', 
             ## mda
@@ -116,7 +116,7 @@ modelLookup <- function(model = NULL)
             ## multinom
             'multinom', 
             ## nb
-            'nb', 
+            'nb', 'nb', 
             ## neuralnet
             'neuralnet', 'neuralnet', 'neuralnet', 
             ## nnet
@@ -337,7 +337,7 @@ modelLookup <- function(model = NULL)
               ## lvq
               'size', 'k', 
               ## M5Rules
-              'pruned', 
+              'pruned', 'smoothed', 
               ## mars
               'nprune', 'degree', 
               ## mda
@@ -345,7 +345,7 @@ modelLookup <- function(model = NULL)
               ## multinom
               'decay', 
               ## nb
-              'usekernel', 
+              'fL', 'usekernel', 
               ## neuralnet
               'layer1', 'layer2', 'layer3', 
               ## nnet
@@ -591,7 +591,7 @@ modelLookup <- function(model = NULL)
               ## lvq
               'Codebook Size', '#Prototypes',
               ## M5Rules
-              'Pruned',
+              'Pruned', 'Smoothed',
               ## mars
               '#Terms',
               'Product Degree',
@@ -600,7 +600,7 @@ modelLookup <- function(model = NULL)
               ## multinom
               'Weight Decay',
               ## nb
-              'Distribution Type',
+              'Laplace Correction', 'Distribution Type',
               ## neuralnet
               '#Hidden Units in Layer 1',
               '#Hidden Units in Layer 2',
@@ -849,7 +849,7 @@ modelLookup <- function(model = NULL)
              ## lvq
              FALSE, FALSE, 
              ## M5Rules
-             FALSE, 
+             FALSE, FALSE, 
              ## mars
              FALSE, FALSE, 
              ## mda
@@ -857,7 +857,7 @@ modelLookup <- function(model = NULL)
              ## multinom
              FALSE, 
              ## nb
-             FALSE, 
+             FALSE, FALSE, 
              ## neuralnet
              FALSE, FALSE, FALSE, 
              ## nnet
@@ -1077,7 +1077,7 @@ modelLookup <- function(model = NULL)
                 ## lvq
                 FALSE, FALSE, 
                 ## M5Rules
-                TRUE, 
+                TRUE, TRUE,
                 ## mars
                 TRUE, TRUE, 
                 ## mda
@@ -1085,7 +1085,7 @@ modelLookup <- function(model = NULL)
                 ## multinom
                 FALSE, 
                 ## nb
-                FALSE, 
+                FALSE, FALSE, 
                 ## neuralnet
                 TRUE, TRUE, TRUE, 
                 ## nnet
@@ -1306,7 +1306,7 @@ modelLookup <- function(model = NULL)
                   ## lvq
                   TRUE, TRUE, 
                   ## M5Rules
-                  FALSE, 
+                  FALSE, FALSE,
                   ## mars
                   FALSE, FALSE, 
                   ## mda
@@ -1314,7 +1314,7 @@ modelLookup <- function(model = NULL)
                   ## multinom
                   TRUE, 
                   ## nb
-                  TRUE, 
+                  TRUE, TRUE,
                   ## neuralnet
                   FALSE, FALSE, FALSE, 
                   ## nnet
@@ -1535,7 +1535,7 @@ modelLookup <- function(model = NULL)
                     ## lvq
                     FALSE, FALSE, 
                     ## M5Rules
-                    FALSE, 
+                    FALSE, FALSE,
                     ## mars
                     FALSE, FALSE, 
                     ## mda
@@ -1543,7 +1543,7 @@ modelLookup <- function(model = NULL)
                     ## multinom
                     TRUE, 
                     ## nb
-                    TRUE, 
+                    TRUE, TRUE,
                     ## neuralnet
                     FALSE, FALSE, FALSE, 
                     ## nnet

@@ -504,7 +504,7 @@
                      nb =
                      {
                        library(klaR)
-                       NaiveBayes(modFormula, data, usekernel= tuneValue$.usekernel, ...)
+                       NaiveBayes(modFormula, data, usekernel= tuneValue$.usekernel, fL = tuneValue$fL, ...)
                      },
                      mars =, earth =, earthTest =
                      {
@@ -978,10 +978,12 @@
                        if(any(names(theDots) == "control"))
                          {
                            theDots$control$N <- ifelse(tuneValue$.pruned == "No", TRUE, FALSE)
+                           theDots$control$U <- ifelse(tuneValue$.smoothed == "No", TRUE, FALSE)
                            ctl <- theDots$control
                            theDots$control <- NULL
                            
-                         } else ctl <- Weka_control(N = ifelse(tuneValue$.pruned == "No", TRUE, FALSE)) 
+                         } else ctl <- Weka_control(N = ifelse(tuneValue$.pruned == "No", TRUE, FALSE),
+                                                    U = ifelse(tuneValue$.smoothed == "No", TRUE, FALSE)) 
                        
                        modelArgs <- c(
                                       list(

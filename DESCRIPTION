@@ -1,6 +1,6 @@
 Package: caret
-Version: 4.88
-Date: 2011-04-28
+Version: 4.89
+Date: 2011-05-26
 Title: Classification and Regression Training
 Author: Max Kuhn. Contributions from Jed Wing, Steve Weston, Andre
         Williams, Chris Keefer and Allan Engelhardt
@@ -11,14 +11,14 @@ Depends: R (>= 2.10), lattice, reshape, stats, plyr, cluster
 URL: http://caret.r-forge.r-project.org/
 Suggests: gbm, pls, mlbench, rpart, ellipse, ipred, klaR, randomForest,
         gpls, pamr, kernlab, mda, mgcv, nnet, class, MASS, mboost,
-        earth (>= 2.2-3), party, ada, affy, proxy, e1071, grid,
-        elasticnet, SDDA, caTools, RWeka (>= 0.4-1), superpc,
-        penalized, sparseLDA (>= 0.1-1), spls, sda, glmnet, relaxo,
-        lars, vbmp, nodeHarvest, rrcov, gam, stepPlr, foreach, GAMens
-        (>= 1.1.1), rocc, foba, partDSA, hda, fastICA, neuralnet,
-        quantregForest, rda, HDclassif, LogicReg, LogicForest, logicFS,
-        RANN, qrnn, Boruta, Hmisc, Cubist
+        earth (>= 2.2-3), party (>= 0.9-99992), ada, affy, proxy,
+        e1071, grid, elasticnet, SDDA, caTools, RWeka (>= 0.4-1),
+        superpc, penalized, sparseLDA (>= 0.1-1), spls, sda, glmnet,
+        relaxo, lars, vbmp, nodeHarvest, rrcov, gam, stepPlr, foreach,
+        GAMens (>= 1.1.1), rocc, foba, partDSA, hda, fastICA,
+        neuralnet, quantregForest, rda, HDclassif, LogicReg,
+        LogicForest, logicFS, RANN, qrnn, Boruta, Hmisc, Cubist
 License: GPL-2
-Packaged: 2011-04-29 02:40:25 UTC; kuhna03
+Packaged: 2011-05-27 12:30:38 UTC; kuhna03
 Repository: CRAN
-Date/Publication: 2011-04-30 12:40:58
+Date/Publication: 2011-05-28 15:24:40

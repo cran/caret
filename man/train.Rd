@@ -104,7 +104,7 @@ Robust linear regression \tab \code{rlm} \tab \pkg{MASS} \tab None \cr
 Multivariate adaptive regression splines \tab \code{earth} \tab \pkg{earth} \tab \code{degree}, \code{nprune} \cr
                                          \tab \code{gcvEarth} \tab \pkg{earth} \tab \code{degree} \cr
 Bagged MARS \tab \code{bagEarth} \tab \pkg{caret},  \pkg{earth}\tab \code{degree}, \code{nprune} \cr 
-Rule Based Regression \tab \code{M5Rules} \tab \pkg{RWeka} \tab \code{pruned} \cr 
+Rule Based Regression \tab \code{M5Rules} \tab \pkg{RWeka} \tab \code{pruned}, \code{smoothed} \cr 
                       \tab \code{cubist} \tab \pkg{Cubist} \tab \code{committees}, \code{neighbors} \cr 
 Penalized linear models \tab \code{penalized} \tab \pkg{penalized} \tab \code{lambda1}, \code{lambda2}\cr
                         \tab \code{enet} \tab \pkg{elasticnet} \tab \code{lambda}, \code{fraction} \cr
@@ -147,7 +147,7 @@ Bayesian multinomial probit model \tab \code{vbmpRadial} \tab \pkg{vbmp} \tab \c
 k nearest neighbors \tab \code{knn3} \tab \pkg{caret} \tab \code{k} \cr 
 Nearest shrunken centroids \tab \code{pam} \tab \pkg{pamr} \tab \code{threshold} \cr  
                            \tab \code{scrda} \tab \pkg{rda} \tab \code{alpha}, \code{delta} \cr 
-Naive Bayes \tab \code{nb} \tab \pkg{klaR} \tab \code{usekernel} \cr
+Naive Bayes \tab \code{nb} \tab \pkg{klaR} \tab \code{usekernel}, \code{fL} \cr
 Generalized partial least squares\tab \code{gpls} \tab \pkg{gpls} \tab \code{K.prov} \cr
 Learned vector quantization \tab \code{lvq} \tab \pkg{class} \tab  \code{size}, \code{k} \cr
 ROC Curves \tab \code{rocc} \tab \code{rocc} \tab \code{xgenes} 
