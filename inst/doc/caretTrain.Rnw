@@ -763,7 +763,7 @@ There is additional functionality in \texttt{train} that is described in the nex
       Rule--Based Models &
          \texttt{M5Rules} & 
             {\tt \href{http://cran.r-project.org/web/packages/RWeka/index.html}{RWeka}}    & 
-            \texttt{pruned}  & \\             
+            \texttt{pruned}, \texttt{smoothed}   & \\             
 
  \rowcolor[rgb]{.95, .95, .95}   
       &
@@ -1008,7 +1008,7 @@ There is additional functionality in \texttt{train} that is described in the nex
       Naive Bayes &
          \texttt{nb} & 
             {\tt \href{http://cran.r-project.org/web/packages/klaR/index.html}{klaR}}     & 
-            \texttt{usekernel} & \\
+            \texttt{usekernel}, \texttt{fL} & \\
 
 \rowcolor[rgb]{.95, .95, .95}   
       Generalized Partial Least Squares&

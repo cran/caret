@@ -1,4 +1,16 @@
 -------------------
+Version: 4.89
+Date: 2011-05-26
+
+A new tuning parameter was added for M5 controlling smoothing.
+
+The Laplace correction value for Naive Bayes was also added as a 
+tuning parameter.
+
+varImp.RandomForest was updated to work =] It now requires a recent
+version of the party package.
+
+-------------------
 Version: 4.88
 Date: 2011-04-28
 

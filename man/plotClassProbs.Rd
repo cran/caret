@@ -44,11 +44,11 @@ ctrl <- trainControl(method = "cv")
 
 nbFit1 <- train(trainData, trainY, "nb",
                 trControl = ctrl,
-                tuneGrid = data.frame(.usekernel = TRUE))
+                tuneGrid = data.frame(.usekernel = TRUE, .fL = 0))
 
 nbFit2 <- train(trainData, trainY, "nb",
                 trControl = ctrl,
-                tuneGrid = data.frame(.usekernel = FALSE))
+                tuneGrid = data.frame(.usekernel = FALSE, .fL = 0))
 
 
 models <- list(para = nbFit2,

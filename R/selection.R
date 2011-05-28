@@ -28,10 +28,16 @@ byComplexity <- function(x, model)
            {
              x[order(x[,1]),]
            },
-           M5Rules =, JRip =
+           JRip =
            {
              x[order(x[,1], decreasing = TRUE),]
-           },           
+           },
+           M5Rules =
+           {
+             x$pruned <- factor(as.character(x$pruned), levels = c("Yes", "No"))
+             x$smoothed <- factor(as.character(x$smoothed), levels = c("Yes", "No"))
+             x[order(x$pruned, x$smoothed),]
+           },            
            svmradial =, svmRadial =
            {
              # If the cost is high, the decision boundary will work hard to

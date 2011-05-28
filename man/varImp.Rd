@@ -52,7 +52,7 @@ A generic method for calculating variable importance for objects produced by
 
 \method{varImp}{bagEarth}(object, ...)
 
-\method{varImp}{RandomForest}(object, normalize = TRUE, ...)
+\method{varImp}{RandomForest}(object, ...)
 
 \method{varImp}{rfe}(object, drop = FALSE, ...)
 
@@ -82,7 +82,6 @@ A generic method for calculating variable importance for objects produced by
    \item{surrogates}{should surrogate splits contribute to the importance calculation?}
    \item{competes}{should competing splits contribute to the importance calculation?}
    \item{estimate}{which estimate of performance should be used? See \code{\link[pls]{mvrVal}}}  
-   \item{normalize}{a logical: should the importance values be divided by their standard deviations?}
    \item{drop}{a logical: should variables not included in the final set be calculated?}
    \item{cuts}{the number of rule sets to use in the model (for \code{partDSA} only)}
    \item{weights}{a numeric vector of length two that weighs the usage of variabels in the rule conditions and the usuage in the linear models (see details below).}
