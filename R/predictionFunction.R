@@ -500,7 +500,7 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                            penalized =
                            {
                              library(penalized)
-                             if(attributes(modelFit, "model")$model == "linear")
+                             if(attributes(modelFit)$model == "linear")
                                {
                                  out <- predict(modelFit, newdata)[, "mu"]
                                } else {
