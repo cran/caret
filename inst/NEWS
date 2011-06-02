@@ -1,4 +1,11 @@
 -------------------
+Version: 4.90
+Date: 2011-06-01
+
+Fixed a bug with train() and method = "penalized". Thanks to
+Fedor for finding it.
+
+-------------------
 Version: 4.89
 Date: 2011-05-26
 
