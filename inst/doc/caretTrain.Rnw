@@ -562,7 +562,11 @@ There is additional functionality in \texttt{train} that is described in the nex
       &
          \texttt{ada} & 
             {\tt \href{http://cran.r-project.org/web/packages/ada/index.html}{ada}}       & 
-            \texttt{maxdepth}, \texttt{iter}, \texttt{nu} & \\            
+            \texttt{maxdepth}, \texttt{iter}, \texttt{nu} & \\           
+      &
+         \texttt{bstTree} & 
+            {\tt \href{http://cran.r-project.org/web/packages/bst/index.html}{bst}}       & 
+            \texttt{maxdepth}, \texttt{mstop}, \texttt{nu} & \\                   
      
 \rowcolor[rgb]{.95, .95, .95}               
       Other Boosted Models &
@@ -573,7 +577,15 @@ There is additional functionality in \texttt{train} that is described in the nex
          &      
          \texttt{gamboost} & 
             {\tt \href{http://cran.r-project.org/web/packages/mboost/index.html}{mboost}}       &          
-            \texttt{mstop} & \\      
+            \texttt{mstop} & \\   
+      &
+         \texttt{bstLs} & 
+            {\tt \href{http://cran.r-project.org/web/packages/bst/index.html}{bst}}       & 
+            \texttt{mstop}, \texttt{nu} & \\    
+       &
+         \texttt{bstSm} & 
+            {\tt \href{http://cran.r-project.org/web/packages/bst/index.html}{bst}}       & 
+           \texttt{mstop}, \texttt{nu} & \\               
 
      Random Forests & 
          \texttt{rf} & 
@@ -764,7 +776,13 @@ There is additional functionality in \texttt{train} that is described in the nex
          \texttt{M5Rules} & 
             {\tt \href{http://cran.r-project.org/web/packages/RWeka/index.html}{RWeka}}    & 
             \texttt{pruned}, \texttt{smoothed}   & \\             
-
+            
+ \rowcolor[rgb]{.95, .95, .95}   
+       &
+         \texttt{M5} & 
+            {\tt \href{http://cran.r-project.org/web/packages/RWeka/index.html}{RWeka}}    & 
+            \texttt{pruned}, \texttt{smoothed}, \texttt{rules}    & \\   
+            
  \rowcolor[rgb]{.95, .95, .95}   
       &
          \texttt{cubist} & 

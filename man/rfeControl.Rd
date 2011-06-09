@@ -70,7 +70,7 @@ The \code{rank} function is used to return the predictors in the order of the mo
             training samples}
       \item{\code{y}}{ the current training outcomes}
 }
-The function should return a data frame with a column called \code{vars} that has the current variable names. The first row should be the most important predictor etc. Other columns can be included in the output and will be returned in the final \code{rfe} object.
+The function should return a data frame with a column called \code{var} that has the current variable names. The first row should be the most important predictor etc. Other columns can be included in the output and will be returned in the final \code{rfe} object.
 
 The \code{selectSize} function determines the optimal number of predictors based on the resampling output. Inputs for the function are:
 \itemize{

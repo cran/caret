@@ -192,6 +192,40 @@ tuneScheme <- function(model, grid, useOOB = FALSE)
                    seqParam[[i]] <- data.frame(.n.trees = subTrees[subTrees != loop$.n.trees[i]])
                  }         
              },
+             bstTree = 
+             {
+               loop <- aggregate(grid$.mstop, 
+                                 list(
+                                      .maxdepth = grid$.maxdepth, 
+                                      .nu = grid$.nu),
+                                 max)
+               loop <- decoerce(loop, grid, TRUE)                  
+               names(loop)[3] <- ".mstop"
+               seqParam <- vector(mode = "list", length = nrow(loop))
+               for(i in seq(along = loop$.mstop))
+                 {
+                   index <- which(
+                                  grid$.maxdepth == loop$.maxdepth[i] & 
+                                  grid$.nu == loop$.nu[i])
+                   subTrees <- grid[index, ".mstop"] 
+                   seqParam[[i]] <- data.frame(.mstop = subTrees[subTrees != loop$.mstop[i]])
+                 }         
+             },
+             bstLs =, bstSm =  
+             {
+               loop <- aggregate(grid$.mstop, 
+                                 list(.nu = grid$.nu),
+                                 max)
+               loop <- decoerce(loop, grid, TRUE)                  
+               names(loop)[2] <- ".mstop"
+               seqParam <- vector(mode = "list", length = nrow(loop))
+               for(i in seq(along = loop$.mstop))
+                 {
+                   index <- which(grid$.nu == loop$.nu[i])
+                   subTrees <- grid[index, ".mstop"] 
+                   seqParam[[i]] <- data.frame(.mstop = subTrees[subTrees != loop$.mstop[i]])
+                 }         
+             },              
              rpart = 
              {
                grid <- grid[order(grid$.maxdepth, decreasing = TRUE),, drop = FALSE]
