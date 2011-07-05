@@ -27,6 +27,16 @@ resamples.default <- function(x, modelNames = names(x), ...)
                sbf = x$metrics,
                train =, rfe = x$perfNames)               
       }
+
+    getTimes <- function(x)
+      {
+        out <- rep(NA, 3)
+        if(all(names(x) != "times")) return(out)
+        if(any(names(x$times) == "everything")) out[1] <- x$time$everything[3]
+        if(any(names(x$times) == "final")) out[2] <- x$time$final[3]
+        if(any(names(x$times) == "prediction")) out[3] <- x$time$prediction[3]
+        out
+      }
     
     perfs <- lapply(x, getNames)
     if(length(unique(unlist(lapply(perfs, length)))) != 1) stop("all objects must has the same performance metrics")
@@ -51,12 +61,17 @@ resamples.default <- function(x, modelNames = names(x), ...)
         out <- if(i == 1) tmp else merge(out, tmp)
       }
 
+    timings <- do.call("rbind", lapply(x, getTimes))
+    colnames(timings) <- c("Everything", "FinalModel", "Prediction")
+
+    
     out <- structure(
                      list(
                           call = match.call(),
                           values = out,
                           models = modelNames,
                           metrics = pNames,
+                          timings = as.data.frame(timings),
                           methods = unlist(lapply(x, function(x) x$method))),
                      class = "resamples")
     
@@ -204,6 +219,13 @@ print.resamples <- function(x, ...)
     cat("Models:", paste(x$models, collapse = ", "), "\n")
     cat("Number of resamples:", nrow(x$values), "\n")
     cat("Performance metrics:",  paste(x$metrics, collapse = ", "), "\n")
+
+    hasTimes <- apply(x$timing, 2, function(a) !all(is.na(a)))
+    if(any(hasTimes))
+      {
+        names(hasTimes) <- gsub("FinalModel", "final model fit", names(hasTimes))
+        cat("Time estimates for:",  paste(tolower(names(hasTimes))[hasTimes], collapse = ", "), "\n")
+      }
     invisible(x)
   }
 
@@ -256,25 +278,128 @@ print.summary.resamples <- function(x, ...)
 
 
 
-xyplot.resamples <- function (x, data = NULL, models = x$models[1:2], metric = x$metric[1], ...) 
+xyplot.resamples <- function (x, data = NULL, what = "scatter", models = NULL, metric = x$metric[1], units = "min", ...) 
 {
-  if(length(metric) != 1) stop("exactly one metric must be given")
-  if(length(models) != 2) stop("exactly two model names must be given")
-  tmpData <- x$values[, paste(models, metric, sep ="~")]
-  tmpData$Difference <- tmpData[,1] - tmpData[,2]
-  tmpData$Average <- (tmpData[,1] + tmpData[,2])/2
-  ylm <- extendrange(c(tmpData$Difference, 0))
-  xyplot(Difference ~ Average,
-         data = tmpData,
-         ylab = paste(models, collapse = " - "),
-         ylim = ylm,
-         main = useMathSymbols(metric),
-         panel = function(x, y, ...)
-         {
-           panel.abline(h = 0, col = "darkgrey", lty = 2)
-           panel.xyplot(x, y, ...)
-         })
+  if(!(units %in% c("min", "sec", "hour"))) stop("units should be 'sec', 'min' or 'hour'")
+  if(!(what %in% c("scatter", "BlandAltman", "tTime", "mTime", "pTime"))) stop("the what arg should be 'scatter', 'BlandAltman', 'tTime', 'mTime' or 'pTime'")
   
+  if(is.null(models)) models <- if(what %in% c("tTime", "mTime", "pTime")) x$models else x$models[1:2]
+  if(length(metric) != 1) stop("exactly one metric must be given")
+  if(what == "BlandAltman" & length(models) != 2) stop("exactly two model names must be given")
+  if(what == "BlandAltman")
+    {
+      tmpData <- x$values[, paste(models, metric, sep ="~")]
+      tmpData$Difference <- tmpData[,1] - tmpData[,2]
+      tmpData$Average <- (tmpData[,1] + tmpData[,2])/2
+      ylm <- extendrange(c(tmpData$Difference, 0))
+      out <- xyplot(Difference ~ Average,
+                    data = tmpData,
+                    ylab = paste(models, collapse = " - "),
+                    ylim = ylm,
+                    main = caret:::useMathSymbols(metric),
+                    panel = function(x, y, ...)
+                    {
+                      panel.abline(h = 0, col = "darkgrey", lty = 2)
+                      panel.xyplot(x, y, ...)
+                    })
+
+    }
+  if(what == "scatter")
+    {
+      tmpData <- x$values[, paste(models, metric, sep ="~")]
+      colnames(tmpData) <- gsub(paste("~", metric, sep = ""), "", colnames(tmpData))
+      
+      ylm <- extendrange(c(tmpData[,1], tmpData[,2]))
+      out <- xyplot(tmpData[,1] ~ tmpData[,2],
+                    ylab = colnames(tmpData)[1],
+                    xlab = colnames(tmpData)[2],
+                    xlim = ylm, ylim = ylm,
+                    main = caret:::useMathSymbols(metric),
+                    panel = function(x, y, ...)
+                    {
+                      panel.abline(0, 1, col = "darkgrey", lty = 2)
+                      panel.xyplot(x, y, ...)
+                    })
+    }
+  if(what %in% c("tTime", "mTime", "pTime"))
+    {
+      ## the following is based on
+      ## file.show(system.file("demo/intervals.R", package = "lattice")
+      prepanel.ci <- function(x, y, lx, ux, subscripts, ...)
+        {
+          x <- as.numeric(x)
+          lx <- as.numeric(lx[subscripts])
+          ux <- as.numeric(ux[subscripts])
+          list(xlim = extendrange(c(x, ux, lx)),
+               ylim = extendrange(y))
+        }
+
+      panel.ci <- function(x, y, lx, ux, groups, subscripts, pch = 16, ...)
+        {
+          theme <- trellis.par.get()
+          x <- as.numeric(x)
+          y <- as.numeric(y)
+          lx <- as.numeric(lx[subscripts])
+          ux <- as.numeric(ux[subscripts])
+          gps <- unique(groups)
+          for(i in seq(along = gps))
+            {
+              panel.arrows(lx[groups == gps[i]],
+                           y[groups == gps[i]],
+                           ux[groups == gps[i]],
+                           y[groups == gps[i]],
+                           col = theme$superpose.line$col[i],
+                           length = .01, unit = "npc",
+                           angle = 90, code = 3)
+              panel.xyplot(x[groups == gps[i]],
+                           y[groups == gps[i]],
+                           type = "p",
+                           col = theme$superpose.symbol$col[i],
+                           cex = theme$superpose.symbol$cex[i],
+                           pch = theme$superpose.symbol$pch[i],
+                           , ...)              
+            }
+        }
+      tmpData <- apply(x$values[,-1], 2,
+                       function(x)
+                       {
+                         tmp <- t.test(x)
+                         c(tmp$conf.int[1], tmp$estimate, tmp$conf.int[2])
+                       })
+      rownames(tmpData) <- c("lower", "point", "upper")
+
+      tmpData <- tmpData[, paste(models, metric, sep ="~")]
+      colnames(tmpData) <- gsub(paste("~", metric, sep = ""), "", colnames(tmpData))
+      tmpData <- data.frame(t(tmpData))
+      tmpData$Model <- rownames(tmpData)
+
+      tm <- switch(what,
+                   tTime = x$timings[,"Everything"],
+                   mTime = x$timings[,"FinalModel"],
+                   pTime = x$timings[,"Prediction"])
+      lab <- switch(what,
+                   tTime = "Total Time (",
+                   mTime = "Final Model Time (",
+                   pTime = "Prediction Time (")
+      lab <- paste(lab, units, ")", sep = "")
+                   
+      times <- data.frame(Time = tm,
+                          Model = rownames(x$timings))
+      plotData <- merge(times, tmpData)
+
+      if(units == "min") plotData$Time <- plotData$Time/60
+      if(units == "hour") plotData$Time <- plotData$Time/60/60
+      
+      out <- with(plotData,
+                  xyplot(Time ~ point,
+                         lx = lower, ux = upper,
+                         xlab = caret:::useMathSymbols(metric),
+                         ylab = lab,
+                         prepanel = prepanel.ci,
+                         panel = panel.ci, groups = Model,
+                         ...))
+    }  
+  out
 }
 
 parallel.resamples <- function (x, data = NULL, models = x$models, metric = x$metric[1], ...) 
@@ -783,43 +908,45 @@ if(FALSE)
     
     bbbDescr2 <- scale(bbbDescr[, apply(bbbDescr, 2, function(x) length(unique(x)) > 1)])
 
+    ctrl <- trainControl(method = "LGOCV", index = tmp, timingSamps = 100)
+
     rpartFit <- train(bbbDescr, logBBB,
                       "rpart", 
                       tuneLength = 16,
-                      trControl = trainControl(method = "LGOCV", index = tmp))
+                      trControl = ctrl)
 
 
     ctreeFit <- train(bbbDescr, logBBB,
                       "ctree2",
                       tuneLength = 5,
-                      trControl = trainControl(method = "LGOCV", index = tmp))
+                      trControl = ctrl)
 
     m5Fit <- train(bbbDescr, logBBB,
                    "M5Rules",
-                   trControl = trainControl(method = "LGOCV", index = tmp))    
+                   trControl = ctrl)    
 
 
     earthFit <- train(bbbDescr, logBBB,
                       "earth",
                       tuneLength = 10,
-                      trControl = trainControl(method = "LGOCV", index = tmp))
+                      trControl = ctrl)
 
 
 
     bagEarthFit <- train(bbbDescr, logBBB,
                          "bagEarth",
                          tuneLength = 10,
-                         trControl = trainControl(method = "LGOCV", index = tmp))
+                         trControl = ctrl)
 
     rfFit <- train(bbbDescr, logBBB,
                    "rf",
                    tuneLength = 5,
-                   trControl = trainControl(method = "LGOCV", index = tmp))
+                   trControl = ctrl)
 
     crfFit <- train(bbbDescr, logBBB,
                     "cforest",
                     tuneLength = 5,
-                    trControl = trainControl(method = "LGOCV", index = tmp))
+                    trControl = ctrl)
 
     gbmFit <- train(bbbDescr, logBBB,
                     "gbm",
@@ -829,29 +956,32 @@ if(FALSE)
                       .shrinkage = .1),
                     verbose = FALSE,
                     bag.fraction = 0.9,
-                    trControl = trainControl(method = "LGOCV", index = tmp))
+                    trControl = ctrl)
 
     svmRFit <- train(bbbDescr2, logBBB,
                     "svmRadial",
                     tuneLength = 5,
-                    trControl = trainControl(method = "LGOCV", index = tmp))
+                    trControl = ctrl)
 
     svmLFit <- train(bbbDescr2, logBBB,
                     "svmLinear",
                     tuneLength = 5,
-                    trControl = trainControl(method = "LGOCV", index = tmp))    
+                    trControl = ctrl)    
 
     plsFit <- train(bbbDescr2, logBBB,
                     "pls",
                     tuneLength = 15,
-                    trControl = trainControl(method = "LGOCV", index = tmp))
+                    trControl = ctrl)
 
 
     lmFit <- train(bbbDescr2, logBBB,
                     "lm",
-                    trControl = trainControl(method = "LGOCV", index = tmp))       
+                    trControl = ctrl)       
     
-
+    cbFit <- train(bbbDescr2, logBBB,
+                    "cubist",
+                   tuneGrid = expand.grid(.committees = c(1:10, 20, 50, 75, 100), .neighbors = c(0, 1, 5, 9)),
+                    trControl = ctrl) 
     resamps <- resamples(list(CART = rpartFit,
                               CondInfTree = ctreeFit,
                               MARS = earthFit,
@@ -862,7 +992,8 @@ if(FALSE)
                               svmL = svmLFit,
                               svmR = svmRFit,
                               bagMARS = bagEarthFit,
-                              gbm = gbmFit))
+                              gbm = gbmFit,
+                              cubist = cbFit))
     
 
     save.image("bbb.RData")

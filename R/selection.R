@@ -32,7 +32,8 @@ byComplexity <- function(x, model)
            },            
            rf =, rfNWS =, rfLSF =, parRF =, gpls =, pcr =, pls =, PLS =, pam =, cforest =,
            nb =, rpart =, ctree2 =, logitBoost=, J48 =, LMT =, ppr =, mda =, pda =, pda2 =,
-           lars =, lars2 =, Linda =, QdaCov =, icr =, qrf =,Boruta =
+           lars =, lars2 =, Linda =, QdaCov =, icr =, qrf =,Boruta =,
+           leapForward=, leapBackward=, leapSeq = 
            {
              x[order(x[,1]),]
            },

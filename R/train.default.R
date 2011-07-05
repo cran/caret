@@ -427,15 +427,21 @@ train.default <- function(x, y,
     }
     
   ## Make the final model based on the tuning results
+
+  if(!is.null(preProcess))
+    {
+      ppOpt <- list(options = preProcess,
+                    thresh = trControl$PCAthresh,
+                    ica = trControl$ICAcomp,
+                    k = trControl$k)
+    } else ppOpt <- NULL
+  
   finalTime <- system.time(
                            finalModel <- createModel(data = trainData, 
                                                      method = method, 
                                                      tuneValue = bestTune, 
                                                      obsLevels = classLevels,
-                                                     pp = list(options = preProcess,
-                                                       thresh = trControl$PCAthresh,
-                                                       ica = trControl$ICAcomp,
-                                                       k = trControl$k),
+                                                     pp = ppOpt,
                                                      ...))
 
   ## get pp info
@@ -462,8 +468,8 @@ train.default <- function(x, y,
   endTime <- proc.time()
   times <- list(everything = endTime - startTime,
                 final = finalTime)
-  
-  structure(list(
+
+  out <- structure(list(
                  method = method,
                  modelType = modelType,
                  results = performance,
@@ -482,6 +488,14 @@ train.default <- function(x, y,
                  times = times
                  ), 
             class = "train")
+  if(trControl$timingSamps > 0)
+    {
+      pData <- lapply(x, function(x, n) sample(x, n, replace = TRUE), n = trControl$timingSamps)
+      pData <- as.data.frame(pData)
+      out$times$prediction <- system.time(predict(out, pData))
+    } else  out$times$prediction <- rep(NA, 3)
+  out
+  
 }
 
 train.formula <- function (form, data, ..., weights, subset, na.action, contrasts = NULL) 

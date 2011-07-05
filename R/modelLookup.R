@@ -88,7 +88,13 @@ modelLookup <- function(model = NULL)
             ## lasso
             'lasso', 
             ## lda
-            'lda', 
+            'lda',
+            ## leapForward
+            'leapForward',
+            ## leapBackward
+            'leapBackward',
+            ## leapSeq
+            'leapSeq',
             ## Linda
             'Linda', 
             ## lm
@@ -325,7 +331,13 @@ modelLookup <- function(model = NULL)
               ## lasso
               'fraction', 
               ## lda
-              'parameter', 
+              'parameter',
+              ## leapForward
+              'nvmax',
+              ## leapBackward
+              'nvmax',
+              ## leapSeq
+              'nvmax',
               ## Linda
               'parameter', 
               ## lm
@@ -585,6 +597,12 @@ modelLookup <- function(model = NULL)
               'Fraction of Full Solution',
               ## lda
               'none',
+              ## leapForward
+              'Maximum Size of Subsets',
+              ## leapBackward
+              'Maximum Size of Subsets',
+              ## leapSeq
+              'Maximum Size of Subsets',
               ## Linda
               'none',
               ## lm
@@ -853,7 +871,13 @@ modelLookup <- function(model = NULL)
              ## lasso
              TRUE, 
              ## lda
-             FALSE, 
+             FALSE,
+             ## leapForward
+             TRUE,
+             ## leapBackward
+             TRUE,
+             ## leapSeq
+             TRUE,
              ## Linda
              FALSE, 
              ## lm
@@ -1089,7 +1113,13 @@ modelLookup <- function(model = NULL)
                 ## lasso
                 TRUE, 
                 ## lda
-                FALSE, 
+                FALSE,
+                ## leapForward
+                TRUE,
+                ## leapBackward
+                TRUE,
+                ## leapSeq
+                TRUE,
                 ## Linda
                 FALSE, 
                 ## lm
@@ -1326,7 +1356,13 @@ modelLookup <- function(model = NULL)
                   ## lasso
                   FALSE, 
                   ## lda
-                  TRUE, 
+                  TRUE,
+                  ## leapForward
+                  FALSE,
+                  ## leapBackward
+                  FALSE,
+                  ## leapSeq
+                  FALSE,
                   ## Linda
                   TRUE, 
                   ## lm
@@ -1563,7 +1599,13 @@ modelLookup <- function(model = NULL)
                     ## lasso
                     FALSE, 
                     ## lda
-                    TRUE, 
+                    TRUE,
+                    ## leapForward
+                    FALSE,
+                    ## leapBackward
+                    FALSE,
+                    ## leapSeq
+                    FALSE,
                     ## Linda
                     TRUE, 
                     ## lm

@@ -17,6 +17,7 @@ trainControl(method = "boot",
              ICAcomp = 3,
              k = 5,
              index = NULL,
+             timingSamps = 0,
              workers = 1,
              predictionBounds = rep(FALSE, 2),
              computeFunction = lapply,
@@ -39,6 +40,7 @@ trainControl(method = "boot",
   \item{ICAcomp}{When invoking \code{\link{train}} with the \code{preProcess = "ica"} option, this parameter allows the user to determine how many ICA components should be kept. See \code{\link{preProcess}} for more details.}
   \item{k}{When invoking \code{\link{train}} with the \code{preProcess = "knnImpute"} option, this parameter allows the user to determine how many neighbors should be used for imputation. See \code{\link{preProcess}} for more details.}
   \item{index}{a list with elements for each resampling iteration. Each list element is the sample rows used for training at that iteration.}
+  \item{timingSamps}{the number of training set samples that will be used to measure the time for predicting samples (zero indicates that the prediction time should not be estimated.}
   \item{workers}{an integer that specifies how many machines/processors will be used}
   \item{predictionBounds}{a logical or numeric vector of length 2 (regression only). If logical, the predictions can be constrained to be within the limit of the training set outcomes. For example, a value of \code{c(TRUE, FALSE)} would only constrain the lower end of predictions. If numeric, specific bounds can be used. For example, if \code{c(10, NA)}, values below 10 would be predicted as 10 (with no constraint in the upper side).}
   \item{computeFunction}{a function that is \code{\link[base]{lapply}} or emulates \code{lapply}. It must have arguments \code{X}, \code{FUN} and \code{...}. \code{computeFunction} can be used to build models in parallel. See the examples in \code{link{train}}.}

@@ -210,20 +210,25 @@ sbf <- function (x, ...) UseMethod("sbf")
   ## Now, based on probability or static ranking, figure out the best vars
   ## and the best subset size and fit final model
   
-  structure(
-            list(
-                 pred = if(sbfControl$saveDetails) sbfPred else NULL,
-                 variables = selectedVars,
-                 results = as.data.frame(externPerf),
-                 fit = fit,
-                 optVariables = names(retained)[retained],
-                 call = funcCall,
-                 control = sbfControl,
-                 resample = resamples,
-                 metrics = perfNames,
-                 times = times, 
-                 dots = list(...)),
-            class = "sbf")
+  out <- structure(
+                   list(
+                        pred = if(sbfControl$saveDetails) sbfPred else NULL,
+                        variables = selectedVars,
+                        results = as.data.frame(externPerf),
+                        fit = fit,
+                        optVariables = names(retained)[retained],
+                        call = funcCall,
+                        control = sbfControl,
+                        resample = resamples,
+                        metrics = perfNames,
+                        times = times, 
+                        dots = list(...)),
+                   class = "sbf")
+  if(sbfControl$timingSamps > 0)
+    {
+      out$times$prediction <- system.time(predict(out, x[1:min(nrow(x), sbfControl$timingSamps),,drop = FALSE]))
+    } else  out$times$prediction <- rep(NA, 3)
+  out
 }
 
 sbf.formula <- function (form, data, ..., subset, na.action, contrasts = NULL) 
@@ -371,6 +376,7 @@ sbfControl <- function(functions = NULL,
                        returnResamp = "all",
                        p = .75,
                        index = NULL,
+                       timingSamps = 0,
                        workers = 1,
                        computeFunction = lapply,
                        computeArgs = NULL)
@@ -385,6 +391,7 @@ sbfControl <- function(functions = NULL,
        verbose = verbose,
        p = p,
        index = index,
+       timingSamps = timingSamps,
        workers = workers,
        computeFunction = computeFunction,
        computeArgs = computeArgs)

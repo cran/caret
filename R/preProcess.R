@@ -126,7 +126,6 @@ preProcess.default <- function(x, method = c("center", "scale"),
   if(any(method == "ica"))
     {
       if(verbose) cat("Computing ICA loadings\n")
-      set.seed(1)
       library(fastICA)
       x <- sweep(x, 2, centerValue, "-")
       if(!row.norm & any(method == "scale")) x <- sweep(x, 2, scaleValue, "/")      
