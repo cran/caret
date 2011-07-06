@@ -10,6 +10,7 @@
     ## Error trap
     if(!(plotType %in% c("level", "scatter", "line"))) stop("plotType must be either level, scatter or line")
     
+    cutpoints <- c(0, 1.9, 2.9, 3.9, Inf)
     
     ## define some functions
     prettyVal <- function(u, dig, Name = NULL)
@@ -99,7 +100,15 @@
                                 parameter %in% params)$label    
             if(p > 1)
               {
-                groupCols <- if(length(unique(dat[,3])) > 3) 3 else length(unique(dat[,3]))
+                ## I apologize in advance for the following 3 line kludge. 
+                groupCols <- 4
+                if(length(unique(dat[,3])) < 4) groupCols <- length(unique(dat[,3]))
+                if(length(unique(dat[,3])) %in% 5:6) groupCols <- 3
+                
+                groupCols <- as.numeric(
+                                        cut(length(unique(dat[,3])),
+                                            cutpoints,
+                                            include.lowest = TRUE))
                 
                 if(!(any(c("key", "auto.key") %in% lNames)))
                   defaultArgs$auto.key <- list(columns = groupCols, lines = TRUE, title = paramLabs[2], cex.title = 1)

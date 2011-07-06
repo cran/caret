@@ -295,24 +295,29 @@ rfe <- function (x, ...) UseMethod("rfe")
   ## Now, based on probability or static ranking, figure out the best vars
   ## and the best subset size and fit final model
   
-  structure(
-            list(
-                 pred = if(rfeControl$saveDetails) rfePred else NULL,
-                 variables = if(rfeControl$saveDetails) selectedVars else NULL,
-                 results = as.data.frame(externPerf),
-                 bestSubset = bestSubset,
-                 fit = fit,
-                 optVariables = bestVar,
-                 optsize = bestSubset,
-                 call = funcCall,
-                 control = rfeControl,
-                 resample = resamples,
-                 metric = metric,
-                 maximize = maximize,
-                 perfNames = perfNames,
-                 times = times,
-                 dots = list(...)),
-            class = "rfe")
+  out <- structure(
+                   list(
+                        pred = if(rfeControl$saveDetails) rfePred else NULL,
+                        variables = if(rfeControl$saveDetails) selectedVars else NULL,
+                        results = as.data.frame(externPerf),
+                        bestSubset = bestSubset,
+                        fit = fit,
+                        optVariables = bestVar,
+                        optsize = bestSubset,
+                        call = funcCall,
+                        control = rfeControl,
+                        resample = resamples,
+                        metric = metric,
+                        maximize = maximize,
+                        perfNames = perfNames,
+                        times = times,
+                        dots = list(...)),
+                   class = "rfe")
+  if(rfeControl$timingSamps > 0)
+    {
+      out$times$prediction <- system.time(predict(out, x[1:min(nrow(x), rfeControl$timingSamps),,drop = FALSE]))
+    } else  out$times$prediction <- rep(NA, 3)
+  out
 }
 
 rfe.formula <- function (form, data, ..., subset, na.action, contrasts = NULL) 
@@ -422,6 +427,7 @@ rfeControl <- function(functions = NULL,
                        returnResamp = "all",
                        p = .75,
                        index = NULL,
+                       timingSamps = 0,
                        workers = 1,
                        computeFunction = lapply,
                        computeArgs = NULL)
@@ -437,6 +443,7 @@ rfeControl <- function(functions = NULL,
        verbose = verbose,
        p = p,
        index = index,
+       timingSamps = timingSamps,
        workers = workers,
        computeFunction = computeFunction,
        computeArgs = computeArgs)

@@ -342,6 +342,7 @@
                       cubist = expand.grid(.committees = c(1, 10, 20), .neighbors = c(0, 5, 9)),
                       bstTree = expand.grid(.maxdepth = seq(1, len), .mstop = floor((1:len) * 50), .nu = .1),
                       bstLs =, bstSm =  expand.grid(.mstop = floor((1:len) * 50), .nu = .1),
+                      leapForward =, leapBackward =, leapSeq = data.frame(.nvmax = 1:len),
                       lda =, lm =, treebag =, sddaLDA =, sddaQDA =,
                       glm =, qda =, OneR =, rlm =,
                       rvmLinear =, lssvmLinear =, gaussprLinear =,

@@ -411,12 +411,12 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                                    {
                                      out <- c(
                                               list(if(is.matrix(out)) out[,1]  else out),
-                                                 as.list(
-                                                         as.data.frame(
-                                                                       predict(modelFit,
-                                                                               newx = as.matrix(newdata),
-                                                                               s = param$.fraction,
-                                                                               mode = "fraction")$fit)))
+                                              as.list(
+                                                      as.data.frame(
+                                                                    predict(modelFit,
+                                                                            newx = as.matrix(newdata),
+                                                                            s = param$.fraction,
+                                                                            mode = "fraction")$fit)))
 
                                    } else {
                                      tmp <- predict(modelFit,
@@ -478,7 +478,7 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                                                     newdata = list(x=t(newdata)),
                                                     n.components = modelFit$tuneValue$.n.components,
                                                     threshold = modelFit$tuneValue$.threshold)$v.pred.1df
-                           
+                             
                              if(!is.null(param))
                                {
                                  tmp <- vector(mode = "list", length = nrow(param) + 1)
@@ -633,10 +633,10 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                                  for(j in seq(along = param$.fraction))
                                    {
                                      tmp[[j+1]] <- predict(modelFit,
-                                                            as.matrix(newdata),
-                                                            type = "fit",
-                                                            mode = "fraction",
-                                                            s = param$.fraction[j])$fit
+                                                           as.matrix(newdata),
+                                                           type = "fit",
+                                                           mode = "fraction",
+                                                           s = param$.fraction[j])$fit
                                    }
                                  out <- tmp
                                }
@@ -659,10 +659,10 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                                  for(j in seq(along = param$.step))
                                    {
                                      tmp[[j+1]] <- predict(modelFit,
-                                                            as.matrix(newdata),
-                                                            type = "fit",
-                                                            mode = "step",
-                                                            s = param$.step[j])$fit
+                                                           as.matrix(newdata),
+                                                           type = "fit",
+                                                           mode = "step",
+                                                           s = param$.step[j])$fit
                                    }
                                  out <- tmp
                                }
@@ -824,7 +824,7 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                                  ## possible combinations, which might not be what the user wanted
                                  ## as specified by tuneGrid. To make sure these match, we will
                                  ## loop over one parameter
-                               
+                                 
                                  uniqueA <- unique(param$.alpha)
                                  index1 <- 2
                                  for(i in 1:length(uniqueA))
@@ -841,7 +841,7 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                                      ## gets downcast into a vector (ordinarily a matrix)
                                      if(is.vector(tmpPred)) tmpPred <- matrix(tmpPred, nrow = 1)
                                      tmpPred <- apply(tmpPred, 2, function(x, y) y[x], y = as.character(modelFit$obsLevels))
-                                      if(is.vector(tmpPred)) tmpPred <- matrix(tmpPred, nrow = 1)
+                                     if(is.vector(tmpPred)) tmpPred <- matrix(tmpPred, nrow = 1)
                                      tmp[index1:index2] <- as.list(as.data.frame(t(tmpPred)))
                                      index1 <- index2 + 1
                                    }
@@ -888,17 +888,17 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                                    }
                                } else predict(modelFit, newData = newdata)
                            },
-#                           plsGlmBinomial =, plsGlmGaussian =, plsGlmGamma =, plsGlmPoisson =
-#                           {
-#                             library(plsRglm)
-#                             out <- predict(modelFit$FinalModel, newdata = newdata, type = "response")
-#                             ## glm models the second factor level. See Details in ?glm
-#                             if(modelFit$family$family == "binomial")
-#                               {
-#                                 out <- ifelse(out> .5, modelFit$obsLevel[2], modelFit$obsLevel[1])
-#                               }
-#                             out
-#                           },
+                                        #                           plsGlmBinomial =, plsGlmGaussian =, plsGlmGamma =, plsGlmPoisson =
+                                        #                           {
+                                        #                             library(plsRglm)
+                                        #                             out <- predict(modelFit$FinalModel, newdata = newdata, type = "response")
+                                        #                             ## glm models the second factor level. See Details in ?glm
+                                        #                             if(modelFit$family$family == "binomial")
+                                        #                               {
+                                        #                                 out <- ifelse(out> .5, modelFit$obsLevel[2], modelFit$obsLevel[1])
+                                        #                               }
+                                        #                             out
+                                        #                           },
                            qrnn =
                            {
                              library(qrnn)
@@ -967,6 +967,33 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                                    }
                                  out <- if(modelFit$problemType == "Classification") lapply(tmp, as.character) else tmp
                                }
+                             out
+                           },
+                           leapForward =, leapBackward =, leapSeq =
+                           {
+                             library(leaps)
+                             foo <- function(b, x) x[,names(b),drop = FALSE] %*% b
+
+                             path <- 1:(modelFit$nvmax - 1)
+                             betas <- coef(modelFit, id = 1:(modelFit$nvmax - 1))
+
+                             newdata <- cbind(rep(1, nrow(newdata)), as.matrix(newdata))
+                             colnames(newdata)[1] <- "(Intercept)"
+                             
+                             out <- foo(betas[[length(betas)]], newdata)[,1]
+
+                             if(!is.null(param))
+                               {
+                                 varList <- varSeq(modelFit)
+                                 pList <- unlist(lapply(varList, length))
+                                 idx <- rev(path[path %in% param$.nvmax])
+                                 
+                                 preds <- lapply(betas[idx], foo, x= newdata)
+                                 preds <- do.call("cbind", preds)
+                                 
+                                 out <- as.data.frame(cbind(out, preds))
+                               }
+                             
                              out
                            })
   predictedValue

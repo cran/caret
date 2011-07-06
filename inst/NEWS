@@ -1,6 +1,39 @@
 -------------------
+Version: 4.92
+Date: 2011-07-05
+
+Some tweaks were made to plot.train in a effort to get the group
+key to look less horrid.
+
+train(), rfe() and sbf() are now able to estimate the time that
+these models take to predict new samples. Their respective
+control objects have a new option, timingSamps, that indicates
+how many of the training set samples should be used for prediction
+(the default of zero means do not estimate the prediction time).
+
+xyplot.resamples was modified. A new argument, "what", has values:
+
+ - "scatter" plots the resampled performance values for two models
+ - "BlandAltman" plots the difference between two models by the 
+   average (aka a MA plot) for two models
+ - "tTime", "mTime", "pTime" plot the total model building/tuning
+   time ("t") or the final model building time ("m") or the 
+   time to produce predictions ("p") against a confidence interval
+   for the average performance. 2+ models can be used.
+
+Three new model types were added to train() using leaps:::regsubsets:
+"leapForward", "leapBackward" and "leapSeq". The tuning parameter, 
+nvmax, is the maximum number of terms in the subset.
+
+Two bug fixes:
+  - the seed was accidentally set when preProcess used ICA (spotted
+    by Allan Engelhardt)
+  - preProcess was always being called (even to do nothing)
+    (found by Guozhu Wen)
+
+-------------------
 Version: 4.91
-Date: 2011-07-09
+Date: 2011-06-09
 
 Added a few new models associated with the bst package: bstTree, 
 bstLs and bstSm.

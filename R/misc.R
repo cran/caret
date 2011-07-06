@@ -137,6 +137,12 @@ tuneScheme <- function(model, grid, useOOB = FALSE)
                loop <- grid[1,,drop = FALSE]
                seqParam <- list(grid[-1,,drop = FALSE])
              },
+             leapForward = , leapBackward =, leapSeq =
+             {
+               grid <- grid[order(grid$.nvmax, decreasing = TRUE),, drop = FALSE]
+               loop <- grid[1,,drop = FALSE]
+               seqParam <- list(grid[-1,,drop = FALSE])
+             },             
              cubist = 
              {
                grid <- grid[order(-grid$.committees, grid$.neighbors, decreasing = TRUE),, drop = FALSE]
@@ -539,6 +545,15 @@ workerData <- function(data, ctrl, loop, method, lvls, pp, workers = 1, caretVer
   {
 
     index <- ctrl$index
+    if(!is.null(pp))
+      {
+        pp <- list(options = pp, ## constant across the workers
+                   thresh = ctrl$PCAthresh,
+                   ica = ctrl$ICAcomp,
+                   k = ctrl$k)
+      }
+
+
     
     if(loop$scheme != "oob")
       {
@@ -567,10 +582,7 @@ workerData <- function(data, ctrl, loop, method, lvls, pp, workers = 1, caretVer
                                  TRUE, FALSE),              ## constant across the workers
                                classProbs = ctrl$classProbs,## constant across the workers
                                func = ctrl$summaryFunction, ## constant across the workers
-                               preProc = list(options = pp, ## constant across the workers
-                                              thresh = ctrl$PCAthresh,
-                                              ica = ctrl$ICAcomp,
-                                              k = ctrl$k),                
+                               preProc = pp,                
                                caretVerbose = caretVerbose, ## constant across the workers
                                dots = d),                   ## constant across the workers
                           m = method,
@@ -1002,5 +1014,11 @@ gamFormula <- function(data, smoother = "s", cut = 10, df = 0, span = .5, degree
   }
 
 
+varSeq <- function(x)
+  {
+    vars <- apply(summary(x)$which, 1, function(x) names(which(x)))
+    vars <- lapply(vars, function(x) x[x != "(Intercept)"])
+    vars
+  }
 
 

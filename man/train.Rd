@@ -32,7 +32,7 @@ train(x, ...)
 \item{subset}{An index vector specifying the cases to be used in the training sample. (NOTE: If given, this argument must be named.)}
 \item{na.action}{A function to specify the action to be taken if NAs are found. The default action is for the procedure to fail. An alternative is na.omit, which leads to rejection of cases with missing values on any required variable. (NOTE: If given, this argument must be named.)}
 \item{contrasts}{a list of contrasts to be used for some or all of the factors appearing as variables in the model formula.}
-  \item{method}{a string specifying which classification or regression model to use. Possible values are: \code{ada}, \code{bag}, \code{bagEarth}, \code{bagFDA}, \code{blackboost}, \code{Boruta}, \code{bstTree}, \code{bstLs}, \code{bstSm}, \code{cforest}, \code{ctree}, \code{ctree2}, \code{cubist}, \code{earth}, \code{enet}, \code{fda}, \code{foba}, \code{gam}, \code{gamboost}, \code{gamLoess}, \code{gamSpline}, \code{gaussprPoly}, \code{gaussprRadial}, \code{gaussprLinear}, \code{gbm}, \code{gcvEarth}, \code{glm}, \code{glmboost}, \code{glmnet}, \code{gpls}, \code{hda},  \code{hdda}, \code{icr}, \code{J48}, \code{JRip}, \code{knn}, \code{lars}, \code{lasso}, \code{lda}, \code{Linda}, \code{lm}, \code{lmStepAIC}, \code{LMT}, \code{logforest}, \code{logitBoost}, \code{logreg}, \code{lssvmPoly}, \code{lssvmRadial}, \code{lvq}, \code{M5}, \code{M5Rules}, \code{mda}, \code{multinom}, \code{nb}, \code{neuralnet}, \code{nnet}, \code{nodeHarvest}, \code{OneR}, \code{pam}, \code{parRF}, \code{partDSA}, \code{pcaNNet}, \code{pcr}, \code{pda}, \code{pda2}, \code{penalized}, \code{plr}, \code{pls}, \code{ppr}, \code{qda}, \code{QdaCov}, \code{qrnn}, \code{rda}, \code{rf}, \code{rlm}, \code{rocc}, \code{rpart}, \code{rvmLinear}, \code{rvmPoly}, \code{rvmRadial}, \code{sda}, \code{sddaLDA}, \code{sddaQDA}, \code{slda}, \code{smda}, \code{sparseLDA}, \code{spls}, \code{stepLDA}, \code{stepQDA}, \code{superpc}, \code{svmPoly}, \code{svmRadial}, \code{svmRadialCost}, \code{svmLinear}, \code{treebag} and  \code{vbmpRadial}. See the Details section below.}  
+  \item{method}{a string specifying which classification or regression model to use. Possible values are: \code{ada}, \code{bag}, \code{bagEarth}, \code{bagFDA}, \code{blackboost}, \code{Boruta}, \code{bstTree}, \code{bstLs}, \code{bstSm}, \code{cforest}, \code{ctree}, \code{ctree2}, \code{cubist}, \code{earth}, \code{enet}, \code{fda}, \code{foba}, \code{gam}, \code{gamboost}, \code{gamLoess}, \code{gamSpline}, \code{gaussprPoly}, \code{gaussprRadial}, \code{gaussprLinear}, \code{gbm}, \code{gcvEarth}, \code{glm}, \code{glmboost}, \code{glmnet}, \code{gpls}, \code{hda},  \code{hdda}, \code{icr}, \code{J48}, \code{JRip}, \code{knn}, \code{lars}, \code{lasso}, \code{lda},\code{leapForward}, \code{leapBackward}, \code{leapSeq}, \code{Linda}, \code{lm}, \code{lmStepAIC}, \code{LMT}, \code{logforest}, \code{logitBoost}, \code{logreg}, \code{lssvmPoly}, \code{lssvmRadial}, \code{lvq}, \code{M5}, \code{M5Rules}, \code{mda}, \code{multinom}, \code{nb}, \code{neuralnet}, \code{nnet}, \code{nodeHarvest}, \code{OneR}, \code{pam}, \code{parRF}, \code{partDSA}, \code{pcaNNet}, \code{pcr}, \code{pda}, \code{pda2}, \code{penalized}, \code{plr}, \code{pls}, \code{ppr}, \code{qda}, \code{QdaCov}, \code{qrnn}, \code{rda}, \code{rf}, \code{rlm}, \code{rocc}, \code{rpart}, \code{rvmLinear}, \code{rvmPoly}, \code{rvmRadial}, \code{sda}, \code{sddaLDA}, \code{sddaQDA}, \code{slda}, \code{smda}, \code{sparseLDA}, \code{spls}, \code{stepLDA}, \code{stepQDA}, \code{superpc}, \code{svmPoly}, \code{svmRadial}, \code{svmRadialCost}, \code{svmLinear}, \code{treebag} and  \code{vbmpRadial}. See the Details section below.}  
   \item{\ldots}{ arguments passed to the classification or regression routine (such as \code{\link[randomForest]{randomForest}}). Errors will occur if values
          for tuning parameters are passed here.} 
 \item{preProcess}{a string vector that defines an pre-processing of the predictor data. Current possibilities are \code{center}, \code{scale}, \code{spatialSign}, \code{pca}, \code{ica}, and \code{knnImpute}. See \code{\link{preProcess}} and \code{\link{trainControl}} on the procedures and how to adjust them.} 
@@ -103,6 +103,9 @@ Gaussian processes  \tab \code{guassprLinearl} \tab \pkg{kernlab} \tab none\cr
                     \tab \code{guassprPoly} \tab \pkg{kernlab} \tab \code{scale}, \code{degree}\cr 
 Linear least squares \tab \code{lm} \tab \pkg{stats} \tab None \cr 
                      \tab \code{lmStepAIC} \tab \pkg{MASS} \tab None \cr 
+                     \tab \code{leapForward} \tab \pkg{leaps} \tab \code{nvmax} \cr 
+                     \tab \code{leapBackward} \tab \pkg{leaps} \tab \code{nvmax} \cr 
+                     \tab \code{leapSeq} \tab \pkg{leaps} \tab \code{nvmax} \cr 
 Robust linear regression \tab \code{rlm} \tab \pkg{MASS} \tab None \cr 
 Multivariate adaptive regression splines \tab \code{earth} \tab \pkg{earth} \tab \code{degree}, \code{nprune} \cr
                                          \tab \code{gcvEarth} \tab \pkg{earth} \tab \code{degree} \cr
@@ -171,12 +174,16 @@ The vignette entitled "caret Manual -- Model Building" has more details and exam
 
 \value{
   A list is returned of class \code{train} containing:
+  \item{method }{the chosen model.}  
   \item{modelType }{an identifier of the model type.}  
   \item{results }{a data frame the training error rate and values of the tuning parameters.}
+  \item{bestTune }{a data frame with the final parameters.}  
+
   \item{call }{the (matched) function call with dots expanded}
   \item{dots}{a list containing any ... values passed to the original call}
   \item{metric}{a string that specifies what summary metric will be used to select the optimal model.}  
-  \item{trControl}{the list of control parameters.}
+  \item{control}{the list of control parameters.}
+  \item{preProcess }{either \code{NULL} or an object of class \code{\link{preProcess}}}
    \item{finalModel}{an fit object using the best parameters}
    \item{trainingData}{a data frame}
    \item{resample}{A data frame with columns for each performance
@@ -186,6 +193,8 @@ The vignette entitled "caret Manual -- Model Building" has more details and exam
      controls how much of the resampled results are saved.}
   \item{perfNames}{a character vector of performance metrics that are produced by the summary function}
   \item{maximize}{a logical recycled  from the function arguments.}
+  \item{yLimits}{the range of the training set outcomes.}
+  \item{times}{a list of execution times: \code{everything} is for the entire call to \code{train}, \code{final} for the final model fit and, optionally, \code{prediction} for the time to predict new samples (see \code{\link{trainControl}})}
 }
 
 \author{Max Kuhn (the guts of \code{train.formula} were based on Ripley's \code{nnet.formula})}

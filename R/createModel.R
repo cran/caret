@@ -53,6 +53,7 @@
                    "svmPoly", "svmRadial", "svmLinear", "cubist",
                    "lssvmPoly", "lssvmRadial", "lssvmLinear",
                    "rvmRadial", "rvmPoly", "rvmLinear",
+                   "leapForward", "leapBackward", "leapSeq",
                    "gaussprRadial", "gaussprPoly", "gaussprLinear",
                    "sddaLDA", "sddaQDA", "glmnet", "slda", "spls", "smda",
                    "qda", "relaxo", "lars", "lars2", "rlm", "vbmpRadial",
@@ -1661,7 +1662,25 @@
                        modArgs <- c(modArgs, theDots)
                        
                        do.call("bst", modArgs)
-                     }                     
+                     },
+                     leapForward =, leapBackward =, leapSeq =
+                     {
+                       library(leaps)
+                       ## check for options
+                       theDots <- list(...)
+                       if(any(names(theDots) == "nbest")) stop("'nbest' should not be specified")
+                       if(any(names(theDots) == "method")) stop("'method' should not be specified")
+                       if(any(names(theDots) == "nvmax")) stop("'nvmax' should not be specified")
+
+                       dir <- switch(method,
+                                     leapForward = "forward",
+                                     leapBackward = "backward",
+                                     leapSeq = "seqrep")
+                       
+                       regsubsets(trainX, trainY,
+                                  weights = if(!is.null(modelWeights)) modelWeights else rep(1, length(trainY)),
+                                  nbest = 1, nvmax = tuneValue$.nvmax, method = dir, ...)
+                     }
                      )
   
 

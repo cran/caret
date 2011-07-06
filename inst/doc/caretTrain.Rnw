@@ -737,6 +737,23 @@ There is additional functionality in \texttt{train} that is described in the nex
          \texttt{lmStepAIC} & 
              {\tt \href{http://cran.r-project.org/web/packages/MASS/index.html}{MASS}}       & 
             None & \\  
+            
+            
+\rowcolor[rgb]{.95, .95, .95}                     
+            &
+         \texttt{leapForward} & 
+             {\tt \href{http://cran.r-project.org/web/packages/leaps/index.html}{leaps}}       & 
+            \texttt{nvmax} & \\  
+\rowcolor[rgb]{.95, .95, .95}                     
+            &
+         \texttt{leapBackward} & 
+             {\tt \href{http://cran.r-project.org/web/packages/leaps/index.html}{leaps}}       & 
+            \texttt{nvmax}  & \\  
+\rowcolor[rgb]{.95, .95, .95}                     
+            &
+         \texttt{leapSeq} & 
+             {\tt \href{http://cran.r-project.org/web/packages/leaps/index.html}{leaps}}       & 
+            \texttt{nvmax}  & \\              
 
        Principal Component Regression&
          \texttt{pcr} & 
