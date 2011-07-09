@@ -1,4 +1,15 @@
 -------------------
+Version: 4.91
+Date: 2011-07-09
+
+Added a few new models associated with the bst package: bstTree, 
+bstLs and bstSm.
+
+A model denoted as "M5" that combines M5P and M5Rules from the 
+RWeka package. This new model cuses either of these functions
+depending on the tuning parameter "rules".
+
+-------------------
 Version: 4.90
 Date: 2011-06-01
 
@@ -9,7 +20,7 @@ Fedor for finding it.
 Version: 4.89
 Date: 2011-05-26
 
-A new tuning parameter was added for M5 controlling smoothing.
+A new tuning parameter was added for M5Rules controlling smoothing.
 
 The Laplace correction value for Naive Bayes was also added as a 
 tuning parameter.

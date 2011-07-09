@@ -13,6 +13,12 @@ modelLookup <- function(model = NULL)
             'blackboost', 'blackboost',
             ## Boruta
             'Boruta',
+            ## bstTree
+            'bstTree', 'bstTree', 'bstTree',
+             ## bstLs
+            'bstLs', 'bstLs',
+             ## bstSm
+            'bstSm', 'bstSm',           
             ## cforest
             'cforest', 
             ## ctree
@@ -107,6 +113,8 @@ modelLookup <- function(model = NULL)
             'lssvmRadial', 
             ## lvq
             'lvq', 'lvq',
+            ## M5
+            'M5', 'M5', 'M5',             
             ## M5Rules
             'M5Rules', 'M5Rules', 
             ## mars
@@ -242,6 +250,12 @@ modelLookup <- function(model = NULL)
               'mstop', 'maxdepth',
               ## Boruta
               'mtry',
+              ## bstTree
+              'mstop', 'maxdepth', 'nu',
+              ## bstLs
+              'mstop', 'nu',
+              ## bstSm
+              'mstop', 'nu',              
               ## cforest
               'mtry', 
               ## ctree
@@ -335,7 +349,9 @@ modelLookup <- function(model = NULL)
               ## lssvmRadial
               'sigma', 
               ## lvq
-              'size', 'k', 
+              'size', 'k',
+              ## M5
+              'pruned', 'smoothed', 'rules',
               ## M5Rules
               'pruned', 'smoothed', 
               ## mars
@@ -477,6 +493,12 @@ modelLookup <- function(model = NULL)
               'Max Tree Depth',
               ## Boruta
               '#Randomly Selected Predictors',
+              ## bstTree
+              '# Boosting Iterations', 'Max Tree Depth', 'Shrinkage',
+              ## bstLs
+              '# Boosting Iterations', 'Shrinkage',
+              ## bstSm
+              '# Boosting Iterations', 'Shrinkage',                
               ## cforest
               '#Randomly Selected Predictors',
               ## ctree
@@ -590,6 +612,8 @@ modelLookup <- function(model = NULL)
               'Sigma',
               ## lvq
               'Codebook Size', '#Prototypes',
+              ## M5
+              'Pruned', 'Smoothed', 'Rules',
               ## M5Rules
               'Pruned', 'Smoothed',
               ## mars
@@ -754,6 +778,12 @@ modelLookup <- function(model = NULL)
              TRUE, FALSE,
              ## Boruta
              FALSE,
+             ## bstTree
+             TRUE, FALSE, FALSE,
+             ## bstLm
+             TRUE, FALSE,
+             ## bstSm
+             TRUE, FALSE,             
              ## cforest
              FALSE, 
              ## ctree actually is a sequential model, but treeresponse can't do probs from multiple models
@@ -847,7 +877,9 @@ modelLookup <- function(model = NULL)
              ## lssvmRadial
              FALSE, 
              ## lvq
-             FALSE, FALSE, 
+             FALSE, FALSE,
+             ## M5
+             FALSE, FALSE, FALSE,           
              ## M5Rules
              FALSE, FALSE, 
              ## mars
@@ -982,6 +1014,12 @@ modelLookup <- function(model = NULL)
                 TRUE, TRUE,
                 ## Boruta
                 TRUE,
+                ## bstTree
+                TRUE, TRUE, TRUE,
+                ## bstLm
+                TRUE, TRUE,
+                ## bstSm
+                TRUE, TRUE,                
                 ## cforest
                 TRUE, 
                 ## ctree
@@ -1075,7 +1113,9 @@ modelLookup <- function(model = NULL)
                 ## lssvmRadial
                 FALSE, 
                 ## lvq
-                FALSE, FALSE, 
+                FALSE, FALSE,
+                ## M5
+                TRUE, TRUE, TRUE,                
                 ## M5Rules
                 TRUE, TRUE,
                 ## mars
@@ -1211,6 +1251,12 @@ modelLookup <- function(model = NULL)
                   TRUE, TRUE,
                   ## Boruta
                   TRUE,
+                  ## bstTree
+                  TRUE, TRUE, TRUE,
+                  ## bstLm
+                  TRUE, TRUE,
+                  ## bstSm
+                  TRUE, TRUE,                  
                   ## cforest
                   TRUE, 
                   ## ctree
@@ -1304,7 +1350,9 @@ modelLookup <- function(model = NULL)
                   ## lssvmRadial
                   TRUE, 
                   ## lvq
-                  TRUE, TRUE, 
+                  TRUE, TRUE,
+                  ## M5
+                  FALSE, FALSE, FALSE,                 
                   ## M5Rules
                   FALSE, FALSE,
                   ## mars
@@ -1440,6 +1488,12 @@ modelLookup <- function(model = NULL)
                     TRUE, TRUE,
                     ## Boruta
                     TRUE,
+                    ## bstTree
+                    FALSE, FALSE, FALSE,
+                    ## bstLs
+                    FALSE, FALSE,
+                    ## bstSm
+                    FALSE, FALSE,                    
                     ## cforest
                     TRUE, 
                     ## ctree
@@ -1533,7 +1587,9 @@ modelLookup <- function(model = NULL)
                     ## lssvmRadial
                     FALSE, 
                     ## lvq
-                    FALSE, FALSE, 
+                    FALSE, FALSE,
+                    ## M5
+                    FALSE, FALSE, FALSE,                    
                     ## M5Rules
                     FALSE, FALSE,
                     ## mars

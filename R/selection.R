@@ -22,6 +22,14 @@ byComplexity <- function(x, model)
              # complexity faster than number of splits
              x[order(x$n.trees, x$interaction.depth, x$shrinkage),] 
            },
+           bstTree =
+           {
+             x[order(x$mstop, x$maxdepth, x$nu),] 
+           },
+           bstLs =, bstSm = 
+           {
+             x[order(x$mstop, x$nu),] 
+           },            
            rf =, rfNWS =, rfLSF =, parRF =, gpls =, pcr =, pls =, PLS =, pam =, cforest =,
            nb =, rpart =, ctree2 =, logitBoost=, J48 =, LMT =, ppr =, mda =, pda =, pda2 =,
            lars =, lars2 =, Linda =, QdaCov =, icr =, qrf =,Boruta =
@@ -37,7 +45,14 @@ byComplexity <- function(x, model)
              x$pruned <- factor(as.character(x$pruned), levels = c("Yes", "No"))
              x$smoothed <- factor(as.character(x$smoothed), levels = c("Yes", "No"))
              x[order(x$pruned, x$smoothed),]
-           },            
+           },
+           M5 =
+           {
+             x$pruned <- factor(as.character(x$pruned), levels = c("Yes", "No"))
+             x$smoothed <- factor(as.character(x$smoothed), levels = c("Yes", "No"))
+             x$rules <- factor(as.character(x$rules), levels = c("Yes", "No"))
+             x[order(x$pruned, x$smoothed, x$rules),]
+           },             
            svmradial =, svmRadial =
            {
              # If the cost is high, the decision boundary will work hard to

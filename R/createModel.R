@@ -60,6 +60,7 @@
                    "nodeHarvest", "Linda", "QdaCov", "stepLDA", "stepQDA",
                    "parRF", "plr", "rocc", "foba", "partDSA", "hda", "icr", "Boruta",
                    "plsGlmBinomial", "plsGlmGaussian", "plsGlmGamma", "plsGlmPoisson",
+                   "bstTree", 'bstLs', 'bstSm',
                    "qrf", "scrda", "bag", "hdda", "logreg", "logforest", "logicBag", "qrnn"))
     {
       trainX <- data[,!(names(data) %in% ".outcome"), drop = FALSE]
@@ -995,6 +996,32 @@
                        out <- do.call("M5Rules", modelArgs) 
                        out      
                      },
+                     M5 = 
+                     {
+                       library(RWeka)
+                       
+                       theDots <- list(...)
+                       
+                       if(any(names(theDots) == "control"))
+                         {
+                           theDots$control$N <- ifelse(tuneValue$.pruned == "No", TRUE, FALSE)
+                           theDots$control$U <- ifelse(tuneValue$.smoothed == "No", TRUE, FALSE)
+                           ctl <- theDots$control
+                           theDots$control <- NULL
+                           
+                         } else ctl <- Weka_control(N = ifelse(tuneValue$.pruned == "No", TRUE, FALSE),
+                                                    U = ifelse(tuneValue$.smoothed == "No", TRUE, FALSE)) 
+                       
+                       modelArgs <- c(
+                                      list(
+                                           formula = modFormula,
+                                           data = data,
+                                           control = ctl),
+                                      theDots)
+                       
+                       out <- do.call(if(tuneValue$.rules == "Yes") "M5Rules" else "M5P", modelArgs) 
+                       out      
+                     },                     
                      LMT = 
                      {
                        library(RWeka)
@@ -1581,7 +1608,60 @@
                        cubist(trainX, trainY,
                               committees =  tuneValue$.committees,
                               ...)
-                     }
+                     },
+                     bstTree =  
+                     {
+                       library(bst)
+                       theDots <- list(...)
+                       modDist <- if(type == "Classification") "hinge" else "gaussian"
+  
+                       modY <- if(type == "Classification") ifelse(trainY == obsLevels[1], 1, -1) else trainY
+
+                       if(any(names(theDots) == "ctrl"))
+                         {
+                           theDots$ctrl$mstop <- tuneValue$.mstop
+                           theDots$ctrl$nu <- tuneValue$.nu
+                         } else {
+                           theDots$ctrl <- bst_control(mstop = tuneValue$.mstop, nu = tuneValue$.nu)
+                         }
+                       if(any(names(theDots) == "control.tree"))
+                         {
+                           theDots$control.tree$maxdepth <- tuneValue$.maxdepth
+                         } else {
+                           theDots$control.tree <- list(maxdepth = tuneValue$.maxdepth)
+                         }
+
+                       
+                       modArgs <- list(x = trainX,
+                                       y = modY,
+                                       family = modDist)
+                       modArgs <- c(modArgs, theDots)
+                       
+                       do.call("bst", modArgs)
+                     },
+                     bstLs =, bstSm =   
+                     {
+                       library(bst)
+                       theDots <- list(...)
+                       modDist <- if(type == "Classification") "hinge" else "gaussian"
+  
+                       modY <- if(type == "Classification") ifelse(trainY == obsLevels[1], 1, -1) else trainY
+
+                       if(any(names(theDots) == "ctrl"))
+                         {
+                           theDots$ctrl$mstop <- tuneValue$.mstop
+                           theDots$ctrl$nu <- tuneValue$.nu
+                         } else {
+                           theDots$ctrl <- bst_control(mstop = tuneValue$.mstop, nu = tuneValue$.nu)
+                         }
+                       
+                       modArgs <- list(x = trainX,
+                                       y = modY,
+                                       family = modDist)
+                       modArgs <- c(modArgs, theDots)
+                       
+                       do.call("bst", modArgs)
+                     }                     
                      )
   
 

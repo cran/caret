@@ -458,7 +458,7 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                                }
                              out
                            },
-                           M5Rules =
+                           M5Rules =, M5 =
                            {
                              library(RWeka)
                              predict(modelFit , newdata)
@@ -908,6 +908,66 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                            {
                              library(Cubist)
                              predict(modelFit, newdata)
+                           },
+                           bstTree =
+                           {                             
+                             library(bst)
+                             if(modelFit$problemType == "Classification")
+                               {
+                                 out <- predict(modelFit, newdata, type = "class", mstop = modelFit$tuneValue$.mstop)
+                                 out <- ifelse(out == 1, modelFit$obsLevels[1], modelFit$obsLevels[2])
+                               } else {
+                                 out <- predict(modelFit, newdata, type = "response", mstop = modelFit$tuneValue$.mstop)
+                               }
+                             
+                             if(!is.null(param))
+                               {
+                                 tmp <- vector(mode = "list", length = nrow(param) + 1)
+                                 tmp[[1]] <- out
+                                 
+                                 for(j in seq(along = param$.mstop))
+                                   {
+                                     if(modelFit$problemType == "Classification")
+                                       {
+                                         bstPred <- predict(modelFit, newdata, type = "class", mstop = param$.mstop[j])
+                                         tmp[[j+1]] <- ifelse(bstPred == 1, modelFit$obsLevels[1], modelFit$obsLevels[2])
+                                       } else {
+                                         tmp[[j+1]]  <- predict(modelFit, newdata, type = "response", mstop = param$.mstop[j])
+                                       }
+                                   }
+                                 out <- if(modelFit$problemType == "Classification") lapply(tmp, as.character) else tmp
+                               }
+                             out
+                           },
+                           bstLs =, bstSm = 
+                           {                             
+                             library(bst)
+                             if(modelFit$problemType == "Classification")
+                               {
+                                 out <- predict(modelFit, newdata, type = "class", mstop = modelFit$tuneValue$.mstop)
+                                 out <- ifelse(out == 1, modelFit$obsLevels[1], modelFit$obsLevels[2])
+                               } else {
+                                 out <- predict(modelFit, newdata, type = "response", mstop = modelFit$tuneValue$.mstop)
+                               }
+                             
+                             if(!is.null(param))
+                               {
+                                 tmp <- vector(mode = "list", length = nrow(param) + 1)
+                                 tmp[[1]] <- out
+                                 
+                                 for(j in seq(along = param$.mstop))
+                                   {
+                                     if(modelFit$problemType == "Classification")
+                                       {
+                                         bstPred <- predict(modelFit, newdata, type = "class", mstop = param$.mstop[j])
+                                         tmp[[j+1]] <- ifelse(bstPred == 1, modelFit$obsLevels[1], modelFit$obsLevels[2])
+                                       } else {
+                                         tmp[[j+1]]  <- predict(modelFit, newdata, type = "response", mstop = param$.mstop[j])
+                                       }
+                                   }
+                                 out <- if(modelFit$problemType == "Classification") lapply(tmp, as.character) else tmp
+                               }
+                             out
                            })
   predictedValue
 }
