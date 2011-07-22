@@ -40,11 +40,19 @@ createMultiFolds(y, k = 10, times = 5)
 
   For other data splitting,  the random sampling is done within the
   levels of \code{y} when \code{y} is a factor in an attempt to balance
-  the class distributions within the splits.   For numeric \code{y}, the
-  sample  is split into \code{groups} sections based
-  on quantiles and sampling is done within these subgroups. Also, for
-  very  small class sizes (<= 3) the classes may not show up in both the
-  training and test data
+  the class distributions within the splits. 
+
+  For numeric \code{y}, the sample  is split into groups sections based
+  on percentiles and sampling is done within these subgroups. For 
+  \code{createDataPartition}, the number of percentiles is set via the 
+  \code{groups} argument. For \code{createFolds} and \code{createMultiFolds}, 
+  the number of groups is set dynamically based on the sample size and \code{k}. 
+  For smaller samples sizes, these two functions may not do stratified 
+  splitting and, at most, will split the data into quartiles. 
+
+
+  Also, for\ code{createDataPartition}, very  small class sizes (<= 3) the 
+  classes may not show up in both the training and test data
 
  For multiple k-fold cross-validation, completely independent folds are created. 
  The names of the list objects will denote the fold membership using the pattern 

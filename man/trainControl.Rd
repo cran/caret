@@ -13,9 +13,7 @@ trainControl(method = "boot",
              classProbs = FALSE,
              summaryFunction = defaultSummary,
              selectionFunction = "best",
-             PCAthresh = 0.95,
-             ICAcomp = 3,
-             k = 5,
+             preProcOptions = list(thresh = 0.95, ICAcomp = 3, k = 5),
              index = NULL,
              timingSamps = 0,
              workers = 1,
@@ -36,9 +34,7 @@ trainControl(method = "boot",
   \item{classProbs}{a logical; should class probabilities be computed for classification models (along with predicted values) in each resample?}
   \item{summaryFunction}{a function to compute performance metrics across resamples. The arguments to the function should be the same as those in \code{\link{defaultSummary}}.}
   \item{selectionFunction}{the function used to select the optimal tuning parameter. This can be a name of the function or the function itself. See \code{\link{best}} for details and other options.}
-  \item{PCAthresh}{When invoking \code{\link{train}} with the \code{preProcess = "pca"} option, this parameter allows the user to determine how many PCA components should be kept on the basis of the cumulative amount of variance explained. See \code{\link{preProcess}} for more details.}
-  \item{ICAcomp}{When invoking \code{\link{train}} with the \code{preProcess = "ica"} option, this parameter allows the user to determine how many ICA components should be kept. See \code{\link{preProcess}} for more details.}
-  \item{k}{When invoking \code{\link{train}} with the \code{preProcess = "knnImpute"} option, this parameter allows the user to determine how many neighbors should be used for imputation. See \code{\link{preProcess}} for more details.}
+  \item{preProcOptions}{A list of options to pass to \code{\link{preProcess}}. The type of pre-processing (e.g. center, scaling etc) is passed in via the \code{preProc} option in \code{\link{train}}.}
   \item{index}{a list with elements for each resampling iteration. Each list element is the sample rows used for training at that iteration.}
   \item{timingSamps}{the number of training set samples that will be used to measure the time for predicting samples (zero indicates that the prediction time should not be estimated.}
   \item{workers}{an integer that specifies how many machines/processors will be used}

@@ -1,3 +1,11 @@
+flatTable <- function(pred, obs)
+  {
+    cells <- as.vector(confusionMatrix(pred, obs)$table)
+    names(cells) <- paste(".cell", seq(along= cells), sep = "")
+    cells
+  }
+
+
 prettySeq <- function(x) paste("Resample", gsub(" ", "0", format(seq(along = x))), sep = "")
 
 ipredStats <- function(x)
@@ -547,10 +555,8 @@ workerData <- function(data, ctrl, loop, method, lvls, pp, workers = 1, caretVer
     index <- ctrl$index
     if(!is.null(pp))
       {
-        pp <- list(options = pp, ## constant across the workers
-                   thresh = ctrl$PCAthresh,
-                   ica = ctrl$ICAcomp,
-                   k = ctrl$k)
+        pp <- list(method = pp)
+        if(length(ctrl$preProcOptions) > 0) pp <- c(pp, ctrl$preProcOptions)
       }
 
 
@@ -789,6 +795,13 @@ workerTasks <- function(x)
                                             lev = x$obsLevels,
                                             model = x$method)
 
+                    ## if classification, the the confusion matrix for each resample
+                    if(length(x$obsLevels) > 1)
+                      {
+                        cells <- lapply(predicted,
+                                        function(x) flatTable(x$pred, x$obs))
+                        for(ind in seq(along = cells)) thisResample[[ind]] <- c(thisResample[[ind]], cells[[ind]])
+                      }
                     pNames <- names(thisResample[[1]])
                     ##On 9/10/10 10:24 AM, "Hadley Wickham" <hadley@rice.edu> wrote:
                     thisResample <-matrix(unlist(thisResample),
@@ -810,6 +823,9 @@ workerTasks <- function(x)
                     thisResample <- x$func(tmp,
                                            lev = x$obsLevels,
                                            model = x$method)
+                    ## if classification, get the confusion matrix
+                    if(length(x$obsLevels) > 1) thisResample <- c(thisResample, flatTable(tmp$pred, tmp$obs))
+                    
                     thisResample <- as.data.frame(t(thisResample))
                     thisResample <- cbind(thisResample, params)
                     thisResample$Resample <- names(x$index)[i]

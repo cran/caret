@@ -283,6 +283,12 @@ train.default <- function(x, y,
   if(trControl$method != "oob")
     {
       resampleResults <- rbind.fill(listOutput)
+      if(modelType == "Classification" && length(grep("^\\.cell", colnames(resampleResults))) > 0)
+        {
+          resampledCM <- resampleResults[, !(names(resampleResults) %in% perfNames)]
+          resampleResults <- resampleResults[, -grep("^\\.cell", colnames(resampleResults))]
+          #colnames(resampledCM) <- gsub("^\\.", "", colnames(resampledCM))
+        } else resampledCM <- NULL
       colnames(resampleResults) <- gsub("^\\.", "", colnames(resampleResults))
       if(trControl$method == "LOOCV")
         {
@@ -390,7 +396,6 @@ train.default <- function(x, y,
   ## Save some or all of the resampling summary metrics
   if(!(trControl$method %in% c("LOOCV", "oob")))
     {
-      
       byResample <- switch(trControl$returnResamp,
                            none = NULL,
                            all =
@@ -430,10 +435,8 @@ train.default <- function(x, y,
 
   if(!is.null(preProcess))
     {
-      ppOpt <- list(options = preProcess,
-                    thresh = trControl$PCAthresh,
-                    ica = trControl$ICAcomp,
-                    k = trControl$k)
+      ppOpt <- list(method = preProcess)
+      if(length(trControl$preProcOptions) > 0) ppOpt <- c(ppOpt,trControl$preProcOptions)
     } else ppOpt <- NULL
   
   finalTime <- system.time(
@@ -469,25 +472,27 @@ train.default <- function(x, y,
   times <- list(everything = endTime - startTime,
                 final = finalTime)
 
-  out <- structure(list(
-                 method = method,
-                 modelType = modelType,
-                 results = performance,
-                 bestTune = bestTune,
-                 call = funcCall, 
-                 dots = list(...),
-                 metric = metric,
-                 control = trControl,
-                 finalModel = finalModel,
-                 preProcess = pp,
-                 trainingData = outData,
-                 resample = byResample,
-                 perfNames = perfNames,
-                 maximize = maximize,
-                 yLimits = if(is.numeric(y)) range(y) else NULL,
-                 times = times
-                 ), 
-            class = "train")
+  out <- structure(
+                   list(
+                        method = method,
+                        modelType = modelType,
+                        results = performance,
+                        bestTune = bestTune,
+                        call = funcCall, 
+                        dots = list(...),
+                        metric = metric,
+                        control = trControl,
+                        finalModel = finalModel,
+                        preProcess = pp,
+                        trainingData = outData,
+                        resample = byResample,
+                        resampledCM = resampledCM,
+                        perfNames = perfNames,
+                        maximize = maximize,
+                        yLimits = if(is.numeric(y)) range(y) else NULL,
+                        times = times
+                        ), 
+                   class = "train")
   if(trControl$timingSamps > 0)
     {
       pData <- lapply(x, function(x, n) sample(x, n, replace = TRUE), n = trControl$timingSamps)

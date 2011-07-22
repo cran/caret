@@ -672,15 +672,22 @@ There is additional functionality in \texttt{train} that is described in the nex
             {\tt \href{http://cran.r-project.org/web/packages/nnet/index.html}{nnet}}&       
             \texttt{decay}, \texttt{size} & \\              
    
+\rowcolor[rgb]{.95, .95, .95}         
+       &               
+         \texttt{avNNet} & 
+            {\tt \href{http://cran.r-project.org/web/packages/caret/index.html}{caret}},
+            {\tt \href{http://cran.r-project.org/web/packages/nnet/index.html}{nnet}}&       
+            \texttt{decay}, \texttt{size}, \texttt{bag} & \\                  
+            
      Partial Least Squares &
          \texttt{pls} & 
-             {\tt \href{http://cran.r-project.org/web/packages/pls/index.html}{pls}} ,  {\tt \href{http://cran.r-project.org/web/packages/caret/index.html}{caret}}       & 
+             {\tt \href{http://cran.r-project.org/web/packages/pls/index.html}{pls}},  {\tt \href{http://cran.r-project.org/web/packages/caret/index.html}{caret}}       & 
             \texttt{ncomp} & \\      
 
 \rowcolor[rgb]{.95, .95, .95}   
       Sparse Partial Least Squares&
          \texttt{spls} & 
-             {\tt \href{http://cran.r-project.org/web/packages/spls/index.html}{spls}} , 
+             {\tt \href{http://cran.r-project.org/web/packages/spls/index.html}{spls}}, 
              {\tt \href{http://cran.r-project.org/web/packages/caret/index.html}{caret}}      & 
             \texttt{K}, \texttt{eta}, \texttt{kappa} & \\   
 
@@ -1711,8 +1718,7 @@ can be used instead of the pre--processing options in the
 For multiple models, the objects can be grouped using a list and predicted simultaneously:
 \begin{small}
 <<bhPrediction1>>=
-bhModels <- list(pls = plsFit,
-                 mars = marsFit)
+bhModels <- list(pls = plsFit, mars = marsFit)
 
 bhPred1 <- predict(bhModels, newdata = testBH)
 str(bhPred1)
@@ -1731,10 +1737,8 @@ allPred <- extractPrediction(bhModels,
 testPred <- subset(allPred, dataType == "Test")
 head(testPred)
 
-by(
-   testPred, 
-   list(model = testPred$model), 
-   function(x) postResample(x$pred, x$obs))
+ddply(testPred, .(model), defaultSummary)
+
 @
 \end{small}
 The output of \texttt{extractPrediction} is a data frame with columns:
@@ -1830,6 +1834,22 @@ show the confusion matrix and a set of ``one--versus--all''
 results. For example, in a three class problem, the sensitivity of the
 first class is calculated against all the samples in the second and
 third classes (and so on). 
+
+Also, a resampled estimate of the training set can also be obtained
+using \texttt{confusionMatrix.train}. For each resampling iteration,
+a confusion matrix is created from the hold--out samples and these
+values can be aggregated to diagnose issues with the model fit.
+
+For example, in the two--class SVM model used in Section
+\ref{S:basic}, we could use:
+
+<<resampCM>>=
+confusionMatrix(svmFit)
+@ 
+
+These values are the percentages that hold--out samples landed in the
+confusion matrix during resampling. There are several methods for
+normalizing these values. See \texttt{?confusionMatrix.train} for details.
 
 
 \subsection{ROC Curves}\label{S:roc}
@@ -1991,7 +2011,7 @@ employed.
 > rpartFit <- train(bbbDescr, logBBB,
 +                   "rpart", 
 +                   tuneLength = 16,
-+                   trControl = trainControl(method = "LGOCV", index = tmp))
++                   trControl = trainControl(method = "LGOCV", index = tmp, timingSamps = 50))
 \end{Sinput}
 \begin{Soutput}
 Fitting: maxdepth=16 
@@ -2000,7 +2020,7 @@ Fitting: maxdepth=16
 > ctreeFit <- train(bbbDescr, logBBB,
 +                  "ctree2",
 +                   tuneLength = 10,
-+                   trControl = trainControl(method = "LGOCV", index = tmp))
++                   trControl = trainControl(method = "LGOCV", index = tmp, timingSamps = 50))
 \end{Sinput}
 \begin{Soutput}
 Fitting: maxdepth=1 
@@ -2018,7 +2038,7 @@ Fitting: maxdepth=10
 > earthFit <- train(bbbDescr, logBBB,
 +                   "earth",
 +                   tuneLength = 20,
-+                   trControl = trainControl(method = "LGOCV", index = tmp))
++                   trControl = trainControl(method = "LGOCV", index = tmp, timingSamps = 50))
 \end{Sinput}
 \begin{Soutput}
 Fitting: degree=1, nprune=76 
@@ -2027,7 +2047,7 @@ Fitting: degree=1, nprune=76
 \begin{Sinput}
 > m5Fit <- train(bbbDescr, logBBB,
 +                "M5Rules",
-+                trControl = trainControl(method = "LGOCV", index = tmp))    
++                trControl = trainControl(method = "LGOCV", index = tmp, timingSamps = 50))    
 \end{Sinput}
 \begin{Soutput}
 Fitting: pruned=Yes 
@@ -2056,8 +2076,8 @@ summary(resamps)
 There are several Lattice plot methods that can be used to visualize
 the resampling distributions: density plots, box--whisker plots,
 scatterplot matrices and scatterplots of summary statistics. In the
-latter case, the plot consists of the differences between two models
-on the $y$--axis and the average on the $x$--axis (See Figure
+latter case, the plot consists of a scatterplot between the two
+models.  (See Figure
 \ref{f:resampleScatter}). In Figure \ref{F:resampleDens}, density plots
 of the data are shown. In this figure,  the $R^2$ distributions
 indicate that M5 rules and MARS appear to be
@@ -2151,7 +2171,7 @@ dev.off()
    \begin{center}		
       \includegraphics[clip, width = .6\textwidth]{resampleScatter}    
 
-      \caption{ Examples of output from \texttt{xyplot(resamps, models = c("CART", "MARS"))}. The averages and differences of the two models is shown for each resampling data set.}
+      \caption{ Examples of output from \texttt{xyplot(resamps, models = c("CART", "MARS"))}. }
       \label{f:resampleScatter} 
     \end{center}
 \end{figure} 

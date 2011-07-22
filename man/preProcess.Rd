@@ -13,6 +13,7 @@ preProcess(x, ...)
 \method{preProcess}{default}(x, 
            method = c("center", "scale"), 
            thresh = 0.95,
+           pcaComp = NULL,
            na.remove = TRUE,
            k = 5,
            knnSummary = mean,
@@ -29,6 +30,7 @@ preProcess(x, ...)
   \item{x}{a matrix or data frame. All variables must be numeric.}
   \item{method}{a character vector specifying the type of processing. Possible values are "BoxCox", "center", "scale", "range", "knnImpute", "bagImpute", "pca" "ica" and "spatialSign" (see Details below)}
   \item{thresh}{a cutoff for the cumulative percent of variance to be retained by PCA}
+  \item{pcaComp}{the specific number of PCA components to keep. If specified, this over-rides \code{thresh}}
   \item{na.remove}{a logical; should missing values be removed from the calculations?}
   \item{object}{an object of class \code{preProcess}}
   \item{newdata}{a matrix or data frame of new data to be pre-processed}

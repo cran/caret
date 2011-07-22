@@ -1,4 +1,73 @@
 -------------------
+Version: 4.98
+Date: 2011-07-25
+
+BUGS:
+
+ - Also, a bug was fixed in a few of the bagging aggregation
+   functions (found by Harlan Harris).
+
+ - Fixed a bug spotted by Richard Marchese Robinson in createFolds 
+   when the outcome was numeric. 
+
+   The issue is that createFolds is trying to randomize n/4 numeric
+   samples to k folds. With < 40 samples, it could not always do 
+   this and would generate less than k folds in some cases.
+
+   The change will adjust the number of groups based on n and k.
+   For small samples sizes, it will not use stratification. For 
+   larger data sets, it will at most group the data into 4
+   quartiles.
+
+ADDITIONS:
+
+ - A function confusionMatrix.train() was added to get an average
+   confusion matrices across resampled hold-outs when using the
+   train() function for classification.
+
+ - Added another model, "avNNet", that fits several neural networks
+   via the nnet package using different seeds, then averages the
+   predictions of the networks. There is an additional bagging
+   option.
+
+
+CHANGES:
+
+ - The default value of the 'var' argument of bag() was changed.
+
+ - As requested, most options can be passed from train() to 
+   preProcess(). The trainControl() function was re-factored and
+   several options (e.g. 'k', 'thresh') were combined into a 
+   single list option called 'preProcOptions'. The default is
+   consistent with the original configuration:
+
+     preProcOptions = list(thresh = 0.95, ICAcomp = 3, k = 5)
+
+   Also, another option was added to preProcess(). The 'pcaComp'
+   option can be used to set exactly how many components are used
+   (as opposed to just a threshold). It defaults to NULL so that 
+   the threshold method is still used by default, but a non-null
+   value of 'pcaComp' over-rides 'thresh'.
+
+ - When created within train(), the call for preProcess() is now 
+   modified to be a text string ("scrubed") because the call could 
+   be very large.
+
+ - Removed two deprecated functions: applyProcessing and processData.
+
+ - A new version of the cell segmentation data was saved and the
+   original version was moved to the package website (see 
+   ?segmentationData for location).
+
+   First, several discrete versions of some of the predictors (with 
+   the suffix "Status") were removed. Second, there are several skewed 
+   predictors with minimum values of zero (that would benefit from 
+   some transformation, such as the log). A constant value of 1 was
+   added to these fields: AvgIntenCh2,  FiberAlign2Ch3,
+   FiberAlign2Ch4,  SpotFiberCountCh4 and TotalIntenCh2.
+
+
+-------------------
 Version: 4.92
 Date: 2011-07-05
 

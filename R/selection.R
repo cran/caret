@@ -81,7 +81,7 @@ byComplexity <- function(x, model)
            {
              x[order(x$degree, x$scale),]
            },           
-           nnet =, pcaNNet =
+           avNNet =, nnet =, pcaNNet =
            {
              x[order(x$size, -x$decay),]
            },

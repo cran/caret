@@ -188,8 +188,8 @@ set.seed(100)
 nzvColumns <- nearZeroVar(mdrrDescr)
 mdrrDescr <- mdrrDescr[, -nzvColumns]
 
-preProcVals <- apply(mdrrDescr, 2, processData)
-mdrrDescr <- applyProcessing(mdrrDescr, preProcVals)
+preProcVals <- preProcess(mdrrDescr)
+mdrrDescr <- predict(preProcVals, mdrrDescr)
 @
 
 Classification models were fit using random forests and partial least squares. The variable importance measures were calculated for these models and using the ROC method described above. 

@@ -110,7 +110,7 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
                         out
                       },
 
-                      nnet =, pcaNNet =
+                      avNNet =, nnet =, pcaNNet =
                       {
                         library(nnet)
                         out <- predict(modelFit, newdata)

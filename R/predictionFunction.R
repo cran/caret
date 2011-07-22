@@ -94,7 +94,7 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                              out
                            },
                            
-                           nnet =, multinom =, pcaNNet =
+                           avNNet =, nnet =, multinom =, pcaNNet =
                            {
                              library(nnet)
                              if(modelFit$problemType == "Classification")
