@@ -207,6 +207,11 @@ predictors.pcaNNet <- function(x, ...)
     rownames(x$pc$rotation)
 }
 
+predictors.avNNet <- function(x, ...)
+{
+    rownames(x$pc$rotation)
+}
+
 predictors.NaiveBayes <- function(x, ...)
 {
     if(hasTerms(x)) predictors(x$terms) else x$varnames

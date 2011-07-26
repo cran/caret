@@ -51,7 +51,7 @@ the  factors  appearing as variables in the model formula.
 }
 
 \item{object}{
-an object of class \code{nnet} as  returned by \code{nnet}.
+an object of class \code{pcaNNet} as  returned by \code{pcaNNet}.
 }
 \item{newdata}{
 matrix or data frame of test examples. A vector is considered to be
@@ -91,10 +91,10 @@ For \code{pcaNNet}, an object of  \code{"pcaNNet"} or \code{"pcaNNet.formula"}. 
 \seealso{ \code{\link[nnet]{nnet}},  \code{\link{preProcess}}}
 \examples{
 data(BloodBrain)
-modelFit <- pcaNNet(bbbDescr, logBBB, size = 5, linout = TRUE, trace = FALSE)
+modelFit <- pcaNNet(bbbDescr[, 1:10], logBBB, size = 5, linout = TRUE, trace = FALSE)
 modelFit
 
-predict(modelFit, bbbDescr)
+predict(modelFit, bbbDescr[, 1:10])
 }
 \keyword{ neural }
 

@@ -14,7 +14,7 @@ bagControl <- function(fit = NULL, predict = NULL, aggregate = NULL, downSample 
   
 
 "bag.default" <-
-  function(x, y, B = 10, vars = NULL, bagControl = bagControl(),  ...)
+  function(x, y, B = 10, vars = ncol(x), bagControl = bagControl(),  ...)
 {
   funcCall <- match.call(expand.dots = TRUE)
 
@@ -285,7 +285,7 @@ ctreeBag <- list(fit = function(x, y,  ...)
                 },
                 aggregate = function(x, type = "class")
                  {
-                   if(is.matrix(x[[1]]))
+                   if(is.matrix(x[[1]]) | is.data.frame(x[[1]]))
                      {
                        pooled <- x[[1]] & NA
                        
@@ -332,7 +332,7 @@ svmBag <- list(fit = function(x, y,  ...)
                 },
                 aggregate = function(x, type = "class")
                  {
-                   if(is.matrix(x[[1]]))
+                   if(is.matrix(x[[1]]) | is.data.frame(x[[1]]))
                      {
                        pooled <- x[[1]] & NA
                        
@@ -392,7 +392,7 @@ nnetBag <- list(fit = function(x, y,  ...)
                 },
                 aggregate = function(x, type = "class")
                  {
-                   if(is.matrix(x[[1]]))
+                   if(is.matrix(x[[1]]) | is.data.frame(x[[1]]))
                      {
                        pooled <- x[[1]] & NA
                        

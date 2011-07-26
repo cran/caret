@@ -61,14 +61,16 @@
                    "nodeHarvest", "Linda", "QdaCov", "stepLDA", "stepQDA",
                    "parRF", "plr", "rocc", "foba", "partDSA", "hda", "icr", "Boruta",
                    "plsGlmBinomial", "plsGlmGaussian", "plsGlmGamma", "plsGlmPoisson",
-                   "bstTree", 'bstLs', 'bstSm',
+                   "bstTree", 'bstLs', 'bstSm', 'avNNet',
                    "qrf", "scrda", "bag", "hdda", "logreg", "logforest", "logicBag", "qrnn"))
     {
       trainX <- data[,!(names(data) %in% ".outcome"), drop = FALSE]
       trainY <- data[,".outcome"]
       if(!is.null(pp))
         {
-          ppObj <- preProcess(trainX, method = pp$options, thresh = pp$thresh, n.comp = pp$ica, k = pp$k)
+          pp$x <- trainX
+          ppObj <- do.call("preProcess", pp)
+          ppObj$call <- "scrubed"
           trainX <- predict(ppObj, trainX)
           data <- trainX
           data$.outcome <- trainY
@@ -78,7 +80,9 @@
         {
           y <- data$.outcome
           data$.outcome <- NULL
-          ppObj <- preProcess(data, method = pp$options, thresh = pp$thresh, n.comp = pp$ica, k = pp$k)
+          pp$x <- data
+          ppObj <- do.call("preProcess", pp)
+          ppObj$call <- "scrubed"
           data <- predict(ppObj, data)
           data$.outcome <- y
         } else ppObj <- NULL
@@ -396,6 +400,25 @@
                                             ...)
                        out
                      },
+                     avNNet =
+                     {      
+                       library(nnet)
+                       if(!is.null(modelWeights))
+                         {
+                           out <- avNNet(modFormula,
+                                         data = data,
+                                         weights = modelWeights,                                       
+                                         size = tuneValue$.size,
+                                         decay = tuneValue$.decay,
+                                         bag = tuneValue$.bag,
+                                         ...)
+                         } else out <- avNNet(trainX, trainY,
+                                              size = tuneValue$.size,
+                                              decay = tuneValue$.decay,
+                                              bag = tuneValue$.bag,
+                                              ...)
+                       out
+                     },                     
                      pcaNNet =
                      {
                        ## todo: this needs to be tested

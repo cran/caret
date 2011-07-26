@@ -2,7 +2,9 @@
 modelLookup <- function(model = NULL)
 {
   mods <- c(## ada
-            'ada', 'ada', 'ada', 
+            'ada', 'ada', 'ada',
+            ## avnnet
+            'avNNet', 'avNNet', 'avNNet',               
             ## bag
             'bag', 
             ## bagEarth
@@ -245,7 +247,9 @@ modelLookup <- function(model = NULL)
             'vbmpRadial')
 
   pNames <- c(## ada
-              'iter', 'maxdepth', 'nu', 
+              'iter', 'maxdepth', 'nu',
+              ## avnnet
+              'size', 'decay', 'bag',              
               ## bag
               'vars', 
               ## bagEarth
@@ -492,6 +496,10 @@ modelLookup <- function(model = NULL)
               '#Trees',
               'Max Tree Depth',
               'Learning Rate',
+              ## avnnet
+              '#Hidden Units',
+              'Weight Decay',
+              'Bagging',
               ## bag
               '#Randomly Selected Predictors',
               ## bagEarth
@@ -785,7 +793,9 @@ modelLookup <- function(model = NULL)
               'Theta Estimated')
 
   isSeq <- c(## ada
-             FALSE, FALSE, FALSE, 
+             FALSE, FALSE, FALSE,
+             ## avnnet
+             FALSE, FALSE, FALSE,             
              ## bag
              FALSE, 
              ## bagEarth
@@ -1027,7 +1037,9 @@ modelLookup <- function(model = NULL)
              ## vbmpRadial
              FALSE)
   isRegMod <- c(## ada
-                FALSE, FALSE, FALSE, 
+                FALSE, FALSE, FALSE,
+                ## avnnet
+                TRUE, TRUE, TRUE,                 
                 ## bag
                 TRUE, 
                 ## bagEarth
@@ -1270,7 +1282,9 @@ modelLookup <- function(model = NULL)
                 FALSE)
 
   isClassMod <- c(## ada
-                  TRUE, TRUE, TRUE, 
+                  TRUE, TRUE, TRUE,
+                  ## avnnet
+                  TRUE, TRUE, TRUE,                  
                   ## bag
                   TRUE, 
                   ## bagEarth
@@ -1513,7 +1527,9 @@ modelLookup <- function(model = NULL)
                   TRUE)
 
   hasProbModel <- c(## ada
-                    TRUE, TRUE, TRUE, 
+                    TRUE, TRUE, TRUE,
+                    ## avnnet
+                    TRUE, TRUE, TRUE,                     
                     ## bag
                     TRUE, 
                     ## bagEarth

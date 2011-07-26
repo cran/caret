@@ -9,8 +9,6 @@ export(
        createGrid, 
        createModel, 
        panel.needle,
-       processData, 
-       applyProcessing, 
        featurePlot,
        generateExprVal.method.trimMean,
        normalize.AffyBatch.normalize2Reference,
@@ -86,6 +84,9 @@ export(
        pcaNNet,
        pcaNNet.default,
        predict.pcaNNet,
+       avNNet,
+       avNNet.default,
+       predict.avNNet,       
        predict.list,
        predict.train,
        densityplot.train,
@@ -164,10 +165,12 @@ export(
        nbBag,
        ctreeBag,
        svmBag,
-       nnetBag
+       nnetBag,
+       confusionMatrix.train
        )
 
 S3method(confusionMatrix, default)
+S3method(confusionMatrix, train)
 S3method(spatialSign,     default)
 S3method(enumLC,          default)
 S3method(train,           default)
@@ -178,6 +181,7 @@ S3method(bagEarth,        default)
 S3method(bagFDA,          default)
 S3method(preProcess,      default)
 S3method(pcaNNet,         default)
+S3method(avNNet,          default)
 S3method(sensitivity,     default)
 S3method(specificity,     default)
 S3method(posPredValue,    default)
@@ -196,6 +200,7 @@ S3method(BoxCoxTrans,     default)
 
 S3method(train,   formula)
 S3method(pcaNNet, formula)
+S3method(avNNet,  formula)
 S3method(rfe,     formula)
 S3method(knnreg,  formula)
 S3method(sbf,     formula)
@@ -257,6 +262,7 @@ S3method(plot,  prcomp.resamples)
 S3method(print, train)
 S3method(print, varImp.train)
 S3method(print, confusionMatrix)
+S3method(print, confusionMatrix.train)
 S3method(print, knn3)
 S3method(print, plsda)
 S3method(print, splsda)
@@ -266,6 +272,7 @@ S3method(print, summary.bagEarth)
 S3method(print, summary.bagFDA)
 S3method(print, preProcess)
 S3method(print, pcaNNet)
+S3method(print, avNNet)
 S3method(print, rfe)
 S3method(print, classDist)
 S3method(print, knnreg)
@@ -289,6 +296,7 @@ S3method(predict, bagEarth)
 S3method(predict, bagFDA)
 S3method(predict, preProcess)
 S3method(predict, pcaNNet)
+S3method(predict, avNNet)
 S3method(predict, list)
 S3method(predict, train)
 S3method(predict, classDist)
@@ -344,6 +352,7 @@ S3method(predictors, bagEarth)
 S3method(predictors, bagFDA)
 S3method(predictors, nnet)
 S3method(predictors, pcaNNet)
+S3method(predictors, avNNet)
 S3method(predictors, rfe)
 S3method(predictors, spls)
 S3method(predictors, splsda)

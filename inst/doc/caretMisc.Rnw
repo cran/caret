@@ -331,7 +331,7 @@ These types of dependencies can arise when large numbers of binary chemical fing
 
 \subsection{Centering and Scaling}
 
-The \texttt{preProcess} class can be used for many operations on predictors, including centering and scaling\footnote{Two functions, \texttt{processData} and \texttt{applyProcessing}, are being replaced by \texttt{preProcess}. They are still in the package, but will not be in upcoming versions}. The function \texttt{preProcess} estimates the required parameters for each operation and \texttt{predict.preProcess} is used to apply them to specific data sets.
+The \texttt{preProcess} class can be used for many operations on predictors, including centering and scaling. The function \texttt{preProcess} estimates the required parameters for each operation and \texttt{predict.preProcess} is used to apply them to specific data sets.
 
 
 In the example below, the half of the MDRR data are used to estimate the location and scale of the predictors. The function \texttt{preProcess} doesn't actually pre--process the data. \texttt{predict.preProcess} is used to pre--process this and other data sets.
@@ -353,6 +353,22 @@ testDescr <- predict(preProcValues, test)
 \end{small}
 
 The \texttt{preProcess} option \texttt{"ranges"} scales the data to the interval [0, 1].
+
+\subsection{Imputation}
+
+\texttt{preProcess} can be used to impute data sets based only on
+information in the training set. One method of doing this is with
+$K$--nearest neighbors. For an arbitrary sample, the $k$ closest
+neighbors are found in the training set and the value for the
+predictor is imputed using these values (e.g. using the mean). Using
+this approach will automatically trigger \texttt{preProcess} to center
+and scale the data, regardless of what is in the \texttt{method}
+argument. Alternatively, bagged trees can also be used to impute. For
+each predictor in the data, a bagged tree is created using all of the
+other predictors in the training set. When a new sample has a missing
+predictor value, the bagged model is used to predict the value. While,
+in theory, this is a more powerful method of imputing, the
+computational costs are much higher than the nearest neighbor technique.
 
 \subsection{Transforming Predictors}
 
@@ -516,9 +532,9 @@ For example, Figures \ref{f:classEllipse}, \ref{f:densityPlot}, \ref{f:boxPlot} 
 
 <<featurePlot, echo = FALSE, results = hide>>=
 exDescr <- c("Wap", "G.N..N.", "SEigp")
-mdrrPreProc1 <- apply(mdrrDescr[,exDescr] , 2, processData)
+mdrrPreProc1 <- preProcess(mdrrDescr[,exDescr])
 
-mdrrProc <- applyProcessing(mdrrDescr[,exDescr], mdrrPreProc1)
+mdrrProc <- predict(mdrrPreProc1, mdrrDescr[,exDescr])
 
 pdf(paste(getwd(), "/fp1.pdf", sep = ""), width = 7, height = 7)
    trellis.par.set(caretTheme(), warn = FALSE)
@@ -679,7 +695,14 @@ This function is deprecated in favor of the \texttt{bag} function.
 
 \subsection{Neural Networks with a Principal Component Step}
 
-Neural networks can be affected by severe amounts of multicollinearity in the predictors. The function \texttt{pcaNNet} is a wrapper around the \texttt{preProcess} and \texttt{nnet} functions that will run principal component analysis on the predictors before using them as inputs into a neural network. The function will keep enough components that will capture some pre-defined threshold on the cumulative proportion of variance (see the \texttt{thresh} argument). For new samples, the same transformation is applied to the new predictor values (based on the loadings from the training set). The function is available for both regression and classification. 
+Neural networks can be affected by severe amounts of multicollinearity
+in the predictors. The function \texttt{pcaNNet} is a wrapper around
+the \texttt{preProcess} and \texttt{nnet} functions that will run
+principal component analysis on the predictors before using them as
+inputs into a neural network. The function will keep enough components
+that will capture some pre-defined threshold on the cumulative
+proportion of variance (see the \texttt{thresh}
+argument). For new samples, the same transformation is applied to the new predictor values (based on the loadings from the training set). The function is available for both regression and classification. 
 
 This function is deprecated in favor of the \texttt{train} function using \texttt{method = "nnet"} and \texttt{preProc = "pca"}.
 

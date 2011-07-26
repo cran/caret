@@ -21,7 +21,7 @@ A General Framework For Bagging
 \usage{
 bag(x, ...)
 
-\method{bag}{default}(x, y, B = 10, vars = NULL, bagControl = bagControl(), ...)
+\method{bag}{default}(x, y, B = 10, vars = ncol(x), bagControl = bagControl(), ...)
 
 bagControl(fit = NULL, 
            predict = NULL, 
