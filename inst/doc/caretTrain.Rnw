@@ -101,8 +101,6 @@ library(gbm)
 library(ipred)
 library(grid)
 library(randomForest)
-library(doMC)
-registerDoMC(2)
 data(BloodBrain)
 data(mdrr)
 

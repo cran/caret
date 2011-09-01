@@ -68,10 +68,7 @@ Max Kuhn
 \code{\link{sbfControl}}
 }
 \examples{
-\dontshow{
-library(doMC)
-registerDoMC(2)
-}
+
 data(BloodBrain)
 
 ## Use a GAM is the filter, then fit a random forest model
@@ -82,10 +79,6 @@ RFwithGAM <- sbf(bbbDescr, logBBB,
 RFwithGAM
 
 predict(RFwithGAM, bbbDescr[1:10,])
-
-\dontshow{
-registerDoSEQ()
-}
 
 ## classification example with parallel processing
 \dontrun{

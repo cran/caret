@@ -80,8 +80,6 @@ library(ipred)
 library(grid)
 library(pls)
 library(randomForest)
-library(doMC)
-registerDoMC(2)
 data(BloodBrain)
 data(mdrr)
 

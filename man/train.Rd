@@ -205,10 +205,6 @@ The vignette entitled "caret Manual -- Model Building" has more details and exam
 
 \seealso{\code{\link{trainControl}}, \code{\link{createGrid}}, \code{\link{createFolds}}}
 \examples{
-\dontshow{
-library(doMC)
-registerDoMC(2)
-}
 
 #######################################
 ## Classification Example
@@ -299,11 +295,6 @@ usingMC <-  train(medv ~ .,
 ## library(doSMP) and so on
 
 }
-
-\dontshow{
-registerDoSEQ()
-}
-
 
 }
 \keyword{models}

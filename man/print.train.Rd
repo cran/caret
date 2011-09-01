@@ -35,10 +35,7 @@
 \author{Max Kuhn}
 \seealso{\code{\link{train}}}
 \examples{
-\dontshow{
-library(doMC)
-registerDoMC(2)
-}
+
 data(iris)
 TrainData <- iris[,1:4]
 TrainClasses <- iris[,5]
@@ -47,9 +44,5 @@ library(klaR)
 rdaFit <- train(TrainData, TrainClasses, "rda",
    control = trainControl(method = "cv"))
 print(rdaFit)
-\dontshow{
-registerDoSEQ()
-}
-
 }
 \keyword{print}
