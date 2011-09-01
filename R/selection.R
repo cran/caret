@@ -134,6 +134,10 @@ byComplexity <- function(x, model)
            {
              x[order(x$fraction, -x$lambda),]
            },
+           ridge =
+           {
+             x[order(-x$lambda),]
+           },           
            lasso =
            {
              x[order(x$fraction),]

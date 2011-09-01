@@ -420,11 +420,11 @@ parallel.resamples <- function (x, data = NULL, models = x$models, metric = x$me
   reord <- order(apply(tmpData, 2, median))
   tmpData <- tmpData[, reord]
 
-  parallel(~tmpData,
-           common.scale = TRUE,
-           scales = list(x = list(at = (prng-min(rng))/diff(rng), labels = prng)),
-           xlab = useMathSymbols(metric),
-           ...)
+  lattice:::parallel(~tmpData,
+                     common.scale = TRUE,
+                     scales = list(x = list(at = (prng-min(rng))/diff(rng), labels = prng)),
+                     xlab = useMathSymbols(metric),
+                     ...)
     
 }
 

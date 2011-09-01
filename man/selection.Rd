@@ -53,6 +53,10 @@ Elastic net models are ordered first n the L1 penalty, then by the L2 penalty.
 }
 \seealso{\code{\link{train}}, \code{\link{trainControl}}}
 \examples{
+\dontshow{
+library(doMC)
+registerDoMC(2)
+}
 # simulate a PLS regression model
 test <- data.frame(
                    ncomp = 1:5,
@@ -81,7 +85,11 @@ marsFit <- train(
                    number = 10,
                    selectionFunction = "tolerance"))
 
-# around 18 terms should yield the smallest CV RMSE         
+# around 18 terms should yield the smallest CV RMSE     
+\dontshow{
+registerDoSEQ()
+}
+
 }
 \keyword{manip}
 

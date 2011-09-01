@@ -41,7 +41,9 @@ rfeIter(x, y,
   \item{\dots}{options to pass to the model fitting function (ignored in \code{predict.rfe})}
 }
 \details{
-This function implements backwards selection of predictors based on predictor importance ranking. The predictors are ranked and the less important ones are sequentially eliminated. The package vignette for feature selection has detailed descriptions of the algorithms.
+This function implements backwards selection of predictors based on predictor importance ranking. The predictors are ranked and the less important ones are sequentially eliminated prior to modeling. The goal is to find a subset of predictors that can be used to produce an accurate model. The package vignette for feature selection has detailed descriptions of the algorithms.
+
+\code{rfe} can be used with "explicit parallelism", where different resamples (e.g. cross-validation group) can be split up and run on multiple machines or processors. By default, \code{rfe} will use a single processor on the host machine. As of version 4.99 of this package, the framework used for parallel processing uses the \pkg{foreach} package. To run the resamples in parallel, the code for \code{rfe} does not change; prior to the call to \code{rfe}, a parallel backend is registered with \pkg{foreach} (see the examples below). 
 
 \code{rfeIter} is the basic algorithm while \code{rfe} wraps these operations inside of resampling. To avoid selection bias, it is better to use the function \code{rfe} than \code{rfeIter}.
 }
@@ -91,17 +93,16 @@ bagProfile <- rfe(x, logBBB,
 
 set.seed(1)
 svmProfile <- rfe(x, logBBB,
-                  sizes = c(5, 20, 65),
+                  sizes = c(2, 5, 10, 20),
                   rfeControl = rfeControl(functions = caretFuncs, 
                                           number = 200),
                   ## pass options to train()
-                  method = "svmRadial",
-                  fit = FALSE)
+                  method = "svmRadial")
 
 ## classification with no resampling
 
 data(mdrr)
-mdrrDescr <- scale(mdrrDescr[,-nearZeroVar(mdrrDescr)])
+mdrrDescr <- mdrrDescr[,-nearZeroVar(mdrrDescr)]
 mdrrDescr <- mdrrDescr[, -findCorrelation(cor(mdrrDescr), .8)]
 
 set.seed(1)
@@ -112,79 +113,36 @@ test  <- mdrrDescr[-inTrain, ]
 trainClass <- mdrrClass[ inTrain]
 testClass  <- mdrrClass[-inTrain]
 
-preProc <- preProcess(train)
-train <- predict(preProc, train)
-test  <- predict(preProc, test)
+set.seed(2)
+ldaProfile <- rfe(train, trainClass,
+                  sizes = c(1:10, 15, 30),
+                  rfeControl = rfeControl(functions = ldaFuncs, method = "cv"))
+plot(ldaProfile, type = c("o", "g"))
 
-nbProfile <- rfeIter(train, trainClass,
-                     test,  testClass, 
-                     sizes = c(1:10, 15, 30),
-                     rfeControl = rfeControl(functions = nbFuncs))
+postResample(predict(ldaProfile, test), testClass)
 
-splitUp <- split(nbProfile$pred, 
-                 factor(nbProfile$pred$subset))
-testResults <- lapply(splitUp, 
-                      function(u) postResample(u$pred, u$obs))
-Variables <- as.numeric(names(testResults))
-
-testResults <- do.call("rbind", testResults)
-testResults <- cbind(testResults, Variables)
-plot(testResults[,3], testResults[,1])
 }
 
 #######################################
-## Parallel Processing Example via MPI
+## Parallel Processing Example via multicore
 
 \dontrun{
+library(doMC)
 
-## A function to emulate lapply in parallel
-mpiClacs <- function(X, FUN, ...)
-  {
-    theDots <- list(...)
-    parLapply(theDots$cl, X, FUN)
-  }
-
-library(snow)
-cl <- makeCluster(5, "MPI")
+## Note: if the underlying model also uses foreach, the
+## number of cores specified above will double (along with
+## the memory requirements)
+registerDoMC(cores = 2)
 
 set.seed(1)
 lmProfile <- rfe(x, logBBB,
                  sizes = c(2:25, 30, 35, 40, 45, 50, 55, 60, 65),
                  rfeControl = rfeControl(functions = lmFuncs, 
-                                         number = 200,
-                                         workers = 5,
-                                         computeFunction = mpiClacs,
-                                         computeArgs = list(cl = cl)))
+                                         number = 200))
 
-stopCluster(cl)
-}
-
-#######################################
-## Parallel Processing Example via NWS
-\dontrun{
-
-nwsClacs <- function(X, FUN, ...)
-  {
-    theDots <- list(...)
-    eachElem(theDots$sObj,
-             fun = FUN,
-             elementArgs = list(X))
-  }
-
-library(nws)
-sObj <- sleigh(workerCount = 5)
-
-set.seed(1)
-lmProfile <- rfe(x, logBBB,
-                 sizes = c(2:25, 30, 35, 40, 45, 50, 55, 60, 65),
-                 rfeControl = rfeControl(functions = lmFuncs, 
-                                         number = 200,
-                                         workers = 5,
-                                         computeFunction = nwsClacs,
-                                         computeArgs = list(sObj = sObj)))
-close(sObj)
 
 }
+
 }
 
 \keyword{models}

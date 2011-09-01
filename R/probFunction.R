@@ -42,7 +42,7 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
 
   
   classProb <- switch(method,
-                      lda =, rda =, slda1 =, qda =
+                      lda =, rda =, slda =, qda =
                       {
                         switch(method,
                                lda =, qda =  library(MASS),
@@ -367,9 +367,9 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
                       {                  
                         library(sda)
                         if(!is.matrix(newdata)) newdata <- as.matrix(newdata)
-                        sda::predict.sda(modelFit, newdata)$prob
+                        sda::predict.sda(modelFit, newdata)$posterior
                       },
-                      glm =, gam =, gamLoess =, gamSpline =
+                      glm =, gam =, gamLoess =, gamSpline =, glmStepAIC =
                       {
                         
                         out <- predict(modelFit, newdata, type = "response")
@@ -430,7 +430,13 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
                       },
                       nodeHarvest =
                       {
-                        predict(modelFit, as.matrix(newdata), maxshow = 0)
+                        out <- predict(modelFit, as.matrix(newdata), maxshow = 0)
+                        if(is.vector(out))
+                          {
+                            out <- cbind(out, 1 - out)
+                            colnames(out) <- obsLevels
+                          }
+                            out
                       },
                       Linda =, QdaCov =
                       {
@@ -492,7 +498,7 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
                       hdda =
                       {
                         library(HDclassif)
-                        predict(modelFit, newdata)$posterior
+                        data.frame(unclass(predict(modelFit, newdata)$posterior))
                       },
                       logreg =
                       {

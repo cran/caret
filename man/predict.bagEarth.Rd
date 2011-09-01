@@ -6,8 +6,8 @@
 Predicted values based on bagged Earth and FDA models
 }
 \usage{
-predict.bagEarth(object, newdata = NULL, type = "response", ...)
-predict.bagFDA(object, newdata = NULL, type = "class", ...)
+\method{predict}{bagEarth}(object, newdata = NULL, type = "response", ...)
+\method{predict}{bagFDA}(object, newdata = NULL, type = "class", ...)
 }
 \arguments{
   \item{object}{Object of class inheriting from \code{bagEarth}}

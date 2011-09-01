@@ -13,6 +13,7 @@ preProcess.default <- function(x, method = c("center", "scale"),
                                ...)
 {
 
+  if(is.null(method)) stop("NULL values of 'method' are not allowed")
   if(any(method %in% "range") & any(method %in% c("center", "scale", "BoxCox")))
     stop("centering, scaling and/or Box-Cox transformations are inconsistent with scaling to a range of [0, 1]")
   
@@ -263,6 +264,8 @@ predict.preProcess <- function(object, newdata, ...)
                            2,
                            function(x) any(is.na(x)))
       missingVars <- names(missingVars)[missingVars]
+      ## ipred's bagging procedure only allows for data frames
+      if(!is.data.frame(hasMiss)) hasMiss <- as.data.frame(hasMiss)
       for(i in seq(along = missingVars))
         {
           preds <- predict(object$bagImp[[missingVars[i]]]$model,
@@ -370,6 +373,7 @@ bagImp <- function(var, x, B = 10)
     ## (y, X) interface, but the latter would have to
     ## do case-wise deletion of samples from the
     ## training set.
+    if(!is.data.frame(x)) x <- as.data.frame(x)
     mod <- bagging(as.formula(paste(var, "~.")),
                    data = x,
                    nbagg = B)

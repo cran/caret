@@ -280,6 +280,7 @@
                       enet = expand.grid(
                         .lambda = c(0, 10 ^ seq(-1, -4, length = len - 1)),
                         .fraction = seq(0.05, 1, length = len)),
+                      ridge = data.frame(.lambda = c(0, 10 ^ seq(-1, -4, length = len - 1))),
                       lasso = expand.grid(.fraction = seq(.1, .9, length = len)),
                       glmnet = expand.grid(
                         .alpha = seq(0.1, 1, length = len),
@@ -334,7 +335,7 @@
                       bag = data.frame(.vars = ncol(data) - 1),
                       hdda = expand.grid(.model = c("best", "dbest"), .threshold = seq(0.05, .3, length = len)),
                       logreg = expand.grid(.ntrees = (1:3) + 1, .treesize = 2^(1+(1:len))),
-                      logicBag = expand.grid(.ntrees = (1:len) + 1, .nleaves = 2^((1:len) + 1)),
+                      logicBag = expand.grid(.ntrees = (1:len) + 1, .nleaves = 2^((1:len) + 6)),
                       gam = expand.grid(.select = c(TRUE, FALSE), .method = "GCV.Cp"),
                       gamLoess = expand.grid(.span = .5, .degree = 1:2),
                       gamSpline = expand.grid(.df = seq(1, 3, length = len)),

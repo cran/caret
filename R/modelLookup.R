@@ -66,7 +66,7 @@ modelLookup <- function(model = NULL)
             ## glmnet
             'glmnet', 'glmnet', 
             ## glmrob
-            'glmrob', 
+##            'glmrob', 
             ## glmStepAIC
             'glmStepAIC', 
             ## gpls
@@ -166,13 +166,13 @@ modelLookup <- function(model = NULL)
             ## pls
             'pls',
             ## pls glm binomial
-            'plsGlmBinomial',
+##            'plsGlmBinomial',
             ## pls glm Gaussian
-            'plsGlmGaussian',
+##            'plsGlmGaussian',
             ## pls glm Gamma
-            'plsGlmGamma',
+##            'plsGlmGamma',
             ## pls glm Poisson
-            'plsGlmPoisson',            
+##            'plsGlmPoisson',            
             ## plsTest
             'plsTest', 
             ## ppr
@@ -194,7 +194,9 @@ modelLookup <- function(model = NULL)
             ## rfLSF
             'rfLSF', 
             ## rfNWS
-            'rfNWS', 
+            'rfNWS',
+            ## ridge reg
+            'ridge',
             ## rlm
             'rlm', 
             ## rocc
@@ -311,7 +313,7 @@ modelLookup <- function(model = NULL)
               ## glmnet
               'lambda', 'alpha', 
               ## glmrob
-              'parameter', 
+##              'parameter', 
               ## glmStepAIC
               'parameter', 
               ## gpls
@@ -411,13 +413,13 @@ modelLookup <- function(model = NULL)
               ## pls
               'ncomp',
               ## pls glm binomial
-              'nt',   
+##              'nt',   
               ## pls glm Gaussian
-              'nt',   
+##              'nt',   
               ## pls glm Gamma
-              'nt',   
+##              'nt',   
               ## pls glm Poisson
-              'nt',   
+##              'nt',   
               ## plsTest
               'ncomp', 
               ## ppr
@@ -439,7 +441,9 @@ modelLookup <- function(model = NULL)
               ## rfLSF
               'mtry', 
               ## rfNWS
-              'mtry', 
+              'mtry',
+              ## ridge
+              'lambda',
               ## rlm
               'parameter', 
               ## rocc
@@ -577,7 +581,7 @@ modelLookup <- function(model = NULL)
               'Regularization Parameter',
               'Mixing Percentage',
               ## glmrob
-              'none',
+##              'none',
               ## glmStepAIC
               'none',
               ## gpls
@@ -694,13 +698,13 @@ modelLookup <- function(model = NULL)
               ## pls
               '#Components',
               ## pls glm binomial
-              '#Components',
+##              '#Components',
               ## pls glm Gaussian
-              '#Components',
+##              '#Components',
               ## pls glm Gamma
-              '#Components',
+##              '#Components',
               ## pls glm Poisson
-              '#Components',      
+##              '#Components',      
               ## plsTest
               '#Components',
               ## ppr
@@ -725,6 +729,8 @@ modelLookup <- function(model = NULL)
               '#Randomly Selected Predictors',
               ## rfNWS
               '#Randomly Selected Predictors',
+              ## ridge
+              'Penalty',
               ## rlm
               'none',
               ## rocc
@@ -857,7 +863,7 @@ modelLookup <- function(model = NULL)
              ## glmnet
              TRUE, FALSE, 
              ## glmrob
-             FALSE, 
+##             FALSE, 
              ## glmStepAIC
              FALSE, 
              ## gpls
@@ -957,13 +963,13 @@ modelLookup <- function(model = NULL)
              ## pls
              TRUE,
              ## pls glm binomial
-             FALSE,
+##             FALSE,
              ## pls glm Gaussian
-             FALSE,
+##             FALSE,
              ## pls glm Gamma
-             FALSE,
+##             FALSE,
              ## pls glm Poisson
-             FALSE,                
+##             FALSE,                
              ## plsTest
              FALSE, 
              ## ppr
@@ -985,7 +991,9 @@ modelLookup <- function(model = NULL)
              ## rfLSF
              FALSE, 
              ## rfNWS
-             FALSE, 
+             FALSE,
+             ## ridge
+             FALSE,
              ## rlm
              FALSE, 
              ## rocc
@@ -1101,7 +1109,7 @@ modelLookup <- function(model = NULL)
                 ## glmnet
                 TRUE, TRUE, 
                 ## glmrob
-                TRUE, 
+##                TRUE, 
                 ## glmStepAIC
                 TRUE, 
                 ## gpls
@@ -1201,13 +1209,13 @@ modelLookup <- function(model = NULL)
                 ## pls
                 TRUE,
                 ## pls glm binomial
-                FALSE,
+##                FALSE,
                 ## pls glm Gaussian
-                TRUE,
+##                TRUE,
                 ## pls glm Gamma
-                TRUE,
+##                TRUE,
                 ## pls glm Poisson
-                TRUE,                          
+##                TRUE,                          
                 ## plsTest
                 TRUE, 
                 ## ppr
@@ -1229,7 +1237,9 @@ modelLookup <- function(model = NULL)
                 ## rfLSF
                 TRUE, 
                 ## rfNWS
-                TRUE, 
+                TRUE,
+                ## ridge
+                TRUE,
                 ## rlm
                 TRUE, 
                 ## rocc
@@ -1346,7 +1356,7 @@ modelLookup <- function(model = NULL)
                   ## glmnet
                   TRUE, TRUE, 
                   ## glmrob
-                  TRUE, 
+##                  TRUE, 
                   ## glmStepAIC
                   TRUE, 
                   ## gpls
@@ -1446,13 +1456,13 @@ modelLookup <- function(model = NULL)
                   ## pls
                   TRUE,
                   ## pls glm binomial
-                  TRUE,
+##                  TRUE,
                   ## pls glm Gaussian
-                  FALSE,
+##                  FALSE,
                   ## pls glm Gamma
-                  FALSE,
+##                  FALSE,
                   ## pls glm Poisson
-                  FALSE,                          
+##                  FALSE,                          
                   ## plsTest
                   TRUE, 
                   ## ppr
@@ -1474,7 +1484,9 @@ modelLookup <- function(model = NULL)
                   ## rfLSF
                   TRUE, 
                   ## rfNWS
-                  TRUE, 
+                  TRUE,
+                  ## ridge
+                  FALSE,
                   ## rlm
                   FALSE, 
                   ## rocc
@@ -1591,7 +1603,7 @@ modelLookup <- function(model = NULL)
                     ## glmnet
                     TRUE, TRUE, 
                     ## glmrob
-                    TRUE, 
+##                    TRUE, 
                     ## glmStepAIC
                     TRUE, 
                     ## gpls
@@ -1691,13 +1703,13 @@ modelLookup <- function(model = NULL)
                     ## pls
                     TRUE,
                     ## pls glm binomial
-                    TRUE,
+##                    TRUE,
                     ## pls glm Gaussian
-                    FALSE,
+##                    FALSE,
                     ## pls glm Gamma
-                    FALSE,
+##                    FALSE,
                     ## pls glm Poisson
-                    FALSE,                        
+##                    FALSE,                        
                     ## plsTest
                     TRUE, 
                     ## ppr
@@ -1719,7 +1731,9 @@ modelLookup <- function(model = NULL)
                     ## rfLSF
                     TRUE, 
                     ## rfNWS
-                    TRUE, 
+                    TRUE,
+                    ## ridge
+                    FALSE,
                     ## rlm
                     FALSE, 
                     ## rocc

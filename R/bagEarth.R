@@ -21,7 +21,7 @@
       lev <- levels(y)
       theDots <- list(...)
       if(all(names(theDots) != "glm")) stop("must declare a binomal glm using the glm argument to earth")
-      if(theDots$glm$family$family != "binomial") stop("must use binomial glm for factors")
+      #if(theDots$glm$family$family != "binomial") stop("must use binomial glm for factors")
     } else {
       lev <- NA
     }

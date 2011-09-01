@@ -9,10 +9,9 @@ rfeIter <- function(x, y,
   if(is.null(sizes)) stop("please specify the number of features")
 
   predictionMatrix <- matrix(NA, nrow = length(testY), ncol = length(sizes))
-  .x <- x
-  .tx <- testX
   p <- ncol(x)
 
+  retained <- colnames(x)
   sizeValues <- sort(unique(c(sizes, ncol(x))),
                      decreasing = TRUE)
   
@@ -20,117 +19,46 @@ rfeIter <- function(x, y,
   
   for(k in seq(along = sizeValues))
     {
-      
       if(rfeControl$verbose) cat("  Fitting subset size:\t", sizeValues[k], "\n")
       flush.console()
       
-      fitObject <- rfeControl$functions$fit(.x, y,
-                                            first = p == ncol(.x),
+      fitObject <- rfeControl$functions$fit(x[,retained,drop = FALSE], y,
+                                            first = p == ncol(x[,retained,drop = FALSE]),
                                             last = FALSE,
                                             ...)  
 
-      modelPred <- rfeControl$functions$pred(fitObject, .tx)
+      modelPred <- rfeControl$functions$pred(fitObject, testX[,retained,drop = FALSE])
       if(is.data.frame(modelPred) | is.matrix(modelPred))
         {
           if(is.matrix(modelPred)) modelPred <- as.data.frame(modelPred)
           modelPred$obs <- testY
-          modelPred$subset <- sizeValues[k]
-        } else modelPred <- data.frame(pred = modelPred, obs = testY, subset = sizeValues[k])
-            
+          modelPred$Variables <- sizeValues[k]
+        } else modelPred <- data.frame(pred = modelPred, obs = testY, Variables = sizeValues[k])
+
+      ## save as a vector and rbind at end
       rfePred <- if(k == 1) modelPred else rbind(rfePred, modelPred)
 
 
       if(!exists("modImp")) ##todo: get away from this since it finds object in other spaces
         {
           if(rfeControl$verbose) cat("  Computing importance\n")
-          modImp <- rfeControl$functions$rank(fitObject, .x, y)
+          modImp <- rfeControl$functions$rank(fitObject, x[,retained,drop = FALSE], y)
         } else {
           if(rfeControl$rerank)
             {
               if(rfeControl$verbose) cat("  Recomputing importance\n")              
-              modImp <- rfeControl$functions$rank(fitObject, .x, y)
+              modImp <- rfeControl$functions$rank(fitObject, x[,retained,drop = FALSE], y)
             }
         }
 
       retained <- as.character(modImp$var)[1:sizeValues[k]]
-      .x  <-   x[, retained, drop = FALSE]
-      .tx <- .tx[, retained, drop = FALSE]
       finalVariables[[k]] <- subset(modImp, var %in% retained)
+      finalVariables[[k]]$Variables <- sizeValues[[k]]
       
     }
-  #names(rfePred) <- c("pred", "obs", "subset")
   list(finalVariables = finalVariables, pred = rfePred)
 
 }
-
-######################################################################
-######################################################################
-
-## This function will be executed to do the RFE iterations over
-## different resampling iterations.
-
-## The input is a single list that has elelemnts for:
-##
-## - indices:  a list of indices for which samples are in the training
-##             set. This can include more than one resampling iteration
-## - x: the full data set of predictors
-## - y: the full set of outcomes
-## - cntl: output from rfeControl
-## - sizes: a vector of number of predictors
-
-rfeWrapper <- function(X)
-  {
- 
-    ## iterate over the resampling iterations
-    index <- X$index
-    X$index <- NULL
-    out <- vector(mode = "list", length = length(index))
-    
-    for(i in seq(along = index))
-      {
-        out[[i]] <- do.call("rfeChunk",
-                            c(list(inTrain= index[[i]]), X))
-      }
-    out
-  }
-
-######################################################################
-######################################################################
-
-rfeChunk <- function(inTrain, x, y, cntl, sizes, ...)
-  {
-    library(plyr)
-    if(!("caret" %in% loadedNamespaces())) library(caret)
-
-    findMatch <- function(x, y)
-      {
-        if(length(x) != length(y)) return(FALSE)
-        all(x == y)
-      }
-    
-    j <- which(unlist(lapply(cntl$index, findMatch, y = inTrain)))
-    if(length(j) == 0) stop("can't figure out which resample iteration this is")
-
-    if(cntl$verbose) cat("\nExternal resampling iter:\t", j, "\n")
-    flush.console()
-    
-    inTrainX <- x[inTrain, ]
-    outTrainX <- x[-inTrain, ]
-    inTrainY <- y[inTrain]
-    outTrainY <- y[-inTrain]
-    
-    rfeResults <- rfeIter(inTrainX, inTrainY,
-                          outTrainX, outTrainY,
-                          sizes,
-                          cntl,
-                          ...)
-    
-    rfeResults$pred$resampleIter <- rep(names(cntl$index)[j], nrow(rfeResults$pred))
-
-    out <- list(pred = rfeResults$pred,
-                selectedVars = rfeResults$finalVariables)
-    out
-  }
 
 ######################################################################
 ######################################################################
@@ -183,83 +111,20 @@ rfe <- function (x, ...) UseMethod("rfe")
                     perfNames[1], "' will be used instead", sep = ""))
       metric <- perfNames[1]
     }
-  
-  selectedVars <- vector(mode = "list", length = length(rfeControl$index))
 
-  ## need to setup lists for each worker (!= each task)
-
-  tmp <- repList(
-                 list(x = x,
-                      y = y,
-                      cntl = rfeControl,
-                      sizes = sizeValues,
-                      ...),
-                 rfeControl$workers) ## define this var
-
-  indexSplit <- splitIndicies(length(rfeControl$index),
-                              rfeControl$workers)
-  for(i in seq(along = tmp)) tmp[[i]]$index <- rfeControl$index[indexSplit == i]
-  
-  ## Now, we setup arguments to lapply (or similar functions) executed via do.call
-  ## workerData will split up the data need for the jobs
-  argList <- list(X = tmp,
-                  FUN = rfeWrapper)
-
-  ## Append the extra objects needed to do the work (See the parallel examples in
-  ## ?train to see examples
-  if(!is.null(rfeControl$computeArgs)) argList <- c(argList, rfeControl$computeArgs)
-  
-  rfeResults <- do.call(rfeControl$computeFunction, argList)
-
-  rfePred <- lapply(rfeResults,
-                    function(x) lapply(x,
-                                       function(y) y$pred))
-  rfePred <- do.call("rbind", lapply(rfePred, function(x) rbind.fill(x)))
-
-  selectedVars <- lapply(rfeResults,
-                         function(x) lapply(x,
-                                            function(y) y$selectedVars))
-
-  selectedVars <- do.call("c", selectedVars)
-
-#########################################################################
-
-  subsets <- sort(unique(rfePred$subset), decreasing = TRUE)
-
-  externPerf <- matrix(NA, ncol = 2* length(perfNames) + 1, nrow = length(subsets))
-  colnames(externPerf) <- c("Variables",
-                            perfNames,
-                            paste(perfNames, "SD", sep = ""))
-  
-
-  for(i in seq(along = subsets))
+  if(rfeControl$method == "LOOCV")
     {
-      dataSubset <- subset(
-                           rfePred,
-                           subset == subsets[i],
-                           drop = FALSE)
-      dataSubset$resampleIter <- factor(dataSubset$resampleIter)
-      byResample <- split(dataSubset, dataSubset$resampleIter)
-      resampleResults <- lapply(
-                                byResample,
-                                rfeControl$functions$summary,
-                                lev = classLevels)
-      resampleResults <- t(as.data.frame(resampleResults))
-            
-      externPerf[i, -1] <-  c(apply(resampleResults, 2, mean, na.rm = TRUE),
-                              apply(resampleResults, 2, sd  , na.rm = TRUE))
-      externPerf[i, 1] <- subsets[i]
-      if(rfeControl$returnResamp != "none")
-        {
-          resampleResults <- as.data.frame(resampleResults)
-          resampleResults$Variables <- rep(subsets[i], nrow(resampleResults))
-          resampleResults$Resample <- rownames(resampleResults)
-          
-          resamples <- if(i == 1) resampleResults else rbind(resamples, resampleResults)
-        }
+      tmp <- looRfeWorkflow(x, y, sizes, ppOpts = NULL, ctrl = rfeControl, lev = classLevels, ...)
+      selectedVars <- do.call("c", tmp$everything[names(tmp$everything) == "finalVariables"])
+      selectedVars <- do.call("rbind", selectedVars)
+      externPerf <- tmp$performance
+    } else {
+      tmp <- nominalRfeWorkflow(x, y, sizes, ppOpts = NULL, ctrl = rfeControl, lev = classLevels, ...)
+      selectedVars <- do.call("rbind", tmp$everything[names(tmp$everything) == "selectedVars"])
+      resamples <- do.call("rbind", tmp$everything[names(tmp$everything) == "resamples"])
+      rownames(resamples) <- NULL
+      externPerf <- tmp$performance
     }
-
-  externPerf <- externPerf[order(externPerf[,"Variables"]),]
   
   bestSubset <- rfeControl$functions$selectSize(x = externPerf,
                                                 metric = metric,
@@ -274,18 +139,18 @@ rfe <- function (x, ...) UseMethod("rfe")
                                                            last = TRUE,
                                                            ...))
 
+
+  if(is.factor(y) & any(names(tmp$performance) == ".cell1"))
+    {
+      keepers <- c("Resample", "Variables", grep("\\.cell", names(tmp$performance), value = TRUE))      
+      resampledCM <- subset(tmp$performance, Variables == bestSubset)
+      tmp$performance <- tmp$performance[, -grep("\\.cell", names(tmp$performance))]
+    } else resampledCM <- NULL
+
   resamples <- switch(rfeControl$returnResamp,
                       none = NULL, 
-                      all = {
-                        out <- resamples
-                        rownames(out) <- NULL
-                        out
-                      },
-                      final = {
-                        out <- subset(resamples, Variables == bestSubset)
-                        rownames(out) <- NULL
-                        out
-                      })
+                      all = resamples,
+                      final = subset(resamples, Variables == bestSubset))
 
   endTime <- proc.time()
   times <- list(everything = endTime - startTime,
@@ -298,7 +163,7 @@ rfe <- function (x, ...) UseMethod("rfe")
   out <- structure(
                    list(
                         pred = if(rfeControl$saveDetails) rfePred else NULL,
-                        variables = if(rfeControl$saveDetails) selectedVars else NULL,
+                        variables = selectedVars,
                         results = as.data.frame(externPerf),
                         bestSubset = bestSubset,
                         fit = fit,
@@ -311,6 +176,8 @@ rfe <- function (x, ...) UseMethod("rfe")
                         maximize = maximize,
                         perfNames = perfNames,
                         times = times,
+                        resampledCM = resampledCM,
+                        obsLevels = classLevels,
                         dots = list(...)),
                    class = "rfe")
   if(rfeControl$timingSamps > 0)
@@ -361,6 +228,7 @@ print.rfe <- function(x, top = 5, digits = max(3, getOption("digits") - 3), ...)
                        cv = paste("Cross-Validation (", x$control$number, " fold)", sep = ""),
                        repeatedcv = paste("Cross-Validation (", x$control$number, " fold, repeated ",
                          x$control$repeats, " times)", sep = ""),
+                       loocv = "Leave-One-Out Cross-Validation",
                        lgocv = paste("Repeated Train/Test Splits (", numResamp, " reps, ",
                          round(x$control$p, 2), "%)", sep = ""))
   cat("Outer resampling method:", resampName, "\n")      
@@ -423,14 +291,11 @@ rfeControl <- function(functions = NULL,
                        saveDetails = FALSE,
                        number = ifelse(method %in% c("cv", "repeatedcv"), 10, 25),
                        repeats = ifelse(method %in% c("cv", "repeatedcv"), 1, number),
-                       verbose = TRUE,
+                       verbose = FALSE,
                        returnResamp = "all",
                        p = .75,
                        index = NULL,
-                       timingSamps = 0,
-                       workers = 1,
-                       computeFunction = lapply,
-                       computeArgs = NULL)
+                       timingSamps = 0)
 {
   list(
        functions = if(is.null(functions)) caretFuncs else functions,
@@ -443,10 +308,7 @@ rfeControl <- function(functions = NULL,
        verbose = verbose,
        p = p,
        index = index,
-       timingSamps = timingSamps,
-       workers = workers,
-       computeFunction = computeFunction,
-       computeArgs = computeArgs)
+       timingSamps = timingSamps)
 }
 
 ######################################################################
@@ -477,10 +339,11 @@ pickSizeTolerance <- function(x, metric, tol = 1.5, maximize)
 
 pickVars <- function(y, size)
   {
-    imp <- lapply(y, function(x) x[[1]])
-    imp <- do.call("rbind", imp)
-    finalImp <- aggregate(imp$Overall, list(var = imp$var), mean, na.rm = TRUE)
-    finalImp <- finalImp[order(finalImp$x, decreasing = TRUE),]
+    finalImp <- ddply(y[, c("Overall", "var")],
+                      .(var),
+                      function(x) mean(x$Overall, na.rm = TRUE))
+    names(finalImp)[2] <- "Overall"
+    finalImp <- finalImp[order(finalImp$Overall, decreasing = TRUE),]
     as.character(finalImp$var[1:size])
   }
 
@@ -851,23 +714,14 @@ predictors.rfe <- function(x, ...) x$optVariables
 
 varImp.rfe <- function(object, drop = FALSE, ...)
   {
-    getImp <- function(u, best)
-      {
-        sizes <- unlist(lapply(u, nrow))
-        bestSubsetSize <- which(sizes == best)
-        u[[bestSubsetSize]]
-      }
-    imp <- lapply(object$variables, getImp, best = object$optsize)
-    k <- length(imp)
-    imp <- do.call("rbind", imp)
-    if(drop) imp <- subset(imp, var %in% object$optVar)
-    out <- aggregate(imp$Overall, list(var = imp$var), sum, na.rm = TRUE)
-    out$x <- out$x/k
-    rownames(out) <- out$var
-    out$var <- NULL
-    names(out) <- "Overall"
-    out[order(-out$Overall),,drop = FALSE]
+    imp <- subset(object$variables, Variables == object$optsize)
+    imp <- ddply(imp[, c("Overall", "var")], .(var), function(x) mean(x$Overall, rm.na = TRUE))
+    names(imp)[2] <- "Overall"
 
+    if(drop) imp <- subset(imp, var %in% object$optVar)
+    rownames(imp) <- imp$var
+    imp$var <- NULL
+    imp[order(-imp$Overall),,drop = FALSE]
   }
 
 predict.rfe <- function(object, newdata, ...)

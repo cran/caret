@@ -12,14 +12,11 @@ sbfControl(functions = NULL,
            saveDetails = FALSE, 
            number = ifelse(method \%in\% c("cv", "repeatedcv"), 10, 25),
            repeats = ifelse(method \%in\% c("cv", "repeatedcv"), 1, number),
-           verbose = TRUE, 
+           verbose = FALSE, 
            returnResamp = "all", 
            p = 0.75, 
            index = NULL, 
-           timingSamps = 0,
-           workers = 1, 
-           computeFunction = lapply, 
-           computeArgs = NULL)
+           timingSamps = 0)
 }
 \arguments{
   \item{functions}{a list of functions for model fitting, prediction and variable filtering (see Details below)}
@@ -33,9 +30,6 @@ sbfControl(functions = NULL,
   \item{p}{For leave-group out cross-validation: the training percentage}
   \item{index}{a list with elements for each external resampling iteration. Each list element is the sample rows used for training at that iteration.}
   \item{timingSamps}{the number of training set samples that will be used to measure the time for predicting samples (zero indicates that the prediction time should not be estimated).}
-  \item{workers}{an integer that specifies how many machines/processors will be used}
-  \item{computeFunction}{a function that is \code{\link[base]{lapply}} or emulates \code{lapply}. It must have arguments \code{X}, \code{FUN} and \code{...}. \code{computeFunction} can be used to build models in parallel. See the examples in \code{\link{sbf}}.}
-  \item{computeArgs}{Extra arguments to pass into the \code{...} slore in \code{computeFunction}. See the examples in \code{\link{sbf}}.}
 }
 
 \details{

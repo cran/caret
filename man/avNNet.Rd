@@ -61,7 +61,7 @@ matrix or data frame of test examples. A vector is considered to be
 a row vector comprising a single case.
 }
 \item{type}{
-Type of output
+Type of output, either: \code{raw} for the raw outputs, \code{code} for the predicted class or \code{prob} for the class probabilities.
 }
 
 \item{\dots}{

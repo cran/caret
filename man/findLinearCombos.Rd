@@ -14,6 +14,9 @@ findLinearCombos(x)
 The QR decomposition is used to determine if the matrix is full rank and then identify the sets of columns that are involved in the dependencies. 
 
 To "resolve" them, columns are iteratively removed and the matrix rank is rechecked.
+
+   The \code{\link[subselect]{trim.matrix}} function in the \pkg{subselect} package can also be used
+   to accomplish the same goal.
 }
 \value{
 a list with elements:
@@ -21,6 +24,8 @@ a list with elements:
   \item{remove }{a list of column numbers that can be removed to counter the linear combinations}
 }
 \author{Kirk Mettler and Jed Wing (\code{enumLC}) and Max Kuhn (\code{findLinearCombos}) }
+
+\seealso{\code{\link[subselect]{trim.matrix}}}
 
 \examples{
 testData1 <- matrix(0, nrow=20, ncol=8)

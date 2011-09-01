@@ -84,6 +84,7 @@
                            cv = paste("Cross-Validation (", x$control$number, " fold)", sep = ""),
                            repeatedcv = paste("Cross-Validation (", x$control$number, " fold, repeated ",
                                               x$control$repeats, " times)", sep = ""),
+                           loocv = "Leave-One-Out Cross-Validation",
                            lgocv = paste("Repeated Train/Test Splits (", numResamp, " reps, ",
                              round(x$control$p, 2), "%)", sep = ""))
       cat("Resampling:", resampName, "\n\n")      

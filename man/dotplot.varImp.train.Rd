@@ -19,6 +19,7 @@ an object of class \code{trellis}.
 \author{Max Kuhn}
 \seealso{\code{\link{varImp}}, \code{\link[lattice:xyplot]{dotplot}}}
 \examples{
+
 data(iris)
 TrainData <- iris[,1:4]
 TrainClasses <- iris[,5]

@@ -15,13 +15,15 @@ Lattice functions for visualizing resampling results across models
 \method{xyplot}{resamples}(x, data = NULL, what = "scatter", models = NULL, 
        metric = x$metric[1], units = "min", ...)
 
-\method{dotplot}{resamples}(x, data = NULL, models = x$models, metric = x$metric, conf.level = 0.95, ...)
+\method{dotplot}{resamples}(x, data = NULL, models = x$models, 
+        metric = x$metric, conf.level = 0.95, ...)
 
 \method{densityplot}{resamples}(x, data = NULL, models = x$models, metric = x$metric, ...)
 
 \method{bwplot}{resamples}(x, data = NULL, models = x$models, metric = x$metric, ...)
 
-\method{splom}{resamples}(x, data = NULL, variables = "models", models = x$models, metric = NULL, panelRange = NULL, ...)
+\method{splom}{resamples}(x, data = NULL, variables = "models", 
+      models = x$models, metric = NULL, panelRange = NULL, ...)
 
 \method{parallel}{resamples}(x, data = NULL, models = x$models, metric = x$metric[1], ...)
 

@@ -40,6 +40,8 @@ This function can be used to get resampling estimates for models when simple, fi
 
 For each iteration of resampling, the predictor variables are univariately filtered prior to modeling. Performance of this approach is estimated using resampling. The same filter and model are then applied to the entire training set and the final model (and final features) are saved.
 
+\code{sbf} can be used with "explicit parallelism", where different resamples (e.g. cross-validation group) can be split up and run on multiple machines or processors. By default, \code{sbf} will use a single processor on the host machine. As of version 4.99 of this package, the framework used for parallel processing uses the \pkg{foreach} package. To run the resamples in parallel, the code for \code{sbf} does not change; prior to the call to \code{sbf}, a parallel backend is registered with \pkg{foreach} (see the examples below). 
+
 The modeling and filtering techniques are specified in \code{\link{sbfControl}}. Example functions are given in \code{\link{lmSBF}}.
 }
 \value{
@@ -66,6 +68,10 @@ Max Kuhn
 \code{\link{sbfControl}}
 }
 \examples{
+\dontshow{
+library(doMC)
+registerDoMC(2)
+}
 data(BloodBrain)
 
 ## Use a GAM is the filter, then fit a random forest model
@@ -76,6 +82,32 @@ RFwithGAM <- sbf(bbbDescr, logBBB,
 RFwithGAM
 
 predict(RFwithGAM, bbbDescr[1:10,])
+
+\dontshow{
+registerDoSEQ()
+}
+
+## classification example with parallel processing
+\dontrun{
+library(doMC)
+
+## Note: if the underlying model also uses foreach, the
+## number of cores specified above will double (along with
+## the memory requirements)
+registerDoMC(cores = 2)
+
+data(mdrr)
+mdrrDescr <- mdrrDescr[,-nearZeroVar(mdrrDescr)]
+mdrrDescr <- mdrrDescr[, -findCorrelation(cor(mdrrDescr), .8)]
+
+set.seed(1)
+filteredNB <- sbf(mdrrDescr, mdrrClass,
+                 sbfControl = sbfControl(functions = nbSBF,
+                                         verbose = FALSE, 
+                                         method = "repeatedcv",
+                                         repeats = 5))
+confusionMatrix(filteredNB)
+}
 
 }
 

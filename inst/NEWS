@@ -1,3 +1,37 @@
+
+BUGS:
+
+ - 'controls' was not being set properly for cforest() models in train()
+ - The print methods for train(), rfe() and sbf() did not recognize LOOCV
+ - avNNet sometimes failed with categorical outcomes with bag = FALSE
+ - A bug in preProcess was fixed that was triggered by matrices without
+   dimnames (found by Allan Engelhardt)
+ - bagged MARS models with factor outcomes now work
+ - cforest was using the argument 'control' instead of 'controls'
+ - a few bugs for class probabilities were fixed for 'slda', 'hdda', 
+   'glmStepAIC', 'nodeHarvest', 'avNNet' and 'sda'
+
+CHANGES:
+
+ - When looping over models and resamples, the foreach package is
+   now being used. Now, when using parallel processing, the caret code
+   stays the same and parallelism is invoked using one of the "do" 
+   packages (eg. doMC, doMPI, etc). This affects train(), rfe() and sbf().
+   Their respective man pages have been revised to illustrate this change.
+ - The order of the results produced by defaultSummary() were changed
+   so that the ROC AUC is first
+ - A few man and C files were updated to eliminate R CMD check warnings 
+ - Now that we are using foreach, the verbose option in trainControl(),
+   rfeControl() and sbfControl() are now defaulted to FALSE
+ - rfe() now returns the variable ranks in a single data frame (previously
+   there were data frames in lists of lists) for each of use. This will
+   will break code from previous versions. The built-in RFE functions
+   were also modified
+ - confusionMatrix methods for rfe() and sbf() were added
+ - NULL values of 'method' in preProcess are no longer allowed
+ - a model for ridge regression was added (method = 'ridge') based on 
+   enet()
+
 -------------------
 Version: 4.98
 Date: 2011-07-25

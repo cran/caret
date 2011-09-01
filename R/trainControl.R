@@ -1,7 +1,7 @@
 trainControl <- function(method = "boot",
                          number = ifelse(method %in% c("cv", "repeatedcv"), 10, 25),
                          repeats = ifelse(method %in% c("cv", "repeatedcv"), 1, number),
-                         verboseIter = TRUE,
+                         verboseIter = FALSE,
                          returnData = TRUE,
                          returnResamp = "final",
                          p = .75,
@@ -11,10 +11,7 @@ trainControl <- function(method = "boot",
                          preProcOptions = list(thresh = 0.95, ICAcomp = 3, k = 5),
                          index = NULL,
                          timingSamps = 0,
-                         workers = 1,
-                         predictionBounds = rep(FALSE, 2),
-                         computeFunction = lapply,
-                         computeArgs = NULL)
+                         predictionBounds = rep(FALSE, 2))
 {
   if(is.null(selectionFunction)) stop("null selectionFunction values not allowed")
   if(!(returnResamp %in% c("all", "final", "none"))) stop("incorrect value of returnResamp")
@@ -35,10 +32,7 @@ trainControl <- function(method = "boot",
        preProcOptions = preProcOptions,
        index = index,
        timingSamps = timingSamps,
-       workers = workers,
-       predictionBounds = predictionBounds,
-       computeFunction = computeFunction,
-       computeArgs = computeArgs)
+       predictionBounds = predictionBounds)
 }
 
 
