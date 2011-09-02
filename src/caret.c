@@ -136,8 +136,8 @@ knn3reg(Sint *kin, Sint *pntr, Sint *pnte, Sint *p,
 		double *train, double *y, double *test, 
 		double *means, Sint *cv, Sint *use_all)
 {
-	int   i, index, j, k, k1, kinit = *kin, kn, mm, npat, ntie,
-		ntr = *pntr, nte = *pnte, extras;
+	int   j, k, k1, kinit = *kin, kn, npat,
+		  ntr = *pntr, nte = *pnte, extras;
 	int   pos[MAX_TIES];
 	int   j1, j2, needed, t;
 	double dist, tmp, nndist[MAX_TIES], ny[MAX_TIES];

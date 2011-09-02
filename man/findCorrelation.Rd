@@ -18,12 +18,16 @@ findCorrelation(x, cutoff = .90, verbose = FALSE)
    The absolute values of pair-wise correlations are considered. If two variables have a high correlation, 
    the function looks at the mean absolute correlation of each variable and removes the variable with the
    largest mean absolute correlation.
+
+   There are several function in the \pkg{subselect} package (\code{\link[subselect]{leaps}}, \code{\link[subselect]{genetic}}, \code{\link[subselect]{anneal}}) that can also be used
+   to accomplish the same goal.
 }
 \value{
   A vector of indices denoting the columns to remove. If no correlations meet the criteria, \code{numeric(0)} is returned.
 }
 \author{Orignal R code by Dong Li, modified by Max Kuhn}
 
+\seealso{\code{\link[subselect]{leaps}}, \code{\link[subselect]{genetic}}, \code{\link[subselect]{anneal}}, \code{\link{findLinearCombos}}}
 
 \examples{
 corrMatrix <- diag(rep(1, 5))

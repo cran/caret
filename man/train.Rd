@@ -32,7 +32,7 @@ train(x, ...)
 \item{subset}{An index vector specifying the cases to be used in the training sample. (NOTE: If given, this argument must be named.)}
 \item{na.action}{A function to specify the action to be taken if NAs are found. The default action is for the procedure to fail. An alternative is na.omit, which leads to rejection of cases with missing values on any required variable. (NOTE: If given, this argument must be named.)}
 \item{contrasts}{a list of contrasts to be used for some or all of the factors appearing as variables in the model formula.}
-  \item{method}{a string specifying which classification or regression model to use. Possible values are: \code{ada}, \code{avNNet}, \code{bag}, \code{bagEarth}, \code{bagFDA}, \code{blackboost}, \code{Boruta}, \code{bstTree}, \code{bstLs}, \code{bstSm}, \code{cforest}, \code{ctree}, \code{ctree2}, \code{cubist}, \code{earth}, \code{enet}, \code{fda}, \code{foba}, \code{gam}, \code{gamboost}, \code{gamLoess}, \code{gamSpline}, \code{gaussprPoly}, \code{gaussprRadial}, \code{gaussprLinear}, \code{gbm}, \code{gcvEarth}, \code{glm}, \code{glmboost}, \code{glmnet}, \code{gpls}, \code{hda},  \code{hdda}, \code{icr}, \code{J48}, \code{JRip}, \code{knn}, \code{lars}, \code{lasso}, \code{lda},\code{leapForward}, \code{leapBackward}, \code{leapSeq}, \code{Linda}, \code{lm}, \code{lmStepAIC}, \code{LMT}, \code{logforest}, \code{logitBoost}, \code{logreg}, \code{lssvmPoly}, \code{lssvmRadial}, \code{lvq}, \code{M5}, \code{M5Rules}, \code{mda}, \code{multinom}, \code{nb}, \code{neuralnet}, \code{nnet}, \code{nodeHarvest}, \code{OneR}, \code{pam}, \code{parRF}, \code{partDSA}, \code{pcaNNet}, \code{pcr}, \code{pda}, \code{pda2}, \code{penalized}, \code{plr}, \code{pls}, \code{ppr}, \code{qda}, \code{QdaCov}, \code{qrnn}, \code{rda}, \code{rf}, \code{rlm}, \code{rocc}, \code{rpart}, \code{rvmLinear}, \code{rvmPoly}, \code{rvmRadial}, \code{sda}, \code{sddaLDA}, \code{sddaQDA}, \code{slda}, \code{smda}, \code{sparseLDA}, \code{spls}, \code{stepLDA}, \code{stepQDA}, \code{superpc}, \code{svmPoly}, \code{svmRadial}, \code{svmRadialCost}, \code{svmLinear}, \code{treebag} and  \code{vbmpRadial}. See the Details section below.}  
+  \item{method}{a string specifying which classification or regression model to use. Possible values are: \code{ada}, \code{avNNet}, \code{bag}, \code{bagEarth}, \code{bagFDA}, \code{blackboost}, \code{Boruta}, \code{bstTree}, \code{bstLs}, \code{bstSm}, \code{cforest}, \code{ctree}, \code{ctree2}, \code{cubist}, \code{earth}, \code{enet}, \code{fda}, \code{foba}, \code{gam}, \code{gamboost}, \code{gamLoess}, \code{gamSpline}, \code{gaussprPoly}, \code{gaussprRadial}, \code{gaussprLinear}, \code{gbm}, \code{gcvEarth}, \code{glm}, \code{glmboost}, \code{glmnet}, \code{gpls}, \code{hda},  \code{hdda}, \code{icr}, \code{J48}, \code{JRip}, \code{knn}, \code{lars}, \code{lasso}, \code{lda},\code{leapForward}, \code{leapBackward}, \code{leapSeq}, \code{Linda}, \code{lm}, \code{lmStepAIC}, \code{LMT}, \code{logforest}, \code{logitBoost}, \code{logreg}, \code{lssvmPoly}, \code{lssvmRadial}, \code{lvq}, \code{M5}, \code{M5Rules}, \code{mda}, \code{multinom}, \code{nb}, \code{neuralnet}, \code{nnet}, \code{nodeHarvest}, \code{OneR}, \code{pam}, \code{parRF}, \code{partDSA}, \code{pcaNNet}, \code{pcr}, \code{pda}, \code{pda2}, \code{penalized}, \code{plr}, \code{pls}, \code{ppr}, \code{qda}, \code{QdaCov}, \code{qrnn}, \code{rda}, \code{rf}, \code{ridge}, \code{rlm}, \code{rocc}, \code{rpart}, \code{rvmLinear}, \code{rvmPoly}, \code{rvmRadial}, \code{sda}, \code{sddaLDA}, \code{sddaQDA}, \code{slda}, \code{smda}, \code{sparseLDA}, \code{spls}, \code{stepLDA}, \code{stepQDA}, \code{superpc}, \code{svmPoly}, \code{svmRadial}, \code{svmRadialCost}, \code{svmLinear}, \code{treebag} and  \code{vbmpRadial}. See the Details section below.}  
   \item{\ldots}{ arguments passed to the classification or regression routine (such as \code{\link[randomForest]{randomForest}}). Errors will occur if values
          for tuning parameters are passed here.} 
 \item{preProcess}{a string vector that defines an pre-processing of the predictor data. Current possibilities are \code{center}, \code{scale}, \code{spatialSign}, \code{pca}, \code{ica}, and \code{knnImpute}. See \code{\link{preProcess}} and \code{\link{trainControl}} on the procedures and how to adjust them.} 
@@ -115,6 +115,7 @@ Rule Based Regression \tab \code{M5Rules} \tab \pkg{RWeka} \tab \code{pruned}, \
                       \tab \code{M5} \tab \pkg{RWeka} \tab \code{pruned}, \code{smoothed}, \code{rules} \cr 
                       \tab \code{cubist} \tab \pkg{Cubist} \tab \code{committees}, \code{neighbors} \cr 
 Penalized linear models \tab \code{penalized} \tab \pkg{penalized} \tab \code{lambda1}, \code{lambda2}\cr
+                        \tab \code{ridge} \tab \pkg{elasticnet} \tab \code{lambda} \cr
                         \tab \code{enet} \tab \pkg{elasticnet} \tab \code{lambda}, \code{fraction} \cr
                         \tab \code{lars} \tab \pkg{lars} \tab \code{fraction} \cr
                         \tab \code{lars2} \tab \pkg{lars} \tab \code{steps} \cr
@@ -168,7 +169,7 @@ In some cases, models may require control arguments. These can be passed via the
 
 The vignette entitled "caret Manual -- Model Building" has more details and examples related to this function.
 
-\code{train} can be used with "explicit parallelism", where different resamples (e.g. cross-validation group) can be split up and run on multiple machines or processors. By default, \code{train} will use a single processor on the host machine. To use more, the \code{computeFunction} and \code{computeArgs} arguments in \code{\link{trainControl}} can be used. \code{computeFunction} is used to pass a function that takes arguments named \code{X} and \code{FUN}. Internally, \code{train} will pass the data and modeling functions through using these arguments. By default, \code{train} uses \code{\link[base]{lapply}}. Alternatively, any function that emulates \code{\link[base]{lapply}} but distributes jobs across multiple machines/processors can be used. Arguments to such a function can be passed (if needed) via the \code{computeArgs} argument in \code{\link{trainControl}}. Examples are given below using the \pkg{Rmpi} package (via \pkg{snow}) and NetworkSpaces (via the \pkg{nws} package).
+\code{train} can be used with "explicit parallelism", where different resamples (e.g. cross-validation group) and models can be split up and run on multiple machines or processors. By default, \code{train} will use a single processor on the host machine. As of version 4.99 of this package, the framework used for parallel processing uses the \pkg{foreach} package. To run the resamples in parallel, the code for \code{train} does not change; prior to the call to \code{train}, a parallel backend is registered with \pkg{foreach} (see the examples below). 
 }
 
 
@@ -204,6 +205,11 @@ The vignette entitled "caret Manual -- Model Building" has more details and exam
 
 \seealso{\code{\link{trainControl}}, \code{\link{createGrid}}, \code{\link{createFolds}}}
 \examples{
+\dontshow{
+library(doMC)
+registerDoMC(2)
+}
+
 #######################################
 ## Classification Example
 
@@ -274,93 +280,30 @@ earthFit <- train(medv ~ .,
                   trControl = robustControl)
 
 #######################################
-## Parallel Processing Example via MPI
+## Parallel Processing Example via multicore package
 
 \dontrun{
 
-## A function to emulate lapply in parallel
-mpiCalcs <- function(X, FUN, ...)
-  {
-    theDots <- list(...)
-    parLapply(theDots$cl, X, FUN)
-  }
+library(doMC)
+registerDoMC(2)
 
-library(snow)
-cl <- makeCluster(5, "MPI")
-
-## 50 bootstrap models distributed across 5 workers
-mpiControl <- trainControl(workers = 5,
-                           number = 50,
-                           computeFunction = mpiCalcs,
-                           computeArgs = list(cl = cl))
+## The code for train() does not change:
 set.seed(1)
-usingMPI <-  train(medv ~ .,
-                   data = BostonHousing, 
-                   "glmboost",
-                   trControl = mpiControl)
+usingMC <-  train(medv ~ .,
+                  data = BostonHousing, 
+                  "glmboost",
+                  trControl = mcControl)
+
+## or use:
+## library(doMPI) or 
+## library(doSMP) and so on
 
 }
 
-################################################
-## Parallel Random Forest using foreach and doMPI
-
-\dontrun{
-library(doMPI)
-cl <- startMPIcluster(count = 5, verbose = TRUE)
-registerDoMPI(cl)
-
-rfMPI <- train(medv ~ .,
-               data = BostonHousing, 
-               "parRF")
-
-closeCluster(cl)
+\dontshow{
+registerDoSEQ()
 }
 
-#######################################
-## Parallel Processing Example via NWS
-\dontrun{
-
-nwsCalcs <- function(X, FUN, ...)
-  {
-    theDots <- list(...)
-    eachElem(theDots$sObj,
-             fun = FUN,
-             elementArgs = list(X))
-  }
-
-library(nws)
-sObj <- sleigh(workerCount = 5)
-
-nwsControl <- trainControl(workers = 5,
-                           number = 50,
-                           computeFunction = nwsCalcs,
-                           computeArgs = list(sObj = sObj))
-set.seed(1)
-usingNWS <-  train(medv ~ .,
-                   data = BostonHousing, 
-                   "glmboost",
-                   trControl = nwsControl)
-
-close(sObj)
-
-}
-
-
-#######################################
-## Parallel Random Forest Models using
-## the foreach package and MPI
-
-\dontrun{
-library(doMPI)
-cl <- startMPIcluster(2)
-registerDoMPI(cl)
-
-set.seed(1)
-parallelRF <-  train(medv ~ .,
-                     data = BostonHousing, 
-                     "parRF")
-closeCluster(cl)
-}
 
 }
 \keyword{models}

@@ -12,7 +12,8 @@ This class can be used to estimate a Box-Cox transformation and apply it to exis
 \usage{
 BoxCoxTrans(y, ...)
 
-\method{BoxCoxTrans}{default}(y, x = rep(1, length(y)), fudge = 0.2, numUnique = 3, na.rm = FALSE, ...)
+\method{BoxCoxTrans}{default}(y, x = rep(1, length(y)), 
+            fudge = 0.2, numUnique = 3, na.rm = FALSE, ...)
 
 \method{predict}{BoxCoxTrans}(object, newdata, ...)
 }

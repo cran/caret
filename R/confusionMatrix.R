@@ -180,7 +180,7 @@ confusionMatrix.train <- function(data, norm = "overall", dnn = c("Prediction", 
     lev <- caret:::getClassLevels(data)
     ## get only best tune
     resampledCM <- merge(data$bestTune, data$resampledCM)
-    counts <- as.matrix(resampledCM[,grep("^\\.cell", colnames(resampledCM))])
+    counts <- as.matrix(resampledCM[,grep("^cell", colnames(resampledCM))])
     ## normalize by true class?
 
     if(norm == "overall") counts <- t(apply(counts, 1, function(x)x/sum(x)))
@@ -214,6 +214,86 @@ print.confusionMatrix.train <- function(x, digits = 1, ...)
   invisible(x)
 }
   
+confusionMatrix.rfe <- function(data, norm = "overall", dnn = c("Prediction", "Reference"), ...)
+  {
+    if(is.null(data$resampledCM)) stop("resampled confusion matrices are not availible")
+    if(!norm %in% c("none", "overall", "average")) stop("values for norm should be 'none', 'overall', 'byClass' or 'average'")
+    if(data$control$method %in% c("oob", "LOOCV")) stop("cannot compute confusion matrices for leave-one-out and out-of-bag resampling")
+   if(!is.null(data$control$index))
+      {
+        resampleN <- unlist(lapply(data$control$index, length))
+        numResamp <- length(resampleN)
+        
+        resampName <- switch(tolower(data$control$method),
+                             boot =, boot632 = paste("Bootstrapped (", numResamp, " reps)", sep = ""),
+                             cv = paste("Cross-Validated (", data$control$number, " fold)", sep = ""),
+                             repeatedcv = paste("Cross-Validated (", data$control$number, " fold, repeated ",
+                               data$control$repeats, " times)", sep = ""),
+                             lgocv = paste("Repeated Train/Test Splits Estimated (", numResamp, " reps, ",
+                               round(data$control$p, 2), "%)", sep = ""))
+      } else resampName <- ""
+        
 
+    resampledCM <- data$resampledCM
+    counts <- as.matrix(resampledCM[,grep("^\\.cell", colnames(resampledCM))])
+    ## normalize by true class?
+
+    if(norm == "overall") counts <- t(apply(counts, 1, function(x)x/sum(x)))
+    if(norm == "average") counts <- counts/numResamp
+    overall <- matrix(apply(counts, 2, mean), nrow = length(data$obsLevels))
+    rownames(overall) <- colnames(overall) <- data$obsLevels
+    overall <- overall*100
+    names(dimnames(overall)) <- dnn
+
+ 
+    out <- list(table = overall,
+                norm = norm,
+                text = paste(resampName, "Confusion Matrix"))
+    class(out) <- "confusionMatrix.rfe"
+    out
+  }
+
+
+confusionMatrix.sbf <- function(data, norm = "overall", dnn = c("Prediction", "Reference"), ...)
+  {
+    if(is.null(data$resampledCM)) stop("resampled confusion matrices are not availible")
+    if(!norm %in% c("none", "overall", "average")) stop("values for norm should be 'none', 'overall', 'byClass' or 'average'")
+    if(data$control$method %in% c("oob", "LOOCV")) stop("cannot compute confusion matrices for leave-one-out and out-of-bag resampling")
+   if(!is.null(data$control$index))
+      {
+        resampleN <- unlist(lapply(data$control$index, length))
+        numResamp <- length(resampleN)
+        
+        resampName <- switch(tolower(data$control$method),
+                             boot =, boot632 = paste("Bootstrapped (", numResamp, " reps)", sep = ""),
+                             cv = paste("Cross-Validated (", data$control$number, " fold)", sep = ""),
+                             repeatedcv = paste("Cross-Validated (", data$control$number, " fold, repeated ",
+                               data$control$repeats, " times)", sep = ""),
+                             lgocv = paste("Repeated Train/Test Splits Estimated (", numResamp, " reps, ",
+                               round(data$control$p, 2), "%)", sep = ""))
+      } else resampName <- ""
+        
+
+    resampledCM <- data$resampledCM
+    counts <- as.matrix(resampledCM[,grep("^\\.cell", colnames(resampledCM))])
+    ## normalize by true class?
+
+    if(norm == "overall") counts <- t(apply(counts, 1, function(x)x/sum(x)))
+    if(norm == "average") counts <- counts/numResamp
+    overall <- matrix(apply(counts, 2, mean), nrow = length(data$obsLevels))
+    rownames(overall) <- colnames(overall) <- data$obsLevels
+    overall <- overall*100
+    names(dimnames(overall)) <- dnn
+
+ 
+    out <- list(table = overall,
+                norm = norm,
+                text = paste(resampName, "Confusion Matrix"))
+    class(out) <- "confusionMatrix.rfe"
+    out
+  }
+
+print.confusionMatrix.rfe <- print.confusionMatrix.train
+print.confusionMatrix.sbf <- print.confusionMatrix.train
 
 

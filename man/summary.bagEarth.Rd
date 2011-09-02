@@ -6,8 +6,8 @@
 The function shows a summary of the results from a bagged earth model
 }
 \usage{
-summary.bagEarth(object, ...)
-summary.bagFDA(object, ...)
+\method{summary}{bagEarth}(object, ...)
+\method{summary}{bagFDA}(object, ...)
 
 }
 \arguments{

@@ -166,7 +166,8 @@ export(
        ctreeBag,
        svmBag,
        nnetBag,
-       confusionMatrix.train
+       confusionMatrix.train,
+       parallel.resamples
        )
 
 S3method(confusionMatrix, default)
@@ -247,7 +248,7 @@ S3method(splom,       resamples)
 S3method(xyplot,      resamples)
 S3method(parallel,    resamples)
 S3method(prcomp,      resamples)
-S3method(cluster,      resamples)
+S3method(cluster,     resamples)
 
 S3method(densityplot, diff.resamples)
 S3method(bwplot,      diff.resamples)
@@ -259,10 +260,16 @@ S3method(plot,  varImp.train)
 S3method(plot,  rfe)
 S3method(plot,  prcomp.resamples)
 
+S3method(confusionMatrix,  train)
+S3method(confusionMatrix,  rfe)
+S3method(confusionMatrix,  sbf)
+
 S3method(print, train)
 S3method(print, varImp.train)
 S3method(print, confusionMatrix)
 S3method(print, confusionMatrix.train)
+S3method(print, confusionMatrix.rfe)
+S3method(print, confusionMatrix.sbf)
 S3method(print, knn3)
 S3method(print, plsda)
 S3method(print, splsda)

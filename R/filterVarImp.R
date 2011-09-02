@@ -1,3 +1,5 @@
+## todo start using foreach here
+
 filterVarImp <- function(x, y, nonpara = FALSE, ...)
 {
   {

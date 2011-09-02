@@ -58,6 +58,8 @@ avNNet.default <- function(x, y, repeats = 5, bag = FALSE, ...)
         dimnames(x) <- list(names(cl), levels(cl))
         x
     }
+
+    ind <- seq(along = y)
     if(is.factor(y))
       {
         classLev <- levels(y)
@@ -65,11 +67,9 @@ avNNet.default <- function(x, y, repeats = 5, bag = FALSE, ...)
       } else classLev <- NULL
 
     if(is.matrix(y)) classLev <- colnames(y)
-
-
+    
     theDots <- list(...)
 
-    ind <- seq(along = y)
     mods <- vector(mode = "list", length = repeats)
     for(i in 1:repeats)
       {
@@ -78,7 +78,7 @@ avNNet.default <- function(x, y, repeats = 5, bag = FALSE, ...)
              if(theDots$trace) cat("\nFitting Repeat", i, "\n\n")
            } else cat("Fitting Repeat", i, "\n\n")
         if(bag)  ind <- sample(1:nrow(x))
-        mods[[i]] <- nnet(x[ind,,drop = FALSE], y[ind], ...)
+        mods[[i]] <- if(is.null(classLev)) nnet(x[ind,,drop = FALSE], y[ind], ...) else nnet(x[ind,,drop = FALSE], y[ind,], ...)
         mods[[i]]$lev <- classLev
       }
     
@@ -121,7 +121,7 @@ predict.avNNet <- function(object, newdata, type = c("raw", "class"), ...)
              classes <- factor(as.character(classes), levels = object$model[[1]]$lev)
              if(type[1]== "raw") out <- scores
              if(type[1]== "class")  out <- (classes)
-             if(type[1]== "probs")  out <- t(apply(scores, 1, function(x) x/sum(x)))
+             if(type[1]== "prob")  out <- t(apply(scores, 1, function(x) x/sum(x)))
            }
       }  else {
         if (inherits(object, "avNNet.formula")) {
@@ -163,7 +163,7 @@ predict.avNNet <- function(object, newdata, type = c("raw", "class"), ...)
              classes <- factor(as.character(classes), levels = object$model[[1]]$lev)
              if(type[1]== "raw") out <- scores
              if(type[1]== "class")  out <- (classes)
-             if(type[1]== "probs")  out <- t(apply(scores, 1, function(x) x/sum(x)))
+             if(type[1]== "prob")  out <- t(apply(scores, 1, function(x) x/sum(x)))
            }
         
       }

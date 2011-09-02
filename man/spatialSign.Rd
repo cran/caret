@@ -8,9 +8,9 @@
 Compute the spatial sign (a projection of a data vector to a unit length circle). The spatial sign of a vector \code{w} is \code{w /norm(w)}.
 }
 \usage{
-spatialSign.default(x)
-spatialSign.matrix(x)
-spatialSign.data.frame(x)
+\method{spatialSign}{default}(x)
+\method{spatialSign}{matrix}(x)
+\method{spatialSign}{data.frame}(x)
 }
 \arguments{
   \item{x}{an object full of numeric data (which should probably be scaled). Factors are not allowed. This could be a vector, matrix or data frame.}

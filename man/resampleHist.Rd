@@ -24,6 +24,7 @@ a object of class \code{trellis}
 
 \seealso{\code{\link{train}}, \code{\link[lattice]{histogram}}, \code{\link[lattice:histogram]{densityplot}},  \code{\link{histogram.train}}, \code{\link{densityplot.train}}, \code{\link{xyplot.train}}, \code{\link{stripplot.train}}}
 \examples{
+
 data(iris)
 TrainData <- iris[,1:4]
 TrainClasses <- iris[,5]

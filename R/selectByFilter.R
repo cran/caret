@@ -31,69 +31,6 @@ sbfIter <- function(x, y,
 
 }
 
-######################################################################
-######################################################################
-
-## This function will be executed to do the selection by filter iterations over
-## different resampling iterations.
-
-## The input is a single list that has elelemnts for:
-##
-## - indices:  a list of indices for which samples are in the training
-##             set. This can include more than one resampling iteration
-## - x: the full data set of predictors
-## - y: the full set of outcomes
-## - cntl: output from sbfControl
-
-sbfWrapper <- function(X)
-  {
-    ## iterate over the resampling iterations
-    index <- X$index
-    X$index <- NULL
-    out <- vector(mode = "list", length = length(index))
-    for(i in seq(along = index))
-      {
-        out[[i]] <- do.call("sbfChunk",
-                            c(list(inTrain= index[[i]]), X))
-      }
-    out
-  }
-
-######################################################################
-######################################################################
-
-sbfChunk <- function(inTrain, x, y, cntl, sizes, ...)
-  {
-
-    findMatch <- function(x, y)
-      {
-        if(length(x) != length(y)) return(FALSE)
-        all(x == y)
-      }
-    
-    j <- which(unlist(lapply(cntl$index, findMatch, y = inTrain)))
-    
-    if(length(j) == 0) stop("can't figure out which resample iteration this is")
-
-    if(cntl$verbose) cat("\nExternal resampling iter:\t", j, "\n")
-    flush.console()
-    
-    inTrainX <- x[inTrain, ]
-    outTrainX <- x[-inTrain, ]
-    inTrainY <- y[inTrain]
-    outTrainY <- y[-inTrain]      
-    sbfResults <- sbfIter(inTrainX, inTrainY,
-                          outTrainX, outTrainY,
-                          cntl,
-                          ...)
-
-    ## TODO make this like train()
-    sbfResults$pred$resampleIter <- rep(names(cntl$index)[j], nrow(sbfResults$pred))
-
-    out <- list(pred = sbfResults$pred,
-                selectedVars = sbfResults$variables)
-    out
-  }
 
 ######################################################################
 ######################################################################
@@ -110,6 +47,8 @@ sbf <- function (x, ...) UseMethod("sbf")
   numFeat <- ncol(x)
   classLevels <- levels(y)
 
+  if(sbfControl$method == "oob") stop("out-of-bag resampling cannot be used with this function")
+  
   if(is.null(sbfControl$index)) sbfControl$index <- switch(
                                                            tolower(sbfControl$method),
                                                            cv = createFolds(y, sbfControl$number, returnTrain = TRUE),
@@ -133,61 +72,28 @@ sbf <- function (x, ...) UseMethod("sbf")
   test <- sbfControl$functions$summary(testOutput, lev = classLevels)
   perfNames <- names(test)
 
-  ## need to setup lists for each worker (!= each task)
+  #########################################################################
 
-  tmp <- repList(
-                 list(x = x,
-                      y = y,
-                      cntl = sbfControl,
-                      ...),
-                 sbfControl$workers) ## define this var
 
-  indexSplit <- splitIndicies(length(sbfControl$index),
-                              sbfControl$workers)
-  for(i in seq(along = tmp)) tmp[[i]]$index <- sbfControl$index[indexSplit == i]
-  
-  ## Now, we setup arguments to lapply (or similar functions) executed via do.call
-  ## workerData will split up the data need for the jobs
-  argList <- list(X = tmp,
-                  FUN = sbfWrapper)
-
-  ## Append the extra objects needed to do the work (See the parallel examples in
-  ## ?train to see examples
-  if(!is.null(sbfControl$computeArgs)) argList <- c(argList, sbfControl$computeArgs)
- 
-  sbfResults <- do.call(sbfControl$computeFunction, argList)
-
-  sbfPred <- lapply(sbfResults,
-                    function(x) lapply(x,
-                                       function(y) y$pred))
-  sbfPred <- do.call("rbind", lapply(sbfPred, function(x) rbind.fill(x)))
-
-  sbfPred <- split(sbfPred, sbfPred$resampleIter)
-  resamples <- lapply(sbfPred,
-                      sbfControl$functions$summary,
-                      lev = classLevels)
-  pNames <- names(resamples[[1]])
-  rNames <- names(resamples)
-  ##On 9/10/10 10:24 AM, "Hadley Wickham" <hadley@rice.edu> wrote:
-  resamples <-matrix(unlist(resamples),
-                     nrow = length(resamples),
-                     dimnames = list(NULL, NULL),
-                     byrow = TRUE)
-  colnames(resamples) <- pNames  
-  resamples <- as.data.frame(resamples)
-
-  externPerf <- cbind(t(apply(resamples, 2, mean, na.rm = TRUE)),
-                      t(apply(resamples, 2, sd, na.rm = TRUE)))
-  colnames(externPerf)<- c(perfNames, paste(perfNames, "SD", sep = ""))
-
-  resamples$Resample <- rNames
+  if(sbfControl$method == "LOOCV")
+    {
+      tmp <- looSbfWorkflow(x = x, y = y, ppOpts = preProcess,
+                            ctrl = sbfControl, lev = classLevels, ...)
+      resamples <- do.call("rbind", tmp$everything[names(tmp$everything) == "pred"])
+      rownames(resamples) <- 1:nrow(resamples)
+      selectedVars <- tmp$everything[names(tmp$everything) == "variables"]
+      performance <- tmp$performance
+    } else {
+      tmp <- nominalSbfWorkflow(x = x, y = y, ppOpts = preProcess,
+                                ctrl = sbfControl, lev = classLevels, ...)
+      resamples <- do.call("rbind", tmp$everything[names(tmp$everything) == "resamples"])
+      rownames(resamples) <- 1:nrow(resamples)
+      selectedVars <- tmp$everything[names(tmp$everything) == "selectedVars"]
+      performance <- tmp$performance
+    }
   
   #########################################################################
 
-  selectedVars <- lapply(sbfResults,
-                    function(x) lapply(x,
-                                       function(y) y$selectedVars))
-  selectedVars <- do.call("c", selectedVars)
   varList <- unique(unlist(selectedVars))
 
   scores <- apply(x, 2, sbfControl$functions$score, y = y)
@@ -198,6 +104,18 @@ sbf <- function (x, ...) UseMethod("sbf")
                                                            y,
                                                            ...))
 
+
+
+  performance <- data.frame(t(performance))
+  performance <- performance[,!grepl("\\.cell|Resample", colnames(performance))]
+  
+  if(is.factor(y) & any(names(resamples) == ".cell1"))
+    {
+      keepers <- c("Resample", grep("\\.cell", names(resamples), value = TRUE))      
+      resampledCM <- resamples[,keepers]
+      resamples <- resamples[, -grep("\\.cell", names(resamples))]
+    } else resampledCM <- NULL  
+  
   resamples <- switch(sbfControl$returnResamp,
                       none = NULL, 
                       all = resamples)
@@ -212,16 +130,18 @@ sbf <- function (x, ...) UseMethod("sbf")
   
   out <- structure(
                    list(
-                        pred = if(sbfControl$saveDetails) sbfPred else NULL,
+                        pred = if(sbfControl$saveDetails) tmp else NULL,
                         variables = selectedVars,
-                        results = as.data.frame(externPerf),
+                        results = performance,
                         fit = fit,
                         optVariables = names(retained)[retained],
                         call = funcCall,
                         control = sbfControl,
                         resample = resamples,
                         metrics = perfNames,
-                        times = times, 
+                        times = times,
+                        resampledCM = resampledCM,
+                        obsLevels = classLevels,
                         dots = list(...)),
                    class = "sbf")
   if(sbfControl$timingSamps > 0)
@@ -272,6 +192,7 @@ print.sbf <- function(x, top = 5, digits = max(3, getOption("digits") - 3), ...)
                        cv = paste("Cross-Validation (", x$control$number, " fold)", sep = ""),
                        repeatedcv = paste("Cross-Validation (", x$control$number, " fold, repeated ",
                          x$control$repeats, " times)", sep = ""),
+                       loocv = "Leave-One-Out Cross-Validation",
                        lgocv = paste("Repeated Train/Test Splits (", numResamp, " reps, ",
                          round(x$control$p, 2), "%)", sep = ""))
   cat("Outer resampling method:", resampName, "\n")      
@@ -372,14 +293,11 @@ sbfControl <- function(functions = NULL,
                        saveDetails = FALSE,
                        number = ifelse(method %in% c("cv", "repeatedcv"), 10, 25),
                        repeats = ifelse(method %in% c("cv", "repeatedcv"), 1, number),
-                       verbose = TRUE,
+                       verbose = FALSE,
                        returnResamp = "all",
                        p = .75,
                        index = NULL,
-                       timingSamps = 0,
-                       workers = 1,
-                       computeFunction = lapply,
-                       computeArgs = NULL)
+                       timingSamps = 0)
 {
   list(
        functions = if(is.null(functions)) caretSBF else functions,
@@ -391,10 +309,7 @@ sbfControl <- function(functions = NULL,
        verbose = verbose,
        p = p,
        index = index,
-       timingSamps = timingSamps,
-       workers = workers,
-       computeFunction = computeFunction,
-       computeArgs = computeArgs)
+       timingSamps = timingSamps)
 }
 
 ######################################################################

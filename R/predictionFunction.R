@@ -429,6 +429,12 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                              out
                            },
 
+                           ridge =
+                           {
+                             library(elasticnet)
+                             predict(modelFit, as.matrix(newdata), s = 1, mode = "fraction")$fit
+                           },
+
                            sddaLDA =, sddaQDA =
                            {
                              library(SDDA)
