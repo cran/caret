@@ -74,8 +74,6 @@
 <<loadLibs, results = hide, echo = FALSE>>=
 library(caret)
 library(randomForest)
-library(doMC)
-registerDoMC(2)
 data(mdrr)
 @
 

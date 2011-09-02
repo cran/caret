@@ -30,10 +30,7 @@ plotClassProbs(object,
 \author{Max Kuhn}
 
 \examples{
-\dontshow{
-library(doMC)
-registerDoMC(2)
-}
+
 data(mdrr)
 set.seed(90)
 inTrain <- createDataPartition(mdrrClass, p = .5)[[1]]
@@ -71,9 +68,6 @@ plotClassProbs(predProbs,
                plotType = "densityplot",
                auto.key = list(columns = 2))
 
-\dontshow{
-registerDoSEQ()
-}
 
 }
 
