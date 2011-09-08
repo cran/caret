@@ -1,4 +1,33 @@
 -------------------
+Version: 5.03-.003
+Date: 2011-09-19
+
+ADDITIONS:
+
+ - A function, lift(), was added to create lattice objects for lift plots.
+ - Several models were added from the obliqueRF package: 'ORFridge' (linear 
+   combinations created using L2 regularization), 'ORFpls' (using partial 
+   least squares),  'ORFsvm' (linear support vector machines), and  'ORFlog'
+   (using logistic regression). As of now, the package only support 
+   classification.
+
+CHANGES:
+
+ - Added regression models 'simpls' and 'widekernelpls'. These are new models
+   since both train() and plsr() have an argument called 'method', so the
+   computational algorithm could not be passed through using the three dots.
+ - Model 'rpart' was added that uses cp as the tuning parameter. To make the 
+   model codes more consistent, 'rpart' and 'ctree' correspond to the nominal
+   tuning parameters (cp and mincriterion, respectively) and 'rpart2' and 
+   'ctree2' are the alternate versions using 'maxdepth'. 
+ - The text for 'ctree's tuning parameter was changed to '1 - P-Value Threshold'
+
+BUGS:
+
+ - The argument 'controls' was not being properly passed through in models
+   'ctree' and 'ctree2'.
+
+-------------------
 Version: 5.01-001
 Date: 2011-08-02
 

@@ -20,11 +20,11 @@ Type 'q()' to quit R.
 
 > library(tools)
 > compactPDF(c("caretTrain.pdf", "caretSelection.pdf", "caretMisc.pdf", "caretVarImp.pdf"))
-  compacted ‘caretTrain.pdf’ from 571Kb to 379Kb
+  compacted ‘caretTrain.pdf’ from 572Kb to 379Kb
   compacted ‘caretSelection.pdf’ from 289Kb to 215Kb
   compacted ‘caretMisc.pdf’ from 1017Kb to 367Kb
   compacted ‘caretVarImp.pdf’ from 275Kb to 141Kb
 > 
 > proc.time()
    user  system elapsed 
-  0.596   0.059   0.677 
+  0.605   0.057   0.662 

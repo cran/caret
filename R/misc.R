@@ -139,7 +139,7 @@ tuneScheme <- function(model, grid, useOOB = FALSE)
                loop <- grid[1,,drop = FALSE]
                seqParam <- list(grid[-1,,drop = FALSE])
              },             
-             pcr =, pls = 
+             pcr =, simpls =, widekernelpls =, pls = 
              {
                grid <- grid[order(grid$.ncomp, decreasing = TRUE),, drop = FALSE]
                loop <- grid[1,,drop = FALSE]
@@ -240,12 +240,18 @@ tuneScheme <- function(model, grid, useOOB = FALSE)
                    seqParam[[i]] <- data.frame(.mstop = subTrees[subTrees != loop$.mstop[i]])
                  }         
              },              
-             rpart = 
+             rpart2 = 
              {
                grid <- grid[order(grid$.maxdepth, decreasing = TRUE),, drop = FALSE]
                loop <- grid[1,,drop = FALSE]
                seqParam <- list(grid[-1,,drop = FALSE])
              },
+             rpart = 
+             {
+               grid <- grid[order(grid$.cp, decreasing = FALSE),, drop = FALSE]
+               loop <- grid[1,,drop = FALSE]
+               seqParam <- list(grid[-1,,drop = FALSE])
+             },             
              glmboost =, gamboost =
              {
                grid <- grid[order(grid$.mstop, decreasing = TRUE),, drop = FALSE]

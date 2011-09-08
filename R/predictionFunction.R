@@ -106,7 +106,7 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                              out
                            },
                            
-                           rpart =
+                           rpart2 =
                            {
                              library(rpart)
                              
@@ -141,6 +141,41 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                              out
                              
                            },
+
+                           rpart =
+                           {
+                             library(rpart)
+                             
+                             if(!is.data.frame(newdata)) newdata <- as.data.frame(newdata)
+
+                             if(modelFit$problemType == "Classification")
+                               {
+                                 out <- as.character(predict(modelFit, newdata, type="class"))
+                               } else {
+                                 out  <- predict(modelFit, newdata, type="vector")
+
+                               }
+
+                             if(!is.null(param))
+                               {
+                                 tmp <- vector(mode = "list", length = nrow(param) + 1)
+                                 tmp[[1]] <- out
+                                
+                                 for(j in seq(along = param$.cp))
+                                   {
+                                     prunedFit <- prune.rpart(modelFit, cp = param$.cp[j])
+                                     if(modelFit$problemType == "Classification")
+                                       {
+                                         tmp[[j+1]] <- as.character(predict(prunedFit, newdata, type="class"))
+                                       } else {
+                                         tmp[[j+1]]  <- predict(prunedFit, newdata, type="vector")
+                                       }
+                                   }
+                                 out <- if(modelFit$problemType == "Classification") lapply(tmp, as.character) else tmp
+                               }
+                             out
+                             
+                           },
                            
                            lvq =
                            {
@@ -149,7 +184,7 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                              out
                            },
 
-                           pcr=, pls =
+                           pcr=, pls =, simpls =, widekernelpls =
                            {
                              library(pls)
                              
@@ -1001,6 +1036,11 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                                }
                              
                              out
+                           },
+                           ORFridge =, ORFpls =, ORFsvm =, ORFlog =
+                           {
+                             library(obliqueRF)
+                             as.character(predict(modelFit, newdata))                             
                            })
   predictedValue
 }

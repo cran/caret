@@ -4,7 +4,7 @@
   ## rpart needs its own function since we fit an initial model,
   ## read off the possible complexity parameters and use
   ## those values to devleop the grid. 
-  rpartTune <- function(data, len)
+  rpart2Tune <- function(data, len)
     {
       library(rpart)
       initialFit <- rpart(
@@ -26,6 +26,25 @@
       colnames(tuneSeq) <- ".maxdepth"
       tuneSeq
     }
+
+  rpartTune <- function(data, len)
+    {
+      library(rpart)
+      initialFit <- rpart(
+                          .outcome ~ .,
+                          data,
+                          control = rpart.control(cp = 0))$cptable
+      initialFit <- initialFit[order(-initialFit[,"CP"]), , drop = FALSE]
+      
+      if(dim(initialFit)[1] < len)
+        {
+          tuneSeq <- data.frame(.cp = seq(min(initialFit[, "CP"]), max(initialFit[, "CP"]), length = len))
+        } else tuneSeq <-  data.frame(.cp = initialFit[1:len,"CP"])
+      colnames(tuneSeq) <- ".cp"
+      tuneSeq
+    }
+
+  
   
   rbfTune <- function(data, len, center = TRUE)
     {
@@ -231,11 +250,13 @@
                         .interaction.depth = seq(1, len),
                         .n.trees = floor((1:len) * 50),
                         .shrinkage = .1),
-                      rf =, rfNWS =, rfLSF =, parRF =, qrf =, Boruta = rfTune(data, len),
+                      rf =, rfNWS =, rfLSF =, parRF =, qrf =, Boruta =, ORFridge =,
+                            ORFpls =, ORFsvm =, ORFlog = rfTune(data, len),
                       gpls = data.frame(.K.prov =seq(1, len) ),
                       lvq = lvqGrid(data, len),
                       rpart = rpartTune(data, len),
-                      pcr =, pls =, plsTest =,PLS = data.frame(.ncomp = seq(1, min(dim(data)[2] - 1, len), by = 1)),
+                      rpart2 = rpart2Tune(data, len),
+                      pcr =, simpls =, widekernelpls =, pls =, plsTest =,PLS = data.frame(.ncomp = seq(1, min(dim(data)[2] - 1, len), by = 1)),
                       pam = pamTune(data, len),
                       knn = data.frame(.k = (5:((2 * len)+4))[(5:((2 * len)+4))%%2 > 0]),
                       nb = data.frame(.usekernel = c(TRUE, FALSE), .fL = 0),

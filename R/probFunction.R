@@ -148,7 +148,7 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
                         out <- predict(modelFit, newdata, type = "prob")            
                         out
                       },
-                      rpart =
+                      rpart2 =
                       {
                         library(randomForest)
                         if(!is.data.frame(newdata)) newdata <- as.data.frame(newdata)
@@ -168,7 +168,27 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
                             out <- tmp
                           }                            
                         out
-                      },                      
+                      },
+                      rpart =
+                      {
+                        library(rpart)
+                        if(!is.data.frame(newdata)) newdata <- as.data.frame(newdata)
+                        out <- predict(modelFit, newdata, type = "prob")
+
+                        if(!is.null(param))
+                          {
+                            tmp <- vector(mode = "list", length = nrow(param) + 1)
+                            tmp[[1]] <- out
+                            for(j in seq(along = param$.cp))
+                              {
+                                prunedFit <- prune.rpart(modelFit, cp = param$.cp[j])
+                                tmpProb <- predict(prunedFit, newdata, type = "prob")
+                                tmp[[j+1]] <- as.data.frame(tmpProb[, modelFit$obsLevels])
+                              }
+                            out <- tmp
+                          }                              
+                        out
+                      },                          
                       gpls =
                       {
                         library(gpls)
@@ -528,6 +548,12 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
                           } else {
                             out <- predict(modelFit, newData = newdata, type = "prob")
                           }
+                        out
+                      },
+                      ORFridge =, ORFpls =, ORFsvm =, ORFlog =
+                      {
+                        library(obliqueRF)
+                        out <- predict(modelFit, newdata, type = "prob")            
                         out
                       }
                       )
