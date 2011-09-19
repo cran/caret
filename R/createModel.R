@@ -45,24 +45,28 @@
 
   ## Some routines dont have formula inputs (or dont handle them well)
   ## so extract the feature matrix and class factor.
-  if(method %in% c("glmboost", "blackboost", "gamboost", "earth", "earthTest",
-                   "bagFDA", "bagEarth", "lda", "enet", "lasso", "nnet", "gcvEarth",
-                   "lvq", "pls", "plsTest", "gbm", "pam", "rf", "logitBoost",
-                   "ada", "knn", "PLS", "rfNWS", "rfLSF", "pcaNNet",
-                   "mars", "rda",  "gpls", "svmpoly", "svmradial", "svmRadialCost",
-                   "svmPoly", "svmRadial", "svmLinear", "cubist",
-                   "lssvmPoly", "lssvmRadial", "lssvmLinear",
-                   "rvmRadial", "rvmPoly", "rvmLinear",
-                   "leapForward", "leapBackward", "leapSeq",
-                   "gaussprRadial", "gaussprPoly", "gaussprLinear",
-                   "sddaLDA", "sddaQDA", "glmnet", "slda", "spls", "smda",
-                   "qda", "relaxo", "lars", "lars2", "rlm", "vbmpRadial",
-                   "superpc", "ppr", "sda", "penalized", "sparseLDA",
-                   "nodeHarvest", "Linda", "QdaCov", "stepLDA", "stepQDA",
-                   "parRF", "plr", "rocc", "foba", "partDSA", "hda", "icr", "Boruta",
-                   "plsGlmBinomial", "plsGlmGaussian", "plsGlmGamma", "plsGlmPoisson",
-                   "bstTree", 'bstLs', 'bstSm', 'avNNet', 'ridge',
-                   "qrf", "scrda", "bag", "hdda", "logreg", "logforest", "logicBag", "qrnn"))
+  if(method %in% c('ada', 'avNNet', 'bag', 'bagEarth', 'bagFDA',
+                   'blackboost', 'Boruta', 'bstLs', 'bstSm',
+                   'bstTree', 'cubist', 'earth', 'earthTest',
+                   'enet', 'foba', 'gamboost', 'gaussprLinear',
+                   'gaussprPoly', 'gaussprRadial', 'gbm', 'gcvEarth',
+                   'glmboost', 'glmnet', 'gpls', 'hda', 'hdda', 'icr',
+                   'knn', 'lars', 'lars2', 'lasso', 'lda', 'leapBackward',
+                   'leapForward', 'leapSeq', 'Linda', 'logforest', 'logicBag',
+                   'logitBoost', 'logreg', 'lssvmLinear', 'lssvmPoly',
+                   'lssvmRadial', 'lvq', 'mars', 'nnet', 'nodeHarvest',
+                   'ORFridge', 'ORFpls', 'ORFsvm', 'ORFlog',
+                   'pam', 'parRF', 'partDSA', 'pcaNNet',
+                   'penalized', 'plr', 'pls', 'PLS', 'plsGlmBinomial',
+                   'plsGlmGamma', 'plsGlmGaussian', 'plsGlmPoisson',
+                   'plsTest', 'ppr', 'qda', 'QdaCov', 'qrf', 'qrnn',
+                   'rda', 'relaxo', 'rf', 'rfLSF', 'rfNWS', 'ridge',
+                   'rlm', 'rocc', 'rvmLinear', 'rvmPoly', 'rvmRadial',
+                   'scrda', 'sda', 'sddaLDA', 'sddaQDA', 'simpls', 'slda',
+                   'smda', 'sparseLDA', 'spls', 'stepLDA', 'stepQDA',
+                   'superpc', 'svmLinear', 'svmpoly', 'svmPoly',
+                   'svmradial', 'svmRadial', 'svmRadialCost',
+                   'vbmpRadial', 'widekernelpls'))
     {
       trainX <- data[,!(names(data) %in% ".outcome"), drop = FALSE]
       trainY <- data[,".outcome"]
@@ -452,7 +456,7 @@
                                     k = tuneValue$.k),
                             ...)
                      },         
-                     rpart = 
+                     rpart2 = 
                      {
                        library(rpart)   
                        
@@ -478,22 +482,53 @@
                          
                        out <- do.call("rpart", modelArgs)
                        out
-                     }, 
-                     pls =, plsTest = 
+                     },
+                    rpart = 
+                     {
+                       library(rpart)   
+                       
+                       theDots <- list(...)
+                       if(any(names(theDots) == "control"))
+                         {
+                           theDots$control$cp <- tuneValue$.cp
+                           theDots$control$xval <- 0 
+                           ctl <- theDots$control
+                           theDots$control <- NULL
+                           
+                         } else ctl <- rpart.control(cp = tuneValue$.cp, xval = 0)   
+
+                       ## check to see if weights were passed in (and availible)
+                       if(!is.null(modelWeights)) theDots$weights <- modelWeights    
+                       
+                       modelArgs <- c(
+                                      list(
+                                           formula = modFormula,
+                                           data = data,
+                                           control = ctl),
+                                      theDots)
+                         
+                       out <- do.call("rpart", modelArgs)
+                       out
+                     },                      
+                     pls =, simpls =, widekernelpls =, plsTest = 
                      {
 
                        library(pls)
-                       
+                       plsMethod <- method
+                       if(plsMethod == "pls") plsMethod <- "kernelpls"
+                                           
                        out <- if(type == "Classification")
                          {      
                            plsda(
                                  trainX, 
                                  trainY,
+                                 method = plsMethod,
                                  ncomp = tuneValue$.ncomp, ...)
                          } else {
                            plsr(
                                 modFormula,
                                 data = data,
+                                method = plsMethod,
                                 ncomp = tuneValue$.ncomp, ...)
                          }
 
@@ -856,11 +891,11 @@
                        
                        theDots <- list(...)
                        
-                       if(any(names(theDots) == "control"))
+                       if(any(names(theDots) == "controls"))
                          {
-                           theDots$control@gtctrl@mincriterion <- tuneValue$.mincriterion 
-                           ctl <- theDots$control
-                           theDots$control <- NULL
+                           theDots$controls@gtctrl@mincriterion <- tuneValue$.mincriterion 
+                           ctl <- theDots$controls
+                           theDots$controls <- NULL
                            
                          } else ctl <- ctree_control(mincriterion = tuneValue$.mincriterion)          
 
@@ -871,7 +906,7 @@
                                       list(
                                            formula = modFormula,
                                            data = data,
-                                           control = ctl),
+                                           controls = ctl),
                                       theDots)
                        
                        out <- do.call("ctree", modelArgs)
@@ -884,12 +919,12 @@
                        
                        theDots <- list(...)
                        
-                       if(any(names(theDots) == "control"))
+                       if(any(names(theDots) == "controls"))
                          {
-                           theDots$control@tgctrl@maxdepth <- tuneValue$.maxdepth
-                           theDots$control@gtctrl@mincriterion <- 0
-                           ctl <- theDots$control
-                           theDots$control <- NULL
+                           theDots$controls@tgctrl@maxdepth <- tuneValue$.maxdepth
+                           theDots$controls@gtctrl@mincriterion <- 0
+                           ctl <- theDots$controls
+                           theDots$controls <- NULL
                            
                          } else ctl <- ctree_control(
                                                      maxdepth = tuneValue$.maxdepth,
@@ -901,7 +936,7 @@
                                       list(
                                            formula = modFormula,
                                            data = data,
-                                           control = ctl),
+                                           controls = ctl),
                                       theDots)
                      
                        
@@ -1720,6 +1755,16 @@
                        regsubsets(trainX, trainY,
                                   weights = if(!is.null(modelWeights)) modelWeights else rep(1, length(trainY)),
                                   nbest = 1, nvmax = tuneValue$.nvmax, method = dir, ...)
+                     },
+                     ORFridge =, ORFpls =, ORFsvm =, ORFlog =
+                     {
+                       library(obliqueRF)
+                       switch(method,
+                              ORFridge = obliqueRF(trainX, trainY, ...),
+                              ORFpls = obliqueRF(trainX, trainY, training_method = "pls", ...),
+                              ORFsvm = obliqueRF(trainX, trainY, training_method = "svm", ...),
+                              ORFlog = obliqueRF(trainX, trainY, training_method = "log", ...))
+                       
                      }
                      )
   

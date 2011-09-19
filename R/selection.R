@@ -30,14 +30,14 @@ byComplexity <- function(x, model)
            {
              x[order(x$mstop, x$nu),] 
            },            
-           rf =, rfNWS =, rfLSF =, parRF =, gpls =, pcr =, pls =, PLS =, pam =, cforest =,
-           nb =, rpart =, ctree2 =, logitBoost=, J48 =, LMT =, ppr =, mda =, pda =, pda2 =,
+           rf =, rfNWS =, rfLSF =, parRF =, gpls =, pcr =, pls =, simpls =, widekernelpls =, PLS =, pam =, cforest =,
+           nb =, ctree2 =, logitBoost=, J48 =, LMT =, ppr =, mda =, pda =, pda2 =,
            lars =, lars2 =, Linda =, QdaCov =, icr =, qrf =,Boruta =,
-           leapForward=, leapBackward=, leapSeq = 
+           leapForward=, leapBackward=, leapSeq =, rpart2 =, ORFridge =, ORFpls =, ORFsvm =, ORFlog = 
            {
              x[order(x[,1]),]
            },
-           JRip =
+           rpart =, JRip =
            {
              x[order(x[,1], decreasing = TRUE),]
            },

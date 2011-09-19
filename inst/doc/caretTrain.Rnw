@@ -525,7 +525,12 @@ There is additional functionality in \pkg{caret} that is described in the next s
       Recursive Partitioning &
          \code{rpart} & 
              {\tt \href{http://cran.r-project.org/web/packages/rpart/index.html}{rpart}}     & 
-            \code{maxdepth} & \\  
+            \code{cp} & \\  
+\rowcolor[rgb]{.95, .95, .95}   
+       &
+         \code{rpart2} & 
+             {\tt \href{http://cran.r-project.org/web/packages/rpart/index.html}{rpart}}     & 
+            \code{maxdepth} & \\              
 \rowcolor[rgb]{.95, .95, .95}               
        &
          \code{ctree} & 
@@ -672,6 +677,18 @@ There is additional functionality in \pkg{caret} that is described in the next s
          \code{pls} & 
              {\tt \href{http://cran.r-project.org/web/packages/pls/index.html}{pls}},  {\tt \href{http://cran.r-project.org/web/packages/caret/index.html}{caret}}       & 
             \code{ncomp} & \\      
+            
+ &
+         \code{pls} & 
+             {\tt \href{http://cran.r-project.org/web/packages/pls/index.html}{simpls}},  {\tt \href{http://cran.r-project.org/web/packages/caret/index.html}{caret}}       & 
+            \code{ncomp} & \\      
+           
+ &
+         \code{pls} & 
+             {\tt \href{http://cran.r-project.org/web/packages/pls/index.html}{widekernelpls}},  {\tt \href{http://cran.r-project.org/web/packages/caret/index.html}{caret}}       & 
+            \code{ncomp} & \\                  
+            
+            
 
 \rowcolor[rgb]{.95, .95, .95}   
       Sparse Partial Least Squares&
@@ -1898,6 +1915,7 @@ employed.
 Fitting: maxdepth=16 
 \end{Soutput}
 \begin{Sinput}
+> set.seed(1)
 > ctreeFit <- train(bbbDescr, logBBB,
 +                  "ctree2",
 +                   tuneLength = 10,
@@ -1916,6 +1934,7 @@ Fitting: maxdepth=9
 Fitting: maxdepth=10 
 \end{Soutput}
 \begin{Sinput}
+> set.seed(1)  
 > earthFit <- train(bbbDescr, logBBB,
 +                   "earth",
 +                   tuneLength = 20,
@@ -1926,6 +1945,7 @@ Fitting: degree=1, nprune=76
 \end{Soutput}
 \end{Schunk}
 \begin{Sinput}
+> set.seed(1)   
 > m5Fit <- train(bbbDescr, logBBB,
 +                "M5Rules",
 +                trControl = trainControl(method = "LGOCV", index = tmp, timingSamps = 50))    
