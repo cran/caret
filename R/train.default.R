@@ -384,10 +384,10 @@ train.default <- function(x, y,
 
   if(!is.null(preProcess))
     {
-      ppOpt <- list(method = preProcess)
+      ppOpt <- list(options = preProcess)
       if(length(trControl$preProcOptions) > 0) ppOpt <- c(ppOpt,trControl$preProcOptions)
     } else ppOpt <- NULL
-  
+
   finalTime <- system.time(
                            finalModel <- createModel(data = trainData, 
                                                      method = method, 
