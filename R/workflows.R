@@ -36,10 +36,10 @@ expandParameters <- function(fixed, seq)
   }
 
 nominalTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing = FALSE, ...)
-  {
+  {    
     ppp <- list(options = ppOpts)
     ppp <- c(ppp, ctrl$preProcOptions)
-    
+   
     printed <- format(info$loop)
     colnames(printed) <- gsub("^\\.", "", colnames(printed))
 
