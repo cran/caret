@@ -42,12 +42,13 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
 
   
   classProb <- switch(method,
-                      lda =, rda =, slda =, qda =
+                      lda =, rda =, slda =, qda =, rrlda = 
                       {
                         switch(method,
                                lda =, qda =  library(MASS),
                                rda        =  library(klaR),
                                slda       = library(ipred),
+                               rrlda      = library(rrlda),
                                sparseLDA  = library(sparseLDA))
                         
                         out <- predict(modelFit, newdata)$posterior

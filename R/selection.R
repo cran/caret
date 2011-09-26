@@ -85,6 +85,10 @@ byComplexity <- function(x, model)
            {
              x[order(x$size, -x$decay),]
            },
+           rrlda =
+           {
+             x[order(-x$lambda),]
+           },           
            qrnn =
            {
              x[order(x$n.hidden, -x$penalty),]

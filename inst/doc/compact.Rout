@@ -1,5 +1,5 @@
 
-R version 2.13.1 Patched (2011-08-02 r56617)
+R version 2.13.1 (2011-07-08)
 Copyright (C) 2011 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 Platform: x86_64-apple-darwin9.8.0/x86_64 (64-bit)
@@ -21,10 +21,10 @@ Type 'q()' to quit R.
 > library(tools)
 > compactPDF(c("caretTrain.pdf", "caretSelection.pdf", "caretMisc.pdf", "caretVarImp.pdf"))
   compacted ‘caretTrain.pdf’ from 571Kb to 379Kb
-  compacted ‘caretSelection.pdf’ from 289Kb to 215Kb
+  compacted ‘caretSelection.pdf’ from 289Kb to 214Kb
   compacted ‘caretMisc.pdf’ from 1017Kb to 367Kb
   compacted ‘caretVarImp.pdf’ from 275Kb to 141Kb
 > 
 > proc.time()
    user  system elapsed 
-  0.730   0.071   0.828 
+  0.792   0.076   0.891 

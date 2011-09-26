@@ -1765,6 +1765,12 @@
                               ORFsvm = obliqueRF(trainX, trainY, training_method = "svm", ...),
                               ORFlog = obliqueRF(trainX, trainY, training_method = "log", ...))
                        
+                     },
+                     rrlda =
+                     {
+                       library(rrlda)
+                       rrlda(trainX, trainY, lambda = tuneValue$.lambda,
+                             alpha = tuneValue$.alpha, ...)
                      }
                      )
   

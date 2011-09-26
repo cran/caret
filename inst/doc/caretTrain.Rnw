@@ -976,106 +976,116 @@ There is additional functionality in \pkg{caret} that is described in the next s
          \code{fda} & 
              {\tt \href{http://cran.r-project.org/web/packages/mda/index.html}{mda}},  {\tt \href{http://cran.r-project.org/web/packages/earth/index.html}{earth}}       & 
             \code{degree}, \code{nprune} & \\
+        
+\rowcolor[rgb]{.95, .95, .95}    
 
-\rowcolor[rgb]{.95, .95, .95}                 
+      Robust Regularized Linear Discriminant Analysis &
+         \code{rrlda} & 
+             {\tt \href{http://cran.r-project.org/web/packages/rrlda/index.html}{mda}},  {\tt \href{http://cran.r-project.org/web/packages/rrlda/index.html}{rrlda}}       & 
+            \code{lambda}, \code{alpha} & \\            
+
+            
       Bagged FDA &
          \code{bagFDA} & 
              {\tt \href{http://cran.r-project.org/web/packages/caret/index.html}{caret}},   {\tt \href{http://cran.r-project.org/web/packages/earth/index.html}{earth}}      & 
             \code{degree}, \code{nprune} & \\   
-            
+
+\rowcolor[rgb]{.95, .95, .95}                
       Logistic/Multinomial Regression &
          \code{multinom} & 
              {\tt \href{http://cran.r-project.org/web/packages/nnet/index.html}{nnet}}     & 
             \code{decay}& \\   
       
-           
+\rowcolor[rgb]{.95, .95, .95}               
    &
          \code{plr} & 
              {\tt \href{http://cran.r-project.org/web/packages/stepPlr/index.html}{stepPlr}}     & 
             \code{lambda}, \code{cp} & \\     
             
-\rowcolor[rgb]{.95, .95, .95}         
+  
       LogitBoost &      
          \code{logitBoost} & 
              {\tt \href{http://cran.r-project.org/web/packages/caTools/index.html}{caTools}}      &          
             \code{nIter} & \\              
             
-               
+\rowcolor[rgb]{.95, .95, .95}                     
       Logistic Model Trees &
          \code{LMT} & 
             {\tt \href{http://cran.r-project.org/web/packages/RWeka/index.html}{RWeka}}   & 
             \code{iter}  & \\  
 
-\rowcolor[rgb]{.95, .95, .95}               
+           
       Rule--Based Models &
          \code{J48} & 
            {\tt \href{http://cran.r-project.org/web/packages/RWeka/index.html}{RWeka}}   & 
             \code{C} & \\  
             
-\rowcolor[rgb]{.95, .95, .95}               
+            
        &
          \code{OneR} & 
            {\tt \href{http://cran.r-project.org/web/packages/RWeka/index.html}{RWeka}}   & 
             None  & \\  
         
-\rowcolor[rgb]{.95, .95, .95}               
+          
        &
          \code{PART} & 
            {\tt \href{http://cran.r-project.org/web/packages/RWeka/index.html}{RWeka}}   & 
             \code{threshold}, \code{pruned} &  \\  
             
-\rowcolor[rgb]{.95, .95, .95}               
+           
         &
          \code{JRip} & 
            {\tt \href{http://cran.r-project.org/web/packages/RWeka/index.html}{RWeka}}    & 
             \code{NumOpt}   & \\
-
+            
+\rowcolor[rgb]{.95, .95, .95}   
       Logic Forests &
          \code{logforest} & 
            {\tt \href{http://cran.r-project.org/web/packages/LogForest/index.html}{LogForest}}   & 
             None & \\  
 
-\rowcolor[rgb]{.95, .95, .95}               
+        
       Bayesian Multinomial Probit Model  
       & \code{vbmpRadial} 
       &  {\tt \href{http://cran.r-project.org/web/packages/vbmp/index.html}{vbmp}} 
       & \code{estimateTheta} & \\
     
+\rowcolor[rgb]{.95, .95, .95}            
       Least Squares Support Vector Machines &
          \code{lssvmRadial} & 
              {\tt \href{http://cran.r-project.org/web/packages/kernlab/index.html}{kernlab}}      & 
             \code{sigma} & \\             
        
-\rowcolor[rgb]{.95, .95, .95}         
+     
       Nearest Shrunken Centroids&
          \code{pam} & 
              {\tt \href{http://cran.r-project.org/web/packages/pamr/index.html}{pamr}}        & 
             \code{threshold} & \\  
-\rowcolor[rgb]{.95, .95, .95}   
+
 &
          \code{scrda} & 
              {\tt \href{http://cran.r-project.org/web/packages/rda/index.html}{rda}}        & 
             \code{alpha}, \code{delta} & \\              
        
-
+\rowcolor[rgb]{.95, .95, .95}   
       Naive Bayes &
          \code{nb} & 
             {\tt \href{http://cran.r-project.org/web/packages/klaR/index.html}{klaR}}     & 
             \code{usekernel}, \code{fL} & \\
 
-\rowcolor[rgb]{.95, .95, .95}   
+
       Generalized Partial Least Squares&
          \code{gpls} & 
              {\tt \href{http://cran.r-project.org/web/packages/gpls/index.html}{gpls}}      & 
             \code{K.prov} & \\
             
-     
+\rowcolor[rgb]{.95, .95, .95}        
       Learned Vector  Quantization&
          \code{lvq} & 
              {\tt \href{http://cran.r-project.org/web/packages/class/index.html}{class}}       &          
             \code{size}, \code{k} & \\  
      
- \rowcolor[rgb]{.95, .95, .95}                 
+          
       ROC Curves &
          \code{rocc} & 
              {\tt \href{http://cran.r-project.org/web/packages/rocc/index.html}{rocc}}    &          

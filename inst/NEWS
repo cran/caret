@@ -1,4 +1,25 @@
 -------------------
+Version: 5.04-007
+Date: 2011-09-26
+
+CHANGES:
+
+ - panel.lift() was moved out of the examples in ?lift and into the
+   package along with another function, panel.lift2.
+ - lift() now uses panel.lift2 by default
+
+ADDITIONS:
+
+ - Added robust regularized linear discriminant analysis from the
+   rrlda package
+
+BUGS:
+
+ - A weird bug was fixed that occurred when some models were run with
+   sequential parameters that were fixed to single values (thanks to
+   Antoine Stevens for finding this issue).
+
+-------------------
 Version: 5.03-003
 Date: 2011-09-23
 

@@ -1,6 +1,6 @@
 Package: caret
-Version: 5.03-003
-Date: 2011-09-23
+Version: 5.04-007
+Date: 2011-09-26
 Title: Classification and Regression Training
 Author: Max Kuhn. Contributions from Jed Wing, Steve Weston, Andre
         Williams, Chris Keefer and Allan Engelhardt
@@ -17,8 +17,8 @@ Suggests: gbm, pls, mlbench, rpart, ellipse, ipred, klaR, randomForest,
         relaxo, lars, vbmp, nodeHarvest, rrcov, gam, stepPlr, GAMens
         (>= 1.1.1), rocc, foba, partDSA, hda, fastICA, neuralnet,
         quantregForest, rda, HDclassif, LogicReg, LogicForest, logicFS,
-        RANN, qrnn, Boruta, Hmisc, Cubist, bst, leaps, obliqueRF
+        RANN, qrnn, Boruta, Hmisc, Cubist, bst, leaps, obliqueRF, rrlda
 License: GPL-2
-Packaged: 2011-09-23 16:55:38 UTC; kuhna03
+Packaged: 2011-09-26 17:42:44 UTC; kuhna03
 Repository: CRAN
-Date/Publication: 2011-09-24 06:41:59
+Date/Publication: 2011-09-27 03:31:36
