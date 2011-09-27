@@ -213,6 +213,8 @@ modelLookup <- function(model = NULL)
             'rpart2',
             ## rpart2
             'rpart',
+            ## rrlda
+            'rrlda', 'rrlda',
             ## rvmLinear
             'rvmLinear', 
             ## rvmPoly
@@ -471,6 +473,8 @@ modelLookup <- function(model = NULL)
               'maxdepth',
               ## rpart
               'cp',
+              ## rrlda
+              'lambda', 'alpha',
               ## rvmLinear
               'parameter', 
               ## rvmPoly
@@ -769,6 +773,9 @@ modelLookup <- function(model = NULL)
               'Max Tree Depth',
               ## rpart
               'Complexity Parameter',
+              ## rrlda
+              'Penalty Parameter',
+              'Robustness Parameter',
               ## rvmLinear
               'none',
               ## rvmPoly
@@ -1044,6 +1051,8 @@ modelLookup <- function(model = NULL)
              TRUE,
              ## rpart
              TRUE,
+             ## rrlda
+             FALSE, FALSE,
              ## rvmLinear
              FALSE, 
              ## rvmPoly
@@ -1302,6 +1311,8 @@ modelLookup <- function(model = NULL)
                 TRUE,
                 ## rpart
                 TRUE,
+                ## rrlda
+                FALSE, FALSE,
                 ## rvmLinear
                 TRUE, 
                 ## rvmPoly
@@ -1561,6 +1572,8 @@ modelLookup <- function(model = NULL)
                   TRUE,
                   ## rpart
                   TRUE,
+                  ## rrlda
+                  TRUE, TRUE,
                   ## rvmLinear
                   FALSE, 
                   ## rvmPoly
@@ -1820,6 +1833,8 @@ modelLookup <- function(model = NULL)
                     TRUE,
                     ## rpart
                     TRUE,
+                    ## rrlda does not generate probabilities, only discrim values
+                    FALSE, FALSE,
                     ## rvmLinear
                     FALSE, 
                     ## rvmPoly

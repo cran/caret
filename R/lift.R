@@ -1,6 +1,7 @@
 
 
-lift <- function(x, data = NULL, class = NULL, cuts = 11, subset = TRUE, lattice.options = NULL, ...)
+lift <- function(x, data = NULL, class = NULL, cuts = 11, subset = TRUE, lattice.options = NULL,
+                 ylabel = "% Samples Found", xlabel = "% Samples Tested", ...)
   {
     library(lattice)
     library(plyr)
@@ -42,16 +43,23 @@ lift <- function(x, data = NULL, class = NULL, cuts = 11, subset = TRUE, lattice
     extras <- names(plotData)[!(names(plotData) %in% defaults)]
     if(length(extras) > 0) lFormula <- paste(lFormula, paste(extras, collapse = "*"), sep = "|")
 
-    
+
+    rng <- extendrange(c(0, 100))
     if(length(probNames) > 1)
       {
         out <- xyplot(as.formula(lFormula), data = plotData,
                       groups = liftModelVar,
-                      xlab = "% Samples Tested", ylab = "% Samples Found",
+                      panel = panel.lift2,
+                      pct = mean(liftData$liftClassVar == class)*100,
+                      ylim = rng, xlim = rng,
+                      xlab = xlabel, ylab = ylabel,
                       ...)
       } else {
         out <- xyplot(as.formula(lFormula), data = plotData,
-                      xlab = "% Samples Tested", ylab = "% Samples Found",
+                      panel = panel.lift2,
+                      pct = mean(liftData$liftClassVar == class)*100,
+                      ylim = rng, xlim = rng,
+                      xlab = xlabel, ylab = ylabel,
                       ...)
       }
     out
@@ -76,7 +84,8 @@ liftCalc <- function(x, class = levels(x$liftClassVar)[1], cuts = 11)
         tmp$n[i] <- nrow(sub)
         tmp$resp[i] <- sum(sub$liftClassVar == class)
       }
-    tmp <- tmp[-1,]
+
+    tmp[1, c("value", "resp", "n")] <- 0
     tmp$lift <- tmp$resp/tmp$n/baseline
     tmp$cumPct <- cumsum(tmp$resp)/sum(x$liftClassVar == class)*100
     tmp$cuts <- tmp$cuts*100
@@ -88,4 +97,17 @@ panel.lift <- function(x,  y, ...)
   panel.xyplot(x, y, ...)
   panel.abline(0, 1, col = "black")  
 }
- 
+
+
+panel.lift2 <- function (x, y, pct = 0, ...) 
+{
+  polyx <- c(0, pct, 100, 0)
+  polyy <- c(0, 100, 100, 0)
+  regionStyle <- trellis.par.get("reference.line")
+  panel.polygon(polyx, polyy,
+                col = regionStyle$col,
+                border = regionStyle$col)
+  panel.xyplot(x, y, ...)
+}
+
+

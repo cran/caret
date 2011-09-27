@@ -145,6 +145,9 @@ nominalTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing =
           tmp <-  data.frame(pred = predicted,
                              obs = dat$.outcome[holdoutIndex],
                              stringsAsFactors = FALSE)
+          ## Sometimes the code above does not coerce the first
+          ## columnn to be named "pred" so force it
+          names(tmp)[1] <- "pred"
           if(ctrl$classProbs) tmp <- cbind(tmp, probValues)
 
 
@@ -163,7 +166,6 @@ nominalTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing =
       thisResample$Resample <- names(resampleIndex)[iter]
       thisResample
     }
-
 
    if(ctrl$method %in% c("boot632"))
       {

@@ -368,6 +368,8 @@
                       cubist = expand.grid(.committees = c(1, 10, 20), .neighbors = c(0, 5, 9)),
                       bstTree = expand.grid(.maxdepth = seq(1, len), .mstop = floor((1:len) * 50), .nu = .1),
                       bstLs =, bstSm =  expand.grid(.mstop = floor((1:len) * 50), .nu = .1),
+                      rrlda = expand.grid(.lambda = c(0, 10 ^ seq(-1, -4, length = len - 1)),
+                                          .alpha = seq(.5, 1, length = len)),
                       leapForward =, leapBackward =, leapSeq = data.frame(.nvmax = 1:len),
                       lda =, lm =, treebag =, sddaLDA =, sddaQDA =,
                       glm =, qda =, OneR =, rlm =,

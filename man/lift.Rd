@@ -8,7 +8,9 @@ For classification models, this function creates a 'lift plot' that describes ho
 }
 \usage{
 lift(x, data = NULL, class = NULL, cuts = 11, 
-     subset = TRUE, lattice.options = NULL, ...)
+     subset = TRUE, lattice.options = NULL,
+     ylabel = "\% Samples Found", xlabel = "\% Samples Tested",
+     ...)
 }
 \arguments{
   \item{x}{
@@ -29,6 +31,9 @@ An expression that evaluates to a logical or integer indexing vector. It is eval
   \item{lattice.options}{
 A list that could be supplied to \code{\link[lattice:lattice.options]{lattice.options}} 
 }
+  \item{xlabel}{a text label for the x axis}
+  \item{ylabel}{a text label for the y axis}
+
   \item{\dots}{
 options to pass through to \code{\link[lattice:xyplot]{xyplot}} or the panel function
 }
@@ -43,7 +48,7 @@ To construct the lift plot, the following steps are used for each model:
    \item the lift is calculated as the ratio of the percentage of samples in each split corresponding to \code{class} over the same percentage in the entire data set}
 \code{lift} produces a plot of the cumulative lift values by the percentage of samples evaluated. 
 
-This implementation uses the \pkg{lattice} function \code{\link[lattice:xyplot]{xyplot}}, so plot elements can be changed via panel functions, \link[lattice:trellis.par.get]{trellis.par.set} or other means.
+This implementation uses the \pkg{lattice} function \code{\link[lattice:xyplot]{xyplot}}, so plot elements can be changed via panel functions, \code{\link[lattice:trellis.par.get]{trellis.par.set}} or other means. \code{lift} uses the panel function \code{\link{panel.lift2}} by default, but it can be changes using \code{\link[lattice:update.trellis]{update.trellis}} (see the examples in \code{\link{panel.lift2}}).
 
 }
 \value{
@@ -55,26 +60,18 @@ Max Kuhn, some \pkg{lattice} code and documentation by Deepayan Sarkar
 }
 
 \seealso{
-\code{\link[lattice:xyplot]{xyplot}}, \link[lattice:trellis.par.get]{trellis.par.set}} 
+\code{\link[lattice:xyplot]{xyplot}}, \code{\link[lattice:trellis.par.get]{trellis.par.set}}} 
 
 \examples{
-
-panel.lift <- function(x,  y, ...)
-{
-  panel.xyplot(x, y, ...)
-  panel.abline(0, 1, col = "black")  
-}
-
 set.seed(1)
 simulated <- data.frame(obs = factor(rep(letters[1:2], each = 100)),
                         perfect = sort(runif(200), decreasing = TRUE),
                         random = runif(200))
 
 lift(obs ~ random, data = simulated)
-lift(obs ~ random, data = simulated, 
-     panel = panel.lift, type = c("p", "l"))
+lift(obs ~ random, data = simulated,  type = c("p", "l"))
 lift(obs ~ random + perfect, data = simulated,
-     panel = panel.lift, type = c("p", "l"),
+     type = c("p", "l"),
      auto.key = list(columns = 2))
 
 

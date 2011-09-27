@@ -8,12 +8,13 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
   if(!is.null(preProc)) newdata <- predict(preProc, newdata)
   
   predictedValue <- switch(method,
-                           lda =, rda =, gpls =, slda =, qda =
+                           lda =, rda =, gpls =, slda =, qda =, rrlda = 
                            {
                              switch(method,
                                     lda =, qda = library(MASS),
                                     rda        = library(klaR),
                                     gpls       = library(gpls),
+                                    rrlda      = library(rrlda),
                                     slda       = library(ipred))
                              out <- as.character(predict(modelFit, newdata)$class)
                              out
