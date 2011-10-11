@@ -1,4 +1,4 @@
-predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL)
+predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL, custom = NULL)
 {
   if(any(colnames(newdata) == ".outcome")) newdata$.outcome <- NULL
 
@@ -1042,7 +1042,19 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                            {
                              library(obliqueRF)
                              as.character(predict(modelFit, newdata))                             
-                           })
+                           },
+                           evtree =
+                           {
+                             library(evtree)
+                             out <- predict(modelFit, newdata)
+                             if(is.factor(out)) out <- as.character(out)
+                             out
+                           },
+                           custom =
+                           {
+                             custom(object = modelFit, newdata = newdata)
+                           }
+                           )
   predictedValue
 }
 

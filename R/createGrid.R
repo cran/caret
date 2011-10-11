@@ -371,6 +371,7 @@
                       rrlda = expand.grid(.lambda = c(0, 10 ^ seq(-1, -4, length = len - 1)),
                                           .alpha = seq(.5, 1, length = len)),
                       leapForward =, leapBackward =, leapSeq = data.frame(.nvmax = 1:len),
+                      evtree = data.frame(.alpha = seq(0, 1, length = len)),
                       lda =, lm =, treebag =, sddaLDA =, sddaQDA =,
                       glm =, qda =, OneR =, rlm =,
                       rvmLinear =, lssvmLinear =, gaussprLinear =,

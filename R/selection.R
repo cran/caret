@@ -33,7 +33,7 @@ byComplexity <- function(x, model)
            rf =, rfNWS =, rfLSF =, parRF =, gpls =, pcr =, pls =, simpls =, widekernelpls =, PLS =, pam =, cforest =,
            nb =, ctree2 =, logitBoost=, J48 =, LMT =, ppr =, mda =, pda =, pda2 =,
            lars =, lars2 =, Linda =, QdaCov =, icr =, qrf =,Boruta =,
-           leapForward=, leapBackward=, leapSeq =, rpart2 =, ORFridge =, ORFpls =, ORFsvm =, ORFlog = 
+           leapForward=, leapBackward=, leapSeq =, rpart2 =, ORFridge =, ORFpls =, ORFsvm =, ORFlog =, evtree =  
            {
              x[order(x[,1]),]
            },

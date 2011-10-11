@@ -41,10 +41,10 @@ extractPrediction <- function(
         {
           if(is.null(models[[i]]$preProcess))
             {
-              tempTrainPred <- predictionFunction(method, modelFit, trainX)
+              tempTrainPred <- predictionFunction(method, modelFit, trainX, custom =  models[[i]]$control$custom$prediction)
             } else {
               ppTrain <- predict(models[[i]]$preProcess, trainX)
-              tempTrainPred <- predictionFunction(method, modelFit, ppTrain)
+              tempTrainPred <- predictionFunction(method, modelFit, ppTrain, custom =  models[[i]]$control$custom$prediction)
             }
           if(verbose) cat(models[[i]]$method, ":", length(tempTrainPred), "training predictions were added\n")         
           
@@ -70,10 +70,10 @@ extractPrediction <- function(
               
               if(is.null(models[[i]]$preProcess))
                 {
-                  tempTestPred <- predictionFunction(method, modelFit, tempX)
+                  tempTestPred <- predictionFunction(method, modelFit, tempX, custom =  models[[i]]$control$custom$prediction)
                 } else {
                   ppTest <- predict(models[[i]]$preProcess, tempX)
-                  tempTestPred <- predictionFunction(method, modelFit, ppTest)
+                  tempTestPred <- predictionFunction(method, modelFit, ppTest, custom =  models[[i]]$control$custom$prediction)
                 }            
 
               if(verbose) cat(models[[i]]$method, ":", length(tempTestPred), "test predictions were added\n")         
@@ -102,10 +102,10 @@ extractPrediction <- function(
           
           if(is.null(models[[i]]$preProcess))
             {
-              tempUnkPred <- predictionFunction(method, modelFit, tempX)
+              tempUnkPred <- predictionFunction(method, modelFit, tempX, custom =  models[[i]]$control$custom$prediction)
             } else {
               ppUnk <- predict(models[[i]]$preProcess, tempX)
-              tempUnkPred <- predictionFunction(method, modelFit, ppUnk)
+              tempUnkPred <- predictionFunction(method, modelFit, ppUnk, custom =  models[[i]]$control$custom$prediction)
             }    
                     
           if(verbose) cat(models[[i]]$method, ":", length(tempUnkPred), "unknown predictions were added\n")         

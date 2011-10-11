@@ -40,7 +40,7 @@ classDist.default <- function(x, y, groups = 5,
       A <- try(solve(A), silent = TRUE)
       if(class(A) == "try-error")
         stop("Cannot invert the covariance matrix")
-      list(means = mean(u, na.rm = TRUE),
+      list(means = colMeans(u, na.rm = TRUE),
            A = A)
     }
   structure(

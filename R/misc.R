@@ -76,7 +76,18 @@ tuneScheme <- function(model, grid, useOOB = FALSE)
   ## this function extracts information about the requested model and figures 
   ## out the details about how the tuning process should be executed
 
-  modelInfo <- modelLookup(model)
+  if(model != "custom")
+    {
+      modelInfo <- modelLookup(model)
+    } else {
+      modelInfo <- data.frame(
+        model = "custom",
+        parameter = gsub("^\\.", "", names(grid)),
+        label = gsub("^\\.", "", names(grid)),
+        seq = FALSE, forReg = TRUE, forClass = TRUE,
+        probModel = TRUE)
+      ## TODO pass control in for probModel
+    }
   
   ## a little hack hre to change when this goes into production:
   

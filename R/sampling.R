@@ -24,6 +24,42 @@ downSample <- function(x, y)
   }
 
 
+
+
+
+overSampleImpute <- function(x, y, class = NULL, pct = 1/3, num = 1, ...)
+  {
+    if(!is.factor(y))
+      {
+        warning("Imputation up-sampling requires a factor variable as the response. The original data was returned.")
+        return(list(x = x, y = y))
+      }
+    orig <- x
+    if(is.null(class)) class <- names(sort(table(y)))[1]
+
+    x <- as.matrix(x[y == class,])
+    foo <- function(a, pct)
+      {
+        a[sample.int(length(a), floor(length(a)*pct))] <- NA
+        a
+      }
+    x <- apply(x, 1, foo, pct = pct)
+    x <- as.data.frame(t(x))
+
+    #library(mice)
+    x <- complete(mice(x, m = num, ...), "long")[, -(1:2)]
+    x <- x[complete.cases(x),]
+    y <- factor(c(as.character(y), rep(class, nrow(x))),
+                levels = levels(y))
+    list(x = rbind(orig, x), y = y)
+    
+  }
+
+
+
+
+
+
 if(FALSE)
   {
     x <- matrix(1:90, ncol = 3)

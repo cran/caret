@@ -13,12 +13,25 @@ trainControl <- function(method = "boot",
                          timingSamps = 0,
                          predictionBounds = rep(FALSE, 2))
 {
+  custom <- NULL
   if(is.null(selectionFunction)) stop("null selectionFunction values not allowed")
   if(!(returnResamp %in% c("all", "final", "none"))) stop("incorrect value of returnResamp")
   if(length(predictionBounds) > 0 && length(predictionBounds) != 2) stop("'predictionBounds' should be a logical or numeric vector of length 2")
   if(any(names(preProcOptions) == "method")) stop("'method' cannot be specified here")
   if(any(names(preProcOptions) == "x")) stop("'x' cannot be specified here")
-  
+
+  if(!is.null(custom))
+    {
+      cNames <- names(custom)
+      reqNames <- c("parameters", "model", "prediction", "probability", "selection")
+      if(!all(reqNames %in% cNames))
+        stop(paste("The custom argument must be a list with elements", paste(reqNames, collapse = ", ")))
+      if(!is.function(custom$model)) stop("The 'model' element should be a function")
+      if(!is.function(custom$prediction)) stop("The 'prediction' element should be a function")
+      if(!is.function(custom$probability)) stop("The 'probability' element should be a function")
+      if(!is.function(custom$selection)) stop("The 'selection' element should be a function")
+      ## TODO rename selection to sort?
+    }
   list(method = method,
        number = number,
        repeats = repeats,
@@ -30,6 +43,7 @@ trainControl <- function(method = "boot",
        summaryFunction = summaryFunction,
        selectionFunction = selectionFunction,
        preProcOptions = preProcOptions,
+       custom = custom,
        index = index,
        timingSamps = timingSamps,
        predictionBounds = predictionBounds)

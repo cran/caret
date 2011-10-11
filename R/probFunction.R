@@ -556,7 +556,13 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
                         library(obliqueRF)
                         out <- predict(modelFit, newdata, type = "prob")            
                         out
-                      }
+                      },
+                      evtree =
+                      {
+                        library(evtree)
+                        out <- predict(modelFit, newdata, type = "prob")            
+                        out
+                      }                      
                       )
 
   if(!is.data.frame(classProb) & is.null(param))
