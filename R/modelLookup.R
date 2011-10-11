@@ -34,7 +34,9 @@ modelLookup <- function(model = NULL)
             ## earthTest
             'earthTest', 'earthTest', 
             ## enet
-            'enet', 'enet', 
+            'enet', 'enet',
+            ## evtree
+            'evtree',
             ## fda
             'fda', 'fda', 
             ## foba
@@ -297,7 +299,9 @@ modelLookup <- function(model = NULL)
               ## earthTest
               'nprune', 'degree', 
               ## enet
-              'fraction', 'lambda', 
+              'fraction', 'lambda',
+              ## evtree
+              'alpha',
               ## fda
               'nprune', 'degree', 
               ## foba
@@ -569,6 +573,8 @@ modelLookup <- function(model = NULL)
               ## enet
               'Fraction of Full Solution',
               'Weight Decay',
+              ## evtree
+              "Complexity Parameter",
               ## fda
               '#Terms',
               'Product Degree',
@@ -875,7 +881,9 @@ modelLookup <- function(model = NULL)
              ## earthTest
              FALSE, FALSE, 
              ## enet
-             TRUE, FALSE, 
+             TRUE, FALSE,
+             ## evtree
+             FALSE,
              ## fda
              FALSE, FALSE, 
              ## foba
@@ -1135,7 +1143,9 @@ modelLookup <- function(model = NULL)
                 ## earthTest
                 TRUE, TRUE, 
                 ## enet
-                TRUE, TRUE, 
+                TRUE, TRUE,
+                ## evtree
+                TRUE,
                 ## fda
                 FALSE, FALSE, 
                 ## foba
@@ -1396,7 +1406,9 @@ modelLookup <- function(model = NULL)
                   ## earthTest
                   FALSE, FALSE, 
                   ## enet
-                  FALSE, FALSE, 
+                  FALSE, FALSE,
+                  ## evtree
+                  TRUE,
                   ## fda
                   TRUE, TRUE, 
                   ## foba
@@ -1657,7 +1669,9 @@ modelLookup <- function(model = NULL)
                     ## earthTest
                     FALSE, FALSE, 
                     ## enet
-                    FALSE, FALSE, 
+                    FALSE, FALSE,
+                    ## evtree
+                    TRUE,
                     ## fda
                     TRUE, TRUE, 
                     ## foba

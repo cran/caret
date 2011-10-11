@@ -115,7 +115,7 @@
   
   if(dim(tuneAcc)[1] > 1)
     {
-      numParam <- nrow(caret:::modelLookup(x$method))
+      numParam <- length(x$bestTune)
 
       finalTune <- x$bestTune
       names(finalTune) <- substring(names(finalTune), 2)
@@ -148,7 +148,8 @@
       tuneAcc <- tuneAcc[, !(names(tuneAcc) %in% rmCols)]	
     }
 
-  params <- modelLookup(x$method)$parameter
+  params <- gsub("^\\.", "", names(x$bestTune))
+  
   if(!all(params == "parameter"))
     {
       numVals <- apply(tuneAcc[, params, drop = FALSE], 2, function(x) length(unique(x)))

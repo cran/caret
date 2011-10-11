@@ -1,6 +1,6 @@
 
 "createModel" <-
-  function(data, method, tuneValue, obsLevels, pp = NULL, ...)
+  function(data, method, tuneValue, obsLevels, pp = NULL, custom = NULL, ...)
 {
 
   ## pam and will crash if there is a resample with <2 observations
@@ -72,6 +72,8 @@
       trainY <- data[,".outcome"]
       if(!is.null(pp$options))
         {
+          pp$method <- pp$options
+          pp$options <- NULL
           pp$x <- trainX
           ppObj <- do.call("preProcess", pp)
           ppObj$call <- "scrubed"
@@ -82,6 +84,8 @@
     } else {
       if(!is.null(pp$options))
         {
+          pp$method <- pp$options
+          pp$options <- NULL
           y <- data$.outcome
           data$.outcome <- NULL
           pp$x <- data
@@ -1771,13 +1775,48 @@
                        library(rrlda)
                        rrlda(trainX, trainY, lambda = tuneValue$.lambda,
                              alpha = tuneValue$.alpha, ...)
+                     },
+                     evtree =
+                     {
+                       library(evtree)
+                       theDots <- list(...)
+                       
+                       if(any(names(theDots) == "control"))
+                         {
+                           theDots$control$alpha <- tuneValue$.alpha 
+                           ctl <- theDots$control
+                           theDots$control <- NULL
+                         } else ctl <- evtree.control(alpha = tuneValue$.alpha)          
+
+                       ## pass in any model weights
+                       if(!is.null(modelWeights)) theDots$weights <- modelWeights
+                       
+                       modelArgs <- c(
+                                      list(
+                                           formula = modFormula,
+                                           data = data,
+                                           control = ctl),
+                                      theDots)
+                       
+                       out <- do.call("evtree", modelArgs)
+                       out                           
+                     },
+                     custom =
+                     {
+                       custom(data = data,
+                              ## TOD weights
+                              parameter = tuneValue,
+                              levels = obsLevels,
+                              ## TODO pass this in...
+                              last = FALSE,
+                              ...)
                      }
                      )
   
 
   ## In case the model needs to be saved to the file system and run later, we will
   ## need to cache the model (per Kurt Hornik on 2008-10-05)
-  ## No ,onger needed?
+  ## No longer needed?
   ## if(method %in% c("JRip", "LMT", "M5Rules", "J48", "OneR", "PART")) .jcache(modelFit$classifier)
   
   ##save a few items so we have a self contained set of information in the model. this will
@@ -1790,7 +1829,7 @@
                                       "lssvmRadial", "lssvmPoly", "lssvmLinear",
                                       "gaussprRadial", "gaussprPoly", "gaussprLinear",
                                       "ctree", "ctree2", "cforest",
-                                      "penalized", "Linda", "QdaCov"))))
+                                      "penalized", "Linda", "QdaCov", "custom"))))
     {
       modelFit$xNames <- xNames
       modelFit$problemType <- type
