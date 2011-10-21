@@ -26,7 +26,15 @@
 
     ## Get tuning parameter info
 
-    params <- modelLookup(x$method)$parameter
+    if(x$method == "custom")
+      {
+        pNames <- gsub("^\\.", "", names(x$bestTune))
+        modelInfo <- data.frame(model = "custom",
+                                parameter = pNames,
+                                label = pNames,
+                                stringsAsFactors = FALSE)
+      } else modelInfo <- modelLookup(x$method)
+    params <- modelInfo$parameter
     plotIt <- "yes"
     if(all(params == "parameter"))
       {
@@ -96,8 +104,7 @@
             
             if(!("type" %in% lNames) & plotType == "scatter") defaultArgs$type <- c("g", "o")
             if(!("type" %in% lNames) & plotType == "line") defaultArgs$type <- c("g", "o")
-            paramLabs <- subset(modelLookup(x$method),
-                                parameter %in% params)$label    
+            paramLabs <- subset(modelInfo, parameter %in% params)$label    
             if(p > 1)
               {
                 ## I apologize in advance for the following 3 line kludge. 
@@ -144,8 +151,7 @@
             lNames <- names(defaultArgs)
             if(!("sub" %in% lNames)) defaultArgs$sub <- paste(metric, resampName)
 
-            paramLabs <- subset(modelLookup(x$method),
-                                parameter %in% params)$label    
+            paramLabs <- subset(modelInfo, parameter %in% params)$label    
             if(!("xlab" %in% lNames)) defaultArgs$xlab <- paramLabs[1]
             if(!("ylab" %in% lNames)) defaultArgs$ylab <- paramLabs[2]
 

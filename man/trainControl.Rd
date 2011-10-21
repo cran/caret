@@ -13,6 +13,7 @@ trainControl(method = "boot",
              classProbs = FALSE,
              summaryFunction = defaultSummary,
              selectionFunction = "best",
+             custom = NULL,
              preProcOptions = list(thresh = 0.95, ICAcomp = 3, k = 5),
              index = NULL,
              timingSamps = 0,
@@ -30,6 +31,7 @@ trainControl(method = "boot",
   \item{p}{For leave-group out cross-validation: the training percentage}
   \item{classProbs}{a logical; should class probabilities be computed for classification models (along with predicted values) in each resample?}
   \item{summaryFunction}{a function to compute performance metrics across resamples. The arguments to the function should be the same as those in \code{\link{defaultSummary}}.}
+  \item{custom}{an optional list of functions that can be used to fit custom models. See the details below and worked examples in the "train" package vignette. This is an "experimental" version for testing. Please send emails to the maintainer for suggestions or problems.}
   \item{selectionFunction}{the function used to select the optimal tuning parameter. This can be a name of the function or the function itself. See \code{\link{best}} for details and other options.}
   \item{preProcOptions}{A list of options to pass to \code{\link{preProcess}}. The type of pre-processing (e.g. center, scaling etc) is passed in via the \code{preProc} option in \code{\link{train}}.}
   \item{index}{a list with elements for each resampling iteration. Each list element is the sample rows used for training at that iteration.}
@@ -40,6 +42,21 @@ trainControl(method = "boot",
 \value{
  An echo of the parameters specified
 }
+
+\details{
+For custom modeling functions, several functions can be specified using the \code{custom} argument:
+\itemize{
+    \item{parameters}{a data frame or function of tuning parameters}
+    \item{model}{a function that trains the model}
+    \item{prediction}{a function that predicts new samples (either numbers or character/factor vectors)}
+    \item{probability}{an optional function for classification models that returns a matrix or data frame of class probabilities (in columns)}
+    \item{sort}{a function that sorts the tuning parameters by complexity}
+    }
+
+For more details and worked examples, see the ``caret Manual -- Model Building'' vignette.
+
+}
+
 \author{Max Kuhn}
 
 \keyword{utilities}

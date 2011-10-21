@@ -16,7 +16,7 @@ predict.plsda <- function(object, newdata = NULL, ncomp = NULL, type = "class", 
       if(!is.matrix(newdata)) newdata <- as.matrix(newdata)
     }
 
-  tmpPred <- predict.mvr(object, newdata = newdata)[,,ncomp,drop = FALSE]
+  tmpPred <- pls:::predict.mvr(object, newdata = newdata)[,,ncomp,drop = FALSE]
 
   if(type == "raw") return(tmpPred)
 
@@ -68,7 +68,6 @@ predict.plsda <- function(object, newdata = NULL, ncomp = NULL, type = "class", 
       tmp <- vector(mode = "list", length = length(ncomp))
       for(i in seq(along = ncomp))
         {
-
           tmp[[i]] <- predict(object$probModel[[ ncomp[i] ]],
                               as.data.frame(tmpPred[,-length(object$obsLevels),i]))
         }
@@ -173,7 +172,7 @@ plsda.default <- function(x, y, ncomp = 2, probMethod = "softmax", prior = NULL,
           probModel$x <- NULL
           probModel
         }
-      train <- predict(out, as.matrix(tmpData$x), ncomp = 1:ncomp)
+      train <- pls:::predict.mvr(out, as.matrix(tmpData$x), ncomp = 1:ncomp)
       ## Get the raw model predictions, but leave one behind since the
       ## final class probs sum to one
       train <- train[, -length(obsLevels),, drop = FALSE]

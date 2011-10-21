@@ -37,7 +37,6 @@ expandParameters <- function(fixed, seq)
 
 nominalTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing = FALSE, ...)
   {
-    custom <- NULL
     library(caret)
     loadNamespace("caret")
     ppp <- list(options = ppOpts)
@@ -93,7 +92,8 @@ nominalTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing =
                                              modelFit = mod$fit,
                                              newdata = dat[holdoutIndex, !(names(dat) %in% c(".outcome", ".modelWeights")), drop = FALSE],
                                              preProc = mod$preProc,
-                                             param = info$seqParam[[parm]])
+                                             param = info$seqParam[[parm]],
+                                             custom = ctrl$custom$probability)
           if(testing) print(head(probValues))
         }
 
@@ -246,7 +246,8 @@ looTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing = FAL
                                              modelFit = mod$fit,
                                              newdata = dat[holdoutIndex, !(names(dat) %in% c(".outcome", ".modelWeights")), drop = FALSE],
                                              preProc = mod$preProc,
-                                             param = info$seqParam[[parm]])
+                                             param = info$seqParam[[parm]],
+                                             custom = ctrl$custom$probability)
           if(testing) print(head(probValues))
         }
 
@@ -298,7 +299,6 @@ looTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing = FAL
 
 oobTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, ...)
   {
-    custom <- NULL
     library(caret)
     ppp <- list(options = ppOpts)
     ppp <- c(ppp, ctrl$preProcOptions)

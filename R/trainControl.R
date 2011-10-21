@@ -8,12 +8,12 @@ trainControl <- function(method = "boot",
                          classProbs = FALSE,
                          summaryFunction = defaultSummary,
                          selectionFunction = "best",
+                         custom = NULL,
                          preProcOptions = list(thresh = 0.95, ICAcomp = 3, k = 5),
                          index = NULL,
                          timingSamps = 0,
                          predictionBounds = rep(FALSE, 2))
 {
-  custom <- NULL
   if(is.null(selectionFunction)) stop("null selectionFunction values not allowed")
   if(!(returnResamp %in% c("all", "final", "none"))) stop("incorrect value of returnResamp")
   if(length(predictionBounds) > 0 && length(predictionBounds) != 2) stop("'predictionBounds' should be a logical or numeric vector of length 2")
@@ -23,14 +23,13 @@ trainControl <- function(method = "boot",
   if(!is.null(custom))
     {
       cNames <- names(custom)
-      reqNames <- c("parameters", "model", "prediction", "probability", "selection")
+      reqNames <- c("parameters", "model", "prediction", "probability", "sort")
       if(!all(reqNames %in% cNames))
         stop(paste("The custom argument must be a list with elements", paste(reqNames, collapse = ", ")))
       if(!is.function(custom$model)) stop("The 'model' element should be a function")
       if(!is.function(custom$prediction)) stop("The 'prediction' element should be a function")
-      if(!is.function(custom$probability)) stop("The 'probability' element should be a function")
-      if(!is.function(custom$selection)) stop("The 'selection' element should be a function")
-      ## TODO rename selection to sort?
+      if(!is.function(custom$probability) & !is.null(custom$probability)) stop("The 'probability' element should be a function or NULL")
+      if(!is.function(custom$sort)) stop("The 'sort' element should be a function")
     }
   list(method = method,
        number = number,

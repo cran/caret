@@ -7,7 +7,7 @@
 
 \description{Internal functions}
 \usage{
-createModel(data, method, tuneValue, obsLevels, pp = NULL, custom = NULL, ...)
+createModel(data, method, tuneValue, obsLevels, pp = NULL, last = FALSE, custom = NULL, ...)
 sortImp(object, top)
 resampleWrapper(x, ind)
 caretTheme()

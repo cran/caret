@@ -1,7 +1,7 @@
-probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL)
+probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL, custom = NULL)
 {
   
-  if(!any(modelLookup(method)$probModel))
+  if(method != "custom" && !any(modelLookup(method)$probModel))
     stop("no probability method for this model")
   
   
@@ -126,7 +126,7 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
                       {
                         library(pls)
                         if(!is.matrix(newdata)) newdata <- as.matrix(newdata)
-                        out <- predict(modelFit, newdata, type = "prob",  ncomp = modelFit$tuneValue$.ncomp)
+                        out <- pls:::predict.mvr(modelFit, newdata, type = "prob",  ncomp = modelFit$tuneValue$.ncomp)
                         if(length(dim(out)) == 3) out <- out[,,1]
                         if(!is.null(param))
                           {
@@ -135,7 +135,7 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
                             
                             for(j in seq(along = param$.ncomp))
                               {
-                                tmpProb <- predict(modelFit, newdata, type = "prob",  ncomp = param$.ncomp[j])
+                                tmpProb <- pls:::predict.mvr(modelFit, newdata, type = "prob",  ncomp = param$.ncomp[j])
                                 if(length(dim(tmpProb)) == 3) tmpProb <- tmpProb[,,1]
                                 tmp[[j+1]] <- as.data.frame(tmpProb[, modelFit$obsLevels])
                               }
@@ -562,13 +562,17 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
                         library(evtree)
                         out <- predict(modelFit, newdata, type = "prob")            
                         out
+                      },
+                      custom =
+                      {
+                        custom(object = modelFit, newdata = newdata)
                       }                      
                       )
 
   if(!is.data.frame(classProb) & is.null(param))
     {
       classProb <- as.data.frame(classProb)
-      classProb <- classProb[, obsLevels]
+      if(!is.null(obsLevels)) classprob <- classProb[, obsLevels]
     }
   classProb
 }
