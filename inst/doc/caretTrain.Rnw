@@ -37,7 +37,7 @@
 \newcommand{\bld}[1]{\mbox{\boldmath $#1$}}
 \newcommand{\shell}[1]{\mbox{$#1$}}
 \renewcommand{\vec}[1]{\mbox{\bf {#1}}}
-
+ \newcommand{\codeheading}[1]{\mbox{\color{darkblue}\texttt{#1}}}
 \newcommand{\code}[1]{\mbox{\footnotesize\color{darkblue}\texttt{#1}}}
 \newcommand{\pkg}[1]{{\fontseries{b}\selectfont #1}}
 \renewcommand{\pkg}[1]{{\textsf{#1}}}
@@ -2124,6 +2124,244 @@ dev.off()
     \end{center}
 \end{figure} 
 
+\section{Custom Methods for \codeheading{train}}
+
+Although there are currently more than
+\Sexpr{length(unique(modelLookup()$model)) -(length(unique(modelLookup()$model)) %% 10)}
+  methods available to \code{train}, there may be the need to create
+  custom model functions (e.g. testing a new model etc). One
+  application of custom models would be to create diverse ensembles of
+  models. For example, a set of different classification models may be
+  fit to the same data and a ''pick--the--winner'' approach can be
+  taken (or the average of the class probabilities could be used, see
+  Kuncheva (2004) or Seni and Elder (2010)). \code{train} already has
+  a framework for resampling and tuning models and
+  \code{predict.train} can be used to encapsulate the ensemble of
+  models into one call for prediction.
+
+\subsection*{Why Not Re--Write \codeheading{train} Altogether?}
+
+One could make a strong argument that back--fitting the package to work with custom models is a bit kludgy. This is probably true, but there are several munches of the current code base that, if implemented in a more formal manner, would make the new code base overly complicated. 
+
+For example, the current code base exploits models that can produce predictions for many tuning parameters using a single model object. For example PLS can fit a K component model and make predictions from models with $1\ldots K$ components. This potentially saves us $K-1$ model fits. PLS is fairly fast, but pother models with this same feature (gbm, cubist, etc) are computationally taxing and this saves a lot of time.  
+
+Also, the package currently does many types of resampling and some, such as the bootstrap 632 estimator, are not as simple as others. In this case, an additional model must be fit for all the data to get the apparent error rate. Formalizing this (or starting over) with a new code base would be unnecessarily complex.
+
+\subsection{How To Write Custom Methods}
+
+The user will need to deviate from the standard call in two ways:
+\begin{itemize}
+  \item use \code{method = "custom"} in the call to \code{train}, and
+  \item add the required functions for the model using \code{trainControl}
+\end{itemize}
+
+The \code{custom} argument of \code{trainControl} requires a list of
+named functions with the following elements: \code{parameters},
+\code{model}, \code{prediction}, \code{prob} and \code{sort}.
+
+\subsubsection{The \codeheading{parameters} Argument}
+
+This element is used to specify or generate the models tuning
+parameters. This can be done either as a function to generate them or
+a data frame of the actual parameters.
+
+{\it Inputs}:
+\begin{itemize}
+  \item \code{data}: a data frame of the training set data. The
+    outcome will be in a column labeled \code{.outcome}. If the
+    formula method for \code{train} was invoked, the data passed into
+    this function will have been processed (i.e. dummy variables have
+    been created etc).
+  \item \code{len} an optional parameter passed in form the
+    \code{tuneLength} argument to \code{train}
+\end{itemize}
+
+{\it Outputs}: a data frame where
+\begin{itemize}
+  \item all columns start with a dot 
+  \item there is at least one row
+\end{itemize}
+
+Instead of a function, the final data frame can be passed in
+
+\subsubsection{The \codeheading{model} Function}
+
+This element fits the model and any other functions
+(e.g. pre--processing of the data)
+
+
+{\it Inputs}:
+\begin{itemize}
+\item \code{data}: a data frame of the training set data. The outcome
+  will be in a column labeled \code{.outcome}. If case weights were
+  specified in the \code{train} call, these are in the column
+  \code{.modelWeights}. If the formula method for \code{train} was
+  invoked, the data passed into this function will have been processed
+  (i.e. dummy variables have been created etc).
+  \item \code{weights} case weights
+  \item \code{parameter} a single row data frame with the current
+    tuning parameter
+  \item \code{levels}: either \code{NULL} or a character vector or
+    factor labels
+  \item \code{last} a logical vector for the final model fit with the
+    selected tuning parameters and the full training set
+  \item \code{...} arguments passed form \code{train} to this function
+\end{itemize}
+
+{\it Outputs}: a list with at least one element:
+\begin{itemize}
+  \item \code{fit}: the object corresponding to the trained model
+\end{itemize}
+Anything else can be attached to this object. If custom
+pre--processing is required, this can be estimated in the \code{model}
+function and attached to the output list. Subsequent calls to the
+\code{prediction} and \code{probability} functions will have the
+entire list available, so the processing can be applied to the new
+data. 
+
+
+\subsubsection{The \codeheading{prediction} Function}
+
+This should be a function that produces either a number vector (for
+regression) or a factor (or character) vector for classification.
+
+{\it Inputs}:
+\begin{itemize}
+\item \code{object}: a list with two elements resulting from the
+  model function
+\item \code{newdata}: a matrix or data frame of predictors to be
+  processed through the model (and possibly pre-processing routine)
+\end{itemize}
+
+The output should be either a numeric, character or factor vector. For
+classification, factors are converted to character elsewhere to ensure
+the proper levels are in the output.
+
+
+\subsubsection{The \codeheading{probability} Argument}
+
+For classification models, this function should generate a data frame of class probabilities. For regression, a value of \code{NULL} can be used. 
+
+{\it Inputs}:
+\begin{itemize}
+\item \code{object}: a list with two elements resulting from the
+  model function
+\item \code{newdata}: a matrix or data frame of predictors to be
+  processed through the model (and possibly pre-processing routine)
+\end{itemize}
+
+The output should be a data frame with these characteristics:
+\begin{itemize}
+\item as many columns are factor levels
+\item column names are the same as the factor levels and in the same order
+\end{itemize}
+
+\subsubsection{The \codeheading{sort} Function}
+
+There are cases where multiple tuning parameters yield the same level
+of performance. In these situations, \code{train} will choose the
+parameters associated with the most simplistic model. This function
+should take the grid of tuning parameters and order them from least
+complex to most complex.
+
+The input is a data frame of tuning parameters (without the
+preceding dot in the name). 
+
+The output is the same data frame sorted appropriately. 
+
+\subsection{An Example}
+
+As an example, suppose we want to test out \code{rpart} models where
+we tune over the complexity parameter and the minimum number of
+samples in a node to do further splitting (a.k.a \code{minsplit}).
+
+We'll use the Blood--brain barrier data in \pkg{caret} to illustrate.
+
+First, we would need to create a training grid with the candidate
+values of \code{cp} and \code{minsplit}. When using the nominal
+\code{rpart} method in \code{train}, an initial \code{rpart} model is
+created and the unique values of the complexity parameter are obtained
+from the sub--object \code{cptable}. We will test two values of
+\code{minsplit}: 10 and 30. First, we get the unique
+$C_p$ values for \code{minsplit = 10}
+
+<<getCp1>>=
+## rpart requires a formula method
+tmpData <- bbbDescr
+tmpData$logBBB <- logBBB
+
+cpValues10 <- rpart(logBBB ~ ., data = tmpData,
+              control = rpart.control(minsplit = 10))$cptable[,"CP"]
+cpValues30 <- rpart(logBBB ~ ., data = tmpData,
+              control = rpart.control(minsplit = 30))$cptable[,"CP"]
+head(cpValues10)
+@ 
+
+From these, we will create the tuning grid of \Sexpr{nrow(cpValues10)*2}
+canidiate models (3 values of \code{minsplit} for each of the
+\Sexpr{nrow(cpValues10)} possible $C_p$ values:
+<<cpGrid>>=
+rpartGrid <- data.frame(.cp = c(cpValues10, cpValues30),
+                        .minsplit = 
+                        c(rep(10, length(cpValues10)), 
+                          rep(30, length(cpValues30))))
+
+@ 
+
+We can now write a model function:
+<<modelFoo>>=
+modelFunc <- function(data, parameter, levels, last, ...)
+  {
+    library(rpart)
+    ctrl <- rpart.control(cp = parameter$.cp,
+                          minsplit = parameter$.minsplit)
+    
+    list(fit = rpart(.outcome ~ ., data = data, control = ctrl))                             
+  }
+@ 
+It is a good idea to load the \pkg{rpart} package and anything else needed within the function.
+
+The prediciton function is simple:
+<<predFoo>>=
+predFunc <- function(object, newdata)
+  {
+    library(rpart)
+    predict(object$fit, newdata)                            
+  }
+@ 
+
+Sorting by complexity is somewhat subjective. Both parameters govern
+how deep the tree can be. We will sort by \code{cp} then \code{minsplit}:
+<<sortFoo>>=
+sortFunc <- function(x)  x[order(x$cp, x$minsplit),]                           
+@ 
+
+Now we can create a control object for \code{train}:
+<<trControl, eval = FALSE>>=
+ctrl <- trainControl(custom = list(
+                       parameters = rpartGrid,
+                       model = modelFunc,
+                       prediction = predFunc,
+                       probability = NULL,
+                       sort = sortFunc),
+                     method = "cv")
+
+set.seed(581)
+customRpart <- train(bbbDescr, logBBB, "custom", trControl = ctrl)
+@ 
+
+The \code{predict}, \code{print}, \code{plot} and \code{resamples}
+methods work with custom models. In the case of \code{plot.train}, the
+axis and key labels will be the parameter names. However, \code{update}
+can be used to make the labels more descriptive:
+
+<<plotResults, eval = FALSE>>=
+rpartPlot <- plot(customRpart, xTrans = log10)
+rpartPlot <- update(rpartPlot, xlab = "Complexity Parameter")
+@ 
+
+
+
 
 \section{Session Information}
 
@@ -2149,6 +2387,9 @@ toLatex(sessionInfo())
   benchmark experiments, '' {\it Journal of Computational and
     Graphical Statistics}, 14,  675--699
 
+  \item Kuncheva (2004), {\it Combining Pattern Classifiers: Methods
+      and Algorithms}. Wiley.
+    
   \item Molinaro et al. (2010), ``partDSA:
     deletion/substitution/addition algorithm for partitioning the
     covariate space in prediction,'' {\it Bioinformatics}, 26, 1357--1363
@@ -2159,6 +2400,10 @@ toLatex(sessionInfo())
     
 \item Schmidberger et al. (2009), `` State-of-the-art in Parallel
   Computing with R,'' {\it Journal of Statistical Software}, 31
+  
+\item Seni and Elder (2010) {\it Ensemble Methods in Data Mining:
+    Improving Accuracy Through Combining Predictions}.
+  Morgan and Claypool Publishers
   
 \item Svetnik, V., Wang, T., Tong, C., Liaw, A., Sheridan, R. P. and
   Song, Q. (2005), ``Boosting: An ensemble learning tool for compound

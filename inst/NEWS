@@ -1,10 +1,30 @@
 -------------------
-Version: 5.05-003
-Date: 2011-10-10
+Version: 5.07-001
+Date: 2011-10-21
+
+CHANGES:
+
+ - changed calls to predict.mvr since the pls package now has a
+   namespace.
+
+-------------------
+Version: 5.06-002
+Date: 2011-10-13
+
+CHANGES:
+
+ - a beta version of custom models with train() is included. The
+   "caretTrain" vignette was updated with a new section that defines
+   how to make custom models.
+
+-------------------
+Version: 5.05-004
+Date: 2011-10-11
 
 CHANGES:
 
  - laying some of the groundwork for custom models
+ - updates to get away from deprecated (mean and sd on data frames)
 
 BUGS:
 

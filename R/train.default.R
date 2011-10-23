@@ -66,11 +66,23 @@ train.default <- function(x, y,
         stop("This model is only implemented for 3+ class problems")      
       if(metric %in% c("RMSE", "Rsquared")) 
         stop(paste("Metric", metric, "not applicable for classification models"))
-      if(method != "custom" && trControl$classProbs & any(!modelInfo$probModel))
+      if(method == "custom" && trControl$classProbs)
         {
-          warning("Class probabilities were requested for a model that does not implement them")
-          trControl$classProbs <- FALSE
+          if(is.null(trControl$custom$probability))
+            {
+              warning("Class probabilities were requested for a model that does not implement them")
+              trControl$classProbs <- FALSE
+            }
         }
+      if(method != "custom" && trControl$classProbs)
+        {
+          if(any(!modelInfo$probModel))
+             {
+              warning("Class probabilities were requested for a model that does not implement them")
+              trControl$classProbs <- FALSE
+             }
+        }
+      
       if(method %in% c("svmLinear", "svmRadial", "svmPoly") & any(names(list(...)) == "class.weights"))
          warning("since class weights are requested, SVM class probabilities cannot be generated")
          
@@ -318,14 +330,20 @@ train.default <- function(x, y,
     {
       performance <- byComplexity(performance, method)
     } else {
-      performance <- trControl$custom$selection(performance) 
+      performance <- trControl$custom$sort(performance) 
     }
   
   if(trControl$verboseIter)
     {
-      mod <- modelLookup(method)
-      if(!all(mod$label == "none"))
+      if(method != "custom")
         {
+          mod <- modelLookup(method)
+          if(!all(mod$label == "none"))
+            {
+              cat("Selecting tuning parameters\n")
+              flush.console()
+            }
+        } else {
           cat("Selecting tuning parameters\n")
           flush.console()
         }
@@ -416,7 +434,8 @@ train.default <- function(x, y,
                                                      tuneValue = bestTune, 
                                                      obsLevels = classLevels,
                                                      pp = ppOpt,
-                                                     trControl$custom$model,
+                                                     last = TRUE,
+                                                     custom = trControl$custom$model,
                                                      ...))
 
   ## get pp info

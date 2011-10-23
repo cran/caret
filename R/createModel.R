@@ -1,6 +1,6 @@
 
 "createModel" <-
-  function(data, method, tuneValue, obsLevels, pp = NULL, custom = NULL, ...)
+  function(data, method, tuneValue, obsLevels, pp = NULL, last = FALSE, custom = NULL, ...)
 {
 
   ## pam and will crash if there is a resample with <2 observations
@@ -1808,7 +1808,7 @@
                               parameter = tuneValue,
                               levels = obsLevels,
                               ## TODO pass this in...
-                              last = FALSE,
+                              last = last,
                               ...)
                      }
                      )

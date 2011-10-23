@@ -194,7 +194,7 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                                  if(!is.matrix(newdata)) newdata <- as.matrix(newdata)
                                  out <- predict(modelFit, newdata, type="class")
                                  
-                               } else as.vector(predict(modelFit, newdata, ncomp = max(modelFit$ncomp)))
+                               } else as.vector(pls:::predict.mvr(modelFit, newdata, ncomp = max(modelFit$ncomp)))
 
                              if(!is.null(param))
                                {
