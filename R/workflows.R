@@ -128,7 +128,7 @@ nominalTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing =
           if(length(lev) > 1)
             {
               cells <- lapply(predicted,
-                              function(x) flatTable(x$pred, x$obs))
+                              function(x) caret:::flatTable(x$pred, x$obs))
               for(ind in seq(along = cells)) thisResample[[ind]] <- c(thisResample[[ind]], cells[[ind]])
             }
           thisResample <- do.call("rbind", thisResample)
@@ -162,7 +162,7 @@ nominalTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing =
                                                model = method)
 
           ## if classification, get the confusion matrix
-          if(length(lev) > 1) thisResample <- c(thisResample, flatTable(tmp$pred, tmp$obs))
+          if(length(lev) > 1) thisResample <- c(thisResample, caret:::flatTable(tmp$pred, tmp$obs))
           
           thisResample <- as.data.frame(t(thisResample))
           thisResample <- cbind(thisResample, info$loop[parm,,drop = FALSE])
@@ -318,10 +318,10 @@ oobTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, ...)
                          ...)
       out <- switch(
                     class(mod$fit)[1],
-                    randomForest = rfStats(mod$fit),
-                    RandomForest = cforestStats(mod$fit),
-                    bagEarth =, bagFDA = bagEarthStats(mod$fit),
-                    regbagg =, classbagg = ipredStats(mod$fit))
+                    randomForest = caret:::rfStats(mod$fit),
+                    RandomForest = caret:::cforestStats(mod$fit),
+                    bagEarth =, bagFDA = caret:::bagEarthStats(mod$fit),
+                    regbagg =, classbagg = caret:::ipredStats(mod$fit))
       cbind(as.data.frame(t(out)), info$loop[parm,,drop = FALSE])
     }
     names(result) <- gsub("^\\.", "", names(result))
@@ -354,7 +354,7 @@ nominalSbfWorkflow <- function(x, y, ppOpts, ctrl, lev, ...)
                                     ctrl,
                                     ...)
       resamples <- ctrl$functions$summary(sbfResults$pred, lev = lev)
-      if(is.factor(y)) resamples <- c(resamples, flatTable(sbfResults$pred$pred, sbfResults$pred$obs))
+      if(is.factor(y)) resamples <- c(resamples, caret:::flatTable(sbfResults$pred$pred, sbfResults$pred$obs))
       resamples <- data.frame(t(resamples))
       resamples$Resample <- names(resampleIndex)[iter]
       
@@ -454,7 +454,7 @@ nominalRfeWorkflow <- function(x, y, sizes, ppOpts, ctrl, lev, ...)
       resamples <- ddply(rfeResults$pred, .(Variables), ctrl$functions$summary, lev = lev)
       if(is.factor(y))
         {
-          cells <- ddply(rfeResults$pred, .(Variables), function(x) flatTable(x$pred, x$obs))
+          cells <- ddply(rfeResults$pred, .(Variables), function(x) caret:::flatTable(x$pred, x$obs))
           resamples <- merge(resamples, cells)
         }
           

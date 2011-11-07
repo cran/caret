@@ -37,6 +37,11 @@ train.default <- function(x, y,
                                       "either 0 or 1"))
     }
 
+  ## Some models that use RWeka start multiple threads and this conflicts with multicore:
+  if(any(search() == "package:doMC") && getDoParRegistered() && method %in% c("J48", "M5Rules", "M5", "LMT", "JRip", "OneR", "PART"))
+    warning("Models using Weka will not work with parallel processing with multicore/doMC")
+  flush.console()
+  
   if(!is.null(preProcess) && !(all(preProcess %in% c("center", "scale", "pca", "ica", "BoxCox", "spatialSign", "knnImpute", "bagImpute", "range")))) 
     stop('pre-processing methods are limited to center, scale, range, pca, ica, knnImpute, bagImpute and spatialSign')
   

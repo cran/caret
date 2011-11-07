@@ -58,27 +58,9 @@ predict.train <- function(object, newdata = NULL, type = "raw", ...)
                                  unkOnly = TRUE,
                                  ...)$pred
       }
-    
-    if(object$modelType == "Regression" &&
-       is.logical(object$control$predictionBounds) &&
-       any(object$control$predictionBounds))
-      {
-        if(object$control$predictionBounds[1]) out <- ifelse(out < object$yLimit[1], object$yLimit[1], out)
-        if(object$control$predictionBounds[2]) out <- ifelse(out > object$yLimit[2], object$yLimit[2], out)         
-      }
-
-    if(object$modelType == "Regression" &&
-       is.numeric(object$control$predictionBounds) &&
-       any(!is.na(object$control$predictionBounds)))
-      {
-        if(!is.na(object$control$predictionBounds[1])) out <- ifelse(out < object$control$predictionBounds[1], object$control$predictionBounds[1], out)
-        if(!is.na(object$control$predictionBounds[2])) out <- ifelse(out > object$control$predictionBounds[2], object$control$predictionBounds[2], out)
-      }
 
     out  
 }
-
-
 
 if(FALSE)
   {
