@@ -99,7 +99,7 @@ print.avNNet <- function (x, ...)
   invisible(x)
 }
 
-predict.avNNet <- function(object, newdata, type = c("raw", "class"), ...)
+predict.avNNet <- function(object, newdata, type = c("raw", "class", "prob"), ...)
   {
     library(nnet)
     if (!inherits(object, "avNNet")) 
@@ -114,7 +114,9 @@ predict.avNNet <- function(object, newdata, type = c("raw", "class"), ...)
            } else {
              for(i in 1:object$repeats)
                {
-                 scores <- if(i == 1) fitted.values(object$model[[i]]) else scores + fitted.values(object$model[[i]])
+                 rawTmp <- fitted.values(object$model[[i]])
+                 rawTmp <- t(apply(rawTmp, 1, function(x) exp(x)/sum(exp(x))))
+                 scores <- if(i == 1) rawTmp else scores + rawTmp
                  scores <- scores/object$repeats
                }
              classes <- colnames(scores)[apply(scores, 1, which.max)]

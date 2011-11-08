@@ -12,7 +12,7 @@ Aggregate several neural network model
 \method{avNNet}{formula}(formula, data, weights, ..., 
         repeats = 5, bag = FALSE, subset, na.action, contrasts = NULL)
 
-\method{predict}{avNNet}(object, newdata, type = c("raw", "class"), ...)
+\method{predict}{avNNet}(object, newdata, type = c("raw", "class", "prob"), ...)
 }
 
 \arguments{
