@@ -1,8 +1,3 @@
-## test with
-## class probs
-## seq factors
-## mpi
-## glmnet failed
 
 
 progress <- function(x)
@@ -51,6 +46,9 @@ nominalTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing =
 
     resampleIndex <- ctrl$index
     if(ctrl$method %in% c("boot632")) resampleIndex <- c(list("AllData" = rep(0, nrow(dat))), resampleIndex)
+
+    if(ctrl$savePredictions) allPred <- NULL
+
     
     result <- foreach(iter = seq(along = resampleIndex), .combine = "rbind", .verbose = FALSE, .packages = "caret", .errorhandling = "stop") %:%
       foreach(parm = 1:nrow(info$loop), .combine = "rbind", .verbose = FALSE, .packages = "caret", .errorhandling = "stop") %dopar%
@@ -101,6 +99,15 @@ nominalTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing =
 
       if(!is.null(info$seq))
         {
+          ## merge the fixed and seq parameter values together
+          allParam <- expandParameters(info$loop[parm,,drop = FALSE], info$seqParam[[parm]])
+          
+          ## For ctree, we had to repeat the first value
+          if(method == "ctree") allParam <- allParam[!duplicated(allParam),, drop = FALSE]
+
+          ## For glmnet, we fit all the lambdas but x$fixed has an NA
+          if(method == "glmnet") allParam <- allParam[complete.cases(allParam),, drop = FALSE]
+          
           ## collate the predicitons across all the sub-models
           predicted <- lapply(predicted,
                               function(x, y, lv)
@@ -117,7 +124,17 @@ nominalTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing =
             {
               for(k in seq(along = predicted)) predicted[[k]] <- cbind(predicted[[k]], probValues[[k]])
             }
-                    
+
+          if(ctrl$savePredictions)
+            {
+              tmpPred <- predicted
+              for(modIndex in seq(along = tmpPred)) tmpPred[[modIndex]] <- cbind(tmpPred[[modIndex]], allParam[modIndex,,drop = FALSE])
+              tmpPred <- do.call("rbind", tmpPred)
+              tmpPred$Resample <- names(resampleIndex)[iter]
+              allPred <- rbind(allPred, tmpPred)
+              rm(tmpPred)
+            }
+          
           ## get the performance for this resample for each sub-model
           thisResample <- lapply(predicted,
                                  ctrl$summaryFunction,
@@ -131,16 +148,7 @@ nominalTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing =
                               function(x) caret:::flatTable(x$pred, x$obs))
               for(ind in seq(along = cells)) thisResample[[ind]] <- c(thisResample[[ind]], cells[[ind]])
             }
-          thisResample <- do.call("rbind", thisResample)
-  
-          allParam <- expandParameters(info$loop[parm,,drop = FALSE], info$seqParam[[parm]])
-          
-          ## For ctree, we had to repeat the first value
-          if(method == "ctree") allParam <- allParam[!duplicated(allParam),, drop = FALSE]
-
-          ## For glmnet, we fit all the lambdas but x$fixed has an NA
-          if(method == "glmnet") allParam <- allParam[complete.cases(allParam),, drop = FALSE]
-          
+          thisResample <- do.call("rbind", thisResample)          
           thisResample <- cbind(allParam, thisResample)
  
         } else {
@@ -155,6 +163,14 @@ nominalTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing =
           names(tmp)[1] <- "pred"
           if(ctrl$classProbs) tmp <- cbind(tmp, probValues)
 
+          if(ctrl$savePredictions)
+            {
+              tmpPred <- tmp
+              tmpPred <- cbind(tmpPred, info$loop[parm,,drop = FALSE])
+              tmpPred$Resample <- names(resampleIndex)[iter]
+              allPred <- rbind(allPred, tmpPred)
+              rm(tmpPred)
+            }
 
           ##################################
           thisResample <- ctrl$summaryFunction(tmp,
@@ -200,7 +216,7 @@ nominalTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing =
         }
       }
     
-    list(performance = out, resamples = result)
+    list(performance = out, resamples = result, predictions = if(ctrl$savePredictions) allPred else NULL)
   }
 
 
@@ -274,6 +290,7 @@ looTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing = FAL
           predicted <- do.call("rbind", predicted)
           allParam <- expandParameters(info$loop, info$seqParam[[parm]])
           predicted <- cbind(predicted, allParam)
+          ## if saveDetails then save and export 'predicted'
         } else {
           
           if(is.factor(dat$.outcome)) predicted <- factor(as.character(predicted),
@@ -293,7 +310,7 @@ looTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing = FAL
                  ctrl$summaryFunction,
                  lev = lev,
                  model = method)
-    out
+    list(performance = out, predictions = result)
   }
 
 
@@ -340,6 +357,7 @@ nominalSbfWorkflow <- function(x, y, ppOpts, ctrl, lev, ...)
     resampleIndex <- ctrl$index
     if(ctrl$method %in% c("boot632")) resampleIndex <- c(list("AllData" = rep(0, nrow(dat))), resampleIndex)
 
+    if(ctrl$saveDetails) allPred <- NULL
     result <- foreach(iter = seq(along = resampleIndex), .combine = "c", .verbose = FALSE, .packages = "caret", .errorhandling = "stop") %dopar%
     {
       library(caret)
@@ -353,6 +371,13 @@ nominalSbfWorkflow <- function(x, y, ppOpts, ctrl, lev, ...)
                                     y[holdoutIndex],
                                     ctrl,
                                     ...)
+      if(ctrl$saveDetails)
+        {
+          tmpPred <- sbfResults$pred
+          tmpPred$Resample <- names(resampleIndex)[iter]
+          allPred <- rbind(allPred, tmpPred)
+          rm(tmpPred)
+        }
       resamples <- ctrl$functions$summary(sbfResults$pred, lev = lev)
       if(is.factor(y)) resamples <- c(resamples, caret:::flatTable(sbfResults$pred$pred, sbfResults$pred$obs))
       resamples <- data.frame(t(resamples))
@@ -384,7 +409,7 @@ nominalSbfWorkflow <- function(x, y, ppOpts, ctrl, lev, ...)
         
       }
     
-    list(performance = performance, everything = result)
+    list(performance = performance, everything = result, predictions = if(ctrl$saveDetails) allPred else NULL)
   }
 
 
@@ -416,7 +441,7 @@ looSbfWorkflow <- function(x, y, ppOpts, ctrl, lev, ...)
     resamples <- do.call("rbind", result[names(result) == "pred"])
     performance <- ctrl$functions$summary(resamples, lev = lev)
     
-    list(performance = performance, everything = result)
+    list(performance = performance, everything = result, predictions = if(ctrl$saveDetails) resamples else NULL)
   }
 
 
@@ -443,7 +468,7 @@ nominalRfeWorkflow <- function(x, y, sizes, ppOpts, ctrl, lev, ...)
           modelIndex <- 1:nrow(x)
           holdoutIndex <- modelIndex
         }
-      
+
       rfeResults <- rfeIter(x[modelIndex,,drop = FALSE],
                             y[modelIndex],
                             x[holdoutIndex,,drop = FALSE],
@@ -452,6 +477,9 @@ nominalRfeWorkflow <- function(x, y, sizes, ppOpts, ctrl, lev, ...)
                             ctrl,
                             ...)
       resamples <- ddply(rfeResults$pred, .(Variables), ctrl$functions$summary, lev = lev)
+      
+      if(ctrl$saveDetails) rfeResults$pred$Resample <- names(resampleIndex)[iter]
+
       if(is.factor(y))
         {
           cells <- ddply(rfeResults$pred, .(Variables), function(x) caret:::flatTable(x$pred, x$obs))
@@ -461,7 +489,7 @@ nominalRfeWorkflow <- function(x, y, sizes, ppOpts, ctrl, lev, ...)
       resamples$Resample <- names(resampleIndex)[iter]
       vars <- do.call("rbind", rfeResults$finalVariables)
       vars$Resample <- names(resampleIndex)[iter]
-      list(resamples = resamples, selectedVars = vars)
+      list(resamples = resamples, selectedVars = vars, predictions = if(ctrl$saveDetails) rfeResults$pred else NULL)
     }
     resamples <- do.call("rbind", result[names(result) == "resamples"])
     rownames(resamples) <- NULL

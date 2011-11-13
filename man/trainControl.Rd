@@ -9,6 +9,7 @@ trainControl(method = "boot",
              verboseIter = FALSE, 
              returnData = TRUE, 
              returnResamp = "final",
+             savePredictions = FALSE,
              p = 0.75, 
              classProbs = FALSE,
              summaryFunction = defaultSummary,
@@ -28,6 +29,7 @@ trainControl(method = "boot",
   \item{verboseIter}{A logical for printing a training log.}
   \item{returnData}{A logical for saving the data}
   \item{returnResamp}{A character string indicating how much of the resampled summary metrics should be saved. Values can be ``final'', ``all'' or ``none''}
+  \item{savePredictions}{a logical to save the hold-out predictions for each resample}
   \item{p}{For leave-group out cross-validation: the training percentage}
   \item{classProbs}{a logical; should class probabilities be computed for classification models (along with predicted values) in each resample?}
   \item{summaryFunction}{a function to compute performance metrics across resamples. The arguments to the function should be the same as those in \code{\link{defaultSummary}}.}

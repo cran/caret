@@ -1,3 +1,16 @@
+Version: 5.07-024
+Date: 2011-11-13
+
+BUGS:
+
+ - Using 'saveDetails' in sbfControl() or rfeControl() will save the
+   predictions on the hold-out sets (Jiaye Yu wins the prize for
+   finding that one).
+
+ADDITIONS:
+
+ - trainControl() now has a logical to save the hold-out predictions.
+
 -------------------
 Version: 5.07-005
 Date: 2011-11-07
