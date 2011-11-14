@@ -299,7 +299,7 @@ train.default <- function(x, y,
         {
           tmp <- looTrainWorkflow(dat = trainData, info = trainInfo, method = method,
                                   ppOpts = preProcess, ctrl = trControl, lev = classLevels, ...)
-          performance <- tmp
+          performance <- tmp$performance
         } else {
           tmp <- nominalTrainWorkflow(dat = trainData, info = trainInfo, method = method,
                                       ppOpts = preProcess, ctrl = trControl, lev = classLevels, ...)
@@ -473,6 +473,7 @@ train.default <- function(x, y,
                         method = method,
                         modelType = modelType,
                         results = performance,
+                        pred = tmp$predictions,
                         bestTune = bestTune,
                         call = funcCall, 
                         dots = list(...),

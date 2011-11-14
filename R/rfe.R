@@ -162,7 +162,7 @@ rfe <- function (x, ...) UseMethod("rfe")
   
   out <- structure(
                    list(
-                        pred = if(rfeControl$saveDetails) rfePred else NULL,
+                        pred = if(rfeControl$saveDetails) do.call("rbind", tmp$everything[names(tmp$everything) == "pred"]) else NULL,
                         variables = selectedVars,
                         results = as.data.frame(externPerf),
                         bestSubset = bestSubset,
