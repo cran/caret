@@ -162,7 +162,7 @@ rfe <- function (x, ...) UseMethod("rfe")
   
   out <- structure(
                    list(
-                        pred = if(rfeControl$saveDetails) do.call("rbind", tmp$everything[names(tmp$everything) == "pred"]) else NULL,
+                        pred = if(rfeControl$saveDetails) do.call("rbind", tmp$everything[names(tmp$everything) == "predictions"]) else NULL,
                         variables = selectedVars,
                         results = as.data.frame(externPerf),
                         bestSubset = bestSubset,
@@ -327,11 +327,12 @@ pickSizeTolerance <- function(x, metric, tol = 1.5, maximize)
       {
         best <- min(x[,metric])  
         perf <- (x[,metric] - best)/best * 100
+        flag <- perf <= tol
       } else {
-        best <- max(x[,metric])  
+        best <- max(x[,metric])
         perf <- (x[,metric] - best)/best * -100
+        flag <- perf >= tol
       }
-    flag <- perf <= tol
     min(x[flag, "Variables"])
   }
 

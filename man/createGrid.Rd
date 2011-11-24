@@ -9,7 +9,7 @@
   createGrid(method, len = 3, data = NULL)
 }
 \arguments{
-   \item{method}{a string specifying which classification model to use. See \code{\link{train}} fgor a full list.}
+   \item{method}{a string specifying which classification model to use. See \code{\link{train}} for a full list.}
    \item{len}{an integer specifying the number of points on the grid for each tuning parameter. }
    \item{data}{the training data (only needed in the case where the \code{method} is \code{cforest}, \code{earth}, \code{bagEarth}, \code{fda}, \code{bagFDA}, \code{rpart}, \code{svmRadial}, \code{pam}, \code{lars2}, \code{rf} or  \code{pls}). The outcome should be in a column called \code{.outcome}.}
 }
