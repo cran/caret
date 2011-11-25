@@ -77,13 +77,9 @@ testData  <- Glass[-inTrain, ]
 
 
 baggedFit <- bagFDA(Type ~ ., trainData)
-baggedMat <- table(
-                   predict(baggedFit, testData[, -10]),
-                   testData[, 10])
-   
-print(baggedMat)
+confusionMatrix(predict(baggedFit, testData[, -10]),
+                testData[, 10])
 
-classAgreement(baggedMat)
 }
 
 \keyword{regression}

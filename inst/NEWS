@@ -1,3 +1,18 @@
+-------------------
+Version: 5.08-011
+Date: 2011-11-24
+
+BUGS:
+
+ - Andrew Ziem found another small bug with parallel processing and
+   train() (functions in the caret namespace cannot be found).
+
+ - Ben Hoffman found a bug in pickSizeTolerance() that was fixed.
+
+ - Jiaye Yu found (and fixed) a bug in getting predictions back from
+   rfe()
+
+-------------------
 Version: 5.07-024
 Date: 2011-11-13
 

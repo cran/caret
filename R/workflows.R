@@ -1,4 +1,8 @@
-
+### In this file, there are a lot of functions form caret that are
+### references using the explicit namespace operator (:::). For some
+### reason, with some parallel processing technologies and foreach,
+### functions inside of caret cannot be found despite using the
+### ".packages" argument and calling the caret package via library().
 
 progress <- function(x)
   {
@@ -54,7 +58,7 @@ nominalTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing =
       foreach(parm = 1:nrow(info$loop), .combine = "rbind", .verbose = FALSE, .packages = "caret", .errorhandling = "stop") %dopar%
     {
       library(caret)
-      if(ctrl$verboseIter) progress(printed[parm,,drop = FALSE])
+      if(ctrl$verboseIter) caret:::progress(printed[parm,,drop = FALSE])
 
       if(names(resampleIndex)[iter] != "AllData")
         {
@@ -67,13 +71,13 @@ nominalTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing =
       
       if(testing) cat("pre-model\n")
 
-      mod <- createModel(data = dat[modelIndex,,drop = FALSE ],
-                         method = method,
-                         tuneValue = info$loop[parm,,drop = FALSE],
-                         obsLevels = lev,
-                         pp = ppp,
-                         custom = ctrl$custom$model,
-                         ...)
+      mod <- caret:::createModel(data = dat[modelIndex,,drop = FALSE ],
+                                 method = method,
+                                 tuneValue = info$loop[parm,,drop = FALSE],
+                                 obsLevels = lev,
+                                 pp = ppp,
+                                 custom = ctrl$custom$model,
+                                 ...)
 
       predicted <- caret:::predictionFunction(method = method,
                                               modelFit = mod$fit,
@@ -100,7 +104,7 @@ nominalTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing =
       if(!is.null(info$seq))
         {
           ## merge the fixed and seq parameter values together
-          allParam <- expandParameters(info$loop[parm,,drop = FALSE], info$seqParam[[parm]])
+          allParam <- caret:::expandParameters(info$loop[parm,,drop = FALSE], info$seqParam[[parm]])
           
           ## For ctree, we had to repeat the first value
           if(method == "ctree") allParam <- allParam[!duplicated(allParam),, drop = FALSE]
@@ -204,7 +208,7 @@ nominalTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing =
  
     out <- ddply(result[,!grepl("^cell|Resample", colnames(result)),drop = FALSE],
                  info$model$parameter,
-                 MeanSD, exclude = info$model$parameter)
+                 caret:::MeanSD, exclude = info$model$parameter)
     
     if(ctrl$method %in% c("boot632"))
       {
@@ -234,17 +238,17 @@ looTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing = FAL
       foreach(parm = 1:nrow(info$loop), .combine = "rbind", .verbose = FALSE, .packages = "caret", .errorhandling = "stop") %dopar%
     {
       library(caret)
-      if(ctrl$verboseIter) progress(printed[parm,,drop = FALSE])
+      if(ctrl$verboseIter) caret:::progress(printed[parm,,drop = FALSE])
 
       if(testing) cat("pre-model\n")
       
-      mod <- createModel(data = dat[ctrl$index[[iter]],,drop = FALSE ],
-                         method = method,
-                         tuneValue = info$loop[parm,,drop = FALSE],
-                         obsLevels = lev,
-                         pp = ppp,
-                         custom = ctrl$custom$model,
-                         ...)
+      mod <- caret:::createModel(data = dat[ctrl$index[[iter]],,drop = FALSE ],
+                                 method = method,
+                                 tuneValue = info$loop[parm,,drop = FALSE],
+                                 obsLevels = lev,
+                                 pp = ppp,
+                                 custom = ctrl$custom$model,
+                                 ...)
       
       holdoutIndex <- -unique(ctrl$index[[iter]])
 
@@ -288,7 +292,7 @@ looTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing = FAL
               for(k in seq(along = predicted)) predicted[[k]] <- cbind(predicted[[k]], probValues[[k]])
             }
           predicted <- do.call("rbind", predicted)
-          allParam <- expandParameters(info$loop, info$seqParam[[parm]])
+          allParam <- caret:::expandParameters(info$loop, info$seqParam[[parm]])
           predicted <- cbind(predicted, allParam)
           ## if saveDetails then save and export 'predicted'
         } else {
@@ -324,15 +328,15 @@ oobTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, ...)
     result <- foreach(parm = 1:nrow(info$loop), .packages = "caret", .combine = "rbind") %dopar%
     {
       library(caret)
-      if(ctrl$verboseIter) progress(printed[parm,,drop = FALSE])
+      if(ctrl$verboseIter) caret:::progress(printed[parm,,drop = FALSE])
 
-      mod <- createModel(data = dat,
-                         method = method,
-                         tuneValue = info$loop[parm,,drop = FALSE],
-                         obsLevels = lev,
-                         pp = ppp,
-                         custom = ctrl$custom$model,
-                         ...)
+      mod <- caret:::createModel(data = dat,
+                                 method = method,
+                                 tuneValue = info$loop[parm,,drop = FALSE],
+                                 obsLevels = lev,
+                                 pp = ppp,
+                                 custom = ctrl$custom$model,
+                                 ...)
       out <- switch(
                     class(mod$fit)[1],
                     randomForest = caret:::rfStats(mod$fit),
@@ -387,7 +391,7 @@ nominalSbfWorkflow <- function(x, y, ppOpts, ctrl, lev, ...)
     }
 
     resamples <- do.call("rbind", result[names(result) == "resamples"])
-    performance <- MeanSD(resamples[,!grepl("Resample", colnames(resamples)),drop = FALSE])
+    performance <- caret:::MeanSD(resamples[,!grepl("Resample", colnames(resamples)),drop = FALSE])
     
     if(ctrl$method %in% c("boot632"))
       {
@@ -469,13 +473,13 @@ nominalRfeWorkflow <- function(x, y, sizes, ppOpts, ctrl, lev, ...)
           holdoutIndex <- modelIndex
         }
 
-      rfeResults <- rfeIter(x[modelIndex,,drop = FALSE],
-                            y[modelIndex],
-                            x[holdoutIndex,,drop = FALSE],
-                            y[holdoutIndex],
-                            sizes,
-                            ctrl,
-                            ...)
+      rfeResults <- caret:::rfeIter(x[modelIndex,,drop = FALSE],
+                                    y[modelIndex],
+                                    x[holdoutIndex,,drop = FALSE],
+                                    y[holdoutIndex],
+                                    sizes,
+                                    ctrl,
+                                    ...)
       resamples <- ddply(rfeResults$pred, .(Variables), ctrl$functions$summary, lev = lev)
       
       if(ctrl$saveDetails) rfeResults$pred$Resample <- names(resampleIndex)[iter]
@@ -509,7 +513,7 @@ nominalRfeWorkflow <- function(x, y, sizes, ppOpts, ctrl, lev, ...)
     
     externPerf <- ddply(resamples[,!grepl("\\.cell|Resample", colnames(resamples)),drop = FALSE],
                         .(Variables),
-                        MeanSD,
+                        caret:::MeanSD,
                         exclude = "Variables")
     if(ctrl$method %in% c("boot632"))
       {
@@ -539,13 +543,13 @@ looRfeWorkflow <- function(x, y, sizes, ppOpts, ctrl, lev, ...)
       modelIndex <- resampleIndex[[iter]]
       holdoutIndex <- -unique(resampleIndex[[iter]])
       
-      rfeResults <- rfeIter(x[modelIndex,,drop = FALSE],
-                            y[modelIndex],
-                            x[holdoutIndex,,drop = FALSE],
-                            y[holdoutIndex],
-                            sizes,
-                            ctrl,
-                            ...)
+      rfeResults <- caret:::rfeIter(x[modelIndex,,drop = FALSE],
+                                    y[modelIndex],
+                                    x[holdoutIndex,,drop = FALSE],
+                                    y[holdoutIndex],
+                                    sizes,
+                                    ctrl,
+                                    ...)
       rfeResults
     }
     preds <- do.call("rbind", result[names(result) == "pred"])
