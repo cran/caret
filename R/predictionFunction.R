@@ -36,21 +36,14 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                              
                              if(!is.null(param))
                                {
-                                 tmp <- vector(mode = "list", length = nrow(param) + 1)
-                                 tmp[[1]] <- out
+                                 preds <- predict(modelFit, newdata, type = "response", n.trees = param$.n.trees)
                                  
-                                 for(j in seq(along = param$.n.trees))
+                                 if(modelFit$problemType == "Classification")
                                    {
-                                     if(modelFit$problemType == "Classification")
-                                       {
-                                         gbmProb <- predict(modelFit, newdata, type = "response", n.trees = param$.n.trees[j])
-                                         tmp[[j+1]] <- ifelse(gbmProb >= .5, modelFit$obsLevels[1], modelFit$obsLevels[2])
-                                         ## to correspond to gbmClasses definition above
-                                       } else {
-                                         tmp[[j+1]]  <- predict(modelFit, newdata, type = "response", n.trees = param$.n.trees[j])
-                                       }
+                                     preds <- ifelse(preds >= .5, modelFit$obsLevels[1], modelFit$obsLevels[2])
                                    }
-                                 out <- if(modelFit$problemType == "Classification") lapply(tmp, as.character) else tmp
+                                 out <- c(list(out), as.list(as.data.frame(preds)))
+                                 out <- if(modelFit$problemType == "Classification") lapply(out, as.character) else out
                                }
                              out
                            },
