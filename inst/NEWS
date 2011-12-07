@@ -1,4 +1,22 @@
 -------------------
+Version: 5.09-006
+Date: 2011-12-6
+
+CHANGES:
+
+ - Shea X made a suggestion and provided code to improve the speed of
+   prediction when sequential parameters are used for gbm() models.
+
+ - Andrew Ziem suggested an error check with metric = "ROC" and
+   classProbs = FALSE.
+
+BUGS:
+
+ - Andrew Ziem found a bug in how train() obtained earth() class
+   probabilities
+
+
+-------------------
 Version: 5.08-011
 Date: 2011-11-24
 
@@ -16,7 +34,7 @@ BUGS:
 Version: 5.07-024
 Date: 2011-11-13
 
-BUGS:
+BUGS: 
 
  - Using 'saveDetails' in sbfControl() or rfeControl() will save the
    predictions on the hold-out sets (Jiaye Yu wins the prize for
