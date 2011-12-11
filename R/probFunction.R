@@ -122,7 +122,7 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
                       {
                         library(pls)
                         if(!is.matrix(newdata)) newdata <- as.matrix(newdata)
-                        out <- pls:::predict.mvr(modelFit, newdata, type = "prob",  ncomp = modelFit$tuneValue$.ncomp)
+                        out <- predict(modelFit, newdata, type = "prob",  ncomp = modelFit$tuneValue$.ncomp)
                         if(length(dim(out)) == 3) out <- out[,,1]
                         if(!is.null(param))
                           {
@@ -131,7 +131,7 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
                             
                             for(j in seq(along = param$.ncomp))
                               {
-                                tmpProb <- pls:::predict.mvr(modelFit, newdata, type = "prob",  ncomp = param$.ncomp[j])
+                                tmpProb <- predict(modelFit, newdata, type = "prob",  ncomp = param$.ncomp[j])
                                 if(length(dim(tmpProb)) == 3) tmpProb <- tmpProb[,,1]
                                 tmp[[j+1]] <- as.data.frame(tmpProb[, modelFit$obsLevels])
                               }

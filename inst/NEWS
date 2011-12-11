@@ -1,3 +1,17 @@
+Version: 5.09-012
+Date: 2011-12-10
+
+BUGS:
+
+ - Fixed a bug which occurred when plsda() models were used with class
+   probabilities
+
+CHANGES:
+
+ - As of 8/15/11, the glmnet() function was updated to return a
+   character vector. Because of this, train() required modification and
+   a version requirement was put in the package description file.
+
 -------------------
 Version: 5.09-006
 Date: 2011-12-6

@@ -596,22 +596,12 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
 
                              if(!is.null(param))
                                {
-                                 
                                  if(length(modelFit$obsLevels) < 2)
                                    {
                                      out <- as.list(as.data.frame(predict(modelFit, newdata, s = param$.lambda)))
                                    } else {
-                                     tmp <- predict(modelFit, newdata, s = param$.lambda, type = "class")
-                                     if(length(modelFit$obsLevels) == 2)
-                                       {
-                                         tmp <- apply(tmp, 1, function(x, y) y[x], y = modelFit$obsLevels)
-                                         out <- as.list(as.data.frame(t(tmp), stringsAsFactors = FALSE))
-                                       } else {
-                                         tmp <- predict(modelFit, newdata, s = param$.lambda, type = "class")
-                                         ## When predicting one sample, it downclasses the results to a vector..
-                                         if(nrow(newdata) == 1) tmp <- matrix(tmp, nrow = 1)
-                                         out <- as.list(as.data.frame(tmp, stringsAsFactors = FALSE))
-                                       }
+                                     out <- predict(modelFit, newdata, s = param$.lambda, type = "class")
+                                     out <- as.list(as.data.frame(out, stringsAsFactors = FALSE))
                                    }
                                } else {
                                  
@@ -622,9 +612,9 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                                      out <- predict(modelFit, newdata, s = modelFit$lambdaOpt)[,1]
                                    } else {
                                      out <- predict(modelFit, newdata, s = modelFit$lambdaOpt, type = "class")[,1]
-                                     if(length(modelFit$obsLevels) == 2) out <- modelFit$obsLevels[out]
                                    }
                                }
+                             out
                            },
                            relaxo =
                            {
