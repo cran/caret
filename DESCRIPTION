@@ -1,11 +1,12 @@
 Package: caret
-Version: 5.09-012
-Date: 2011-12-10
+Version: 5.10-13
+Date: 2012-01-02
 Title: Classification and Regression Training
 Author: Max Kuhn. Contributions from Jed Wing, Steve Weston, Andre Williams, Chris Keefer and Allan Engelhardt
 Description: Misc functions for training and plotting classification and regression models
 Maintainer: Max Kuhn <Max.Kuhn@pfizer.com>
-Depends: R (>= 2.10), lattice, reshape, stats, plyr, cluster, foreach
+Depends: R (>= 2.10), lattice, reshape, stats, plyr, cluster, foreach,
+        pROC
 URL: http://caret.r-forge.r-project.org/
 Suggests: gbm, pls, mlbench, rpart, ellipse, ipred, klaR, randomForest,
         gpls, pamr, kernlab, mda, mgcv, nnet, class, MASS, mboost,
@@ -16,8 +17,8 @@ Suggests: gbm, pls, mlbench, rpart, ellipse, ipred, klaR, randomForest,
         GAMens (>= 1.1.1), rocc, foba, partDSA, hda, fastICA,
         neuralnet, quantregForest, rda, HDclassif, LogicReg,
         LogicForest, logicFS, RANN, qrnn, Boruta, Hmisc, Cubist, bst,
-        leaps, obliqueRF, rrlda, evtree
+        leaps, obliqueRF, rrlda, evtree, penalizedLDA, rFerns
 License: GPL-2
-Packaged: 2011-12-10 21:56:34 UTC; kuhna03
+Packaged: 2012-01-03 18:59:12 UTC; kuhna03
 Repository: CRAN
-Date/Publication: 2011-12-11 10:41:21
+Date/Publication: 2012-01-04 06:20:58

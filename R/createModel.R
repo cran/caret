@@ -65,8 +65,8 @@
                    'scrda', 'sda', 'sddaLDA', 'sddaQDA', 'simpls', 'slda',
                    'smda', 'sparseLDA', 'spls', 'stepLDA', 'stepQDA',
                    'superpc', 'svmLinear', 'svmpoly', 'svmPoly',
-                   'svmradial', 'svmRadial', 'svmRadialCost',
-                   'vbmpRadial', 'widekernelpls'))
+                   'svmradial', 'svmRadial', 'svmRadialCost', 'rFerns',
+                   'vbmpRadial', 'widekernelpls', 'PenalizedLDA'))
     {
       trainX <- data[,!(names(data) %in% ".outcome"), drop = FALSE]
       trainY <- data[,".outcome"]
@@ -1800,6 +1800,19 @@
                        
                        out <- do.call("evtree", modelArgs)
                        out                           
+                     },
+                     PenalizedLDA =
+                     {
+                       library(penalizedLDA)
+                       PenalizedLDA(as.matrix(trainX), as.numeric(trainY),
+                                    lambda = tuneValue$.lambda,
+                                    K = tuneValue$.K,
+                                    ...)
+                     },
+                     rFerns =
+                     {
+                       library(rFerns)
+                       rFerns(trainX, trainY, depth = tuneValue$.depth, ...)
                      },
                      custom =
                      {

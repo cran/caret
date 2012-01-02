@@ -372,6 +372,8 @@
                                           .alpha = seq(.5, 1, length = len)),
                       leapForward =, leapBackward =, leapSeq = data.frame(.nvmax = 1:len),
                       evtree = data.frame(.alpha = seq(0, 1, length = len)),
+                      PenalizedLDA = data.frame(.lambda = 10 ^ seq(-1, -4, length = len), .K = length(levels(data$.outcome)) - 1),
+                      rFerns = data.frame(.depth = unique(floor(seq(1, 16, length = len)))),
                       lda =, lm =, treebag =, sddaLDA =, sddaQDA =,
                       glm =, qda =, OneR =, rlm =,
                       rvmLinear =, lssvmLinear =, gaussprLinear =,

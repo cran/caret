@@ -2,7 +2,7 @@
 \alias{aucRoc}
 \title{Compute the area under an ROC curve}
 \description{
-This function uses the trapezoidal rule to calculate the area. If the area is less than .5, then \code{1 - area} is used.
+This function uses the trapezoidal rule to calculate the area. If the area is less than .5, then \code{1 - area} is used. (DEPRECATED)
 }
 \usage{
 aucRoc(object)
@@ -15,6 +15,10 @@ aucRoc(object)
 \value{
 a scalar number
 }
+\note{
+This function is deprecated a of 1/3/12. The computations now utilize the \pkg{pROC} package. This function will be removed in a few releases.
+}
+
 \author{Max Kuhn}
 
 \seealso{\code{\link{sensitivity}}, \code{\link{specificity}}, \code{\link{roc}}}

@@ -30,7 +30,7 @@ byComplexity <- function(x, model)
            {
              x[order(x$mstop, x$nu),] 
            },            
-           rf =, rfNWS =, rfLSF =, parRF =, gpls =, pcr =, pls =, simpls =, widekernelpls =, PLS =, pam =, cforest =,
+           rFerns =, rf =, rfNWS =, rfLSF =, parRF =, gpls =, pcr =, pls =, simpls =, widekernelpls =, PLS =, pam =, cforest =,
            nb =, ctree2 =, logitBoost=, J48 =, LMT =, ppr =, mda =, pda =, pda2 =,
            lars =, lars2 =, Linda =, QdaCov =, icr =, qrf =,Boruta =,
            leapForward=, leapBackward=, leapSeq =, rpart2 =, ORFridge =, ORFpls =, ORFsvm =, ORFlog =, evtree =  
@@ -199,6 +199,7 @@ byComplexity <- function(x, model)
            {
              x[order(x$committees,  x$neighbors),]
            },
+           PenalizedLDA = x[order(x$lambda, x$K),],
            logreg = x[order(x$ntrees, x$treesize),],
            logicBag = x[order(x$ntrees, x$nleaves),],
            neuralnet = x[order(x$layer1, x$layer2, x$layer3),],

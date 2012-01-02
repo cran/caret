@@ -2,7 +2,7 @@
 \alias{roc}
 \title{Compute the points for an ROC curve}
 \description{
-  Computes sensitivity and specificity for a variety of cutoffs
+  Computes sensitivity and specificity for a variety of cutoffs (DEPRECATED)
 }
 \usage{
 roc(data, class, dataGrid = TRUE, gridLength = 100, positive = levels(class)[1])
@@ -20,7 +20,10 @@ roc(data, class, dataGrid = TRUE, gridLength = 100, positive = levels(class)[1])
    A matrix of results with columns "cutoff", "sensitivity" and "specificity"
 }
 \author{Max Kuhn}
-\note{The first row in the output has a cutoff of \code{NA}, zero specificity and sensitivity of one.}
+\note{
+This function is deprecated a of 1/3/12. The computations now utilize the \pkg{pROC} package. This function will be removed in a few releases.
+
+The first row in the output has a cutoff of \code{NA}, zero specificity and sensitivity of one.}
 
 \seealso{\code{\link{sensitivity}}, \code{\link{specificity}}, \code{\link{aucRoc}}}
 \examples{

@@ -1,3 +1,28 @@
+-------------------
+Version: 5.10-13
+Date: 2012-01-02
+
+BUGS:
+
+ - A bug in roc() was found when the classes were completely
+   separable.
+
+CHANGES:
+
+ - The ROC calculations for twoClassSummary() and filterVarImp() were
+   changed to use the pROC package. This, and other changes, have
+   increased efficiency. For filterVarImp on the cell segmentation
+   data lead to a 54-fold decrease in execution time. For the Glass
+   data in the mlbench package, the speedup was 37-fold. Warnings were
+   added for roc(), aucRoc() and rocPoint() regarding their
+   deprecation.
+
+ADDITIONS:
+
+ - random ferns (package rFerns) were added
+ - another sparse LDA model (from the penalizedLDA) was also added
+
+-------------------
 Version: 5.09-012
 Date: 2011-12-10
 

@@ -51,7 +51,7 @@ createMultiFolds(y, k = 10, times = 5)
   splitting and, at most, will split the data into quartiles. 
 
 
-  Also, for\ code{createDataPartition}, very  small class sizes (<= 3) the 
+  Also, for \code{createDataPartition}, very  small class sizes (<= 3) the 
   classes may not show up in both the training and test data
 
  For multiple k-fold cross-validation, completely independent folds are created. 

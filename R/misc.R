@@ -442,7 +442,19 @@ tuneScheme <- function(model, grid, useOOB = FALSE)
                grid <- grid[order(grid$.alpha, grid$.delta, decreasing = TRUE),]
                loop <- grid[1,,drop = FALSE]
                seqParam <- list(grid[-1,,drop = FALSE])
-             }            
+             },
+             PenalizedLDA =
+             {
+               loop <- ddply(grid, .(.lambda), function(x) c(.K = max(x$.K)))
+               seqParam <- vector(mode = "list", length = nrow(loop))
+               for(i in seq(along = loop$.K))
+                 {
+                   index <- which(grid$.lambda == loop$.lambda[i])
+                   subK <- grid[index, ".K"]
+                   otherK <- data.frame(.K = subK[subK != loop$.K[i]])
+                   if(nrow(otherK) > 0) seqParam[[i]] <- otherK
+                 }        
+             }
              )
       out <- list(scheme = "seq", loop = loop, seqParam = seqParam, model = modelInfo, constant = constant, vary = vary)
     } else out <- list(scheme = "basic", loop = grid, seqParam = NULL, model = modelInfo, constant = names(grid), vary = NULL)
@@ -491,12 +503,13 @@ defaultSummary <- function(data, lev = NULL, model = NULL)
 
 twoClassSummary <- function(data, lev = NULL, model = NULL)
   {
+    require(pROC)
     if(!all(levels(data[, "pred"]) == levels(data[, "obs"])))
       stop("levels of observed and predicted data do not match")
-    out <- c(aucRoc(roc(data[, lev[1]], data$obs, positive = lev[1])),
+    rocObject <- pROC:::roc(data$obs, data[, lev[1]])
+    out <- c(rocObject$auc,
              sensitivity(data[, "pred"], data[, "obs"], lev[1]),
              specificity(data[, "pred"], data[, "obs"], lev[2]))
-    
     names(out) <- c("ROC", "Sens", "Spec")
     out
   }
@@ -612,3 +625,17 @@ varSeq <- function(x)
   }
 
 
+
+cranRef <- function(x) paste("{\\tt \\href{http://cran.r-project.org/web/packages/", x, "/index.html}{", x, "}}", sep = "")
+
+makeTable <- function(x)
+  {
+    params <- paste("\\code{", as.character(x$parameter), "}", sep = "", collapse = ", ")
+    params <- ifelse(params == "\\code{parameter}", "None", params)
+
+    data.frame(method = as.character(x$model)[1],
+               Package = cranRef(as.character(x$Package)[1]),
+               Parameters = params)
+               
+
+  }
