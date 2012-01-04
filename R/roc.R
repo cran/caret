@@ -1,5 +1,7 @@
 roc <- function(data, class, dataGrid = TRUE, gridLength = 100, positive = levels(class)[1])
 {
+  warning("This function is deprecated a of 1/3/12. The computations now utilize the pROC package. This function will be removed in a few releases.")
+
   if(!is.character(positive) | length(positive) != 1) stop("positive argument should be a single character value")
   
   if(!(positive %in%  levels(class))) stop("wrong level specified")

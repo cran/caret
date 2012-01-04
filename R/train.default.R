@@ -268,6 +268,7 @@ train.default <- function(x, y,
       if(trControl$classProbs)
         {
           for(i in seq(along = classLevels)) testOutput[, classLevels[i]] <- runif(nrow(testOutput))
+          testOutput[, classLevels] <- t(apply(testOutput[, classLevels], 1, function(x) x/sum(x)))
         } else {
           if(metric == "ROC" & !trControl$classProbs)
             stop("train()'s use of ROC codes requires class probabilities. See the classProbs option of trainControl()")

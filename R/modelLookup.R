@@ -170,7 +170,9 @@ modelLookup <- function(model = NULL)
             ## pda2
             'pda2', 
             ## penalized
-            'penalized', 'penalized', 
+            'penalized', 'penalized',
+            ## PenalizedLDA
+            'PenalizedLDA', 'PenalizedLDA',
             ## plr
             'plr', 'plr', 
             ## pls
@@ -200,7 +202,9 @@ modelLookup <- function(model = NULL)
             ## relaxo
             'relaxo', 'relaxo', 
             ## rf
-            'rf', 
+            'rf',
+            ## rFerns
+            'rFerns',
             ## rfLSF
             'rfLSF', 
             ## rfNWS
@@ -432,7 +436,9 @@ modelLookup <- function(model = NULL)
               ## pda2
               'df', 
               ## penalized
-              'lambda1', 'lambda2', 
+              'lambda1', 'lambda2',
+              ## PenalizedLDA
+              'lambda', 'K',
               ## plr
               'lambda', 'cp', 
               ## pls
@@ -462,7 +468,9 @@ modelLookup <- function(model = NULL)
               ## relaxo
               'lambda', 'phi', 
               ## rf
-              'mtry', 
+              'mtry',
+              ## rFerns
+              'depth',
               ## rfLSF
               'mtry', 
               ## rfNWS
@@ -732,6 +740,9 @@ modelLookup <- function(model = NULL)
               ## penalized
               'L1 Penalty',
               'L2 Penalty',
+              ## PenalizedLDA
+              'L1 Penalty',
+              '#Discriminant Functions',
               ## plr
               'L2 Penalty',
               'Complexity Parameter',
@@ -765,6 +776,8 @@ modelLookup <- function(model = NULL)
               'Relaxation Parameter',
               ## rf
               '#Randomly Selected Predictors',
+              ## rFerns
+              'Fern Depth',
               ## rfLSF
               '#Randomly Selected Predictors',
               ## rfNWS
@@ -1014,7 +1027,9 @@ modelLookup <- function(model = NULL)
              ## pda2
              FALSE, 
              ## penalized
-             FALSE, FALSE, 
+             FALSE, FALSE,
+             ## PenalizedLDA
+             FALSE, TRUE,
              ## plr
              FALSE, FALSE, 
              ## pls
@@ -1044,7 +1059,9 @@ modelLookup <- function(model = NULL)
              ## relaxo
              TRUE, FALSE, 
              ## rf
-             FALSE, 
+             FALSE,
+             ## rFerns
+             FALSE,
              ## rfLSF
              FALSE, 
              ## rfNWS
@@ -1276,7 +1293,9 @@ modelLookup <- function(model = NULL)
                 ## pda2
                 FALSE, 
                 ## penalized
-                TRUE, TRUE, 
+                TRUE, TRUE,
+                ## PenalizedLDA
+                FALSE, FALSE,
                 ## plr
                 FALSE, FALSE, 
                 ## pls
@@ -1306,7 +1325,9 @@ modelLookup <- function(model = NULL)
                 ## relaxo
                 TRUE, TRUE, 
                 ## rf
-                TRUE, 
+                TRUE,
+                ## rFerns
+                FALSE,
                 ## rfLSF
                 TRUE, 
                 ## rfNWS
@@ -1539,7 +1560,9 @@ modelLookup <- function(model = NULL)
                   ## pda2
                   TRUE, 
                   ## penalized
-                  FALSE, FALSE, 
+                  FALSE, FALSE,
+                  ## PenalizedLDA
+                  TRUE, TRUE,
                   ## plr
                   TRUE, TRUE, 
                   ## pls
@@ -1569,7 +1592,9 @@ modelLookup <- function(model = NULL)
                   ## relaxo
                   FALSE, FALSE, 
                   ## rf
-                  TRUE, 
+                  TRUE,
+                  ## rFerns
+                  TRUE,
                   ## rfLSF
                   TRUE, 
                   ## rfNWS
@@ -1802,7 +1827,9 @@ modelLookup <- function(model = NULL)
                     ## pda2
                     TRUE, 
                     ## penalized
-                    FALSE, FALSE, 
+                    FALSE, FALSE,
+                    ##  PenalizedLDA
+                    FALSE, FALSE,
                     ## plr
                     TRUE, TRUE, 
                     ## pls
@@ -1832,7 +1859,9 @@ modelLookup <- function(model = NULL)
                     ## relaxo
                     FALSE, FALSE, 
                     ## rf
-                    TRUE, 
+                    TRUE,
+                    ## rFerns
+                    FALSE,
                     ## rfLSF
                     TRUE, 
                     ## rfNWS

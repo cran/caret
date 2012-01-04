@@ -1033,6 +1033,28 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                              if(is.factor(out)) out <- as.character(out)
                              out
                            },
+                           PenalizedLDA =
+                           {
+                             library(penalizedLDA)
+
+                             out0 <- predict(modelFit, newdata)$ypred
+                             out <- out0[,ncol(out0)]
+                             out <- modelFit$obsLevels[out]
+                             
+                             if(!is.null(param))
+                               {
+                                 tmp <- out0[, param$.K,drop = FALSE]
+                                 tmp <- apply(tmp, 2, function(x, l) l[x], l = modelFit$obsLevels)
+                                 out <- as.data.frame(cbind(out, tmp), stringsAsFactors = FALSE)                                 
+                               }
+                             
+                             out
+                           },
+                           rFerns =
+                           {
+                             library(rFerns)
+                             as.character(predict(modelFit, newdata))
+                           },
                            custom =
                            {
                              custom(object = modelFit, newdata = newdata)
