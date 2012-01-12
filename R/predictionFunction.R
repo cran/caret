@@ -1055,6 +1055,11 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                              library(rFerns)
                              as.character(predict(modelFit, newdata))
                            },
+                           xyf =, bdk =
+                           {
+                             library(kohonen)
+                             predict(modelFit, as.matrix(newdata))$prediction
+                           },
                            custom =
                            {
                              custom(object = modelFit, newdata = newdata)

@@ -1,6 +1,14 @@
 "createGrid" <-
   function(method, len = 3, data = NULL)
 {
+
+  somDims <- function(x)
+    {
+      out <- expand.grid(.xdim = 1:x, .ydim = 2:(x+1),
+                         .xweight = seq(.5, .9, length = len))
+      out$.topo <- "hexagonal"
+      subset(out, .xdim>= .ydim)
+    }
   ## rpart needs its own function since we fit an initial model,
   ## read off the possible complexity parameters and use
   ## those values to devleop the grid. 
@@ -373,6 +381,7 @@
                       leapForward =, leapBackward =, leapSeq = data.frame(.nvmax = 1:len),
                       evtree = data.frame(.alpha = seq(0, 1, length = len)),
                       PenalizedLDA = data.frame(.lambda = 10 ^ seq(-1, -4, length = len), .K = length(levels(data$.outcome)) - 1),
+                      xyf =, bdk = somDims(len),
                       rFerns = data.frame(.depth = unique(floor(seq(1, 16, length = len)))),
                       lda =, lm =, treebag =, sddaLDA =, sddaQDA =,
                       glm =, qda =, OneR =, rlm =,

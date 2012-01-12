@@ -56,7 +56,7 @@
                    'logitBoost', 'logreg', 'lssvmLinear', 'lssvmPoly',
                    'lssvmRadial', 'lvq', 'mars', 'nnet', 'nodeHarvest',
                    'ORFridge', 'ORFpls', 'ORFsvm', 'ORFlog',
-                   'pam', 'parRF', 'partDSA', 'pcaNNet',
+                   'pam', 'parRF', 'partDSA', 'pcaNNet', 'xyf', 'bdk',
                    'penalized', 'plr', 'pls', 'PLS', 'plsGlmBinomial',
                    'plsGlmGamma', 'plsGlmGaussian', 'plsGlmPoisson',
                    'plsTest', 'ppr', 'qda', 'QdaCov', 'qrf', 'qrnn',
@@ -1814,10 +1814,30 @@
                        library(rFerns)
                        rFerns(trainX, trainY, depth = tuneValue$.depth, ...)
                      },
+                     xyf =
+                     {
+                       library(kohonen)
+                       xyf(as.matrix(trainX),
+                           Y = if(is.factor(trainY)) classvec2classmat(trainY) else trainY,
+                           xweight = tuneValue$.xweight,
+                           contin = !is.factor(trainY),
+                           grid = somgrid(tuneValue$.xdim, tuneValue$.ydim, tuneValue$.topo),
+                           ...)
+                     },
+                     bdk =
+                     {
+                       library(kohonen)
+                       bdk(as.matrix(trainX),
+                           Y = if(is.factor(trainY)) classvec2classmat(trainY) else trainY,
+                           xweight = tuneValue$.xweight,
+                           contin = !is.factor(trainY),
+                           grid = somgrid(tuneValue$.xdim, tuneValue$.ydim, tuneValue$.topo),
+                           ...)
+                     },                     
                      custom =
                      {
                        custom(data = data,
-                              ## TOD weights
+                              ## TODO weights
                               parameter = tuneValue,
                               levels = obsLevels,
                               ## TODO pass this in...

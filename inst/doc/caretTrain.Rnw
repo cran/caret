@@ -789,8 +789,7 @@ class names).
 As shown in the last section, custom functions can be used to
 calculate performance scores that are averaged over the
 resamples. Another built--in function, \code{twoClassSummary}, will
-compute the sensitivity, specificity and area under the ROC curve (see
-Section \ref{S:roc} for details).
+compute the sensitivity, specificity and area under the ROC curve.
 
 \clearpage
 <<summaryFunc>>=
@@ -1246,44 +1245,19 @@ confusion matrix during resampling. There are several methods for
 normalizing these values. See \code{?confusionMatrix.train} for details.
 
 
-\subsection{ROC Curves}\label{S:roc}
-
-The function \code{roc}\footnote{I'm looking into using the
-  \texttt{ROCR} package for ROC curves, so don't get too attached to
-  these functions} can be used to calculate the sensitivity and
-specificity used in an ROC plot. For example, using the previous
-support vector machine fit to the MDRR data, the predicted class
-probabilities on the test set can used to create an ROC curve. The
-area under the ROC curve, via the trapezoidal rule, is calculated
-using the \code{aucRoc} function.  
-
-\begin{small}
-<<mdrrROC>>=
-mdrrProbs <- extractProb(list(gbmFit3), testX = testDescr, testY = testMDRR)
-mdrrProbs <- mdrrProbs[mdrrProbs$dataType == "Test",]
-mdrrROC <- roc(mdrrProbs$Active, mdrrProbs$obs)
-aucRoc(mdrrROC)
-@
-\end{small}
-
-See Figure \ref{f:mdrrROC} for an example.
-
 \subsection*{Plotting Predictions and Probabilities}
 
 Two functions, \code{plotObsVsPred} and \code{plotClassProbs}, are
 interfaces to lattice to plot model results. For regression,
 \code{plotObsVsPred} plots the observed versus predicted values by
-model type and data (e.g. test). See Figures \ref{f:bhPredPlot} and
-\ref{f:mdrrROC}  for examples. For classification data,
+model type and data (e.g. test). See Figure \ref{f:bhPredPlot} for example. For classification data,
 \code{plotObsVsPred} plots the accuracy rates for models/data in a
 dotplot.  
 
 
 <<mdrrPlots, echo = FALSE, results = hide>>=
-pdf(paste(getwd(), "/roc.pdf", sep = ""), width = 6.5, height = 7)
-   plot(1 - mdrrROC[,"specificity"], mdrrROC[, "sensitivity"], type = "s", xlab = "1 - Specificity", ylab = "Sensitivity")
-   abline(0,1, col = "grey", lty = 2)
-dev.off()
+mdrrProbs <- extractProb(list(gbmFit3), testX = testDescr, testY = testMDRR)
+mdrrProbs <- mdrrProbs[mdrrProbs$dataType == "Test",]
 
 pdf(paste(getwd(), "/gbmProbs.pdf", sep = ""), width = 9, height = 7)
    trellis.par.set(caretTheme(), warn = FALSE)
@@ -1296,14 +1270,6 @@ dev.off()
       \includegraphics[clip, width = .5\textwidth]{gbmProbs}   
       \caption{The predicted class probabilities from a gradient boosting machine fit for the MDRR test set. This plot was created using \code{plotClassProbs(mdrrProbs)}.}
       \label{f:mdrrProbs}     
-   \end{center}
-\end{figure}  
-
-\begin{figure}
-   \begin{center}         
-       \includegraphics[clip, width = .5\textwidth]{roc}   
-      \caption{An ROC curve from the predicted class probabilities from a gradient boosting fit for the MDRR test set. }
-      \label{f:mdrrROC}       
    \end{center}
 \end{figure}  
 

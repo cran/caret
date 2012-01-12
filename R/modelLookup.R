@@ -10,7 +10,9 @@ modelLookup <- function(model = NULL)
             ## bagEarth
             'bagEarth', 'bagEarth', 
             ## bagFDA
-            'bagFDA', 'bagFDA', 
+            'bagFDA', 'bagFDA',
+            ## bdk
+            'bdk', 'bdk', 'bdk', 'bdk',
             ## blackboost
             'blackboost', 'blackboost',
             ## Boruta
@@ -268,7 +270,9 @@ modelLookup <- function(model = NULL)
             ## vbmpRadial
             'vbmpRadial',
             ## widekernelpls
-            'widekernelpls')
+            'widekernelpls',
+            ## xyf
+            'xyf', 'xyf', 'xyf', 'xyf')
 
   pNames <- c(## ada
               'iter', 'maxdepth', 'nu',
@@ -279,7 +283,9 @@ modelLookup <- function(model = NULL)
               ## bagEarth
               'nprune', 'degree', 
               ## bagFDA
-              'nprune', 'degree', 
+              'nprune', 'degree',
+              ## bdk
+              'xdim', 'ydim', 'topo', 'xweight',              
               ## blackboost
               'mstop', 'maxdepth',
               ## Boruta
@@ -534,7 +540,9 @@ modelLookup <- function(model = NULL)
               ## vbmpRadial
               'estimateTheta',
               ## widekernelpls
-              'ncomp')
+              'ncomp',
+              ## xyf
+              'xdim', 'ydim', 'topo', 'xweight')
 
 
   pLabel <- c(## ada
@@ -553,6 +561,8 @@ modelLookup <- function(model = NULL)
               ## bagFDA
               '#Terms',
               'Product Degree',
+              ## bdk
+              'Rows', 'Columns', 'Topology', 'X Weight',
               ## blackboost
               '#Trees',
               'Max Tree Depth',
@@ -858,7 +868,9 @@ modelLookup <- function(model = NULL)
               ## vbmpRadial
               'Theta Estimated',
               ## widekernelpls
-              '#Components'
+              '#Components',
+              ## xyf
+              'Rows', 'Columns', 'Topology', 'X Weight'
               )
 
   isSeq <- c(## ada
@@ -870,7 +882,9 @@ modelLookup <- function(model = NULL)
              ## bagEarth
              FALSE, FALSE, 
              ## bagFDA
-             FALSE, FALSE, 
+             FALSE, FALSE,
+             ## bdk
+             FALSE, FALSE, FALSE, FALSE,
              ## blackboost
              TRUE, FALSE,
              ## Boruta
@@ -1125,7 +1139,9 @@ modelLookup <- function(model = NULL)
              ## vbmpRadial
              FALSE,
              ## widekernelpls
-             TRUE
+             TRUE,
+             ## xyf
+             FALSE, FALSE, FALSE, FALSE
              )
   isRegMod <- c(## ada
                 FALSE, FALSE, FALSE,
@@ -1136,7 +1152,9 @@ modelLookup <- function(model = NULL)
                 ## bagEarth
                 TRUE, TRUE, 
                 ## bagFDA
-                FALSE, FALSE, 
+                FALSE, FALSE,
+                ## bdk
+                TRUE, TRUE, TRUE, TRUE,
                 ## blackboost
                 TRUE, TRUE,
                 ## Boruta
@@ -1391,7 +1409,9 @@ modelLookup <- function(model = NULL)
                 ## vbmpRadial
                 FALSE,
                 ## widekernelpls
-                TRUE
+                TRUE,
+                ## xyf
+                TRUE, TRUE, TRUE, TRUE
                 )
 
   isClassMod <- c(## ada
@@ -1403,7 +1423,9 @@ modelLookup <- function(model = NULL)
                   ## bagEarth
                   TRUE, TRUE, 
                   ## bagFDA
-                  TRUE, TRUE, 
+                  TRUE, TRUE,
+                  ## bdk
+                  TRUE, TRUE, TRUE, TRUE,
                   ## blackboost
                   TRUE, TRUE,
                   ## Boruta
@@ -1658,7 +1680,9 @@ modelLookup <- function(model = NULL)
                   ## vbmpRadial
                   TRUE,
                   ## widekernelpls
-                  FALSE
+                  FALSE,
+                  ## xyf
+                  TRUE, TRUE, TRUE, TRUE
                   )
 
   hasProbModel <- c(## ada
@@ -1670,7 +1694,9 @@ modelLookup <- function(model = NULL)
                     ## bagEarth
                     TRUE, TRUE, 
                     ## bagFDA
-                    TRUE, TRUE, 
+                    TRUE, TRUE,
+                    ## bdk
+                    TRUE, TRUE, TRUE, TRUE,
                     ## blackboost
                     TRUE, TRUE,
                     ## Boruta
@@ -1925,7 +1951,9 @@ modelLookup <- function(model = NULL)
                     ## vbmpRadial
                     TRUE,
                     ## widekernelpls
-                    FALSE
+                    FALSE,
+                    ## xyf
+                    TRUE, TRUE, TRUE, TRUE
                     )
   
   
