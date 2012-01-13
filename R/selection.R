@@ -199,6 +199,7 @@ byComplexity <- function(x, model)
            {
              x[order(x$committees,  x$neighbors),]
            },
+           xyf =, bdk = x[order(x$xdim,  x$ydim),],
            PenalizedLDA = x[order(x$lambda, x$K),],
            logreg = x[order(x$ntrees, x$treesize),],
            logicBag = x[order(x$ntrees, x$nleaves),],

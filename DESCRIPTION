@@ -1,12 +1,13 @@
 Package: caret
-Version: 5.10-13
-Date: 2012-01-02
+Version: 5.11-06
+Date: 2012-01-12
 Title: Classification and Regression Training
-Author: Max Kuhn. Contributions from Jed Wing, Steve Weston, Andre Williams, Chris Keefer and Allan Engelhardt
-Description: Misc functions for training and plotting classification and regression models
+Author: Max Kuhn. Contributions from Jed Wing, Steve Weston, Andre
+        Williams, Chris Keefer and Allan Engelhardt
+Description: Misc functions for training and plotting classification
+        and regression models
 Maintainer: Max Kuhn <Max.Kuhn@pfizer.com>
-Depends: R (>= 2.10), lattice, reshape, stats, plyr, cluster, foreach,
-        pROC
+Depends: R (>= 2.10), lattice, reshape, stats, plyr, cluster, foreach
 URL: http://caret.r-forge.r-project.org/
 Suggests: gbm, pls, mlbench, rpart, ellipse, ipred, klaR, randomForest,
         gpls, pamr, kernlab, mda, mgcv, nnet, class, MASS, mboost,
@@ -17,8 +18,9 @@ Suggests: gbm, pls, mlbench, rpart, ellipse, ipred, klaR, randomForest,
         GAMens (>= 1.1.1), rocc, foba, partDSA, hda, fastICA,
         neuralnet, quantregForest, rda, HDclassif, LogicReg,
         LogicForest, logicFS, RANN, qrnn, Boruta, Hmisc, Cubist, bst,
-        leaps, obliqueRF, rrlda, evtree, penalizedLDA, rFerns
+        leaps, obliqueRF, rrlda, evtree, penalizedLDA, rFerns, pROC,
+        kohonen
 License: GPL-2
-Packaged: 2012-01-03 18:59:12 UTC; kuhna03
+Packaged: 2012-01-12 19:26:48 UTC; kuhna03
 Repository: CRAN
-Date/Publication: 2012-01-04 06:20:58
+Date/Publication: 2012-01-13 08:05:44

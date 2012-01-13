@@ -559,6 +559,12 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
                         out <- predict(modelFit, newdata, type = "prob")            
                         out
                       },
+                      xyf =, bdk =
+                      {
+                        library(kohonen)
+                        preds <- predict(modelFit, as.matrix(newdata))
+                        preds$unit.predictions[preds$unit.classif,]
+                      },
                       custom =
                       {
                         custom(object = modelFit, newdata = newdata)

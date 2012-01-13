@@ -1,4 +1,18 @@
 -------------------
+Version: 5.11-06
+Date: 2012-01-12
+
+BUGS:
+
+ - Bugs were fixed that prevented hold-out predictions from being
+   returned.
+
+
+ADDITIONS:
+
+ - SOM models were added ('xyf' and 'bdk') from the kohonen package.
+
+-------------------
 Version: 5.10-13
 Date: 2012-01-02
 
