@@ -514,12 +514,12 @@
                        out <- do.call("rpart", modelArgs)
                        out
                      },                      
-                     pls =, simpls =, widekernelpls =, plsTest = 
+                     pls =, kernelpls =, simpls =, widekernelpls =, plsTest = 
                      {
 
                        library(pls)
                        plsMethod <- method
-                       if(plsMethod == "pls") plsMethod <- "kernelpls"
+                       if(plsMethod == "pls") plsMethod <- "oscorespls"
                                            
                        out <- if(type == "Classification")
                          {      

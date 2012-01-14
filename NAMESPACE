@@ -321,6 +321,9 @@ S3method(predict, BoxCoxTrans)
 
 S3method(summary, bagEarth)
 S3method(summary, bagFDA)
+S3method(summary, train)
+
+S3method(residuals, train)
 
 S3method(format, bagEarth)
 

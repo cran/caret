@@ -2,6 +2,28 @@
 Version: 5.11-06
 Date: 2012-01-12
 
+CHANGES:
+
+ - When using method = "pls" in train(), the plsr() function used the
+   default PLS algorithm ("kernelpls"). Now, the full orthogonal
+   scores method is used. This results in the same model, but a more
+   extensive set of values are calculated that enable VIP calculations
+   (without much of a loss in computational efficient).
+
+ - A check was added to preProcess() to ensure valid values of
+   'method' were used.
+
+ADDITIONS:
+
+ - A new method, "kernelpls", was added.
+
+ - 'residuals' and 'summary' methods were added to 'train' objects
+   that pass the final model to their respective functions.
+
+-------------------
+Version: 5.11-06
+Date: 2012-01-12
+
 BUGS:
 
  - Bugs were fixed that prevented hold-out predictions from being

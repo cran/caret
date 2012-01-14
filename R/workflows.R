@@ -37,6 +37,7 @@ expandParameters <- function(fixed, seq)
 
 nominalTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing = FALSE, ...)
   {
+    suppressPackageStartupMessages(library(foreach))
     library(caret)
     loadNamespace("caret")
     ppp <- list(options = ppOpts)

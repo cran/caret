@@ -13,6 +13,8 @@ preProcess.default <- function(x, method = c("center", "scale"),
                                ...)
 {
 
+  allMethods <- c("BoxCox", "center", "scale", "range", "knnImpute", "bagImpute", "pca", "ica", "spatialSign")
+  if(any(!(method %in% allMethods))) stop(paste("'method' should be one of:", paste(allMethods, collapse = ", ")))
   if(is.null(method)) stop("NULL values of 'method' are not allowed")
   if(any(method %in% "range") & any(method %in% c("center", "scale", "BoxCox")))
     stop("centering, scaling and/or Box-Cox transformations are inconsistent with scaling to a range of [0, 1]")

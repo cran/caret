@@ -118,7 +118,7 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
                           }
                         out
                       },
-                      pls =
+                      pls =, simpls =, widekernelpls =, kernelpls = 
                       {
                         library(pls)
                         if(!is.matrix(newdata)) newdata <- as.matrix(newdata)
