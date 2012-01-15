@@ -264,7 +264,7 @@
                       lvq = lvqGrid(data, len),
                       rpart = rpartTune(data, len),
                       rpart2 = rpart2Tune(data, len),
-                      pcr =, simpls =, widekernelpls =, pls =, plsTest =,PLS = data.frame(.ncomp = seq(1, min(dim(data)[2] - 1, len), by = 1)),
+                      pcr =, simpls =, widekernelpls =, pls =, kernelpls =, plsTest =,PLS = data.frame(.ncomp = seq(1, min(dim(data)[2] - 1, len), by = 1)),
                       pam = pamTune(data, len),
                       knn = data.frame(.k = (5:((2 * len)+4))[(5:((2 * len)+4))%%2 > 0]),
                       nb = data.frame(.usekernel = c(TRUE, FALSE), .fL = 0),

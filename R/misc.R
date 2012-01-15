@@ -150,7 +150,7 @@ tuneScheme <- function(model, grid, useOOB = FALSE)
                loop <- grid[1,,drop = FALSE]
                seqParam <- list(grid[-1,,drop = FALSE])
              },             
-             pcr =, simpls =, widekernelpls =, pls = 
+             pcr =, simpls =, widekernelpls =, pls =, kernelpls =  
              {
                grid <- grid[order(grid$.ncomp, decreasing = TRUE),, drop = FALSE]
                loop <- grid[1,,drop = FALSE]

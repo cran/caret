@@ -178,7 +178,7 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                              out
                            },
 
-                           pcr=, pls =, simpls =, widekernelpls =
+                           pcr=, pls =, simpls =, widekernelpls =, kernelpls = 
                            {
                              library(pls)
                              

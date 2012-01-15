@@ -84,7 +84,9 @@ modelLookup <- function(model = NULL)
             ## J48
             'J48', 
             ## JRip
-            'JRip', 
+            'JRip',
+            ## kernelpls
+            'kernelpls',
             ## knn
             'knn', 
             ## lars
@@ -357,7 +359,9 @@ modelLookup <- function(model = NULL)
               ## J48
               'C', 
               ## JRip
-              'NumOpt', 
+              'NumOpt',
+              ## kernelpls
+              'ncomp',
               ## knn
               'k', 
               ## lars
@@ -652,6 +656,8 @@ modelLookup <- function(model = NULL)
               'Confidence Threshold',
               ## JRip
               '# Optimizations',
+              ## kernelpls
+              '#Components',
               ## knn
               '#Neighbors',
               ## lars
@@ -956,7 +962,9 @@ modelLookup <- function(model = NULL)
              ## J48
              FALSE, 
              ## JRip
-             FALSE, 
+             FALSE,
+             ## kernelpls
+             TRUE,
              ## knn
              FALSE, 
              ## lars
@@ -1226,7 +1234,9 @@ modelLookup <- function(model = NULL)
                 ## J48
                 FALSE, 
                 ## JRip
-                FALSE, 
+                FALSE,
+                ## kernelpls
+                TRUE,
                 ## knn
                 TRUE, 
                 ## lars
@@ -1497,7 +1507,9 @@ modelLookup <- function(model = NULL)
                   ## J48
                   TRUE, 
                   ## JRip
-                  TRUE, 
+                  TRUE,
+                  ## kernelpls
+                  TRUE,
                   ## knn
                   TRUE, 
                   ## lars
@@ -1768,7 +1780,9 @@ modelLookup <- function(model = NULL)
                     ## J48
                     TRUE, 
                     ## JRip
-                    TRUE, 
+                    TRUE,
+                    ## kernelpls
+                    TRUE,
                     ## knn
                     TRUE, 
                     ## lars

@@ -529,3 +529,7 @@ train.formula <- function (form, data, ..., weights, subset, na.action, contrast
   class(res) <- c("train", "train.formula")
   res
 }
+
+summary.train <- function(object, ...) summary(object$finalModel, ...)
+residuals.train <- function(object, ...) residuals(object$finalModel, ...)
+
