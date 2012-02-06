@@ -212,7 +212,10 @@ The vignette entitled "caret Manual -- Model Building" has more details and exam
 
 \references{Kuhn (2008), ``Building Predictive Models in R Using the caret'' (\url{http://www.jstatsoft.org/v28/i05/})}
 
-\seealso{\code{\link{trainControl}}, \code{\link{createGrid}}, \code{\link{createFolds}}}
+\seealso{\code{\link{trainControl}}, \code{\link{update.train}},
+\code{\link{modelLookup}}, \code{\link{createGrid}},
+\code{\link{createFolds}}}
+
 \examples{
 
 #######################################

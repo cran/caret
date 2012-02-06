@@ -1363,75 +1363,43 @@ created: an \code{rpart} tree, a conditional inference tree using
 sets. In this case, 100 leave--group--out cross--validation was
 employed. 
 
-\begin{Schunk}
-\begin{Sinput}
-> data(BloodBrain)
-> set.seed(1)
-> tmp <- createDataPartition(logBBB, p = 0.8, times = 100)
-> rpartFit <- train(bbbDescr, logBBB,
-+                   "rpart", 
-+                   tuneLength = 16,
-+                   trControl = trainControl(method = "LGOCV", index = tmp, timingSamps = 50))
-\end{Sinput}
-\begin{Soutput}
-Fitting: maxdepth=16 
-\end{Soutput}
-\begin{Sinput}
-> set.seed(1)
-> ctreeFit <- train(bbbDescr, logBBB,
-+                  "ctree2",
-+                   tuneLength = 10,
-+                   trControl = trainControl(method = "LGOCV", index = tmp, timingSamps = 50))
-\end{Sinput}
-\begin{Soutput}
-Fitting: maxdepth=1 
-Fitting: maxdepth=2 
-Fitting: maxdepth=3 
-Fitting: maxdepth=4 
-Fitting: maxdepth=5 
-Fitting: maxdepth=6 
-Fitting: maxdepth=7 
-Fitting: maxdepth=8 
-Fitting: maxdepth=9 
-Fitting: maxdepth=10 
-\end{Soutput}
-\begin{Sinput}
-> set.seed(1)  
-> earthFit <- train(bbbDescr, logBBB,
-+                   "earth",
-+                   tuneLength = 20,
-+                   trControl = trainControl(method = "LGOCV", index = tmp, timingSamps = 50))
-\end{Sinput}
-\begin{Soutput}
-Fitting: degree=1, nprune=76 
-\end{Soutput}
-\end{Schunk}
-\begin{Sinput}
-> set.seed(1)   
-> m5Fit <- train(bbbDescr, logBBB,
-+                "M5Rules",
-+                trControl = trainControl(method = "LGOCV", index = tmp, timingSamps = 50))    
-\end{Sinput}
-\begin{Soutput}
-Fitting: pruned=Yes 
-Fitting: pruned=No 
-\end{Soutput}
+<<bbbModelFits, eval = FALSE>>=
+data(BloodBrain)
+set.seed(1)
+tmp <- createDataPartition(logBBB, p = 0.8, times = 100)
+bbbControl <- trainControl(method = "LGOCV", index = tmp, timingSamps = 50)
 
-<<loadData, results = hide, echo = FALSE>>=
-## If we compute the above models, the vignettes takes too long for cran, 
-## so we load the data from a remote source
-load(url("http://caret.r-forge.r-project.org/Classification_and_Regression_Training_files/exampleModels.RData"))
+rpartFit <- train(bbbDescr, logBBB,
+                   "rpart", 
+                   tuneLength = 16,
+                   trControl = bbbControl)
+
+ctreeFit <- train(bbbDescr, logBBB,
+                 "ctree2",
+                  tuneLength = 10,
+                  trControl = bbbControl)
+
+earthFit <- train(bbbDescr, logBBB,
+                   "earth",
+                   tuneLength = 20,
+                   trControl = bbbControl)
+m5Fit <- train(bbbDescr, logBBB,
+                "M5Rules",
+                trControl = bbbControl)  
 @ 
-
 Given these models, can we make statistical statements about their
 performance differences? To do this, we first collect the resampling
 results using \code{resamples}. 
-
-<<resamps>>=
+<<resamps, eval = FALSE>>=
 resamps <- resamples(list(CART = rpartFit,
                           CondInfTree = ctreeFit,
                           MARS = earthFit,
                           M5 = m5Fit))
+@ 
+<<resampLoad, echo = FALSE, results = hide>>=
+load(system.file("doc", "resamps.RData", package = "caret"))
+@ 
+<<resampFuncs>>=
 resamps
 summary(resamps)
 @ 

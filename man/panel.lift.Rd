@@ -50,11 +50,12 @@ regionInfo <- trellis.par.get("reference.line")
 regionInfo$col <- "lightblue"
 trellis.par.set("reference.line", regionInfo)
 
-lift(obs ~ random, data = simulated, type = "o")
+lift2 <- lift(obs ~ random + perfect, data = simulated)
+lift2
+xyplot(lift2, auto.key = list(columns = 2))
 
 ## use a different panel function
-liftPlot <- lift(obs ~ random, data = simulated, type = "o")
-update(liftPlot, panel = panel.lift)
+xyplot(lift2, panel = panel.lift)
 }
 
 \keyword{hplot }

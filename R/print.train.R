@@ -201,21 +201,28 @@
   
   if(dim(tuneAcc)[1] > 1)
     {
-      met <- paste(x$metric, "was used to select the optimal model using")
-      if(is.function(x$control$selectionFunction))
+      if(is.null(x$update))
         {
-          met <- paste(met, " a custom selection rule.\n")
-        } else {
+          met <- paste(x$metric, "was used to select the optimal model using")
+          if(is.function(x$control$selectionFunction))
+            {
+              met <- paste(met, " a custom selection rule.\n")
+            } else {
 
-          met <- paste(met,
-              switch(
-                     x$control$selectionFunction,
-                     best = paste(
-                       " the",
-                       ifelse(x$maximize, "largest", "smallest"),
-                       "value.\n"),
-                     oneSE = " the one SE rule.\n",
-                     tolerance = " a tolerance rule.\n"))
+              met <- paste(met,
+                           switch(
+                                  x$control$selectionFunction,
+                                  best = paste(
+                                    " the",
+                                    ifelse(x$maximize, "largest", "smallest"),
+                                    "value.\n"),
+                                  oneSE = " the one SE rule.\n",
+                                  tolerance = " a tolerance rule.\n"))
+            }
+        } else {
+          met <- paste("The tuning", ifelse(ncol(x$bestTune) > 1, "parameters", "parameter"),
+                       "was set manually.\n") 
+
         }
       cat(truncateText(met))
     }

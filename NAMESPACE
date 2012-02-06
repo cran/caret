@@ -3,7 +3,6 @@ import(lattice)
 importFrom(stats, prcomp)
 
 export(anovaScores,
-       aucRoc,
        avNNet,
        avNNet.default,
        bag,
@@ -17,6 +16,7 @@ export(anovaScores,
        bagFDA.formula,
        best,
        BoxCoxTrans,
+       calibration,
        caretFuncs,
        caretSBF,
        caretTheme,
@@ -84,6 +84,7 @@ export(anovaScores,
        nullModel,
        nullModel.default,
        oneSE,
+       panel.calibration,       
        panel.lift,
        panel.lift2,
        panel.needle,
@@ -137,7 +138,6 @@ export(anovaScores,
        rfFuncs,
        rfSBF,
        RMSE,
-       roc,
        sbf,
        sbf.default,
        sbf.formula,
@@ -201,14 +201,15 @@ S3method(bag,             default)
 S3method(dummyVars,       default)
 S3method(BoxCoxTrans,     default)
 
-
-S3method(train,   formula)
-S3method(pcaNNet, formula)
-S3method(avNNet,  formula)
-S3method(rfe,     formula)
-S3method(knnreg,  formula)
-S3method(sbf,     formula)
-S3method(icr,     formula)
+S3method(calibration, formula)
+S3method(lift,        formula)
+S3method(train,       formula)
+S3method(pcaNNet,     formula)
+S3method(avNNet,      formula)
+S3method(rfe,         formula)
+S3method(knnreg,      formula)
+S3method(sbf,         formula)
+S3method(icr,         formula)
 
 S3method(varImp, train)
 S3method(varImp, rpart)
@@ -235,6 +236,9 @@ S3method(densityplot, train)
 S3method(histogram,   train)
 S3method(stripplot,   train)
 S3method(xyplot,      train)
+S3method(xyplot,      lift)
+S3method(xyplot,      calibration)
+
 
 S3method(densityplot, rfe)
 S3method(histogram,   rfe)
@@ -297,6 +301,9 @@ S3method(print, bag)
 S3method(print, prcomp.resamples)
 S3method(print, dummyVars)
 S3method(print, BoxCoxTrans)
+S3method(print, lift)
+S3method(print, calibration)
+
 
 S3method(predict, PLS)
 S3method(predict, plsda)
@@ -406,3 +413,5 @@ S3method(summary, bag)
 S3method(diff, resamples)
 
 S3method(summary, diff.resamples)
+
+S3method(update, train)
