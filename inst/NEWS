@@ -1,4 +1,29 @@
 -------------------
+Version: 5.13-20
+Date: 2012-02-06
+
+CHANGES:
+
+ - lift() was expanded into lift.formula() for calculating the plot
+   points and xyplot.lift() to create the plot.
+
+ - The package vignettes were altered to stop loading external RData
+   files.
+
+ - A few match.call() changes were made to pass new R CMD check tests.
+
+ADDITIONS:
+
+ - calibration(), calibration.formula() and xyplot.calibration() were
+   created to make probability calibration plots.
+
+ - Model types 'xyf' and 'bdk' from the kohonen package were added.
+
+ - update.train() was added so that tuning parameters can be manually
+   set if the automated approach to setting their values is
+   insufficient.
+
+-------------------
 Version: 5.11-06
 Date: 2012-01-12
 

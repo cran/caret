@@ -70,7 +70,7 @@
   
   if (!inherits(formula, "formula")) 
     stop("method is only for formula objects")
-  m <- match.call(expand = FALSE)  
+  m <- match.call(expand.dots = FALSE)  
   mIndex <- match(c("formula", "data", "subset", "weights", "na.action"), names(m), 0)
   m <- m[c(1, mIndex)]
   m$... <- NULL
