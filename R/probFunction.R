@@ -565,6 +565,13 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
                         preds <- predict(modelFit, as.matrix(newdata))
                         preds$unit.predictions[preds$unit.classif,]
                       },
+                      mlp =, mlpWeightDecay =, rbf =, rbfDDA =   
+                      {
+                        library(RSNNS)
+                        out <- predict(modelFit, newdata)
+                        colnames(out) <- modelFit$obsLevels
+                        out
+                      },                      
                       custom =
                       {
                         custom(object = modelFit, newdata = newdata)

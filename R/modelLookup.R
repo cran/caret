@@ -134,7 +134,11 @@ modelLookup <- function(model = NULL)
             ## mars
             'mars', 'mars', 
             ## mda
-            'mda', 
+            'mda',
+            ## mlp
+            'mlp',
+            ## mlpWeightDecay
+            'mlpWeightDecay', 'mlpWeightDecay',
             ## multinom
             'multinom', 
             ## nb
@@ -200,7 +204,11 @@ modelLookup <- function(model = NULL)
             ## qrnn
             'qrnn', 'qrnn', 'qrnn',
             ## qrf
-            'qrf', 
+            'qrf',
+            ## rbf
+            'rbf',
+            ## rbfDDA
+            'rbfDDA',
             ## rda
             'rda', 'rda', 
             ## relaxo
@@ -409,7 +417,11 @@ modelLookup <- function(model = NULL)
               ## mars
               'nprune', 'degree', 
               ## mda
-              'subclasses', 
+              'subclasses',
+              ## mlp
+              'size',
+              ## mlpWeightDecay
+              'size', 'decay',
               ## multinom
               'decay', 
               ## nb
@@ -472,7 +484,11 @@ modelLookup <- function(model = NULL)
               ## qrnn
               'n.hidden', 'penalty', 'bag',              
               ## qrf
-              'mtry', 
+              'mtry',
+              ## rbf
+              'size',
+              ## rbfDDA
+              'negativeThreshold',
               ## rda
               'gamma', 'lambda', 
               ## relaxo
@@ -710,6 +726,11 @@ modelLookup <- function(model = NULL)
               'Product Degree',
               ## mda
               '#Subclasses Per Class',
+              ## mlp
+              '#Hidden Units',
+              ## mlpWeightDecay
+              '#Hidden Units',
+              'Weight Decay',              
               ## multinom
               'Weight Decay',
               ## nb
@@ -784,6 +805,10 @@ modelLookup <- function(model = NULL)
               '#Hidden Units', ' Weight Decay', 'Bagged Models?',                     
               ## qrf
               '#Randomly Selected Predictors',
+              ## rbf
+              '#Hidden Units',
+              ## rbfDDA
+              'Activation Limit for Conflicting Classes',
               ## rda
               'Gamma',
               'Lambda',
@@ -1012,7 +1037,11 @@ modelLookup <- function(model = NULL)
              ## mars
              FALSE, FALSE, 
              ## mda
-             FALSE, 
+             FALSE,
+             ## mlp
+             FALSE,
+             ## mlpWeightDecay
+             FALSE, FALSE,
              ## multinom
              FALSE, 
              ## nb
@@ -1075,7 +1104,11 @@ modelLookup <- function(model = NULL)
              ## qrnn
              FALSE, FALSE, FALSE,                 
              ## qrf
-             FALSE, 
+             FALSE,
+             ## rbf
+             FALSE,
+             ## rbfDDA
+             FALSE,
              ## rda
              FALSE, FALSE, 
              ## relaxo
@@ -1284,7 +1317,11 @@ modelLookup <- function(model = NULL)
                 ## mars
                 TRUE, TRUE, 
                 ## mda
-                FALSE, 
+                FALSE,
+                ## mlp
+                TRUE,
+                ## mlpWeightDecay
+                TRUE, TRUE,
                 ## multinom
                 FALSE, 
                 ## nb
@@ -1347,7 +1384,11 @@ modelLookup <- function(model = NULL)
                 ## qrnn
                 TRUE, TRUE, TRUE,                
                 ## qrf
-                TRUE, 
+                TRUE,
+                ## rbf
+                FALSE,
+                ## rbfDDA
+                TRUE,
                 ## rda
                 FALSE, FALSE, 
                 ## relaxo
@@ -1557,7 +1598,10 @@ modelLookup <- function(model = NULL)
                   ## mars
                   FALSE, FALSE, 
                   ## mda
-                  TRUE, 
+                  TRUE,
+                  ## mlp
+                  TRUE,
+                  TRUE, TRUE,
                   ## multinom
                   TRUE, 
                   ## nb
@@ -1620,7 +1664,11 @@ modelLookup <- function(model = NULL)
                   ## qrnn
                   FALSE, FALSE, FALSE,                  
                   ## qrf
-                  FALSE, 
+                  FALSE,
+                  ## rbf
+                  TRUE,
+                  ## rbfDDA
+                  TRUE,
                   ## rda
                   TRUE, TRUE, 
                   ## relaxo
@@ -1830,7 +1878,10 @@ modelLookup <- function(model = NULL)
                     ## mars
                     FALSE, FALSE, 
                     ## mda
-                    TRUE, 
+                    TRUE,
+                    ## mlp
+                    TRUE,
+                    TRUE, TRUE,
                     ## multinom
                     TRUE, 
                     ## nb
@@ -1893,7 +1944,11 @@ modelLookup <- function(model = NULL)
                     ## qrnn
                     FALSE, FALSE, FALSE,                        
                     ## qrf
-                    FALSE, 
+                    FALSE,
+                    ## rbf
+                    TRUE,
+                    ## rbfDDA
+                    TRUE,
                     ## rda
                     TRUE, TRUE, 
                     ## relaxo
