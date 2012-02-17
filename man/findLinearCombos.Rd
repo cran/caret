@@ -15,7 +15,7 @@ The QR decomposition is used to determine if the matrix is full rank and then id
 
 To "resolve" them, columns are iteratively removed and the matrix rank is rechecked.
 
-   The \code{\link[subselect]{trim.matrix}} function in the \pkg{subselect} package can also be used
+   The \code{\link[subselect:trim.matrix]{trim.matrix}} function in the \pkg{subselect} package can also be used
    to accomplish the same goal.
 }
 \value{
@@ -25,7 +25,7 @@ a list with elements:
 }
 \author{Kirk Mettler and Jed Wing (\code{enumLC}) and Max Kuhn (\code{findLinearCombos}) }
 
-\seealso{\code{\link[subselect]{trim.matrix}}}
+\seealso{\code{\link[subselect:trim.matrix]{trim.matrix}}}
 
 \examples{
 testData1 <- matrix(0, nrow=20, ncol=8)

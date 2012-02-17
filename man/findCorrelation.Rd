@@ -19,7 +19,7 @@ findCorrelation(x, cutoff = .90, verbose = FALSE)
    the function looks at the mean absolute correlation of each variable and removes the variable with the
    largest mean absolute correlation.
 
-   There are several function in the \pkg{subselect} package (\code{\link[subselect]{leaps}}, \code{\link[subselect]{genetic}}, \code{\link[subselect]{anneal}}) that can also be used
+   There are several function in the \pkg{subselect} package (\code{\link[subselect:eleaps]{leaps}}, \code{\link[subselect:genetic]{genetic}}, \code{\link[subselect:anneal]{anneal}}) that can also be used
    to accomplish the same goal.
 }
 \value{
@@ -27,7 +27,7 @@ findCorrelation(x, cutoff = .90, verbose = FALSE)
 }
 \author{Orignal R code by Dong Li, modified by Max Kuhn}
 
-\seealso{\code{\link[subselect]{leaps}}, \code{\link[subselect]{genetic}}, \code{\link[subselect]{anneal}}, \code{\link{findLinearCombos}}}
+\seealso{\code{\link[subselect:eleaps]{leaps}}, \code{\link[subselect:genetic]{genetic}}, \code{\link[subselect:anneal]{anneal}}, \code{\link{findLinearCombos}}}
 
 \examples{
 corrMatrix <- diag(rep(1, 5))

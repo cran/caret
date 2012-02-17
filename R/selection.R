@@ -81,9 +81,17 @@ byComplexity <- function(x, model)
            {
              x[order(x$degree, x$scale),]
            },           
-           avNNet =, nnet =, pcaNNet =
+           avNNet =, nnet =, pcaNNet =, mlpWeightDecay = 
            {
              x[order(x$size, -x$decay),]
+           },
+           mlp =, rbf = 
+           {
+             x[order(x$size),]
+           },
+           rbfDDA =
+           {
+              x[order(-x$negativeThreshold),]
            },
            rrlda =
            {

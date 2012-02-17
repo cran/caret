@@ -1060,6 +1060,16 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                              library(kohonen)
                              predict(modelFit, as.matrix(newdata))$prediction
                            },
+                           mlp =, mlpWeightDecay =, rbf =, rbfDDA = 
+                           {
+                             library(RSNNS)
+                             out <- predict(modelFit, newdata)
+                             if(modelFit$problemType == "Classification")
+                               {
+                                 out <- modelFit$obsLevels[apply(out, 1, which.max)]
+                               } else out <- out[,1]
+                             out
+                           },
                            custom =
                            {
                              custom(object = modelFit, newdata = newdata)
