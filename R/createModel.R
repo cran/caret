@@ -67,7 +67,8 @@
                    'superpc', 'svmLinear', 'svmpoly', 'svmPoly',
                    'svmradial', 'svmRadial', 'svmRadialCost', 'rFerns',
                    'vbmpRadial', 'widekernelpls', 'PenalizedLDA',
-                   "mlp", "mlpWeightDecay", "rbf", "rbfDDA"))
+                   "mlp", "mlpWeightDecay", "rbf", "rbfDDA",
+                   "RRF", "RRFglobal", "krlsRadial", "krlsPoly"))
     {
       trainX <- data[,!(names(data) %in% ".outcome"), drop = FALSE]
       trainY <- data[,".outcome"]
@@ -1927,7 +1928,48 @@
                                     y = trainY)
                        args <- c(args, theDots)
                        do.call("rbfDDA", args)
-                     },                                           
+                     },
+                     RRFglobal =
+                     {
+                       library(RRF)
+                       RRF(trainX, trainY, mtry = tuneValue$.mtry, coefReg = tuneValue$.coefReg, ...)
+                     },
+                     RRF =
+                     {
+                       library(randomForest)
+                       library(RRF)
+                       theDots <- list(...)
+                       theDots$importance <- TRUE
+                       args <- list(x = trainX, y = trainY, mtry = tuneValue$.mtry)
+                       args <- c(args, theDots)                       
+                       firstFit <- do.call("randomForest", args)
+                       firstImp <- randomForest:::importance(firstFit)
+                       if(is.factor(trainY))
+                         {
+                           firstImp <- firstImp[,"MeanDecreaseGini"]/max(firstImp[,"MeanDecreaseGini"])
+                         } else firstImp <- firstImp[,"%IncMSE"]/max(firstImp[,"%IncMSE"])
+                       firstImp <- ((1 - tuneValue$.coefImp) * tuneValue$.coefReg) + (tuneValue$.coefImp * firstImp)
+                       
+                       RRF(trainX, trainY, mtry = tuneValue$.mtry, coefReg = firstImp, ...)
+                     },
+                     krlsRadial =
+                     {
+                       library(KRLS)
+                       krls(trainX, trainY, lambda = if(is.na(tuneValue$.lambda)) NULL else tuneValue$.lambda,
+                            sigma = tuneValue$.sigma, ...)
+                     },
+                     krlsPoly =
+                     {
+                       library(KRLS)
+                       if(!(tuneValue$.degree %in% 1:4)) stop("Degree should be either 1, 2, 3 or 4")
+                       krn <- switch(tuneValue$.degree,
+                                    '1' = "linear",
+                                    '2' = "poly2",
+                                    '3' = "poly3",
+                                    '4' = "poly4")
+                       krls(trainX, trainY, lambda = if(is.na(tuneValue$.lambda)) NULL else tuneValue$.lambda,
+                            whichkernel = krn, ...)
+                     },                      
                      custom =
                      {
                        custom(data = data,

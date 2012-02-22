@@ -88,7 +88,11 @@ modelLookup <- function(model = NULL)
             ## kernelpls
             'kernelpls',
             ## knn
-            'knn', 
+            'knn',
+            ## krlsRadial
+            'krlsRadial', 'krlsRadial',
+            ## krlsPoly
+            'krlsPoly', 'krlsPoly',
             ## lars
             'lars', 
             ## lars2
@@ -231,6 +235,10 @@ modelLookup <- function(model = NULL)
             'rpart2',
             ## rpart2
             'rpart',
+            ## RRF
+            'RRF', 'RRF', 'RRF',
+            ## RRFglobal
+            'RRFglobal', 'RRFglobal',
             ## rrlda
             'rrlda', 'rrlda',
             ## rvmLinear
@@ -371,7 +379,11 @@ modelLookup <- function(model = NULL)
               ## kernelpls
               'ncomp',
               ## knn
-              'k', 
+              'k',
+              ## krlsRadial
+              'lambda', 'sigma',
+              ## krlsPoly
+              'lambda', 'degree',
               ## lars
               'fraction', 
               ## lars2
@@ -511,6 +523,10 @@ modelLookup <- function(model = NULL)
               'maxdepth',
               ## rpart
               'cp',
+              ## RRF
+              'mtry', 'coefReg', 'coefImp',
+              ## RRFglobal
+              'mtry', 'coefReg',
               ## rrlda
               'lambda', 'alpha',
               ## rvmLinear
@@ -676,6 +692,12 @@ modelLookup <- function(model = NULL)
               '#Components',
               ## knn
               '#Neighbors',
+              ## krlsRadial
+              'Regularization Parameter',
+              'Sigma',
+              ## krlsPoly
+              'Regularization Parameter',
+              "Polynomial Degree",
               ## lars
               'Fraction',
               ## lars2
@@ -833,6 +855,13 @@ modelLookup <- function(model = NULL)
               'Max Tree Depth',
               ## rpart
               'Complexity Parameter',
+              ## RRF
+              '#Randomly Selected Predictors',
+              'Regularization Value',
+              'Importance Coefficient',
+              ## RRFglobal
+              '#Randomly Selected Predictors',
+              'Regularization Value',
               ## rrlda
               'Penalty Parameter',
               'Robustness Parameter',
@@ -991,7 +1020,11 @@ modelLookup <- function(model = NULL)
              ## kernelpls
              TRUE,
              ## knn
-             FALSE, 
+             FALSE,
+             ## krlsRadial
+             FALSE, FALSE,
+             ## krlsPoly
+             FALSE, FALSE,
              ## lars
              TRUE, 
              ## lars2
@@ -1131,6 +1164,10 @@ modelLookup <- function(model = NULL)
              TRUE,
              ## rpart
              TRUE,
+             ## RRF
+             FALSE, FALSE, FALSE,
+             ## RRFglobal
+             FALSE, FALSE,
              ## rrlda
              FALSE, FALSE,
              ## rvmLinear
@@ -1271,7 +1308,11 @@ modelLookup <- function(model = NULL)
                 ## kernelpls
                 TRUE,
                 ## knn
-                TRUE, 
+                TRUE,
+                ## krlsRadial
+                TRUE, TRUE,
+                ## krlsPoly
+                TRUE, TRUE,
                 ## lars
                 TRUE, 
                 ## lars2
@@ -1411,6 +1452,10 @@ modelLookup <- function(model = NULL)
                 TRUE,
                 ## rpart
                 TRUE,
+                ## RRF
+                TRUE, TRUE, TRUE,
+                ## RRFglobal
+                TRUE, TRUE,
                 ## rrlda
                 FALSE, FALSE,
                 ## rvmLinear
@@ -1552,7 +1597,11 @@ modelLookup <- function(model = NULL)
                   ## kernelpls
                   TRUE,
                   ## knn
-                  TRUE, 
+                  TRUE,
+                  ## krlsRadial
+                  FALSE, FALSE,
+                  ## krlsPoly
+                  FALSE, FALSE,
                   ## lars
                   FALSE, 
                   ## lars2
@@ -1691,6 +1740,10 @@ modelLookup <- function(model = NULL)
                   TRUE,
                   ## rpart
                   TRUE,
+                  ## RRF
+                  TRUE, TRUE, TRUE,
+                  ## RRFglobal
+                  TRUE, TRUE,
                   ## rrlda
                   TRUE, TRUE,
                   ## rvmLinear
@@ -1832,7 +1885,11 @@ modelLookup <- function(model = NULL)
                     ## kernelpls
                     TRUE,
                     ## knn
-                    TRUE, 
+                    TRUE,
+                    ## krlsRadial
+                    FALSE, FALSE,
+                    ## krlsPoly
+                    FALSE, FALSE,
                     ## lars
                     FALSE, 
                     ## lars2
@@ -1971,6 +2028,10 @@ modelLookup <- function(model = NULL)
                     TRUE,
                     ## rpart
                     TRUE,
+                    ## RRF
+                    TRUE, TRUE, TRUE,
+                    ## RRFglobal
+                    TRUE, TRUE,
                     ## rrlda does not generate probabilities, only discrim values
                     FALSE, FALSE,
                     ## rvmLinear

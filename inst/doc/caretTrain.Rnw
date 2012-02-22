@@ -484,7 +484,7 @@ There is additional functionality in \pkg{caret} that is described in the next s
 models <- modelLookup()
 modelKey <- read.delim(system.file("modelKey.txt", package = "caret"))
 modelInfo <- merge(models, modelKey, all.y = TRUE)
-
+modelInfo$parameter <- latexTranslate(modelInfo$parameter)
 
 cranRef <- function(x) paste("{\\tt \\href{http://cran.r-project.org/web/packages/", x, "/index.html}{", x, "}}", sep = "")
 
@@ -502,6 +502,7 @@ makeTable <- function(x)
 
 forTable <- ddply(modelInfo, .(Order, ProblemType, Class, model), makeTable)
 forTable$model <- NULL
+
 dual <- subset(forTable, ProblemType == "Dual Use")[,-1]
 reg <- subset(forTable, ProblemType == "Regression Only")[,-1]
 clas <-  subset(forTable, ProblemType == "Classification Only")[,-1]

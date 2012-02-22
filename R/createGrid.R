@@ -67,6 +67,22 @@
         } else out <- 10 ^((1:len) - 3)
       out
     }
+
+
+  
+  rbfTune2 <- function(data, len, center = TRUE)
+    {
+      library(kernlab)
+      ## this was changed to follow what kernlab does inside of ksvm and rvm:
+      sigmaEstimate <- try(
+                           sigest(.outcome ~ ., data, na.action = na.omit, scaled = TRUE),
+                           silent = TRUE)
+      if(!(class(sigmaEstimate) == "try-error"))
+        {
+          out <- seq(sigmaEstimate[1], sigmaEstimate[3], length = len)
+        } else out <- 10 ^((1:len) - 3)
+      1/out
+    }  
   
   marsSeq <- function(data, len)
     {
@@ -387,6 +403,13 @@
                       mlpWeightDecay = data.frame(.size =  ((1:len) * 2) - 1, .decay = c(0, 10 ^ seq(-1, -4, length = len - 1))),
                       rbf = data.frame(.size =  ((1:len) * 2) + 9),
                       rbfDDA = data.frame(.negativeThreshold =  10 ^(-(1:len))),
+                      RRFglobal = expand.grid(.mtry = if (!is.null(data$.outcome) && !is.factor(data$.outcome)) max(floor((ncol(data) - 1)/3), 1) else floor(sqrt((ncol(data)-1))),
+                                              .coefReg = seq(0.01, 1, length = len)),
+                      RRF = expand.grid(.mtry = if (!is.null(data$.outcome) && !is.factor(data$.outcome)) max(floor((ncol(data) - 1)/3), 1) else floor(sqrt((ncol(data)-1))),
+                                        .coefReg = seq(0.01, 1, length = len),
+                                        .coefImp = seq(0, 1, length = len)),
+                      krlsRadial = expand.grid(.lambda = NA, .sigma = rbfTune2(data, len)),
+                      krlsPoly = expand.grid(.lambda = NA, .degree = 1:3),
                       lda =, lm =, treebag =, sddaLDA =, sddaQDA =,
                       glm =, qda =, OneR =, rlm =,
                       rvmLinear =, lssvmLinear =, gaussprLinear =,

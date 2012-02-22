@@ -501,18 +501,19 @@ defaultSummary <- function(data, lev = NULL, model = NULL)
     postResample(data[,"pred"], data[,"obs"])
   }
 
-twoClassSummary <- function(data, lev = NULL, model = NULL)
-  {
+twoClassSummary <- function (data, lev = NULL, model = NULL) 
+{
     require(pROC)
-    if(!all(levels(data[, "pred"]) == levels(data[, "obs"])))
-      stop("levels of observed and predicted data do not match")
-    rocObject <- pROC:::roc(data$obs, data[, lev[1]])
-    out <- c(rocObject$auc,
+    if (!all(levels(data[, "pred"]) == levels(data[, "obs"]))) 
+        stop("levels of observed and predicted data do not match")
+    rocObject <- try(pROC:::roc(data$obs, data[, lev[1]]), silent = TRUE)
+    rocAUC <- if(class(rocObject)[1] == "try-error") NA else rocObject$auc
+    out <- c(rocAUC,
              sensitivity(data[, "pred"], data[, "obs"], lev[1]),
              specificity(data[, "pred"], data[, "obs"], lev[2]))
     names(out) <- c("ROC", "Sens", "Spec")
     out
-  }
+}
 
 ## make this object oriented
 getClassLevels <- function(x) 

@@ -15,7 +15,7 @@ progress <- function(x)
 MeanSD <- function(x, exclude = NULL)
   {
     if(!is.null(exclude)) x <- x[, !(colnames(x) %in% exclude), drop = FALSE]
-    out <- c(colMeans(x), sapply(x, sd))
+    out <- c(colMeans(x, na.rm = TRUE), sapply(x, sd, na.rm = TRUE))
     names(out)[-(1:ncol(x))] <- paste(names(out)[-(1:ncol(x))], "SD", sep = "")
     out
   }
@@ -203,7 +203,12 @@ nominalTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing =
         resamples <- subset(resamples, Resample != "AllData")
       }
     names(resamples) <- gsub("^\\.", "", names(resamples))
- 
+
+    if(any(!complete.cases(resamples[,!grepl("^cell|Resample", colnames(resamples)),drop = FALSE])))
+      {
+        warning("There were missing values in resampled performance measures.")
+
+      }
     out <- ddply(resamples[,!grepl("^cell|Resample", colnames(resamples)),drop = FALSE],
                  info$model$parameter,
                  caret:::MeanSD, exclude = info$model$parameter)
