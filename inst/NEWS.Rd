@@ -3,6 +3,38 @@
 \newcommand{\cpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
 
+\section{Changes in version  5.14-023}{
+\itemize{ 
+
+\item The model details in \code{?train} was changed to be more
+readable
+
+\item Added two models from the \cpkg{RRF} package. \code{RRF} uses a
+penalty for each predictor based on the scaled variable importance
+scores from a prior random forest fit. \code{RRFglobal} sets a common,
+global penalty across all predictors.
+
+\item Added two models from the \cpkg{KRLS} package: \code{krlsRadial}
+and \code{krlsPoly}. Both have kernel parameters (\code{sigma} and
+\code{degree}) and a common regularization parameter
+\code{lambda}. The default for \code{lambda} is \code{NA}, letting the
+\code{krls} function estimate it internally. \code{lambda} can also be
+specified via \code{tuneGrid}.
+
+\item \code{twoClassSummary} was modified to wrap the call to
+\code{pROC:::roc} in a \code{try} command. In cases where the hold-out
+data are only from one class, this produced an error. Now it generates
+\code{NA} values for the AUC when this occurs and a general warning is
+issued.
+
+\item The underlying workflows for \code{train} were modified so that
+missing values for performance measures would not throw an error (but
+will issue a warning).
+
+}
+}
+
+
 \section{Changes in version  5.13-037}{
 \itemize{ 
 

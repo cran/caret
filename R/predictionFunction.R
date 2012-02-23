@@ -50,6 +50,7 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                            
                            rf =, parRF =, Boruta = 
                            {
+                             library(randomForest)
                              if(modelFit$problemType == "Classification")
                                {
                                  out <-  as.character(predict(modelFit, newdata))
@@ -1069,6 +1070,22 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                                  out <- modelFit$obsLevels[apply(out, 1, which.max)]
                                } else out <- out[,1]
                              out
+                           },
+                           RRF =, RRFglobal =  
+                           {
+                             library(RRF)
+                             if(modelFit$problemType == "Classification")
+                               {
+                                 out <-  as.character(predict(modelFit, newdata))
+                               } else {
+                                 out <- predict(modelFit, newdata)
+                               }
+                             out
+                           },
+                           krlsRadial =, krlsPoly =
+                           {
+                             library(KRLS)
+                             predict(modelFit, newdata)$fit[,1]
                            },
                            custom =
                            {

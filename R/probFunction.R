@@ -571,7 +571,13 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
                         out <- predict(modelFit, newdata)
                         colnames(out) <- modelFit$obsLevels
                         out
-                      },                      
+                      },
+                      RRF =, RRFglobal =  
+                      {
+                        library(RRF)
+                        out <- predict(modelFit, newdata, type = "prob")            
+                        out
+                      },
                       custom =
                       {
                         custom(object = modelFit, newdata = newdata)
