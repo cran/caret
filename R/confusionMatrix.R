@@ -179,6 +179,7 @@ confusionMatrix.train <- function(data, norm = "overall", dnn = c("Prediction", 
         
     lev <- caret:::getClassLevels(data)
     ## get only best tune
+    names(data$bestTune) <- gsub("^\\.", "", names(data$bestTune))
     resampledCM <- merge(data$bestTune, data$resampledCM)
     counts <- as.matrix(resampledCM[,grep("^cell", colnames(resampledCM))])
     ## normalize by true class?
@@ -187,12 +188,13 @@ confusionMatrix.train <- function(data, norm = "overall", dnn = c("Prediction", 
     if(norm == "average") counts <- counts/numResamp
     overall <- matrix(apply(counts, 2, mean), nrow = length(lev))
     rownames(overall) <- colnames(overall) <- lev
-    overall <- overall*100
+    if(norm != "none") overall <- overall*100
     names(dimnames(overall)) <- dnn
 
  
-    out <- list(table = overall,
+    out <- list(table = as.table(overall),
                 norm = norm,
+                B = length(data$control$index),
                 text = paste(resampName, "Confusion Matrix"))
     class(out) <- "confusionMatrix.train"
     out
@@ -209,7 +211,7 @@ print.confusionMatrix.train <- function(x, digits = 1, ...)
                      byClass = "\n(entries are percentages within the reference class)\n",
                      "")
   cat(normText, "\n")
-  print(round(x$table, digits))
+  if(x$norm == "none" & x$B == 1) print(confusionMatrix(x$table)) else print(round(x$table, digits))
   cat("\n")
   invisible(x)
 }

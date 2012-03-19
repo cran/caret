@@ -3,6 +3,30 @@
 \newcommand{\cpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
 
+\section{Changes in version  5.15-023}{
+\itemize{ 
+
+\item The list of models that can accept factor inputs directly was
+expanded to include the \cpkg{RWeka} models, \code{ctree},
+\code{cforest} and custom models.
+
+\item Added model \code{lda2}, which tunes by the number of functions
+used during prediction.
+
+\item \code{predict.train} allows probability predictions for custom
+models now (thanks to Peng Zhang)
+
+\item \code{confusionMatrix.train} was updated to use the default
+\code{confusionMatrix} code when \code{norm = "none"} and only a
+single hold-out was used.
+
+\item Added  variable importance  metrics for PART  and RIPPER  in the
+\cpkg{RWeka} package.
+
+\item vignettes were moved from /inst/doc to /vignettes
+
+}
+}
 \section{Changes in version  5.14-023}{
 \itemize{ 
 

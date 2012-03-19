@@ -410,6 +410,7 @@
                                         .coefImp = seq(0, 1, length = len)),
                       krlsRadial = expand.grid(.lambda = NA, .sigma = rbfTune2(data, len)),
                       krlsPoly = expand.grid(.lambda = NA, .degree = 1:3),
+                      lda2 <- data.frame(.dimen = 1:min(ncol(data)-1, length(levels(data$.outcome)) - 1)),
                       lda =, lm =, treebag =, sddaLDA =, sddaQDA =,
                       glm =, qda =, OneR =, rlm =,
                       rvmLinear =, lssvmLinear =, gaussprLinear =,

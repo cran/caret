@@ -19,6 +19,8 @@
 \alias{varImp.multinom}
 \alias{varImp.gam}
 \alias{varImp.cubist}
+\alias{varImp.JRip}
+\alias{varImp.PART}
 
 \title{Calculation of variable importance for regression and classification models}
 
@@ -63,6 +65,10 @@ A generic method for calculating variable importance for objects produced by
 \method{varImp}{gam}(object, ...)
 
 \method{varImp}{cubist}(object, weights = c(0.5, 0.5), ...)
+
+\method{varImp}{JRip}(object, ...)
+
+\method{varImp}{PART}(object, ...)
 }
 
 \arguments{
@@ -158,7 +164,8 @@ Otherwise:
 
   \bold{Cubist}: The Cubist output contains variable usage statistics. It gives the percentage of times where each variable was used in a condition and/or a linear model. Note that this output will probably be inconsistent with the rules shown in the output from \code{\link[Cubist]{summary.cubist}}. At each split of the tree, Cubist saves a linear model (after feature selection) that is allowed to have terms for each variable used in the current split or any split above it. Quinlan (1992) discusses a smoothing algorithm where each model prediction is a linear combination of the parent and child model along the tree. As such, the final prediction is a function of all the linear models from the initial node to the terminal node. The percentages shown in the Cubist output reflects all the models involved in prediction (as opposed to the terminal models shown in the output). The variable importance used here is a linear combination of the usage in the rule conditions and the model. 
   
-
+  \bold{PART} and \bold{JRip}: For these rule-based models, the importance for a predictor is simply the number of rules involve the predictor. 
+  
 }
 
 \author{Max Kuhn}

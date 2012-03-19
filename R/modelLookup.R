@@ -101,6 +101,8 @@ modelLookup <- function(model = NULL)
             'lasso', 
             ## lda
             'lda',
+            ## lda2
+            'lda2',
             ## leapForward
             'leapForward',
             ## leapBackward
@@ -392,6 +394,8 @@ modelLookup <- function(model = NULL)
               'fraction', 
               ## lda
               'parameter',
+              ## lda
+              'dimen',
               ## leapForward
               'nvmax',
               ## leapBackward
@@ -706,6 +710,8 @@ modelLookup <- function(model = NULL)
               'Fraction of Full Solution',
               ## lda
               'none',
+              ## lda2
+              '#Discriminant Functions',
               ## leapForward
               'Maximum Size of Subsets',
               ## leapBackward
@@ -1033,6 +1039,8 @@ modelLookup <- function(model = NULL)
              TRUE, 
              ## lda
              FALSE,
+             ## lda2
+             TRUE,
              ## leapForward
              TRUE,
              ## leapBackward
@@ -1319,6 +1327,8 @@ modelLookup <- function(model = NULL)
                 TRUE, 
                 ## lasso
                 TRUE, 
+                ## lda
+                FALSE,
                 ## lda
                 FALSE,
                 ## leapForward
@@ -1610,6 +1620,8 @@ modelLookup <- function(model = NULL)
                   FALSE, 
                   ## lda
                   TRUE,
+                  ## lda
+                  TRUE,
                   ## leapForward
                   FALSE,
                   ## leapBackward
@@ -1897,6 +1909,8 @@ modelLookup <- function(model = NULL)
                     ## lasso
                     FALSE, 
                     ## lda
+                    TRUE,
+                    ## lda2
                     TRUE,
                     ## leapForward
                     FALSE,

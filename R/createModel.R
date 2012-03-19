@@ -67,7 +67,7 @@
                    'superpc', 'svmLinear', 'svmpoly', 'svmPoly',
                    'svmradial', 'svmRadial', 'svmRadialCost', 'rFerns',
                    'vbmpRadial', 'widekernelpls', 'PenalizedLDA',
-                   "mlp", "mlpWeightDecay", "rbf", "rbfDDA",
+                   "mlp", "mlpWeightDecay", "rbf", "rbfDDA", "lda2",
                    "RRF", "RRFglobal", "krlsRadial", "krlsPoly"))
     {
       trainX <- data[,!(names(data) %in% ".outcome"), drop = FALSE]
@@ -709,7 +709,7 @@
                        out
                                 
                      },                     
-                     lda = 
+                     lda =, lda2 =  
                      {
                        library(MASS)
                        lda(trainX, trainY, ...)     
@@ -915,7 +915,7 @@
                                            controls = ctl),
                                       theDots)
                        
-                       out <- do.call("ctree", modelArgs)
+                       out <- do.call("party:::ctree", modelArgs)
                        out        
                      },
 

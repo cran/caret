@@ -55,6 +55,26 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
                         out
                       },
 
+                      lda2 = 
+                      {
+                        library(MASS)
+                        out <- predict(modelFit, newdata, dimen = modelFit$tuneValue$.dimen)$posterior
+                        if(!is.null(param))
+                          {
+                            tmp <- vector(mode = "list", length = nrow(param) + 1)
+                            tmp[[1]] <- out
+                            
+                            for(j in seq(along = param$.dimen))
+                              {
+                                tmpProb <- predict(modelFit, newdata, dimen = param$.dimen[j])$posterior
+                                tmp[[j+1]] <- as.data.frame(tmpProb[, modelFit$obsLevels])
+                              }
+                            out <- tmp
+                          }                        
+                        out
+                      },
+                      
+
                       knn =
                       {
                         out <- predict(modelFit, newdata, type = "prob")
