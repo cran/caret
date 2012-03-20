@@ -126,7 +126,7 @@ train.default <- function(x, y,
   trainData <- as.data.frame(x)
 
   ## Check mode for some models
-  if(!(method %in% c("rf", "rpart", "gbm", "treebag", "nb")))
+  if(!(method %in% c("rf", "rpart", "gbm", "treebag", "nb", "J48", "PART", "JRip", "OneR", "custom", "ctree", "cforest")))
     {
       isFactor <- lapply(trainData, is.factor)
       isCharacter <- lapply(trainData, is.character)

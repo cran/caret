@@ -104,3 +104,19 @@ varImp.RRF <- function(object, ...)
     out
   }
 
+varImp.JRip <- function(object, ...)
+  {
+    dat <- ripperRuleSummary(object)
+    out <- dat$varUsage[,"Overall", drop = FALSE]
+    rownames(out) <- dat$varUsage$Var
+    out
+  }
+
+varImp.PART <- function(object, ...)
+  {
+    dat <- partRuleSummary(object)
+    out <- dat$varUsage[,"Overall", drop = FALSE]
+    rownames(out) <- dat$varUsage$Var
+    out
+  }
+
