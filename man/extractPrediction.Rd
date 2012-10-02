@@ -76,48 +76,23 @@ The two extraction functions can be used to get the predictions and observed out
 
 \examples{
    \dontrun{
-library(mlbench)
-data(Satellite)
-numSamples <- dim(Satellite)[1]
-set.seed(716)
 
-varIndex <- 1:numSamples
+knnFit <- train(Species ~ ., data = iris, method = "knn", 
+                trControl = trainControl(method = "cv"))
 
-trainSamples <- sample(varIndex, 150)
-
-varIndex <- (1:numSamples)[-trainSamples]
-testSamples <- sample(varIndex, 100)
-
-varIndex <- (1:numSamples)[-c(testSamples, trainSamples)]
-unkSamples <- sample(varIndex, 50)
-
-trainX <- Satellite[trainSamples, -37]
-trainY <- Satellite[trainSamples, 37]
-
-testX <- Satellite[testSamples, -37]
-testY <- Satellite[testSamples, 37]
-
-unkX <- Satellite[unkSamples, -37]
-
-knnFit <- train(trainX, trainY, "knn")
-rpartFit <- train(trainX, trainY, "rpart")
+rdaFit <- train(Species ~ ., data = iris, method = "rda", 
+                trControl = trainControl(method = "cv"))
 
 predict(knnFit)
-predict(knnFit, newdata = testX)
 predict(knnFit, type = "prob")
 
-bothModels <- list(
-                   knn = knnFit,
-                   tree = rpartFit)
+bothModels <- list(knn = knnFit,
+                   tree = rdaFit)
 
 predict(bothModels)
 
-predTargets <- extractPrediction(
-                                 bothModels,
-                                 testX = testX,
-                                 testY = testY,
-                                 unkX = unkX)
-   
+extractPrediction(bothModels, testX = iris[1:10, -5])
+extractProb(bothModels, testX = iris[1:10, -5])
   }
 }
 \keyword{manip}

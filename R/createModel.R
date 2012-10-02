@@ -55,7 +55,7 @@
                    'leapForward', 'leapSeq', 'Linda', 'logforest', 'logicBag',
                    'logitBoost', 'logreg', 'lssvmLinear', 'lssvmPoly',
                    'lssvmRadial', 'lvq', 'mars', 'nnet', 'nodeHarvest',
-                   'ORFridge', 'ORFpls', 'ORFsvm', 'ORFlog',
+                   'ORFridge', 'ORFpls', 'ORFsvm', 'ORFlog', 'lrm',
                    'pam', 'parRF', 'partDSA', 'pcaNNet', 'xyf', 'bdk',
                    'penalized', 'plr', 'pls', 'PLS', 'plsGlmBinomial',
                    'plsGlmGamma', 'plsGlmGaussian', 'plsGlmPoisson',
@@ -68,7 +68,8 @@
                    'svmradial', 'svmRadial', 'svmRadialCost', 'rFerns',
                    'vbmpRadial', 'widekernelpls', 'PenalizedLDA',
                    "mlp", "mlpWeightDecay", "rbf", "rbfDDA", "lda2",
-                   "RRF", "RRFglobal", "krlsRadial", "krlsPoly"))
+                   "RRF", "RRFglobal", "krlsRadial", "krlsPoly",
+                   "C5.0", "C5.0Tree", "C5.0Rules"))
     {
       trainX <- data[,!(names(data) %in% ".outcome"), drop = FALSE]
       trainY <- data[,".outcome"]
@@ -76,6 +77,8 @@
         {
           pp$method <- pp$options
           pp$options <- NULL
+          if("ica" %in% pp$method) pp$n.comp <- pp$ICAcomp
+          pp$ICAcomp <- NULL
           pp$x <- trainX
           ppObj <- do.call("preProcess", pp)
           ppObj$call <- "scrubed"
@@ -88,6 +91,8 @@
         {
           pp$method <- pp$options
           pp$options <- NULL
+          if("ica" %in% pp$method) pp$n.comp <- pp$ICAcomp
+          pp$ICAcomp <- NULL          
           y <- data$.outcome
           data$.outcome <- NULL
           pp$x <- data
@@ -142,21 +147,7 @@
                      {
                        library(randomForest)
                        randomForest(trainX, trainY, mtry = tuneValue$.mtry, ...)
-                     },
-                     rfNWS =
-                     {
-                       ## The following is sneaky. I'm trying to avoid having this package
-                       ## listed in the description file since it is commercial package and
-                       ## not on cran.
-                       do.call("library", list("randomForestNWS"))
-                       randomForestNWS(trainX, trainY, mtry = tuneValue$.mtry, ...)
-                     },
-                     rfLSF =
-                     {
-                       ## See above
-                       do.call("library", list("caretLSF"))
-                       rfLSF(trainX, trainY, mtry = tuneValue$.mtry, ...)
-                     },                     
+                     },                  
                      svmpoly =, svmPoly = 
                      {
                        library(kernlab)
@@ -570,7 +561,7 @@
                      nb =
                      {
                        library(klaR)
-                       NaiveBayes(modFormula, data, usekernel= tuneValue$.usekernel, fL = tuneValue$fL, ...)
+                       NaiveBayes(modFormula, data, usekernel= tuneValue$.usekernel, fL = tuneValue$.fL, ...)
                      },
                      mars =, earth =, earthTest =
                      {
@@ -689,22 +680,31 @@
                      glmStepAIC =
                      {
                        library(MASS)
-                       ##check for family in dot and over-write if none
+                       ## The ... could pass to stepAIC or glm, so we'll try to
+                       ## parse them well
+
+                       stepArgs <- names(formals(stepAIC))
+                       stepArgs <- stepArgs[!(stepArgs %in% c("object", "..."))]
                        theDots <- list(...)
+                       glmArgs <- list()
+
                        if(!any(names(theDots) == "family"))
                          {
-                           theDots$family <- if(is.factor(data$.outcome)) binomial() else gaussian()              
-                         }
-
+                           glmArgs$family <- if(is.factor(data$.outcome)) binomial() else gaussian()              
+                         } else glmArgs$family <- theDots$family
+                       if(any(!(names(theDots) %in% stepArgs))) theDots <- theDots[names(theDots) %in% stepArgs]
+                                        
                        ## pass in any model weights
-                       if(!is.null(modelWeights)) theDots$weights <- modelWeights
+                       if(!is.null(modelWeights)) glmArgs$weights <- modelWeights
                        
-                       modelArgs <- c(
-                                      list(formula = modFormula,
+                       modelArgs <- c(list(formula = modFormula,
                                            data = data),
-                                      theDots)
+                                      glmArgs)
 
-                       out <- stepAIC(do.call("glm", modelArgs))
+                       mod <- do.call("glm", modelArgs)
+                     
+                       theDots$object <- mod
+                       out <- do.call("stepAIC", theDots)
                        out$call <- NULL
                        out
                                 
@@ -915,7 +915,7 @@
                                            controls = ctl),
                                       theDots)
                        
-                       out <- do.call("party:::ctree", modelArgs)
+                       out <- do.call(getFromNamespace("ctree", "party"), modelArgs)
                        out        
                      },
 
@@ -946,7 +946,7 @@
                                       theDots)
                      
                        
-                       out <- do.call("ctree", modelArgs)
+                       out <- do.call(getFromNamespace("ctree", "party"), modelArgs)
                        out        
                      },                     
                      
@@ -974,7 +974,7 @@
                                            controls = ctl),
                                       theDots)
                        
-                       out <- do.call("cforest", modelArgs)
+                       out <- do.call(getFromNamespace("cforest", "party"), modelArgs)
                        out        
                      },
                      enet =, lasso =, ridge =
@@ -1407,12 +1407,12 @@
                      Linda =
                      {
                        library(rrcov)
-                       Linda(trainX, trainY, ...)
+                       rrcov:::Linda(trainX, trainY, ...)
                      },
                      QdaCov =
                      {
                        library(rrcov)
-                       QdaCov(trainX, trainY, ...)
+                       rrcov:::QdaCov(trainX, trainY, ...)
                      },
                      stepLDA =
                      {
@@ -1572,16 +1572,6 @@
                        library(quantregForest)
                        quantregForest(trainX, trainY, mtry = tuneValue$.mtry, ...)
                      },
-                     scrda =
-                     {
-                       library(rda)
-                       modelFit <- rda:::rda(t(trainX), as.numeric(trainY),
-                                             alpha = tuneValue$.alpha,
-                                             delta = tuneValue$.delta,
-                                             ...)
-                       modelFit$data <- list(x = t(trainX), y = trainY)
-                       modelFit
-                     },
                      bag =
                      {
                        bag(trainX, trainY, vars = tuneValue$.vars, ...)
@@ -1606,9 +1596,7 @@
                      {
                        library(LogicForest)
                        y2 <- ifelse(trainY == levels(trainY)[1], 1, 0)
-                       logforest(resp = y2,
-                                 Xs = trainX,
-                                 ...)
+                       LogicForest:::logforest(resp = y2, Xs = trainX, ...)
                      },
                      logicBag =
                      {
@@ -1621,7 +1609,7 @@
                      gam =
                      {
                        library(mgcv)
-                       mgcv:::gam(gamFormula(data[,!(names(data) %in% ".outcome"), drop = FALSE]),
+                       mgcv:::gam(smootherFormula(data[,!(names(data) %in% ".outcome"), drop = FALSE]),
                                   data = data,
                                   family = if(type == "Regression") gaussian() else  binomial(),
                                   select = tuneValue$.select,
@@ -1631,7 +1619,7 @@
                      gamLoess =
                      {
                        library(gam)
-                       gam:::gam(gamFormula(data[,!(names(data) %in% ".outcome"), drop = FALSE],
+                       gam:::gam(smootherFormula(data[,!(names(data) %in% ".outcome"), drop = FALSE],
                                             smoother = "lo",
                                             span = tuneValue$.span,
                                             degree = tuneValue$.degree),
@@ -1643,7 +1631,7 @@
                      gamSpline =
                      {
                        library(gam)
-                       gam:::gam(gamFormula(data[,!(names(data) %in% ".outcome"), drop = FALSE],
+                       gam:::gam(smootherFormula(data[,!(names(data) %in% ".outcome"), drop = FALSE],
                                             smoother = "s",
                                             df = tuneValue$.df),
                                  data = data,
@@ -1766,17 +1754,17 @@
                      {
                        library(obliqueRF)
                        switch(method,
-                              ORFridge = obliqueRF(trainX, trainY, ...),
-                              ORFpls = obliqueRF(trainX, trainY, training_method = "pls", ...),
-                              ORFsvm = obliqueRF(trainX, trainY, training_method = "svm", ...),
-                              ORFlog = obliqueRF(trainX, trainY, training_method = "log", ...))
+                              ORFridge = obliqueRF(as.matrix(trainX), trainY, ...),
+                              ORFpls = obliqueRF(as.matrix(trainX), trainY, training_method = "pls", ...),
+                              ORFsvm = obliqueRF(as.matrix(trainX), trainY, training_method = "svm", ...),
+                              ORFlog = obliqueRF(as.matrix(trainX), trainY, training_method = "log", ...))
                        
                      },
                      rrlda =
                      {
                        library(rrlda)
-                       rrlda(trainX, trainY, lambda = tuneValue$.lambda,
-                             alpha = tuneValue$.alpha, ...)
+                       rrlda:::rrlda(trainX, trainY, lambda = tuneValue$.lambda,
+                                     alpha = tuneValue$.alpha, ...)
                      },
                      evtree =
                      {
@@ -1806,7 +1794,7 @@
                      PenalizedLDA =
                      {
                        library(penalizedLDA)
-                       PenalizedLDA(as.matrix(trainX), as.numeric(trainY),
+                       penalizedLDA:::PenalizedLDA(as.matrix(trainX), as.numeric(trainY),
                                     lambda = tuneValue$.lambda,
                                     K = tuneValue$.K,
                                     ...)
@@ -1842,7 +1830,7 @@
                        theDots <- list(...)
                        theDots <- theDots[!(names(theDots) %in% c("size", "linOut"))]                   
 
-                       if(is.factor(trainY)) trainY <- decodeClassLabels(trainY)
+                       if(is.factor(trainY)) trainY <- RSNNS:::decodeClassLabels(trainY)
                        args <- list(x = trainX,
                                     y = trainY,
                                     size = tuneValue$.size,
@@ -1867,7 +1855,7 @@
                            warning("Over-riding weight decay value in the 'learnFuncParams' argument you passed in. Other values are retained")
                          } else prms <- c(0.2, tuneValue$.decay, 0.0, 0.0)    
 
-                       if(is.factor(trainY)) trainY <- decodeClassLabels(trainY)
+                       if(is.factor(trainY)) trainY <- RSNNS:::decodeClassLabels(trainY)
                        args <- list(x = trainX,
                                     y = trainY,
                                     learnFunc = "BackpropWeightDecay",
@@ -1899,7 +1887,7 @@
                          }
                       
 
-                       if(is.factor(trainY)) trainY <- decodeClassLabels(trainY)
+                       if(is.factor(trainY)) trainY <- RSNNS:::decodeClassLabels(trainY)
                        args <- list(x = trainX,
                                     y = trainY,                           
                                     size = tuneValue$.size,
@@ -1923,7 +1911,7 @@
                          } else theDots$learnFuncParams <-c(0.4,  tuneValue$.negativeThreshold, 5)
                        
 
-                       trainY <- decodeClassLabels(trainY)
+                       trainY <- RSNNS:::decodeClassLabels(trainY)
                        args <- list(x = trainX,
                                     y = trainY)
                        args <- c(args, theDots)
@@ -1969,7 +1957,32 @@
                                     '4' = "poly4")
                        krls(trainX, trainY, lambda = if(is.na(tuneValue$.lambda)) NULL else tuneValue$.lambda,
                             whichkernel = krn, ...)
-                     },                      
+                     },
+                     C5.0 =
+                     {
+                       library(C50)
+
+                       theDots <- list(...)
+                      
+                       if(any(names(theDots) == "control"))
+                         {                           
+                           theDots$control$winnow <- tuneValue$.winnow
+                         } else theDots$control <- C5.0Control(winnow = tuneValue$.winnow)
+
+                       argList <- list(x = trainX, y = trainY, trials = tuneValue$.trials,
+                                       rules = tuneValue$.model == "rules")
+                       argList <- c(argList, theDots)
+                       do.call("C5.0.default", argList)
+
+                     },
+                     C5.0Tree =, C5.0Rules =
+                     {
+                       library(C50)
+
+                       C5.0(x = trainX, y = trainY, 
+                            rules = method == "C5.0Rules",
+                            ...)
+                     },                     
                      custom =
                      {
                        custom(data = data,

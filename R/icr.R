@@ -21,7 +21,7 @@ icr.formula <- function (formula, data, weights, ...,
         w <- rep(1, nrow(x))
     y <- model.response(m)
 
-    res <- pcaNNet.default(x, y, weights = w, thresh = thresh, ...)
+    res <- icr.default(x, y, weights = w, thresh = thresh, ...)
     res$terms <- Terms
     res$coefnames <- colnames(x)
     res$call <- match.call()

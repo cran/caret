@@ -56,6 +56,10 @@ resamples.default <- function(x, modelNames = names(x), ...)
           {
             x[[i]]$resample <- subset(x[[i]]$resample, Variables == x[[i]]$bestSubset)
           }
+##        if(class(x[[i]])[1] == "train" && x[[i]]$control$returnResamp == "all")
+##          {
+##            x[[i]]$resample <- merge(x[[i]]$resample, x[[i]]$bestTune)
+##          }          
         tmp <- x[[i]]$resample[, c(pNames, "Resample"), drop = FALSE]
         names(tmp)[names(tmp) %in% pNames] <- paste(modelNames[i], names(tmp)[names(tmp) %in% pNames], sep = "~")
         out <- if(i == 1) tmp else merge(out, tmp)
@@ -239,7 +243,10 @@ summary.resamples <- function(object, ...)
     {
       tmpData <- vals[, grep(paste("~", object$metrics[i], sep = ""), names(vals), fixed = TRUE), drop = FALSE]
       
-      out[[i]] <- do.call("rbind", lapply(tmpData, summary))
+      out[[i]] <- do.call("rbind", lapply(tmpData, function(x) summary(x)[1:6]))
+      naSum <- matrix(unlist(lapply(tmpData, function(x) sum(is.na(x)))), ncol = 1)
+      colnames(naSum) <- "NA's"
+      out[[i]] <- cbind(out[[i]], naSum)
       rownames(out[[i]]) <- gsub(paste("~", object$metrics[i], sep = ""),
                                  "",
                                  rownames(out[[i]]),
@@ -488,8 +495,10 @@ densityplot.resamples <- function (x, data = NULL, models = x$models, metric = x
   plotData$Metric <- unlist(lapply(tmp, function(x) x[2]))
   plotData <- subset(plotData, Model %in% models & Metric  %in% metric)
 
-
-  densityplot(~value|Metric, data = plotData, groups = Model, xlab = "", ...)
+  metricVals <- unique(plotData$Metric)
+  plotForm <- if(length(metricVals) > 1) as.formula(~value|Metric) else as.formula(~value)
+  densityplot(plotForm, data = plotData, groups = Model,
+              xlab = if(length(unique(plotData$Metric)) > 1) "" else metricVals, ...)
                          
 }
 
@@ -502,9 +511,16 @@ bwplot.resamples <- function (x, data = NULL, models = x$models, metric = x$metr
   plotData$Model <- unlist(lapply(tmp, function(x) x[1]))
   plotData$Metric <- unlist(lapply(tmp, function(x) x[2]))
   plotData <- subset(plotData, Model %in% models & Metric  %in% metric)
-
-  bwplot(Model~value|Metric, data = plotData,
-         xlab = "", ...)
+  avPerf <- ddply(subset(plotData, Metric == metric[1]),
+                  .(Model),
+                  function(x) c(Median = median(x$value, na.rm = TRUE)))
+  avPerf <- avPerf[order(avPerf$Median),]
+  plotData$Model <- factor(as.character(plotData$Model),
+                           levels = avPerf$Model)
+  metricVals <- unique(plotData$Metric)
+  plotForm <- if(length(metricVals) > 1) as.formula(Model~value|Metric) else as.formula(Model~value)
+  bwplot(plotForm, data = plotData,
+         xlab = if(length(unique(plotData$Metric)) > 1) "" else metricVals, ...)
                          
 }
 
@@ -539,9 +555,17 @@ dotplot.resamples <- function (x, data = NULL, models = x$models, metric = x$met
   tmp <- strsplit(as.character(results$X1), "~", fixed = TRUE)
   results$Model <- unlist(lapply(tmp, function(x) x[1]))
   results$Metric <- unlist(lapply(tmp, function(x) x[2]))
-  dotplot(Model ~ value|Metric,
+  avPerf <- ddply(subset(results, Metric == metric[1] & X2 == "Estimate"),
+                  .(Model),
+                  function(x) c(Median = median(x$value, na.rm = TRUE)))
+  avPerf <- avPerf[order(avPerf$Median),]
+  results$Model <- factor(as.character(results$Model),
+                           levels = avPerf$Model)
+  metricVals <- unique(results$Metric)
+  plotForm <- if(length(metricVals) > 1) as.formula(Model~value|Metric) else as.formula(Model~value)
+  dotplot(plotForm,
          data = results,
-         xlab = "",
+         xlab = if(length(unique(plotData$Metric)) > 1) "" else metricVals,
          panel = function(x, y)
          {
            plotTheme <- trellis.par.get()
@@ -646,8 +670,11 @@ densityplot.diff.resamples <- function(x, data, metric = x$metric, ...)
     plotData$Metric <- rep(x$metric, each = length(x$difs[[1]]))
     plotData$ind <- gsub(".diff.", " - ", plotData$ind, fixed = TRUE)
     plotData <- subset(plotData, Metric %in% metric)
-         densityplot(~ values|Metric, data = plotData, groups = ind,
-                     xlab = "", ...)
+    metricVals <- unique(plotData$Metric)
+    plotForm <- if(length(metricVals) > 1) as.formula(~values|Metric) else as.formula(~values)
+    
+    densityplot(plotForm, data = plotData, groups = ind,
+                xlab = if(length(unique(plotData$Metric)) > 1) "" else metricVals, ...)
 
   }
 
@@ -660,9 +687,12 @@ bwplot.diff.resamples <- function(x, data, metric = x$metric, ...)
     plotData$Metric <- rep(x$metric, each = length(x$difs[[1]]))
     plotData$ind <- gsub(".diff.", " - ", plotData$ind, fixed = TRUE)
     plotData <- subset(plotData, Metric %in% metric)
-    bwplot(ind ~ values|Metric,
+    metricVals <- unique(plotData$Metric)
+    plotForm <- if(length(metricVals) > 1) as.formula(ind ~ values|Metric) else as.formula(ind ~ values)
+    
+    bwplot(plotForm,
            data = plotData,
-           xlab = "",
+           xlab = if(length(unique(plotData$Metric)) > 1) "" else metricVals,
            ...)
 
   }

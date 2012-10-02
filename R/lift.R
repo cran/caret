@@ -2,7 +2,7 @@ lift <- function(x, ...) UseMethod("lift")
 
 lift.default <- function(x, ...) stop("'x' should be a formula")
 
-lift.formula <- function(x, data = NULL, class = NULL, cuts = NULL, subset = TRUE, lattice.options = NULL, ...)
+lift.formula <- function(x, data = NULL, class = NULL,subset = TRUE,  lattice.options = NULL, labels = NULL, ...)
   {
     library(plyr)
 
@@ -10,6 +10,7 @@ lift.formula <- function(x, data = NULL, class = NULL, cuts = NULL, subset = TRU
       oopt <- lattice.options(lattice.options)
       on.exit(lattice.options(oopt), add = TRUE)
     }
+
 
     formula <- x
     groups  <- NULL
@@ -21,14 +22,19 @@ lift.formula <- function(x, data = NULL, class = NULL, cuts = NULL, subset = TRU
     liftData <- data.frame(prob = form$y)
     probNames <- strsplit(form$right.name, " + ", fixed = TRUE)[[1]]
 
+    if(!is.null(labels))
+      {
+        if(length(labels) != length(probNames)) stop("labels should have an element for each term on the rhs of the formula")
+        if(!all(probNames %in% names(labels))) stop(paste("labels should be a named vector or list with names:",
+                                                          paste(probNames, collapse = ", ")))
+      }
+
+       
+    
     liftData <- data.frame(liftClassVar = rep(form$left, length(probNames)),
                            liftProbVar = form$right)
     liftData$liftModelVar <- if(length(probNames) > 1) form$condition[[length(form$condition)]] else probNames
 
-    if(is.null(cuts))
-      {
-        cuts <- if(is.null(data)) nrow(liftData) else nrow(data)
-      }
     if(length(form$condition) > 0 && any(names(form$condition) != ""))
       {
         ind <- sum(names(form$condition) != "")
@@ -40,8 +46,16 @@ lift.formula <- function(x, data = NULL, class = NULL, cuts = NULL, subset = TRU
     splitVars <- names(liftData)[!(names(liftData) %in% c("liftClassVar", "liftProbVar"))]
 
     if(is.null(class)) class <- levels(liftData$liftClassVar)[1]
-    plotData <- ddply(liftData, splitVars, liftCalc, class = class, cuts = cuts)    
-    out <- list(data = plotData, cuts = cuts, class = class, probNames = probNames,
+    plotData <- ddply(liftData, splitVars, liftCalc, class = class)
+    if(!is.null(labels))
+      {
+        plotData$originalName <- plotData$liftModelVar
+        plotData$liftModelVar <- as.character(plotData$liftModelVar)
+        for(i in seq(along = labels)) plotData$liftModelVar[plotData$liftModelVar == names(labels)[i]] <- labels[i]
+        plotData$liftModelVar <- factor(plotData$liftModelVar,
+                                        levels = labels)
+      }
+    out <- list(data = plotData, class = class, probNames = probNames,
                 pct =  mean(liftData$liftClassVar == class)*100, call = match.call())
     class(out) <- "lift"
     out
@@ -53,24 +67,20 @@ print.lift <- function(x, ...)
     cat("\nCall:\n", truncateText(deparse(x$call, width.cutoff = 500)), "\n\n", sep = "")
     cat("Models:", paste(unique(x$data$liftModelVar), collapse = ", "), "\n")
     cat("Event: ", x$class, " (", round( x$pct, 1), "%)\n", sep = "")      
-    cat("Cuts:", x$cuts, "\n")
     invisible(x)
   }
 
 
 xyplot.lift <- function(x, data = NULL, ...)
   {
-    lFormula <- "cumPct ~ cuts"
-    defaults <- c("liftModelVar", "cuts", "value", "resp", "n", "lift", "cumPct")
-    extras <- names(x$data)[!(names(x$data) %in% defaults)]
-    if(length(extras) > 0) lFormula <- paste(lFormula, paste(extras, collapse = "*"), sep = "|")
+    lFormula <- "CumEventPct ~ CumTestedPct"
 
     rng <- extendrange(c(0, 100))
     
     opts <- list(...)
     if(!any(names(opts) == "xlab")) opts$xlab <- "% Samples Tested"
     if(!any(names(opts) == "ylab")) opts$ylab <- "% Samples Found"
-    if(!any(names(opts) == "type")) opts$type <- "S"
+    if(!any(names(opts) == "type")) opts$type <- "l"
     if(!any(names(opts) == "ylim")) opts$ylim <- rng   
     if(!any(names(opts) == "xlim")) opts$xlim <- rng
     if(!any(names(opts) == "panel")) opts$panel <- panel.lift2
@@ -84,29 +94,30 @@ xyplot.lift <- function(x, data = NULL, ...)
     do.call("xyplot", args)    
   }
 
-liftCalc <- function(x, class = levels(x$liftClassVar)[1], cuts = 11)
+liftCalc <- function(x, class = levels(x$liftClassVar)[1])
   {
     lvl <- levels(x$liftClassVar)
     x <- x[order(x$liftProbVar, decreasing = TRUE),]
 
+    nEvents <- sum(x$liftClassVar == class)
     baseline <- mean(x$liftClassVar == class)
-    cuts <- ceiling(seq(1, nrow(x), length = cuts))
+    cuts <- sort(unique(x$liftProbVar), decreasing = TRUE)
+    cuts <- unique(c(1, cuts, 0))
 
-    tmp <- data.frame(cuts = cuts/nrow(x),
-                      value = cuts,
-                      resp = NA,
+    tmp <- data.frame(cuts = cuts,
+                      events = NA,
                       n = NA)
-    for(i in 2:length(cuts))
+    for(i in seq(along = cuts))
       {
-        sub <- x[cuts[i-1]:(cuts[i] - 1),]
-        tmp$n[i] <- nrow(sub)
-        tmp$resp[i] <- sum(sub$liftClassVar == class)
+        sub <- x$liftClassVar[x$liftProbVar >= tmp$cuts[i]]
+        tmp$n[i] <- length(sub)
+        tmp$events[i] <- sum(sub == class)
       }
 
-    tmp[1, c("value", "resp", "n")] <- 0
-    tmp$lift <- tmp$resp/tmp$n/baseline
-    tmp$cumPct <- cumsum(tmp$resp)/sum(x$liftClassVar == class)*100
-    tmp$cuts <- tmp$cuts*100
+    tmp$EventPct <- ifelse(tmp$n > 0, tmp$events/tmp$n*100, 0)
+    tmp$CumEventPct <- tmp$events/nEvents*100
+    tmp$lift <- tmp$events/tmp$n/baseline
+    tmp$CumTestedPct <- tmp$n/nrow(x)*100
     tmp
   }
 

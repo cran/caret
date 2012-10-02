@@ -104,22 +104,12 @@ confusionMatrix(xtab, prevalence = 0.25)
 ###################
 ## 3 class example
 
-library(MASS)
-
-fit <- lda(Species ~ ., data = iris)
-model <- predict(fit)$class
-
-irisTabs <- table(model, iris$Species)
-
-confusionMatrix(irisTabs)
-confusionMatrix(model, iris$Species)
+confusionMatrix(iris$Species, sample(iris$Species))
 
 newPrior <- c(.05, .8, .15)
 names(newPrior) <- levels(iris$Species)
 
-confusionMatrix(irisTabs, prevalence = newPrior)
-## Need names for prevalence
-\dontrun{confusionMatrix(irisTabs, prevalence = c(.05, .8, .15))}
+confusionMatrix(iris$Species, sample(iris$Species))
 
 }
 \keyword{utilities}

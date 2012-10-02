@@ -91,11 +91,13 @@ Box, G. E. P. and Tidwell, P. W. (1962) Transformation of the independent variab
 \examples{
 data(BloodBrain)
 # one variable has one unique value
-\dontrun{preProc <- preProcess(bbbDescr[1:100,])}
+\dontrun{
+preProc <- preProcess(bbbDescr)
 
-preProc <- preProcess(bbbDescr[1:100,-3])
+preProc  <- preProcess(bbbDescr[1:100,-3])
 training <- predict(preProc, bbbDescr[1:100,-3])
-test <- predict(preProc, bbbDescr[101:208,-3])
+test     <- predict(preProc, bbbDescr[101:208,-3])
+}
 }
 
 \keyword{ utilities }

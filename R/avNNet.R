@@ -1,6 +1,6 @@
 
 avNNet <- function (x, ...)
-   UseMethod("avNNet")
+  UseMethod("avNNet")
 
 
 ## this is a near copy of nnet.formula
@@ -9,54 +9,54 @@ avNNet.formula <- function (formula, data, weights, ...,
                             bag= FALSE,
                             subset, na.action, contrasts = NULL) 
 {
-    class.ind <- function(cl) {
-        n <- length(cl)
-        x <- matrix(0, n, length(levels(cl)))
-        x[(1:n) + n * (as.vector(unclass(cl)) - 1)] <- 1
-        dimnames(x) <- list(names(cl), levels(cl))
-        x
-    }
-    m <- match.call(expand.dots = FALSE)
-    if (is.matrix(eval.parent(m$data))) 
-        m$data <- as.data.frame(data)
-    bag <- m$bag
-    repeats <- m$repeats
-    m$... <- m$contrasts <- m$bag <- m$repeats <- NULL
-    m[[1]] <- as.name("model.frame")
-    m <- eval.parent(m)
-    Terms <- attr(m, "terms")
-    x <- model.matrix(Terms, m, contrasts)
-    cons <- attr(x, "contrast")
-    xint <- match("(Intercept)", colnames(x), nomatch = 0)
-    if (xint > 0) 
-        x <- x[, -xint, drop = FALSE]
-    w <- model.weights(m)
-    if (length(w) == 0) 
-        w <- rep(1, nrow(x))
-    y <- model.response(m)
-    
-    res <- avNNet.default(x, y, weights = w, repeats = repeats, bag = bag, ...)
-    res$terms <- Terms
-    res$coefnames <- colnames(x)
-    res$call <- match.call()
-    res$na.action <- attr(m, "na.action")
-    res$contrasts <- cons
-    res$xlevels <- .getXlevels(Terms, m)
-    class(res) <- c("avNNet.formula", "avNNet")
-    res
+  class.ind <- function(cl) {
+    n <- length(cl)
+    x <- matrix(0, n, length(levels(cl)))
+    x[(1:n) + n * (as.vector(unclass(cl)) - 1)] <- 1
+    dimnames(x) <- list(names(cl), levels(cl))
+    x
+  }
+  m <- match.call(expand.dots = FALSE)
+  if (is.matrix(eval.parent(m$data))) 
+    m$data <- as.data.frame(data)
+##  bag <- m$bag
+##  repeats <- m$repeats
+  m$... <- m$contrasts <- m$bag <- m$repeats <- NULL
+  m[[1]] <- as.name("model.frame")
+  m <- eval.parent(m)
+  Terms <- attr(m, "terms")
+  x <- model.matrix(Terms, m, contrasts)
+  cons <- attr(x, "contrast")
+  xint <- match("(Intercept)", colnames(x), nomatch = 0)
+  if (xint > 0) 
+    x <- x[, -xint, drop = FALSE]
+  w <- model.weights(m)
+  if (length(w) == 0) 
+    w <- rep(1, nrow(x))
+  y <- model.response(m)
+  
+  res <- avNNet.default(x, y, weights = w, repeats = repeats, bag = bag, ...)
+  res$terms <- Terms
+  res$coefnames <- colnames(x)
+  res$call <- match.call()
+  res$na.action <- attr(m, "na.action")
+  res$contrasts <- cons
+  res$xlevels <- .getXlevels(Terms, m)
+  class(res) <- c("avNNet.formula", "avNNet")
+  res
 }
 
 avNNet.default <- function(x, y, repeats = 5, bag = FALSE, ...)
   {
     library(nnet)
-    # check for factors
-    # this is from nnet.formula
+                                        # check for factors
+                                        # this is from nnet.formula
     class.ind <- function(cl) {
-        n <- length(cl)
-        x <- matrix(0, n, length(levels(cl)))
-        x[(1:n) + n * (as.vector(unclass(cl)) - 1)] <- 1
-        dimnames(x) <- list(names(cl), levels(cl))
-        x
+      n <- length(cl)
+      x <- matrix(0, n, length(levels(cl)))
+      x[(1:n) + n * (as.vector(unclass(cl)) - 1)] <- 1
+      dimnames(x) <- list(names(cl), levels(cl))
+      x
     }
 
     ind <- seq(along = y)
@@ -74,15 +74,15 @@ avNNet.default <- function(x, y, repeats = 5, bag = FALSE, ...)
     for(i in 1:repeats)
       {
         if(any(names(theDots) == "trace"))
-           {
-             if(theDots$trace) cat("\nFitting Repeat", i, "\n\n")
-           } else cat("Fitting Repeat", i, "\n\n")
+          {
+            if(theDots$trace) cat("\nFitting Repeat", i, "\n\n")
+          } else cat("Fitting Repeat", i, "\n\n")
         if(bag)  ind <- sample(1:nrow(x))
         mods[[i]] <- if(is.null(classLev)) nnet(x[ind,,drop = FALSE], y[ind], ...) else nnet(x[ind,,drop = FALSE], y[ind,], ...)
         mods[[i]]$lev <- classLev
       }
     
-    # return results
+                                        # return results
     out <- list(model = mods,
                 repeats = repeats,
                 bag = bag,
@@ -107,24 +107,24 @@ predict.avNNet <- function(object, newdata, type = c("raw", "class", "prob"), ..
     if (missing(newdata))
       {
         if(is.null(object$model[[1]]$lev))
-           {
-             out <- lapply(object$model, fitted.values)
-             out <- do.call("cbind", out)
-             return(apply(out, 1, mean))
-           } else {
-             for(i in 1:object$repeats)
-               {
-                 rawTmp <- fitted.values(object$model[[i]])
-                 rawTmp <- t(apply(rawTmp, 1, function(x) exp(x)/sum(exp(x))))
-                 scores <- if(i == 1) rawTmp else scores + rawTmp
-                 scores <- scores/object$repeats
-               }
-             classes <- colnames(scores)[apply(scores, 1, which.max)]
-             classes <- factor(as.character(classes), levels = object$model[[1]]$lev)
-             if(type[1]== "raw") out <- scores
-             if(type[1]== "class")  out <- (classes)
-             if(type[1]== "prob")  out <- t(apply(scores, 1, function(x) x/sum(x)))
-           }
+          {
+            out <- lapply(object$model, fitted.values)
+            out <- do.call("cbind", out)
+            return(apply(out, 1, mean))
+          } else {
+            for(i in 1:object$repeats)
+              {
+                rawTmp <- fitted.values(object$model[[i]])
+                rawTmp <- t(apply(rawTmp, 1, function(x) exp(x)/sum(exp(x))))
+                scores <- if(i == 1) rawTmp else scores + rawTmp
+              }
+            scores <- scores/object$repeats
+            classes <- colnames(scores)[apply(scores, 1, which.max)]
+            classes <- factor(as.character(classes), levels = object$model[[1]]$lev)
+            if(type[1]== "raw") out <- scores
+            if(type[1]== "class")  out <- (classes)
+            if(type[1]== "prob")  out <- t(apply(scores, 1, function(x) x/sum(x)))
+          }
       }  else {
         if (inherits(object, "avNNet.formula")) {
           newdata <- as.data.frame(newdata)
@@ -151,22 +151,23 @@ predict.avNNet <- function(object, newdata, type = c("raw", "class", "prob"), ..
         }
         if(!is.null(object$names))  x <- x[, object$names, drop = FALSE]
         if(is.null(object$model[[1]]$lev))
-           {
-             out <- lapply(object$model, predict, newdata = x)
-             out <- do.call("cbind", out)
-             return(apply(out, 1, mean))
-           } else {
-             for(i in 1:object$repeats)
-               {
-                 scores <- if(i == 1) predict(object$model[[i]], newdata = x) else scores + predict(object$model[[i]], newdata = x)
-                 scores <- scores/object$repeats
-               }
-             classes <- colnames(scores)[apply(scores, 1, which.max)]
-             classes <- factor(as.character(classes), levels = object$model[[1]]$lev)
-             if(type[1]== "raw") out <- scores
-             if(type[1]== "class")  out <- (classes)
-             if(type[1]== "prob")  out <- t(apply(scores, 1, function(x) x/sum(x)))
-           }
+          {
+            out <- lapply(object$model, predict, newdata = x)
+            out <- do.call("cbind", out)
+            return(apply(out, 1, mean))
+          } else {
+            for(i in 1:object$repeats)
+              {
+                scores <- if(i == 1) predict(object$model[[i]], newdata = x) else scores + predict(object$model[[i]], newdata = x)
+
+              }
+            scores <- scores/object$repeats
+            classes <- colnames(scores)[apply(scores, 1, which.max)]
+            classes <- factor(as.character(classes), levels = object$model[[1]]$lev)
+            if(type[1]== "raw") out <- scores
+            if(type[1]== "class")  out <- (classes)
+            if(type[1]== "prob")  out <- t(apply(scores, 1, function(x) x/sum(x)))
+          }
         
       }
     out

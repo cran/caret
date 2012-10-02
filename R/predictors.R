@@ -386,16 +386,23 @@ predictors.mda <- function(x, ...)
 predictors.glmnet <- function(x, lambda = NULL, ...)
 {
   library(glmnet)
-    if(is.null(lambda))
-      {
-        if(!is.null(x$lambdaOpt))
-          {
-            lambda <- x$lambdaOpt
-          } else stop("must supply a vaue of lambda")
-      }
-    out <- coef(x, s = lambda)[,1]
-    out <- names(out)[out != 0]
-    out[out != "(Intercept)"]
+  if(is.null(lambda))
+    {
+      if(length(lambda) > 1) stop("Only one value of lambda is allowed right now")
+      if(!is.null(x$lambdaOpt))
+        {
+          lambda <- x$lambdaOpt
+        } else stop("must supply a vaue of lambda")
+    }
+  allVar <- if(is.list(x$beta)) rownames(x$beta[[1]]) else rownames(x$beta)
+  out <- unlist(predict(x, s = lambda, type = "nonzero"))
+  out <- unique(out)
+  if(length(out) > 0)
+    {
+      out <- out[!is.na(out)]
+      out <- allVar[out]
+    }
+  out
 }
 
 predictors.penfit <- function(x, ...)
@@ -537,3 +544,10 @@ predictors.gam <- function(x, ...)
     rownames(tmp)[tmp$Overall > 0]
   }
 
+
+predictors.C5.0 <- function(x, ...)
+  {
+    library(C50)
+    vars <- C5imp(x, metric = "splits")
+    rownames(vars)[vars$Overall > 0]
+  }

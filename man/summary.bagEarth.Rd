@@ -27,8 +27,10 @@ a list with elements
 \author{Max Kuhn}
 
 \examples{
+\dontrun{
 data(trees)
 fit <- bagEarth(trees[,-3], trees[3])
 summary(fit)
+}
 }
 \keyword{manip }

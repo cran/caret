@@ -88,10 +88,12 @@ Following Ripley (1996), the same neural network model is fit using different ra
 \seealso{ \code{\link[nnet]{nnet}},  \code{\link{preProcess}}}
 \examples{
 data(BloodBrain)
-modelFit <- avNNet(bbbDescr[, 1:10], logBBB, size = 5, linout = TRUE, trace = FALSE)
+\dontrun{
+modelFit <- avNNet(bbbDescr, logBBB, size = 5, linout = TRUE, trace = FALSE)
 modelFit
 
-predict(modelFit, bbbDescr[, 1:10])
+predict(modelFit, bbbDescr)
+}
 }
 \keyword{ neural }
 

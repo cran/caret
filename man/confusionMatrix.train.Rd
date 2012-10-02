@@ -30,7 +30,7 @@ There are several ways to show the table entries. Using \code{norm = "none"} wil
 \value{
 a list of class \code{confusionMatrix.train}, \code{confusionMatrix.rfe} or \code{confusionMatrix.sbf} with elements
   \item{table}{the normalized matrix}
-  \item{nrom}{an echo fo the call}
+  \item{norm}{an echo fo the call}
   \item{text}{a character string with details about the resampling procedure (e.g. "Bootstrapped (25 reps) Confusion Matrix"}
  
 }

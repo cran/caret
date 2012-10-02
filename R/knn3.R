@@ -47,6 +47,15 @@ knn3.formula <- function (formula, data, subset, na.action, k = 5, ...)
     RET
 }
 
+knn3.data.frame <- function(x, y, k = 5, ...)
+{
+  x <- as.matrix(x)
+  out <- knn3(x, y = y, k = k, ...)
+  call <- match.call(expand.dots = TRUE)
+  out$call <- call
+  out
+}
+
 knn3.matrix <- function(x, y, k = 5, ...)
 {
     if(!is.matrix(x)) x <- as.matrix(x)

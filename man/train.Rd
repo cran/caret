@@ -36,7 +36,7 @@ train(x, ...)
 \item{subset}{An index vector specifying the cases to be used in the training sample. (NOTE: If given, this argument must be named.)}
 \item{na.action}{A function to specify the action to be taken if NAs are found. The default action is for the procedure to fail. An alternative is na.omit, which leads to rejection of cases with missing values on any required variable. (NOTE: If given, this argument must be named.)}
 \item{contrasts}{a list of contrasts to be used for some or all of the factors appearing as variables in the model formula.}
-  \item{method}{a string specifying which classification or regression model to use. Possible values are: \code{ada}, \code{avNNet}, \code{bag}, \code{bagEarth}, \code{bagFDA}, \code{bdk}, \code{blackboost}, \code{Boruta}, \code{bstLs}, \code{bstSm}, \code{bstTree}, \code{cforest}, \code{ctree}, \code{ctree2}, \code{cubist}, \code{earth}, \code{earthTest}, \code{enet}, \code{evtree}, \code{fda}, \code{foba}, \code{gam}, \code{gamboost}, \code{GAMens}, \code{gamLoess}, \code{gamSpline}, \code{gaussprLinear}, \code{gaussprPoly}, \code{gaussprRadial}, \code{gbm}, \code{gcvEarth}, \code{glm}, \code{glmboost}, \code{glmnet}, \code{glmStepAIC}, \code{gpls}, \code{hda}, \code{hdda}, \code{icr}, \code{J48}, \code{JRip}, \code{kernelpls}, \code{knn}, \code{krlsPoly}, \code{krlsRadial}, \code{lars}, \code{lars2}, \code{lasso}, \code{lda}, \code{lda2}, \code{leapBackward}, \code{leapForward}, \code{leapSeq}, \code{Linda}, \code{lm}, \code{lmStepAIC}, \code{LMT}, \code{logforest}, \code{logicBag}, \code{logitBoost}, \code{logreg}, \code{lssvmLinear}, \code{lssvmPoly}, \code{lssvmRadial}, \code{lvq}, \code{M5}, \code{M5Rules}, \code{mars}, \code{mda}, \code{mlp}, \code{mlpWeightDecay}, \code{multinom}, \code{nb}, \code{neuralnet}, \code{nnet}, \code{nodeHarvest}, \code{obliqueTree}, \code{OneR}, \code{ORFlog}, \code{ORFpls}, \code{ORFridge}, \code{ORFsvm}, \code{pam}, \code{parRF}, \code{PART}, \code{partDSA}, \code{pcaNNet}, \code{pcr}, \code{pda}, \code{pda2}, \code{penalized}, \code{PenalizedLDA}, \code{plr}, \code{pls}, \code{plsTest}, \code{ppr}, \code{qda}, \code{QdaCov}, \code{qrf}, \code{qrnn}, \code{rbf}, \code{rbfDDA}, \code{rda}, \code{relaxo}, \code{rf}, \code{rFerns}, \code{rfLSF}, \code{rfNWS}, \code{ridge}, \code{rlm}, \code{rocc}, \code{rpart}, \code{rpart2}, \code{RRF}, \code{RRFglobal}, \code{rrlda}, \code{rvmLinear}, \code{rvmPoly}, \code{rvmRadial}, \code{scrda}, \code{sda}, \code{sddaLDA}, \code{sddaQDA}, \code{simpls}, \code{slda}, \code{smda}, \code{sparseLDA}, \code{spls}, \code{stepLDA}, \code{stepQDA}, \code{superpc}, \code{svmLinear}, \code{svmpoly}, \code{svmPoly}, \code{svmradial}, \code{svmRadial}, \code{svmRadialCost}, \code{treebag}, \code{vbmpRadial}, \code{widekernelpls}, \code{xyf}. See the Details section below.}  
+  \item{method}{a string specifying which classification or regression model to use. Possible values are: \code{ada}, \code{avNNet}, \code{bag}, \code{bagEarth}, \code{bagFDA}, \code{bdk}, \code{blackboost}, \code{Boruta}, \code{bstLs}, \code{bstSm}, \code{bstTree}, \code{C5.0}, \code{C5.0Rules}, \code{C5.0Tree}, \code{cforest}, \code{ctree}, \code{ctree2}, \code{cubist}, \code{earth}, \code{earthTest}, \code{enet}, \code{evtree}, \code{fda}, \code{foba}, \code{gam}, \code{gamboost}, \code{GAMens}, \code{gamLoess}, \code{gamSpline}, \code{gaussprLinear}, \code{gaussprPoly}, \code{gaussprRadial}, \code{gbm}, \code{gcvEarth}, \code{glm}, \code{glmboost}, \code{glmnet}, \code{glmStepAIC}, \code{gpls}, \code{hda}, \code{hdda}, \code{icr}, \code{J48}, \code{JRip}, \code{kernelpls}, \code{knn}, \code{krlsPoly}, \code{krlsRadial}, \code{lars}, \code{lars2}, \code{lasso}, \code{lda}, \code{lda2}, \code{leapBackward}, \code{leapForward}, \code{leapSeq}, \code{Linda}, \code{lm}, \code{lmStepAIC}, \code{LMT}, \code{logforest}, \code{logicBag}, \code{logitBoost}, \code{logreg}, \code{lrm}, \code{lssvmLinear}, \code{lssvmPoly}, \code{lssvmRadial}, \code{lvq}, \code{M5}, \code{M5Rules}, \code{mars}, \code{mda}, \code{mlp}, \code{mlpWeightDecay}, \code{multinom}, \code{nb}, \code{neuralnet}, \code{nnet}, \code{nodeHarvest}, \code{obliqueTree}, \code{OneR}, \code{ORFlog}, \code{ORFpls}, \code{ORFridge}, \code{ORFsvm}, \code{pam}, \code{parRF}, \code{PART}, \code{partDSA}, \code{pcaNNet}, \code{pcr}, \code{pda}, \code{pda2}, \code{penalized}, \code{PenalizedLDA}, \code{plr}, \code{pls}, \code{plsTest}, \code{ppr}, \code{qda}, \code{QdaCov}, \code{qrf}, \code{qrnn}, \code{rbf}, \code{rbfDDA}, \code{rda}, \code{relaxo}, \code{rf}, \code{rFerns}, \code{rfLSF}, \code{rfNWS}, \code{ridge}, \code{rlm}, \code{rocc}, \code{rpart}, \code{rpart2}, \code{RRF}, \code{RRFglobal}, \code{rrlda}, \code{rvmLinear}, \code{rvmPoly}, \code{rvmRadial}, \code{sda}, \code{sddaLDA}, \code{sddaQDA}, \code{simpls}, \code{slda}, \code{smda}, \code{sparseLDA}, \code{spls}, \code{stepLDA}, \code{stepQDA}, \code{superpc}, \code{svmLinear}, \code{svmpoly}, \code{svmPoly}, \code{svmradial}, \code{svmRadial}, \code{svmRadialCost}, \code{treebag}, \code{vbmpRadial}, \code{widekernelpls}, \code{xyf}. See the Details section below.}  
   \item{\ldots}{ arguments passed to the classification or regression routine (such as \code{\link[randomForest]{randomForest}}). Errors will occur if values
          for tuning parameters are passed here.} 
 \item{preProcess}{a string vector that defines an pre-processing of the predictor data. Current possibilities are \code{center}, \code{scale}, \code{spatialSign}, \code{pca}, \code{ica}, and \code{knnImpute}. See \code{\link{preProcess}} and \code{\link{trainControl}} on the procedures and how to adjust them.} 
@@ -57,32 +57,33 @@ A variety of models are currently available. The lists below enumerate the model
 \bold{ Bagging }
 \itemize{
   \item \emph{Method Value}: \code{bag} from package \pkg{caret} with tuning parameter \code{vars} (dual use) 
-  \item \emph{Method Value}: \code{bagEarth} from package \pkg{caret} with tuning parameters: \code{degree}, \code{nprune} (dual use) 
-  \item \emph{Method Value}: \code{bagFDA} from package \pkg{caret} with tuning parameters: \code{nprune}, \code{degree} (classification only) 
+  \item \emph{Method Value}: \code{bagEarth} from package \pkg{caret} with tuning parameters: \code{nprune}, \code{degree} (dual use) 
+  \item \emph{Method Value}: \code{bagFDA} from package \pkg{caret} with tuning parameters: \code{degree}, \code{nprune} (classification only) 
   \item \emph{Method Value}: \code{GAMens} from package \cpkg{GAMens} with tuning parameters: \code{fusion}, \code{rsm_size}, \code{iter} (classification only) 
-  \item \emph{Method Value}: \code{logicBag} from package \bpkg{logicFS} with tuning parameters: \code{nleaves}, \code{ntrees} (dual use) 
+  \item \emph{Method Value}: \code{logicBag} from package \bpkg{logicFS} with tuning parameters: \code{ntrees}, \code{nleaves} (dual use) 
   \item \emph{Method Value}: \code{treebag} from package \cpkg{ipred}  with no tuning parameters (dual use) 
 }
 
 \bold{ Bayesian Methods }
 \itemize{
-  \item \emph{Method Value}: \code{nb} from package \cpkg{klaR} with tuning parameters: \code{usekernel}, \code{fL} (classification only) 
+  \item \emph{Method Value}: \code{nb} from package \cpkg{klaR} with tuning parameters: \code{fL}, \code{usekernel} (classification only) 
   \item \emph{Method Value}: \code{vbmpRadial} from package \bpkg{vbmp} with tuning parameter \code{estimateTheta} (classification only) 
 }
 
 \bold{ Boosted Trees }
 \itemize{
-  \item \emph{Method Value}: \code{ada} from package \cpkg{ada} with tuning parameters: \code{iter}, \code{maxdepth}, \code{nu} (dual use) 
-  \item \emph{Method Value}: \code{blackboost} from package \cpkg{mboost} with tuning parameters: \code{mstop}, \code{maxdepth} (dual use) 
+  \item \emph{Method Value}: \code{ada} from package \cpkg{ada} with tuning parameters: \code{iter}, \code{maxdepth}, \code{nu} (classification only) 
+  \item \emph{Method Value}: \code{blackboost} from package \cpkg{mboost} with tuning parameters: \code{maxdepth}, \code{mstop} (dual use) 
   \item \emph{Method Value}: \code{bstTree} from package \cpkg{bst} with tuning parameters: \code{nu}, \code{maxdepth}, \code{mstop} (dual use) 
-  \item \emph{Method Value}: \code{gbm} from package \cpkg{gbm} with tuning parameters: \code{shrinkage}, \code{n.trees}, \code{interaction.depth} (dual use) 
+  \item \emph{Method Value}: \code{C5.0} from package \cpkg{C50} with tuning parameters: \code{winnow}, \code{model}, \code{trials} (classification only) 
+  \item \emph{Method Value}: \code{gbm} from package \cpkg{gbm} with tuning parameters: \code{interaction.depth}, \code{n.trees}, \code{shrinkage} (dual use) 
 }
 
 \bold{ Boosting (Non-Tree) }
 \itemize{
   \item \emph{Method Value}: \code{bstLs} from package \cpkg{bst} with tuning parameters: \code{mstop}, \code{nu} (dual use) 
-  \item \emph{Method Value}: \code{bstSm} from package \cpkg{bst} with tuning parameters: \code{mstop}, \code{nu} (dual use) 
-  \item \emph{Method Value}: \code{gamboost} from package \cpkg{mboost} with tuning parameters: \code{mstop}, \code{prune} (dual use) 
+  \item \emph{Method Value}: \code{bstSm} from package \cpkg{bst} with tuning parameters: \code{nu}, \code{mstop} (dual use) 
+  \item \emph{Method Value}: \code{gamboost} from package \cpkg{mboost} with tuning parameters: \code{prune}, \code{mstop} (dual use) 
   \item \emph{Method Value}: \code{glmboost} from package \cpkg{mboost} with tuning parameters: \code{prune}, \code{mstop} (dual use) 
   \item \emph{Method Value}: \code{logitBoost} from package \cpkg{caTools} with tuning parameter \code{nIter} (classification only) 
 }
@@ -119,12 +120,12 @@ A variety of models are currently available. The lists below enumerate the model
 
 \bold{ Heteroscedastic Discriminant Analysis }
 \itemize{
-  \item \emph{Method Value}: \code{hda} from package \cpkg{hda} with tuning parameters: \code{lambda}, \code{gamma}, \code{newdim} (classification only) 
+  \item \emph{Method Value}: \code{hda} from package \cpkg{hda} with tuning parameters: \code{newdim}, \code{lambda}, \code{gamma} (classification only) 
 }
 
 \bold{ High Dimensional Discriminant Analysis }
 \itemize{
-  \item \emph{Method Value}: \code{hdda} from package \cpkg{HDclassif} with tuning parameters: \code{threshold}, \code{model} (classification only) 
+  \item \emph{Method Value}: \code{hdda} from package \cpkg{HDclassif} with tuning parameters: \code{model}, \code{threshold} (classification only) 
 }
 
 \bold{ Independent Component Regression }
@@ -147,7 +148,7 @@ A variety of models are currently available. The lists below enumerate the model
   \item \emph{Method Value}: \code{lda} from package \cpkg{MASS}  with no tuning parameters (classification only) 
   \item \emph{Method Value}: \code{lda2} from package \cpkg{MASS} with tuning parameter \code{dimen} (classification only) 
   \item \emph{Method Value}: \code{Linda} from package \cpkg{rrcov}  with no tuning parameters (classification only) 
-  \item \emph{Method Value}: \code{rrlda} from package \cpkg{rrlda} with tuning parameters: \code{alpha}, \code{lambda} (classification only) 
+  \item \emph{Method Value}: \code{rrlda} from package \cpkg{rrlda} with tuning parameters: \code{lambda}, \code{alpha} (classification only) 
   \item \emph{Method Value}: \code{sda} from package \cpkg{sda} with tuning parameter \code{diagonal} (classification only) 
   \item \emph{Method Value}: \code{sddaLDA} from package \cpkg{SDDA}  with no tuning parameters (classification only) 
   \item \emph{Method Value}: \code{slda} from package \cpkg{ipred}  with no tuning parameters (classification only) 
@@ -189,24 +190,23 @@ A variety of models are currently available. The lists below enumerate the model
 
 \bold{ Multivariate Adaptive Regression Spline }
 \itemize{
-  \item \emph{Method Value}: \code{earth} from package \cpkg{earth} with tuning parameters: \code{degree}, \code{nprune} (dual use) 
+  \item \emph{Method Value}: \code{earth} from package \cpkg{earth} with tuning parameters: \code{nprune}, \code{degree} (dual use) 
   \item \emph{Method Value}: \code{gcvEarth} from package \cpkg{earth} with tuning parameter \code{degree} (dual use) 
 }
 
 \bold{ Nearest Shrunken Centroids }
 \itemize{
   \item \emph{Method Value}: \code{pam} from package \cpkg{pamr} with tuning parameter \code{threshold} (classification only) 
-  \item \emph{Method Value}: \code{scrda} from package \cpkg{rda} with tuning parameters: \code{alpha}, \code{delta} (classification only) 
 }
 
 \bold{ Neural Networks }
 \itemize{
-  \item \emph{Method Value}: \code{avNNet} from package \pkg{caret} with tuning parameters: \code{decay}, \code{bag}, \code{size} (dual use) 
+  \item \emph{Method Value}: \code{avNNet} from package \pkg{caret} with tuning parameters: \code{size}, \code{bag}, \code{decay} (dual use) 
   \item \emph{Method Value}: \code{mlp} from package \cpkg{RSNNS} with tuning parameter \code{size} (dual use) 
-  \item \emph{Method Value}: \code{mlpWeightDecay} from package \cpkg{RSNNS} with tuning parameters: \code{size}, \code{decay} (dual use) 
-  \item \emph{Method Value}: \code{neuralnet} from package \cpkg{neuralnet} with tuning parameters: \code{layer1}, \code{layer3}, \code{layer2} (regression only) 
-  \item \emph{Method Value}: \code{nnet} from package \cpkg{nnet} with tuning parameters: \code{decay}, \code{size} (dual use) 
-  \item \emph{Method Value}: \code{pcaNNet} from package \pkg{caret} with tuning parameters: \code{decay}, \code{size} (dual use) 
+  \item \emph{Method Value}: \code{mlpWeightDecay} from package \cpkg{RSNNS} with tuning parameters: \code{decay}, \code{size} (dual use) 
+  \item \emph{Method Value}: \code{neuralnet} from package \cpkg{neuralnet} with tuning parameters: \code{layer2}, \code{layer1}, \code{layer3} (regression only) 
+  \item \emph{Method Value}: \code{nnet} from package \cpkg{nnet} with tuning parameters: \code{size}, \code{decay} (dual use) 
+  \item \emph{Method Value}: \code{pcaNNet} from package \pkg{caret} with tuning parameters: \code{size}, \code{decay} (dual use) 
   \item \emph{Method Value}: \code{qrnn} from package \cpkg{qrnn} with tuning parameters: \code{penalty}, \code{bag}, \code{n.hidden} (regression only) 
 }
 
@@ -230,12 +230,12 @@ A variety of models are currently available. The lists below enumerate the model
 \itemize{
   \item \emph{Method Value}: \code{enet} from package \cpkg{elasticnet} with tuning parameters: \code{fraction}, \code{lambda} (regression only) 
   \item \emph{Method Value}: \code{foba} from package \cpkg{foba} with tuning parameters: \code{lambda}, \code{k} (regression only) 
-  \item \emph{Method Value}: \code{krlsPoly} from package \cpkg{KRLS} with tuning parameters: \code{degree}, \code{lambda} (regression only) 
+  \item \emph{Method Value}: \code{krlsPoly} from package \cpkg{KRLS} with tuning parameters: \code{lambda}, \code{degree} (regression only) 
   \item \emph{Method Value}: \code{krlsRadial} from package \cpkg{KRLS} with tuning parameters: \code{sigma}, \code{lambda} (regression only) 
   \item \emph{Method Value}: \code{lars} from package \cpkg{lars} with tuning parameter \code{fraction} (regression only) 
   \item \emph{Method Value}: \code{lars2} from package \cpkg{lars} with tuning parameter \code{step} (regression only) 
   \item \emph{Method Value}: \code{lasso} from package \cpkg{elasticnet} with tuning parameter \code{fraction} (regression only) 
-  \item \emph{Method Value}: \code{penalized} from package \cpkg{penalized} with tuning parameters: \code{lambda2}, \code{lambda1} (regression only) 
+  \item \emph{Method Value}: \code{penalized} from package \cpkg{penalized} with tuning parameters: \code{lambda1}, \code{lambda2} (regression only) 
   \item \emph{Method Value}: \code{relaxo} from package \cpkg{relaxo} with tuning parameters: \code{lambda}, \code{phi} (regression only) 
   \item \emph{Method Value}: \code{ridge} from package \cpkg{elasticnet} with tuning parameter \code{lambda} (regression only) 
 }
@@ -276,17 +276,19 @@ A variety of models are currently available. The lists below enumerate the model
   \item \emph{Method Value}: \code{qrf} from package \cpkg{quantregForest} with tuning parameter \code{mtry} (regression only) 
   \item \emph{Method Value}: \code{rf} from package \cpkg{randomForest} with tuning parameter \code{mtry} (dual use) 
   \item \emph{Method Value}: \code{rFerns} from package \cpkg{rFerns} with tuning parameter \code{depth} (classification only) 
-  \item \emph{Method Value}: \code{RRF} from package \cpkg{RRF} with tuning parameters: \code{coefImp}, \code{mtry}, \code{coefReg} (dual use) 
-  \item \emph{Method Value}: \code{RRFglobal} from package \cpkg{RRF} with tuning parameters: \code{mtry}, \code{coefReg} (dual use) 
+  \item \emph{Method Value}: \code{RRF} from package \cpkg{RRF} with tuning parameters: \code{mtry}, \code{coefReg}, \code{coefImp} (dual use) 
+  \item \emph{Method Value}: \code{RRFglobal} from package \cpkg{RRF} with tuning parameters: \code{coefReg}, \code{mtry} (dual use) 
 }
 
 \bold{ Recursive Partitioning }
 \itemize{
+  \item \emph{Method Value}: \code{C5.0Tree} from package \cpkg{C50}  with no tuning parameters (classification only) 
   \item \emph{Method Value}: \code{ctree} from package \cpkg{party} with tuning parameter \code{mincriterion} (dual use) 
   \item \emph{Method Value}: \code{ctree2} from package \cpkg{party} with tuning parameter \code{maxdepth} (dual use) 
   \item \emph{Method Value}: \code{evtree} from package \cpkg{evtree} with tuning parameter \code{alpha} (dual use) 
+  \item \emph{Method Value}: \code{J48} from package \cpkg{RWeka} with tuning parameter \code{C} (classification only) 
   \item \emph{Method Value}: \code{nodeHarvest} from package \cpkg{nodeHarvest} with tuning parameters: \code{maxinter}, \code{mode} (dual use) 
-  \item \emph{Method Value}: \code{obliqueTree} from package \cpkg{obliqueTree} with tuning parameters: \code{oblique.splits}, \code{variable.selection} (dual use) 
+  \item \emph{Method Value}: \code{obliqueTree} from package \cpkg{obliqueTree} with tuning parameters: \code{variable.selection}, \code{oblique.splits} (dual use) 
   \item \emph{Method Value}: \code{partDSA} from package \cpkg{partDSA} with tuning parameters: \code{cut.off.growth}, \code{MPD} (dual use) 
   \item \emph{Method Value}: \code{rpart} from package \cpkg{rpart} with tuning parameter \code{cp} (dual use) 
   \item \emph{Method Value}: \code{rpart2} from package \cpkg{rpart} with tuning parameter \code{maxdepth} (dual use) 
@@ -311,24 +313,24 @@ A variety of models are currently available. The lists below enumerate the model
 
 \bold{ Rule-Based Models }
 \itemize{
-  \item \emph{Method Value}: \code{cubist} from package \cpkg{Cubist} with tuning parameters: \code{neighbors}, \code{committees} (regression only) 
-  \item \emph{Method Value}: \code{J48} from package \cpkg{RWeka} with tuning parameter \code{C} (classification only) 
+  \item \emph{Method Value}: \code{C5.0Rules} from package \cpkg{C50}  with no tuning parameters (classification only) 
+  \item \emph{Method Value}: \code{cubist} from package \cpkg{Cubist} with tuning parameters: \code{committees}, \code{neighbors} (regression only) 
   \item \emph{Method Value}: \code{JRip} from package \cpkg{RWeka} with tuning parameter \code{NumOpt} (classification only) 
-  \item \emph{Method Value}: \code{M5} from package \cpkg{RWeka} with tuning parameters: \code{pruned}, \code{smoothed}, \code{rules} (regression only) 
-  \item \emph{Method Value}: \code{M5Rules} from package \cpkg{RWeka} with tuning parameters: \code{smoothed}, \code{pruned} (regression only) 
+  \item \emph{Method Value}: \code{M5} from package \cpkg{RWeka} with tuning parameters: \code{rules}, \code{pruned}, \code{smoothed} (regression only) 
+  \item \emph{Method Value}: \code{M5Rules} from package \cpkg{RWeka} with tuning parameters: \code{pruned}, \code{smoothed} (regression only) 
   \item \emph{Method Value}: \code{OneR} from package \cpkg{RWeka}  with no tuning parameters (classification only) 
   \item \emph{Method Value}: \code{PART} from package \cpkg{RWeka} with tuning parameters: \code{pruned}, \code{threshold} (classification only) 
 }
 
 \bold{ Self-Organizing Maps }
 \itemize{
-  \item \emph{Method Value}: \code{bdk} from package \cpkg{kohonen} with tuning parameters: \code{topo}, \code{xweight}, \code{xdim}, \code{ydim} (dual use) 
+  \item \emph{Method Value}: \code{bdk} from package \cpkg{kohonen} with tuning parameters: \code{topo}, \code{ydim}, \code{xweight}, \code{xdim} (dual use) 
   \item \emph{Method Value}: \code{xyf} from package \cpkg{kohonen} with tuning parameters: \code{xdim}, \code{ydim}, \code{topo}, \code{xweight} (dual use) 
 }
 
 \bold{ Sparse Linear Discriminant Analysis }
 \itemize{
-  \item \emph{Method Value}: \code{PenalizedLDA} from package \cpkg{penalizedLDA} with tuning parameters: \code{lambda}, \code{K} (classification only) 
+  \item \emph{Method Value}: \code{PenalizedLDA} from package \cpkg{penalizedLDA} with tuning parameters: \code{K}, \code{lambda} (classification only) 
   \item \emph{Method Value}: \code{sparseLDA} from package \cpkg{sparseLDA} with tuning parameters: \code{lambda}, \code{NumVars} (classification only) 
 }
 
@@ -347,12 +349,11 @@ A variety of models are currently available. The lists below enumerate the model
 }
 
 
-
 By default, the function \code{\link{createGrid}} is used to define the candidate values of the tuning parameters. The user can also specify their own. To do this, a data fame is created with columns for each tuning parameter in the model. The column names must be the same as those listed in the table above with a leading dot. For example, \code{ncomp} would have the column heading \code{.ncomp}. This data frame can then be passed to \code{\link{createGrid}}.
 
 In some cases, models may require control arguments. These can be passed via the three dots argument. Note that some models can specify tuning parameters in the control objects. If specified, these values will be superseded by those given in the \code{\link{createGrid}} argument. 
 
-For several models (\code{rpart}, \code{rf}, \code{gbm}, \code{treebag}, \code{nb}, \code{J48}, \code{PART}, \code{JRip}, \code{OneR}, \code{ctree}, \code{cforest} and \code{custom}) factor predictors variables can be passed directly to the underlying modeling function using the interface \code{train(x, y)}. In these cases, it is possible for the models to treat factor variables in a manner different than most (i.e. not as a decomposed set of dummy variables). The formula interface to \code{train} will always convert the factors to dummy variables.
+The formula interface to \code{train} will always convert factor variables to dummy variables. For several models (\code{rpart}, \code{rf}, \code{gbm}, \code{treebag}, \code{nb}, \code{J48}, \code{PART}, \code{JRip}, \code{OneR}, \code{ctree}, \code{cforest}, \code{bag}, \code{cubist}, \code{C5.0}, \code{C5.0Tree}, \code{C5.0Rules} and \code{custom}) factor predictors variables can be passed directly to the underlying modeling function using the interface \code{train(x, y)}. In these cases, it is possible for the models to treat factor variables in a manner different than most (i.e. not as a decomposed set of dummy variables).
 
 The vignette entitled "caret Manual -- Model Building" has more details and examples related to this function.
 
@@ -395,6 +396,7 @@ The vignette entitled "caret Manual -- Model Building" has more details and exam
 \code{\link{createFolds}}}
 
 \examples{
+\dontrun{
 
 #######################################
 ## Classification Example
@@ -468,10 +470,8 @@ earthFit <- train(medv ~ .,
 #######################################
 ## Parallel Processing Example via multicore package
 
-\dontrun{
-
-library(doMC)
-registerDoMC(2)
+## library(doMC)
+## registerDoMC(2)
 
 ## NOTE: don't run models form RWeka when using
 ### multicore. The session will crash.

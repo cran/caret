@@ -3,6 +3,121 @@
 \newcommand{\cpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
 
+\section{Changes in version  5.15-042}{
+\itemize{ 
+
+\item Many examples are wrapped in dontrun to speed up cran checking.
+
+\item The \code{scrda} methods were removed from the package (on
+6/30/12, R Core sent an email that "since we haven't got fixes for
+long standing warnings of the rda packages since more than half a year
+now, we set the package to ORPHANED.")
+
+\item \cpkg{C5.0} was added (model codes \code{C5.0}, \code{C5.0Tree} and
+\code{C5.0Rules}).
+
+
+\item The output of \code{train} with \code{verboseIter = TRUE} was
+modified to show the resample label as well as logging when the worker
+started and stopped the task (better when using parallel processing).
+
+\item Added a long-hidden function \code{downSample} for class imbalances
+
+\item An \code{upSample} function was added for class imbalances. 
+
+\item A new file, aaa.R, was added to be compiled first that tries to
+eliminate the dreaded 'no visible binding for global variable' false
+positives. Specific namespaces were used with several functions for
+avoid similar warnings.
+
+
+\item Some exceptions were added to \code{plot.train} so that some
+tuning parameters are better labeled.
+
+\item \code{dotplot.resamples} and \code{bwplot.resamples} now order
+the models using the first metric.
+
+\item A few of the lattice plots for the \code{resamples} class were
+changed such that when only one metric is shown: the strip is not
+shown and the x-axis label displays the metric
+
+\item When using \code{trainControl(savePredictions = TRUE)} an
+additional column is added to \code{object$pred} called
+\code{rowIndex}. This indicates the row from the original data that is
+being held-out.
+
+\item A variable importance function for \code{nnet} objects was
+created based on Gevrey, M., Dimopoulos, I., & Lek, S. (2003). Review
+and comparison of methods to study the contribution of variables in
+artificial neural network models. ecological modelling, 160(3),
+249–264.
+
+\item The \code{predictor} function for \code{glmnet} was update and a
+variable importance function was also added.
+
+
+\item \code{sensitivity} and \code{specificity} were given an
+\code{na.rm} argument.
+
+\item A first attempt at fault tolerance was added to \code{train}. If
+a model fit fails, the predictions are set to \code{NA} and a warning
+is issued (eg "model fit failed for Fold04: sigma=0.00392,
+C=0.25"). When \code{verboseIter = TRUE}, the warning is also printed
+to the log. Resampled performance is calculated on only the
+non-missing estimates. This can also be done during predictions, but
+must be done on a model by model basis. Fault tolerance was added for
+\cpkg{kernlab} models only at this time.
+
+\item \code{lift} was modified in two ways. First, \code{cuts} is no
+longer an argument. The function always uses cuts based on the number
+of unique probability estimates. Second, a new argument called
+\code{label} is available to use alternate names for the models
+(e.g. names that are not valid R variable names). 
+
+\item Starting using namespaces for \code{ctree} and \code{cforest} to
+avoid conflicts between duplicate funciton names in the \cpkg{party}
+and \cpkg{partykit} package
+
+\item \code{predict.plsda} was modified so that a three dimensional
+array is returned irregardless of the value of \code{probMethod}.
+
+\item A set of functions for RFE and logistic regression
+(\code{lrFuncs}) was added.
+
+\item A bug was fixed with \code{icr.formula} that was so ridiculous,
+I now know that nobody has ever used that function.
+
+\item Fixed a bug when using \code{method = "oob"} with \code{train}
+
+\item Raghu Nidagal found a bug in \code{predict.avNNet} that was
+fixed.
+
+\item Class probabilities were not being generated for sparseLDA
+models.
+
+\item A bug in \code{print.bag} was fixed. 
+
+\item Bugs were fixed in the new varImp methods for PART and RIPPER
+
+\item A bug in \code{train} with \code{method="glmStepAIC"} was fixed
+so that \code{direction} and other \code{stepAIC} arguments were
+honored.
+
+\item A bug was fixed in \code{preProcess} where the number of ICA
+components was not specified. (thanks to Alexander Lebedev)
+
+\item Another bug was fixed for oblique random forest methods in
+\code{train}. (thanks to Alexander Lebedev)
+
+\item \code{knn3} was setup so that it automatically works with data frames.
+
+\item A bug was fixed in \code{formula.avNNet} (thanks to Rob Hyndman)
+
+\item Fixed a bug in \code{train} with NaiveBayes when \code{fL != 0}
+was used
+}
+}
+
 \section{Changes in version  5.15-023}{
 \itemize{ 
 
@@ -27,6 +142,8 @@ single hold-out was used.
 
 }
 }
+
+
 \section{Changes in version  5.14-023}{
 \itemize{ 
 

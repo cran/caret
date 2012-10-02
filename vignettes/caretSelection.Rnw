@@ -40,6 +40,8 @@
 \newcommand{\ReallySmallSpacing}{\renewcommand{\baselinestretch}{.6}\Large\normalsize}
 \newcommand{\SmallSpacing}{\renewcommand{\baselinestretch}{1.1}\Large\normalsize}
 
+\providecommand{\SetAlgoLined}{\SetLine}
+
 \newcommand{\halfs}{\frac{1}{2}}
 
 \setlength{\oddsidemargin}{-.25 truein}

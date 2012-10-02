@@ -22,7 +22,13 @@ modelLookup <- function(model = NULL)
              ## bstLs
             'bstLs', 'bstLs',
              ## bstSm
-            'bstSm', 'bstSm',           
+            'bstSm', 'bstSm',
+            ## C5.0
+            'C5.0', 'C5.0', 'C5.0',
+            ## C5.0Tree
+            'C5.0Tree',
+            ## C5.0Rules
+            'C5.0Rules',
             ## cforest
             'cforest', 
             ## ctree
@@ -124,7 +130,9 @@ modelLookup <- function(model = NULL)
             ## logitBoost
             'logitBoost', 
             ## logreg
-            'logreg', 'logreg', 
+            'logreg', 'logreg',
+            ## lrm
+            'lrm',
             ## lssvmLinear
             'lssvmLinear', 
             ## lssvmPoly
@@ -250,7 +258,7 @@ modelLookup <- function(model = NULL)
             ## rvmRadial
             'rvmRadial', 
             ## scrda
-            'scrda', 'scrda', 
+            ## 'scrda', 'scrda', 
             ## sda
             'sda', 
             ## sddaLDA
@@ -315,7 +323,13 @@ modelLookup <- function(model = NULL)
               ## bstLs
               'mstop', 'nu',
               ## bstSm
-              'mstop', 'nu',              
+              'mstop', 'nu',
+              ## C5.0
+              'trials', 'model', 'winnow',
+              ## C5.0Tree
+              'parameter',
+              ## C5.0Rules
+              'parameter',
               ## cforest
               'mtry', 
               ## ctree
@@ -417,7 +431,9 @@ modelLookup <- function(model = NULL)
               ## logitBoost
               'nIter', 
               ## logreg
-              'treesize', 'ntrees', 
+              'treesize', 'ntrees',
+              ## lrm
+              'parameter',
               ## lssvmLinear
               'parameter', 
               ## lssvmPoly
@@ -540,7 +556,7 @@ modelLookup <- function(model = NULL)
               ## rvmRadial
               'sigma', 
               ## scrda
-              'alpha', 'delta', 
+              ## 'alpha', 'delta', 
               ## sda
               'diagonal', 
               ## sddaLDA
@@ -613,7 +629,13 @@ modelLookup <- function(model = NULL)
               ## bstLs
               '# Boosting Iterations', 'Shrinkage',
               ## bstSm
-              '# Boosting Iterations', 'Shrinkage',                
+              '# Boosting Iterations', 'Shrinkage',
+              ## C5.0
+              '# Boosting Iterations', 'Model Type', 'Winnow',
+               ## C5.0Tree
+              'none',
+              ## C5.0Rules
+              'none',
               ## cforest
               '#Randomly Selected Predictors',
               ## ctree
@@ -736,6 +758,8 @@ modelLookup <- function(model = NULL)
               ## logreg
               'Maximum Number of Leaves',
               'Number of Trees',
+              ## lrm
+              'none',
               ## lssvmLinear
               'none',
               ## lssvmPoly
@@ -879,8 +903,8 @@ modelLookup <- function(model = NULL)
               ## rvmRadial
               'Sigma',
               ## scrda
-              'Regularization Value',
-              'Threshold',
+              ## 'Regularization Value',
+              ## 'Threshold',
               ## sda
               'Diagonalize',
               ## sddaLDA
@@ -960,7 +984,13 @@ modelLookup <- function(model = NULL)
              ## bstLm
              TRUE, FALSE,
              ## bstSm
-             TRUE, FALSE,             
+             TRUE, FALSE,
+             ## C5.0
+             TRUE, FALSE, FALSE,
+             ## C5.0Tree
+             FALSE,
+             ## C5.0Rules
+             FALSE,
              ## cforest
              FALSE, 
              ## ctree actually is a sequential model, but treeresponse can't do probs from multiple models
@@ -1062,7 +1092,9 @@ modelLookup <- function(model = NULL)
              ## logitBoost
              TRUE, 
              ## logreg
-             FALSE, FALSE, 
+             FALSE, FALSE,
+             ## lrm
+             FALSE,
              ## lssvmLinear
              FALSE, 
              ## lssvmPoly
@@ -1185,7 +1217,7 @@ modelLookup <- function(model = NULL)
              ## rvmRadial
              FALSE, 
              ## scrda
-             TRUE, TRUE, 
+             ## TRUE, TRUE, 
              ## sda
              FALSE, 
              ## sddaLDA
@@ -1250,7 +1282,13 @@ modelLookup <- function(model = NULL)
                 ## bstLm
                 TRUE, TRUE,
                 ## bstSm
-                TRUE, TRUE,                
+                TRUE, TRUE,
+                ## C5.0
+                FALSE, FALSE, FALSE,
+                ## C5.0Tree
+                FALSE,
+                ## C5.0Rules
+                FALSE,
                 ## cforest
                 TRUE, 
                 ## ctree
@@ -1352,7 +1390,9 @@ modelLookup <- function(model = NULL)
                 ## logitBoost
                 FALSE, 
                 ## logreg
-                TRUE, TRUE, 
+                TRUE, TRUE,
+                ## lrm
+                FALSE,
                 ## lssvmLinear
                 FALSE, 
                 ## lssvmPoly
@@ -1475,7 +1515,7 @@ modelLookup <- function(model = NULL)
                 ## rvmRadial
                 TRUE, 
                 ## scrda
-                FALSE, FALSE, 
+                ## FALSE, FALSE, 
                 ## sda
                 FALSE, 
                 ## sddaLDA
@@ -1541,7 +1581,13 @@ modelLookup <- function(model = NULL)
                   ## bstLm
                   TRUE, TRUE,
                   ## bstSm
-                  TRUE, TRUE,                  
+                  TRUE, TRUE,
+                  ## C5.0
+                  TRUE, TRUE, TRUE,
+                  ## C5.0Tree
+                  TRUE,
+                  ## C5.0Rules
+                  TRUE,
                   ## cforest
                   TRUE, 
                   ## ctree
@@ -1643,7 +1689,9 @@ modelLookup <- function(model = NULL)
                   ## logitBoost
                   TRUE, 
                   ## logreg
-                  TRUE, TRUE, 
+                  TRUE, TRUE,
+                  ## lrm
+                  TRUE,
                   ## lssvmLinear
                   TRUE, 
                   ## lssvmPoly
@@ -1765,7 +1813,7 @@ modelLookup <- function(model = NULL)
                   ## rvmRadial
                   FALSE, 
                   ## scrda
-                  TRUE, TRUE, 
+                  ## TRUE, TRUE, 
                   ## sda
                   TRUE, 
                   ## sddaLDA
@@ -1831,7 +1879,13 @@ modelLookup <- function(model = NULL)
                     ## bstLs
                     FALSE, FALSE,
                     ## bstSm
-                    FALSE, FALSE,                    
+                    FALSE, FALSE,
+                    ## C5.0
+                    TRUE, TRUE, TRUE,
+                    ## C5.0Tree
+                    TRUE,
+                    ## C5.0Rules
+                    TRUE,
                     ## cforest
                     TRUE, 
                     ## ctree
@@ -1933,7 +1987,9 @@ modelLookup <- function(model = NULL)
                     ## logitBoost
                     TRUE, 
                     ## logreg
-                    TRUE, TRUE, 
+                    TRUE, TRUE,
+                    ## lrm
+                    TRUE,
                     ## lssvmLinear
                     FALSE, 
                     ## lssvmPoly
@@ -2055,7 +2111,7 @@ modelLookup <- function(model = NULL)
                     ## rvmRadial
                     FALSE, 
                     ## scrda
-                    TRUE, TRUE, 
+                    ## TRUE, TRUE, 
                     ## sda
                     TRUE, 
                     ## sddaLDA

@@ -30,7 +30,7 @@ plotClassProbs(object,
 \author{Max Kuhn}
 
 \examples{
-
+\dontrun{
 data(mdrr)
 set.seed(90)
 inTrain <- createDataPartition(mdrrClass, p = .5)[[1]]
@@ -67,6 +67,7 @@ plotClassProbs(predProbs,
                useObjects = TRUE,
                plotType = "densityplot",
                auto.key = list(columns = 2))
+}
 
 
 }

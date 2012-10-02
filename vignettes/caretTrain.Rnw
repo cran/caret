@@ -46,6 +46,8 @@
 \newcommand{\ReallySmallSpacing}{\renewcommand{\baselinestretch}{.6}\Large\normalsize}
 \newcommand{\SmallSpacing}{\renewcommand{\baselinestretch}{1.1}\Large\normalsize}
 
+\providecommand{\SetAlgoLined}{\SetLine}
+
 \newcommand{\halfs}{\frac{1}{2}}
 
 \setlength{\oddsidemargin}{-.25 truein}
@@ -483,7 +485,7 @@ There is additional functionality in \pkg{caret} that is described in the next s
 
 models <- modelLookup()
 modelKey <- read.delim(system.file("modelKey.txt", package = "caret"))
-modelInfo <- merge(models, modelKey, all.y = TRUE)
+modelInfo <- merge(models, modelKey, all.x = TRUE)
 modelInfo$parameter <- latexTranslate(modelInfo$parameter)
 
 cranRef <- function(x) paste("{\\tt \\href{http://cran.r-project.org/web/packages/", x, "/index.html}{", x, "}}", sep = "")

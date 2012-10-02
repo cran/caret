@@ -59,6 +59,7 @@ specification would produce a factor vector.
 
 \seealso{\code{\link[pls:mvr]{plsr}}, \code{\link[spls]{spls}}}
 \examples{
+\dontrun{
 data(mdrr)
 set.seed(1)
 inTrain <- sample(seq(along = mdrrClass), 450)
@@ -80,19 +81,15 @@ useBayes   <- plsda(trainDescr, trainMDRR, ncomp = 5,
                     probMethod = "Bayes")
 useSoftmax <- plsda(trainDescr, trainMDRR, ncomp = 5)
 
-confusionMatrix(
-                predict(useBayes, testDescr),
+confusionMatrix(predict(useBayes, testDescr),
                 testMDRR)
 
-confusionMatrix(
-                predict(useSoftmax, testDescr),
+confusionMatrix(predict(useSoftmax, testDescr),
                 testMDRR)
 
-histogram(
-          ~predict(useBayes, testDescr, type = "prob")[,"Active"]
+histogram(~predict(useBayes, testDescr, type = "prob")[,"Active"]
           | testMDRR, xlab = "Active Prob", xlim = c(-.1,1.1))
-histogram(
-          ~predict(useSoftmax, testDescr, type = "prob")[,"Active",]
+histogram(~predict(useSoftmax, testDescr, type = "prob")[,"Active",]
           | testMDRR, xlab = "Active Prob", xlim = c(-.1,1.1))
 
 
@@ -111,9 +108,9 @@ splsFit <- caret:::splsda(trainDescr, trainMDRR,
                           K = 5, eta = .9,
                           probMethod = "Bayes")
 
-confusionMatrix(
-                caret:::predict.splsda(splsFit, testDescr),
+confusionMatrix(caret:::predict.splsda(splsFit, testDescr),
                 testMDRR)
+}
 }
 
 

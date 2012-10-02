@@ -22,6 +22,7 @@ rfeIter(x, y,
         testX, testY, 
         sizes, 
         rfeControl = rfeControl(), 
+        label = "",
         ...)
 
 \method{predict}{rfe}(object, newdata, ...)
@@ -38,6 +39,7 @@ rfeIter(x, y,
   \item{rfeControl}{a list of options, including functions for fitting and prediction. See the package vignette or \code{\link{rfeControl}} for examples}
   \item{object}{an object of class \code{rfe}}
   \item{newdata}{a matrix or data frame of new samples for prediction}
+  \item{label}{an optional character string to be printed when in verbose mode.}
   \item{\dots}{options to pass to the model fitting function (ignored in \code{predict.rfe})}
 }
 \details{
