@@ -26,11 +26,12 @@ If the predictions for the original training set are needed, there are two ways 
 }
 \seealso{\code{\link{bagEarth}}}
 \examples{
+\dontrun{
 data(trees)
 fit1 <- bagEarth(Volume ~ ., data = trees, keepX = TRUE)
 fit2 <- bagEarth(Volume ~ ., data = trees, keepX = FALSE)
 hist(predict(fit1) - predict(fit2))
-
+}
 }
 \keyword{regression}
 

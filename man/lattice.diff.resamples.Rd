@@ -46,17 +46,17 @@ resamps <- resamples(list(CART = rpartFit,
                           MARS = earthFit))
 difs <- diff(resamps)
 
-dotplot(difValues)
+dotplot(difs)
 
-densityplot(difValues,
+densityplot(difs,
             metric = "RMSE",
             auto.key = TRUE,
             pch = "|")
 
-bwplot(difValues,
+bwplot(difs,
        metric = "RMSE")
 
-levelplot(difValues, what = "differences")
+levelplot(difs, what = "differences")
 
 }
 }

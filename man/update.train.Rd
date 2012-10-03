@@ -39,6 +39,7 @@ Max Kuhn
  \code{\link{train}},  \code{\link{trainControl}}
 }
 \examples{
+\dontrun{
 data(iris)
 TrainData <- iris[,1:4]
 TrainClasses <- iris[,5]
@@ -50,6 +51,7 @@ knnFit1 <- train(TrainData, TrainClasses,
                  trControl = trainControl(method = "cv"))
 
 update(knnFit1, list(.k = 3))
+}
 }
 
 \keyword{ models }

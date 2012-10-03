@@ -4,7 +4,7 @@ sensitivity <-
   }
 
 "sensitivity.default" <-
-  function(data, reference, positive = levels(reference)[1], ...)
+  function(data, reference, positive = levels(reference)[1], na.rm = TRUE, ...)
 {
   if(!is.factor(reference) | !is.factor(data)) 
     stop("inputs must be factors")
@@ -12,7 +12,15 @@ sensitivity <-
   ## todo: relax the =2 constraint and let ngative length be > 2
   if(length(unique(c(levels(reference), levels(data)))) != 2)
     stop("input data must have the same two levels")
-  
+  if(na.rm)
+    {
+      cc <- complete.cases(data) & complete.cases(reference)
+      if(any(!cc))
+        {
+          data <- data[cc]
+          reference <- reference[cc]
+        }
+    }
   numer <- sum(data %in% positive & reference %in% positive)
   denom <- sum(reference %in% positive)
   sens <- ifelse(denom > 0, numer / denom, NA)

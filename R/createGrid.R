@@ -220,20 +220,6 @@
       tmp
     }
 
-  scrdaTune <- function(data, len)
-    {
-      library(rda)
-      x <- t(as.matrix(data[, colnames(data) != ".outcome", drop = FALSE]))
-      modelFit <- rda:::rda(x, as.numeric(data$.outcome),
-                            alpha = 0,
-                            delta = seq(0, 30, length = 30))
-      maxDelta <- max(modelFit$delta[modelFit$ngene > 0])
-      if(maxDelta == 0) maxDelta <- modelFit$delta[2]
-      out <- expand.grid(.alpha = seq(0, .9, length = len),
-                         .delta = seq(0, maxDelta, length = len))
-      out
-
-    }
   relaxoGrid <- function(data, len)
     {
       library(relaxo)
@@ -254,6 +240,8 @@
       out <- subset(out, .k <= .size & .size < n)
       out
     }
+
+  c5seq <- if(len == 1)  1 else  c(1, 10*((2:min(len, 11)) - 1))
   
   trainGrid <- switch(method,
                       nnet =, pcaNNet = expand.grid(
@@ -376,7 +364,6 @@
                       partDSA = expand.grid(.cut.off.growth = 1:10, .MPD = .1),
                       icr = data.frame(.n.comp = 1:len),
                       neuralnet = expand.grid(.layer1 = ((1:len) * 2) - 1, .layer2 = 0, .layer3 = 0),
-                      scrda = scrdaTune(data, len),
                       bag = data.frame(.vars = ncol(data) - 1),
                       hdda = expand.grid(.model = c("best", "dbest"), .threshold = seq(0.05, .3, length = len)),
                       logreg = expand.grid(.ntrees = (1:3) + 1, .treesize = 2^(1+(1:len))),
@@ -410,11 +397,13 @@
                                         .coefImp = seq(0, 1, length = len)),
                       krlsRadial = expand.grid(.lambda = NA, .sigma = rbfTune2(data, len)),
                       krlsPoly = expand.grid(.lambda = NA, .degree = 1:3),
-                      lda2 <- data.frame(.dimen = 1:min(ncol(data)-1, length(levels(data$.outcome)) - 1)),
+                      lda2 = data.frame(.dimen = 1:min(ncol(data)-1, length(levels(data$.outcome)) - 1)),
+                      C5.0 = expand.grid(.trials = c5seq, .model = c("tree", "rules"), .winnow = c(TRUE, FALSE)),
                       lda =, lm =, treebag =, sddaLDA =, sddaQDA =,
-                      glm =, qda =, OneR =, rlm =,
+                      glm =, qda =, OneR =, rlm =, lrm =,
                       rvmLinear =, lssvmLinear =, gaussprLinear =,
                       glmStepAIC =, lmStepAIC =, slda =, Linda =, QdaCov =,
+                      C5.0Tree =, C5.0Rules =,
                       glmrob =, logforest = data.frame(.parameter = "none"))
   trainGrid
 }

@@ -35,13 +35,29 @@
                                 stringsAsFactors = FALSE)
       } else modelInfo <- modelLookup(x$method)
     params <- modelInfo$parameter
+
+
+    
     plotIt <- "yes"
     if(all(params == "parameter"))
       {
         plotIt <- "There are no tuning parameters for this model."
       } else {
-        ## Check to see which tuning parameters were varied        
         dat <- x$results
+
+        ## Some exceptions for pretty printing
+        if(x$method == "nb") dat$usekernel <- factor(ifelse(dat$usekernel, "Nonparametric", "Gaussian"))
+        if(x$method == "gam") dat$select <- factor(ifelse(dat$select, "Feature Selection", "No Feature Selection"))
+        if(x$method == "qrnn") dat$bag <- factor(ifelse(dat$bag, "Bagging", "No Bagging"))
+        if(x$method == "C5.0") dat$winnow <- factor(ifelse(dat$winnow, "Winnowing", "No Winnowing"))
+##        if(x$method %in% c("M5Rules", "M5", "PART")) dat$pruned <- factor(ifelse(dat$pruned == "Yes", "Pruned", "Unpruned"))
+##        if(x$method %in% c("M5Rules", "M5")) dat$smoothed <- factor(ifelse(dat$smoothed == "Yes", "Smoothed", "Unsmoothed"))
+        if(x$method == "M5") dat$rules <- factor(ifelse(dat$rules == "Yes", "Rules", "Trees"))
+##        if(x$method == "vbmpRadial") dat$estimateTheta <- factor(ifelse(dat$estimateTheta == "Yes", "Estimate Theta", "Do Not Estimate Theta"))
+
+
+        ## Check to see which tuning parameters were varied        
+        
         paramValues <- apply(dat[,params,drop = FALSE],
                              2,
                              function(x) length(unique(x)))

@@ -121,12 +121,13 @@ train.default <- function(x, y,
   if(trControl$method == "oob" & method == "custom") stop("out-of-bag resampling is not allowed for custom models")
 
   if(trControl$method != "oob" & is.null(trControl$index)) names(trControl$index) <- prettySeq(trControl$index)
+  ## if(is.null(names(trControl$index)))  names(trControl$index) <- prettySeq(trControl$index)
   
   ## Combine the features and classes into one df
   trainData <- as.data.frame(x)
 
   ## Check mode for some models
-  if(!(method %in% c("rf", "rpart", "gbm", "treebag", "nb", "J48", "PART", "JRip", "OneR", "custom", "ctree", "cforest")))
+  if(!(method %in% c("rf", "rpart", "gbm", "treebag", "nb", "J48", "PART", "JRip", "OneR", "custom", "ctree", "cforest", "C5.0", "bag", "cubist", "C5.0Tree", "C5.0Rules")))
     {
       isFactor <- lapply(trainData, is.factor)
       isCharacter <- lapply(trainData, is.character)

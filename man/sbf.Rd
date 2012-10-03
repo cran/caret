@@ -68,7 +68,7 @@ Max Kuhn
 \code{\link{sbfControl}}
 }
 \examples{
-
+\dontrun{
 data(BloodBrain)
 
 ## Use a GAM is the filter, then fit a random forest model
@@ -81,13 +81,13 @@ RFwithGAM
 predict(RFwithGAM, bbbDescr[1:10,])
 
 ## classification example with parallel processing
-\dontrun{
-library(doMC)
+
+## library(doMC)
 
 ## Note: if the underlying model also uses foreach, the
 ## number of cores specified above will double (along with
 ## the memory requirements)
-registerDoMC(cores = 2)
+## registerDoMC(cores = 2)
 
 data(mdrr)
 mdrrDescr <- mdrrDescr[,-nearZeroVar(mdrrDescr)]

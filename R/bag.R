@@ -127,7 +127,7 @@ print.bag <- function (x, ...)
   cat("\nB:", x$B,"\n")
 
   cat("Training data:", x$dims[2], "variables and", x$dims[1], "samples\n")
-  cat(ifelse(is.null(x$vars),
+  cat(ifelse(is.null(x$vars) || x$dims[2] == x$vars,
              "All variables were used in each model",
              paste("Each model used", x$control$vars, "random",
                    ifelse(x$control$vars == 1, "variable", "variables"), "predictors")))

@@ -68,12 +68,25 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                            svmRadialCost =
                            {
                              library(kernlab)
+                             out <- try(predict(modelFit, newdata), silent = TRUE)
+                             if(runif(1) < .1) class(out) <-  "try-error"
                              if(is.character(lev(modelFit)))
                                {
-                                 predClass <- as.character(predict(modelFit, newdata))
-                                 out <- factor(predClass, levels = lev(modelFit))
+                                 if(class(out)[1] != "try-error")
+                                   {
+                                     predClass <- as.character(out)
+                                     out <- factor(predClass, levels = lev(modelFit))
+                                   } else {
+                                     warning("kernlab class prediction calculations failed; returning NAs")
+                                     out <- rep("", nrow(newdata))
+                                     out[seq(along = out)] <- NA
+                                   }
                                } else {
-                                 out <- predict(modelFit, newdata)
+                                 if(class(out)[1] == "try-error")
+                                   {
+                                     warning("kernlab prediction calculations failed; returning NAs")
+                                     out <- rep(NA, nrow(newdata))
+                                   } 
                                }
                              out
                            },
@@ -842,58 +855,6 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                              if(is.matrix(out)) out <- out[,1]
                              out
                            },
-                           scrda =
-                           {
-                             library(rda)
-                             out <- predict(modelFit,
-                                            x = modelFit$data$x,
-                                            y = as.numeric(modelFit$data$y),
-                                            xnew = t(as.matrix(newdata)),
-                                            alpha = modelFit$tuneValue$.alpha,
-                                            delta = modelFit$tuneValue$.delta)
-                             out <- as.character(modelFit$obsLevels)[out]
-
-                             if(!is.null(param))
-                               {
-                                 ## We could get results for all alpha, delta and samples at the same time.
-                                 ## If #alpha > 1 and #delta > 1, the results are a 3d array. However, if either
-                                 ## alpha or delta have one value, the array dinesions drop, so it is hard to
-                                 ## get predictions elegently.
-                                 
-                                 ## Column order will be (a_1, d_1), (a_1, d_2), ..., (a_p, d_q)
-                                 tmp <- vector(mode = "list", length = nrow(param) + 1)
-                                 tmp[[1]] <- out
-
-                                 ## Using predict.rda, the alpha and delta params will generate all
-                                 ## possible combinations, which might not be what the user wanted
-                                 ## as specified by tuneGrid. To make sure these match, we will
-                                 ## loop over one parameter
-                                 
-                                 uniqueA <- unique(param$.alpha)
-                                 index1 <- 2
-                                 for(i in 1:length(uniqueA))
-                                   {
-                                     delta <- subset(param, .alpha == uniqueA[i])$.delta
-                                     index2 <- index1 + length(delta) - 1
-                                     tmpPred <- predict(modelFit,
-                                                        x = modelFit$data$x,
-                                                        y = as.numeric(modelFit$data$y),
-                                                        xnew = t(as.matrix(newdata)),
-                                                        alpha = uniqueA[i],
-                                                        delta = delta)
-                                     ## If length(uniqueA) == 1 and length(delta) == 1, tmpPred
-                                     ## gets downcast into a vector (ordinarily a matrix)
-                                     if(is.vector(tmpPred)) tmpPred <- matrix(tmpPred, nrow = 1)
-                                     tmpPred <- apply(tmpPred, 2, function(x, y) y[x], y = as.character(modelFit$obsLevels))
-                                     if(is.vector(tmpPred)) tmpPred <- matrix(tmpPred, nrow = 1)
-                                     tmp[index1:index2] <- as.list(as.data.frame(t(tmpPred)))
-                                     index1 <- index2 + 1
-                                   }
-                                 out <- lapply(tmp, as.character) 
-                               }
-
-                             out
-                           },
                            bag =
                            {
                              predict(modelFit, newdata)
@@ -1104,6 +1065,24 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                            {
                              library(KRLS)
                              predict(modelFit, newdata)$fit[,1]
+                           },
+                           C5.0 =, C5.0Tree =, C5.0Rules =
+                           {
+                             library(C50)
+                             out <- as.character(predict(modelFit, newdata))
+
+                             if(!is.null(param))
+                               {
+                                 tmp <- out
+                                 out <- vector(mode = "list", length = nrow(param) + 1)
+                                 out[[1]] <- tmp
+                                 
+                                 for(j in seq(along = param$.trials))
+                                   {                                    
+                                     out[[j+1]] <- as.character(predict(modelFit, newdata, trial = param$.trials[j]))
+                                   }
+                               }
+                             out
                            },
                            custom =
                            {

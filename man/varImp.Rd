@@ -21,6 +21,9 @@
 \alias{varImp.cubist}
 \alias{varImp.JRip}
 \alias{varImp.PART}
+\alias{varImp.nnet}
+\alias{varImp.C5.0}
+\alias{varImp.glmnet}
 
 \title{Calculation of variable importance for regression and classification models}
 
@@ -69,6 +72,12 @@ A generic method for calculating variable importance for objects produced by
 \method{varImp}{JRip}(object, ...)
 
 \method{varImp}{PART}(object, ...)
+
+\method{varImp}{C5.0}(object, ...)
+
+\method{varImp}{nnet}(object, ...)
+
+\method{varImp}{glmnet}(object, lambda = NULL, ...)
 }
 
 \arguments{
@@ -91,7 +100,7 @@ A generic method for calculating variable importance for objects produced by
    \item{drop}{a logical: should variables not included in the final set be calculated?}
    \item{cuts}{the number of rule sets to use in the model (for \code{partDSA} only)}
    \item{weights}{a numeric vector of length two that weighs the usage of variabels in the rule conditions and the usuage in the linear models (see details below).}
-
+   \item{lambda}{a single value of the penalty parameter}
 }
 
 \value{
@@ -162,13 +171,56 @@ Otherwise:
    
   \bold{Nearest shrunken centroids}: The difference between the class centroids and the overall centroid is used to measure the variable influence (see \code{pamr.predict}). The larger the difference between   the class centroid and the overall center of the data, the larger the separation between the classes. The training set predictions must be supplied when an object of class \code{pamrtrained} is given to \code{varImp}. 
 
-  \bold{Cubist}: The Cubist output contains variable usage statistics. It gives the percentage of times where each variable was used in a condition and/or a linear model. Note that this output will probably be inconsistent with the rules shown in the output from \code{\link[Cubist]{summary.cubist}}. At each split of the tree, Cubist saves a linear model (after feature selection) that is allowed to have terms for each variable used in the current split or any split above it. Quinlan (1992) discusses a smoothing algorithm where each model prediction is a linear combination of the parent and child model along the tree. As such, the final prediction is a function of all the linear models from the initial node to the terminal node. The percentages shown in the Cubist output reflects all the models involved in prediction (as opposed to the terminal models shown in the output). The variable importance used here is a linear combination of the usage in the rule conditions and the model. 
+  \bold{Cubist}: The Cubist output contains variable usage
+  statistics. It gives the percentage of times where each variable was
+  used in a condition and/or a linear model. Note that this output
+  will probably be inconsistent with the rules shown in the output
+  from \code{\link[Cubist]{summary.cubist}}. At each split of the
+  tree, Cubist saves a linear model (after feature selection) that is
+  allowed to have terms for each variable used in the current split or
+  any split above it. Quinlan (1992) discusses a smoothing algorithm
+  where each model prediction is a linear combination of the parent
+  and child model along the tree. As such, the final prediction is a
+  function of all the linear models from the initial node to the
+  terminal node. The percentages shown in the Cubist output reflects
+  all the models involved in prediction (as opposed to the terminal
+  models shown in the output). The variable importance used here is a
+  linear combination of the usage in the rule conditions and the
+  model.
   
-  \bold{PART} and \bold{JRip}: For these rule-based models, the importance for a predictor is simply the number of rules involve the predictor. 
+  \bold{PART} and \bold{JRip}: For these rule-based models, the
+  importance for a predictor is simply the number of rules that
+  involve the predictor.
+
+  \bold{C5.0}: C5.0 measures predictor importance by determining the
+percentage of training set samples that fall into all the terminal
+nodes after the split. For example, the predictor in the first split
+automatically has an importance measurement of 100 percent since all
+samples are affected by this split. Other predictors may be used
+frequently in splits, but if the terminal nodes cover only a handful
+of training set samples, the importance scores may be close to
+zero. The same strategy is applied to rule-based models and boosted
+versions of the model. The underlying function can also return the
+number of times each predictor was involved in a split by using the
+option \code{metric = "usage"}.
+
+\bold{Neural Networks}: The method used here is based on Gevrey et al
+(2003), which uses combinations of the absolute values of the
+weights. For classification models, the class-specific importances
+will be the same.
   
 }
 
 \author{Max Kuhn}
+
+\references{Gevrey, M., Dimopoulos, I., & Lek, S. (2003). Review
+and comparison of methods to study the contribution of variables in
+artificial neural network models. Ecological Modelling, 160(3),
+249-264.
+
+Quinlan, J. (1992). Learning with continuous classes. Proceedings of
+the 5th Australian Joint Conference On Artificial Intelligence,
+343-348.}
 
 \keyword{ models }
 

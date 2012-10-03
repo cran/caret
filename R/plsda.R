@@ -85,17 +85,12 @@ predict.plsda <- function(object, newdata = NULL, ncomp = NULL, type = "class", 
           out <- as.data.frame(lapply(out, function(x, y) factor(x, levels = y), y = object$obsLevels))
           if(length(ncomp) == 1) out <- out[,1]
         } else {
-          if(length(ncomp) == 1)
-            {
-              out <- tmp[[1]]$posterior
-            } else {
-              out <- array(dim = c(dim(tmp[[1]]$posterior), length(ncomp)),
-                           dimnames = list(
-                             rownames(tmp[[1]]$posterior),
-                             colnames(tmp[[1]]$posterior),
-                             paste("ncomp", ncomp, sep = "")))
-              for(i in seq(along = ncomp)) out[,,i] <- tmp[[i]]$posterior
-            }
+          out <- array(dim = c(dim(tmp[[1]]$posterior), length(ncomp)),
+                       dimnames = list(
+                         rownames(tmp[[1]]$posterior),
+                         colnames(tmp[[1]]$posterior),
+                         paste("ncomp", ncomp, sep = "")))
+          for(i in seq(along = ncomp)) out[,,i] <- tmp[[i]]$posterior
         }
     }
   out
@@ -108,6 +103,7 @@ plsda.default <- function(x, y, ncomp = 2, probMethod = "softmax", prior = NULL,
 
   funcCall <- match.call(expand.dots = TRUE)
 
+  if(!is.matrix(x)) x <- as.matrix(x)
   if(length(ncomp) > 1)
     {
       ncomp <- max(ncomp)

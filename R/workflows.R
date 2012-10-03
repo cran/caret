@@ -5,11 +5,13 @@
 ### ".packages" argument and calling the caret package via library().
 
 
-progress <- function(x)
+progress <- function(x, names, iter, start = TRUE)
   {
-    cat("Fitting: ")
-    cat(paste(colnames(x), x, sep = "=", collapse = ", "))
-    cat("\n")
+    text <- paste(ifelse(start, "+ ", "- "),
+                  names[iter], ": ",
+                  paste(colnames(x), x, sep = "=", collapse = ", "),
+                  sep = "")
+    cat(text, "\n")
   }
 
 MeanSD <- function(x, exclude = NULL)
@@ -43,7 +45,7 @@ nominalTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing =
     ppp <- list(options = ppOpts)
     ppp <- c(ppp, ctrl$preProcOptions)
    
-    printed <- format(info$loop)
+    printed <- format(info$loop, digits = 4)
     colnames(printed) <- gsub("^\\.", "", colnames(printed))
 
 
@@ -57,7 +59,8 @@ nominalTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing =
       foreach(parm = 1:nrow(info$loop), .combine = "c", .verbose = FALSE, .packages = "caret", .errorhandling = "stop") %dopar%
     {
       library(caret)
-      if(ctrl$verboseIter) caret:::progress(printed[parm,,drop = FALSE])
+      if(ctrl$verboseIter) caret:::progress(printed[parm,,drop = FALSE],
+                                            names(resampleIndex), iter)
 
       if(names(resampleIndex)[iter] != "AllData")
         {
@@ -70,31 +73,105 @@ nominalTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing =
       
       if(testing) cat("pre-model\n")
 
-      mod <- caret:::createModel(data = dat[modelIndex,,drop = FALSE ],
-                                 method = method,
-                                 tuneValue = info$loop[parm,,drop = FALSE],
-                                 obsLevels = lev,
-                                 pp = ppp,
-                                 custom = ctrl$custom$model,
-                                 ...)
+      mod <- try(
+                 caret:::createModel(data = dat[modelIndex,,drop = FALSE ],
+                                     method = method,
+                                     tuneValue = info$loop[parm,,drop = FALSE],
+                                     obsLevels = lev,
+                                     pp = ppp,
+                                     custom = ctrl$custom$model,
+                                     ...),
+                 silent = TRUE)
 
-      predicted <- caret:::predictionFunction(method = method,
-                                              modelFit = mod$fit,
-                                              newdata = dat[holdoutIndex, !(names(dat) %in% c(".outcome", ".modelWeights")), drop = FALSE],
-                                              preProc = mod$preProc,
-                                              param = info$seqParam[[parm]],
-                                              custom = ctrl$custom$prediction)
+      if(class(mod)[1] != "try-error")
+        {
+          predicted <- try(
+                           caret:::predictionFunction(method = method,
+                                                      modelFit = mod$fit,
+                                                      newdata = dat[holdoutIndex, !(names(dat) %in% c(".outcome", ".modelWeights")), drop = FALSE],
+                                                      preProc = mod$preProc,
+                                                      param = info$seqParam[[parm]],
+                                                      custom = ctrl$custom$prediction),
+                           silent = TRUE)
 
-      
+          if(class(predicted)[1] == "try-error")
+            {
+              wrn <- paste(colnames(printed[parm,,drop = FALSE]),
+                           printed[parm,,drop = FALSE],
+                           sep = "=",
+                           collapse = ", ")
+              wrn <- paste("predictions failed for ", names(resampleIndex)[iter], ": ", wrn, sep = "")
+              if(ctrl$verboseIter) cat(wrn, "\n")
+              warning(wrn)
+              rm(wrn)
+              
+              ## setup a dummy results with NA values for all predictions
+              nPred <- nrow(dat) - length(unique(holdoutIndex))
+              if(!is.null(lev))
+                {
+                  predicted <- rep("", nPred)
+                  predicted[seq(along = predicted)] <- NA
+                } else {
+                  predicted <- rep(NA, nPred)
+                }
+              if(!is.null(info$seqParam[[parm]]))
+                {
+                  tmp <- predicted
+                  predicted <- vector(mode = "list", length = nrow(info$seqParam[[parm]]) + 1)
+                  for(i in seq(along = predicted)) predicted[[i]] <- tmp
+                  rm(tmp)
+                }
+            }
+        } else {
+          wrn <- paste(colnames(printed[parm,,drop = FALSE]),
+                       printed[parm,,drop = FALSE],
+                       sep = "=",
+                       collapse = ", ")
+          wrn <- paste("model fit failed for ", names(resampleIndex)[iter], ": ", wrn, sep = "")
+          if(ctrl$verboseIter) cat(wrn, "\n")
+          warning(wrn)
+          rm(wrn)
+        
+          ## setup a dummy results with NA values for all predictions
+          nPred <- nrow(dat) - length(unique(holdoutIndex))
+          if(!is.null(lev))
+            {
+              predicted <- rep("", nPred)
+              predicted[seq(along = predicted)] <- NA
+            } else {
+              predicted <- rep(NA, nPred)
+            }
+          if(!is.null(info$seqParam[[parm]]))
+            {
+              tmp <- predicted
+              predicted <- vector(mode = "list", length = nrow(info$seqParam[[parm]]) + 1)
+              for(i in seq(along = predicted)) predicted[[i]] <- tmp
+              rm(tmp)
+            }
+        }
+     
       if(testing) print(head(predicted))
       if(ctrl$classProbs)
         {
-          probValues <- caret:::probFunction(method = method,
-                                             modelFit = mod$fit,
-                                             newdata = dat[holdoutIndex, !(names(dat) %in% c(".outcome", ".modelWeights")), drop = FALSE],
-                                             preProc = mod$preProc,
-                                             param = info$seqParam[[parm]],
-                                             custom = ctrl$custom$probability)
+          if(class(mod)[1] != "try-error")
+            {
+              probValues <- caret:::probFunction(method = method,
+                                                 modelFit = mod$fit,
+                                                 newdata = dat[holdoutIndex, !(names(dat) %in% c(".outcome", ".modelWeights")), drop = FALSE],
+                                                 preProc = mod$preProc,
+                                                 param = info$seqParam[[parm]],
+                                                 custom = ctrl$custom$probability)
+            } else {
+              probValues <- as.data.frame(matrix(NA, nrow = nPred, ncol = length(lev)))
+              colnames(probValues) <- lev
+              if(!is.null(info$seqParam[[parm]]))
+                {
+                  tmp <- probValues
+                  probValues <- vector(mode = "list", length = nrow(info$seqParam[[parm]]) + 1)
+                  for(i in seq(along = probValues)) probValues[[i]] <- tmp
+                  rm(tmp)
+                }
+            }
           if(testing) print(head(probValues))
         }
 
@@ -131,7 +208,11 @@ nominalTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing =
           if(ctrl$savePredictions)
             {
               tmpPred <- predicted
-              for(modIndex in seq(along = tmpPred)) tmpPred[[modIndex]] <- cbind(tmpPred[[modIndex]], allParam[modIndex,,drop = FALSE])
+              for(modIndex in seq(along = tmpPred))
+                {
+                  tmpPred[[modIndex]]$rowIndex <- (1:nrow(dat))[unique(holdoutIndex)]
+                  tmpPred[[modIndex]] <- cbind(tmpPred[[modIndex]], allParam[modIndex,,drop = FALSE])
+                }
               tmpPred <- rbind.fill(tmpPred)
               tmpPred$Resample <- names(resampleIndex)[iter]
             } else tmpPred <- NULL
@@ -152,8 +233,7 @@ nominalTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing =
           thisResample <- do.call("rbind", thisResample)          
           thisResample <- cbind(allParam, thisResample)
  
-        } else {
-          
+        } else {       
           if(is.factor(dat$.outcome)) predicted <- factor(as.character(predicted),
                                                           levels = lev)
           tmp <-  data.frame(pred = predicted,
@@ -167,6 +247,7 @@ nominalTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing =
           if(ctrl$savePredictions)
             {
               tmpPred <- tmp
+              tmpPred$rowIndex <- (1:nrow(dat))[unique(holdoutIndex)]
               tmpPred <- cbind(tmpPred, info$loop[parm,,drop = FALSE])
               tmpPred$Resample <- names(resampleIndex)[iter]
             } else tmpPred <- NULL
@@ -178,16 +259,17 @@ nominalTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing =
 
           ## if classification, get the confusion matrix
           if(length(lev) > 1) thisResample <- c(thisResample, caret:::flatTable(tmp$pred, tmp$obs))
-          
           thisResample <- as.data.frame(t(thisResample))
           thisResample <- cbind(thisResample, info$loop[parm,,drop = FALSE])
 
         }
       thisResample$Resample <- names(resampleIndex)[iter]
-   
+
+      if(ctrl$verboseIter) caret:::progress(printed[parm,,drop = FALSE],
+                                            names(resampleIndex), iter, FALSE)
       list(resamples = thisResample, pred = tmpPred)
     }
-
+    
     resamples <- rbind.fill(result[names(result) == "resamples"])
     pred <- if(ctrl$savePredictions)  rbind.fill(result[names(result) == "pred"]) else NULL
     if(ctrl$method %in% c("boot632"))
@@ -480,6 +562,7 @@ nominalRfeWorkflow <- function(x, y, sizes, ppOpts, ctrl, lev, ...)
                                     y[holdoutIndex],
                                     sizes,
                                     ctrl,
+                                    label = names(resampleIndex)[iter],
                                     ...)
       resamples <- ddply(rfeResults$pred, .(Variables), ctrl$functions$summary, lev = lev)
       

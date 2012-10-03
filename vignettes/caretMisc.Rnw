@@ -38,6 +38,8 @@
 \newcommand{\ReallySmallSpacing}{\renewcommand{\baselinestretch}{.6}\Large\normalsize}
 \newcommand{\SmallSpacing}{\renewcommand{\baselinestretch}{1.1}\Large\normalsize}
 
+\providecommand{\SetAlgoLined}{\SetLine}
+
 \newcommand{\halfs}{\frac{1}{2}}
 
 \setlength{\oddsidemargin}{-.25 truein}
@@ -654,9 +656,11 @@ bTime <- system.time(Bayes <- plsda(trainDescr, trainMDRR, ncomp = 5, probMethod
 sTime <- system.time(softmax <- plsda(trainDescr, trainMDRR, ncomp = 5))[3]
 
 bProbs <- as.data.frame(predict(Bayes, as.matrix(testDescr), type = "prob"))
+colnames(bProbs) <- gsub(".ncomp5", "", colnames(bProbs), fixed = TRUE)
 bProbs$method <- "Bayes Rule"
 bProbs$obs <- testMDRR
 sProbs <- as.data.frame(predict(softmax, as.matrix(testDescr), type = "prob"))
+colnames(bProbs) <- gsub(".5 comps", "", colnames(bProbs), fixed = TRUE)
 sProbs$method <- "Softmax"
 sProbs$obs <- testMDRR
 names(sProbs) <- names(bProbs)

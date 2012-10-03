@@ -1,6 +1,6 @@
 flatTable <- function(pred, obs)
   {
-    cells <- as.vector(confusionMatrix(pred, obs)$table)
+    cells <- as.vector(table(pred, obs))
     names(cells) <- paste(".cell", seq(along= cells), sep = "")
     cells
   }
@@ -217,6 +217,25 @@ tuneScheme <- function(model, grid, useOOB = FALSE)
                    seqParam[[i]] <- data.frame(.n.trees = subTrees[subTrees != loop$.n.trees[i]])
                  }         
              },
+             C5.0 = 
+             {
+               loop <- aggregate(
+                                 grid$.trials, 
+                                 list(
+                                      .model = grid$.model, 
+                                      .winnow = grid$.winnow), max)
+               loop <- decoerce(loop, grid, TRUE)                  
+               names(loop)[3] <- ".trials"
+               seqParam <- vector(mode = "list", length = nrow(loop))
+               for(i in seq(along = loop$.trials))
+                 {
+                   index <- which(
+                                  grid$.model == loop$.model[i] & 
+                                  grid$.winnow == loop$.winnow[i])
+                   subTrees <- grid[index, ".trials"] 
+                   seqParam[[i]] <- data.frame(.trials = subTrees[subTrees != loop$.trials[i]])
+                 }         
+             },             
              bstTree = 
              {
                loop <- aggregate(grid$.mstop, 
@@ -563,7 +582,7 @@ getClassLevels <- function(x)
 partRuleSummary <- function(x)
   {
     predictors <- all.vars(x$terms)
-    predictors <- predictors[predictors != as.character(m3$terms[[2]])]
+    predictors <- predictors[predictors != as.character(x$terms[[2]])]
     classes <- levels(x$predictions)
     rules <- capture.output(print(x))
     conditions <- grep("(<=|>=|<|>|=)", rules, value = TRUE)
@@ -587,7 +606,7 @@ partRuleSummary <- function(x)
 ripperRuleSummary <- function(x)
   {
     predictors <- all.vars(x$terms)
-    predictors <- predictors[predictors != as.character(m3$terms[[2]])]
+    predictors <- predictors[predictors != as.character(x$terms[[2]])]
     classes <- levels(x$predictions)
     rules <- capture.output(print(x))
     ## remove header
@@ -601,7 +620,7 @@ ripperRuleSummary <- function(x)
     numClass <- rep(NA, length(classes))
     names(numClass) <- classes
     for(i in seq(along = classes))
-      numClass[i] <- sum(grepl(paste(m3$terms[[2]], "=", classes[i], sep = ""), conditions))
+      numClass[i] <- sum(grepl(paste(x$terms[[2]], "=", classes[i], sep = ""), conditions))
     
     list(varUsage = varUsage,
          numCond = length(conditions),
@@ -649,7 +668,7 @@ depth2cp <- function(x, depth)
 
 
 
-gamFormula <- function(data, smoother = "s", cut = 10, df = 0, span = .5, degree = 1, y = ".outcome")
+smootherFormula <- function(data, smoother = "s", cut = 10, df = 0, span = .5, degree = 1, y = ".outcome")
   {
     nzv <- nearZeroVar(data)
     if(length(nzv) > 0) data <- data[, -nzv, drop = FALSE]
@@ -660,11 +679,16 @@ gamFormula <- function(data, smoother = "s", cut = 10, df = 0, span = .5, degree
     prefix[numValues > cut] <- paste(smoother, "(", sep = "")
     if(smoother == "s")
       {
-        
         suffix[numValues > cut] <- if(df == 0) ")" else paste(", df=", df, ")", sep = "")
-      } else {
+      }
+    if(smoother == "lo")
+      {
         suffix[numValues > cut] <- paste(", span=", span, ",degree=", degree, ")", sep = "")
       }
+    if(smoother == "rcs")
+      {
+        suffix[numValues > cut] <- ")"
+      }    
     rhs <- paste(prefix, names(numValues), suffix, sep = "")
     rhs <- paste(rhs, collapse = "+")
     form <- as.formula(paste(y, rhs, sep = "~"))

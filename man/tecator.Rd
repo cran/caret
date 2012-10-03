@@ -56,11 +56,11 @@ endpointSubset <- endpointSubset[newOrder]
 plotColors <- rainbow(10)
 
 plot(absorpSubset[1,], 
-   type = "n", 
-   ylim = range(absorpSubset), 
-   xlim = c(0, 105),
-   xlab = "Wavelength Index", 
-   ylab = "Absorption")
+     type = "n", 
+     ylim = range(absorpSubset), 
+     xlim = c(0, 105),
+     xlab = "Wavelength Index", 
+     ylab = "Absorption")
    
 for(i in 1:10)
 {

@@ -77,13 +77,14 @@ Max Kuhn, some \pkg{lattice} code and documentation by Deepayan Sarkar
 \code{\link[lattice:xyplot]{xyplot}}, \code{\link[lattice:trellis.par.get]{trellis.par.set}}} 
 
 \examples{
+\dontrun{
 data(mdrr)
 mdrrDescr <- mdrrDescr[, -nearZeroVar(mdrrDescr)]
 
 inTrain <- createDataPartition(mdrrClass)
-trainX <- mdrrDescr[inTrain[[1]], 1:10]
+trainX <- mdrrDescr[inTrain[[1]], ]
 trainY <- mdrrClass[inTrain[[1]]]
-testX <- mdrrDescr[-inTrain[[1]], 1:10]
+testX <- mdrrDescr[-inTrain[[1]], ]
 testY <- mdrrClass[-inTrain[[1]]]
 
 library(MASS)
@@ -101,5 +102,6 @@ calPlotData <- calibration(obs ~ lda + qda, data = testProbs)
 calPlotData
 
 xyplot(calPlotData, auto.key = list(columns = 2))
+}
 }
 \keyword{hplot}

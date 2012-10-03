@@ -4,7 +4,7 @@ specificity <-
   }
 
 "specificity.default" <-
-function(data, reference, negative = levels(reference)[-1], ...)
+function(data, reference, negative = levels(reference)[-1], na.rm = TRUE, ...)
 {
    if(!is.factor(reference) | !is.factor(data)) 
       stop("input data must be a factor")
@@ -12,7 +12,15 @@ function(data, reference, negative = levels(reference)[-1], ...)
    ## todo: relax the =2 constraint and let ngative length be > 2
    if(length(unique(c(levels(reference), levels(data)))) != 2)
       stop("input data must have the same two levels")   
-   
+   if(na.rm)
+     {
+       cc <- complete.cases(data) & complete.cases(reference)
+       if(any(!cc))
+         {
+           data <- data[cc]
+           reference <- reference[cc]
+         }
+     }
    numer <- sum(data %in% negative & reference %in% negative)
    denom <- sum(reference %in% negative)
    spec <- ifelse(denom > 0, numer / denom, NA)  

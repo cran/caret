@@ -31,9 +31,10 @@ byComplexity <- function(x, model)
              x[order(x$mstop, x$nu),] 
            },            
            rFerns =, rf =, rfNWS =, rfLSF =, parRF =, gpls =, pcr =, pls =, simpls =, widekernelpls =, PLS =, pam =, cforest =,
-           nb =, ctree2 =, logitBoost=, J48 =, LMT =, ppr =, mda =, pda =, pda2 =,
+           nb =, ctree2 =, logitBoost=, J48 =, LMT =, ppr =, mda =, pda =, pda2 =, lrm =,
            lars =, lars2 =, Linda =, QdaCov =, icr =, qrf =,Boruta =, kernelpls = , lda2 =,
-           leapForward=, leapBackward=, leapSeq =, rpart2 =, ORFridge =, ORFpls =, ORFsvm =, ORFlog =, evtree =  
+           leapForward=, leapBackward=, leapSeq =, rpart2 =, ORFridge =, ORFpls =, ORFsvm =, ORFlog =, evtree =,
+           C5.0Tree =, C5.0Rules =
            {
              x[order(x[,1]),]
            },
@@ -205,6 +206,11 @@ byComplexity <- function(x, model)
            cubist =
            {
              x[order(x$committees,  x$neighbors),]
+           },
+           C5.0 =
+           {
+             x$model <- factor(as.character(x$model), levels = c("rules", "tree"))
+             x[order(x$trials, x$model, !x$winnow),]
            },
            RRFglobal =, RRF = x[order(x$coefReg),],
            krlsRadial = x[order(x$lambda),],

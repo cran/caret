@@ -48,11 +48,17 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
                                lda =, qda =  library(MASS),
                                rda        =  library(klaR),
                                slda       = library(ipred),
-                               rrlda      = library(rrlda),
-                               sparseLDA  = library(sparseLDA))
+                               rrlda      = library(rrlda))
                         
                         out <- predict(modelFit, newdata)$posterior
                         out
+                      },
+
+                      sparseLDA =
+                      {                  
+                        library(sparseLDA)
+                        if(!is.matrix(newdata)) newdata <- as.matrix(newdata)
+                        sparseLDA::predict.sda(modelFit, newdata)$posterior
                       },
 
                       lda2 = 
@@ -91,16 +97,25 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
                       {
                         library(kernlab)
                         
-                        out <- predict(modelFit, newdata, type="probabilities")
-                        ## There are times when the SVM probability model will
-                        ## produce negative class probabilities, so we
-                        ## induce vlaues between 0 and 1
-                        if(any(out < 0))
+                        out <- try(predict(modelFit, newdata, type="probabilities"),
+                                   silent = TRUE)
+                        if(runif(1) < .1) class(out) <-  "try-error"
+                        if(class(out)[1] != "try-error")
                           {
-                            out[out < 0] <- 0
-                            out <- t(apply(out, 1, function(x) x/sum(x)))
+                            ## There are times when the SVM probability model will
+                            ## produce negative class probabilities, so we
+                            ## induce vlaues between 0 and 1
+                            if(any(out < 0))
+                              {
+                                out[out < 0] <- 0
+                                out <- t(apply(out, 1, function(x) x/sum(x)))
+                              }
+                            out <- out[, lev(modelFit), drop = FALSE]
+                          } else {
+                            warning("kernlab class probability calculations failed; returning NAs")
+                            out <- matrix(NA, nrow(newdata) * length(obsLevels), ncol = length(obsLevels))
+                            colnames(out) <- obsLevels
                           }
-                        out <- out[, lev(modelFit), drop = FALSE]
                         out
                       },
                       
@@ -167,7 +182,7 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
                       },
                       rpart2 =
                       {
-                        library(randomForest)
+                        library(rpart)
                         if(!is.data.frame(newdata)) newdata <- as.data.frame(newdata)
                         out <- predict(modelFit, newdata, type = "prob")
                         if(!is.null(param))
@@ -414,7 +429,7 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
                         ## glm models the second factor level. See Details in ?glm
                         dimnames(out)[[2]] <-  modelFit$obsLevels
                         out
-                      },
+                      },                    
                       plsGlmBinomial =
                       {                      
                         out <- predict(modelFit$FinalModel, newdata, type = "response")
@@ -512,21 +527,6 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
                         if(is.vector(tmp)) tmp <- matrix(tmp, ncol = 1)
                         predict(modelFit$naivebayes, tmp, type = "raw")
                       },
-                      scrda =
-                      {
-                        library(rda)
-                        tmp <- predict(modelFit,
-                                       x = modelFit$data$x,
-                                       y = as.numeric(modelFit$data$y),
-                                       xnew = t(as.matrix(newdata)),
-                                       type = "posterior",
-                                       alpha = modelFit$tuneValue$.alpha,
-                                       delta = modelFit$tuneValue$.delta)
-                        ## No matter the actual factor levels supplied, we
-                        ## need to back-transform the column names
-                        colnames(tmp) <- obsLevels[as.numeric(colnames(tmp))]
-                        tmp
-                      },
                       bag =
                       {
                         predict(modelFit, newdata, type = "prob")
@@ -598,6 +598,24 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
                         out <- predict(modelFit, newdata, type = "prob")            
                         out
                       },
+                      C5.0 =, C5.0Tree =, C5.0Rules =
+                      {
+                        library(C50)
+                        out <- predict(modelFit, newdata, type= "prob")
+                        
+                        if(!is.null(param))
+                          {
+                            tmp <- vector(mode = "list", length = nrow(param) + 1)
+                            tmp[[1]] <- out
+                            
+                            for(j in seq(along = param$.trials))
+                              {
+                                tmp[[j+1]] <- predict(modelFit, newdata, type= "prob", trials = param$.trials[j])
+                              }
+                            out <- tmp
+                          }
+                        out
+                      },                      
                       custom =
                       {
                         custom(object = modelFit, newdata = newdata)

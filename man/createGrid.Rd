@@ -29,11 +29,12 @@ createGrid("lm")
 createGrid("nnet")
 
 ## data needed for SVM with RBF:
+\dontrun{
 tmp <- iris
 names(tmp)[5] <- ".outcome"
 head(tmp)
 createGrid("svmRadial", data = tmp, len = 4)
-
+}
 
 }
 \keyword{utilities}

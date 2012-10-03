@@ -75,8 +75,10 @@ classLevels.sda <- function(x, ...)
 classLevels.splsda <- function(x, ...)
   {
     ## objects from package caret and spls have the
-    ## same class name, but this works for either
-    ilevels(x$y)
+    ## same class name
+
+    isSpls <- !is.null(x$class.fit)
+    if(isSpls) names(x$class.fit$prior) else x$obsLevels
   }
 
 

@@ -52,43 +52,40 @@ Max Kuhn
 Eugster et al. Exploratory and inferential analysis of benchmark experiments. Ludwigs-Maximilians-Universitat Munchen, Department of Statistics, Tech. Rep (2008) vol. 30}
 
 \examples{
-\dontrun{
+
 data(BloodBrain)
 set.seed(1)
-tmp <- createDataPartition(logBBB,
-                           p = .8,
-                           times = 100)
 
-rpartFit <- train(bbbDescr, logBBB,
-                  "rpart", 
-                  tuneLength = 16,
-                  trControl = trainControl(
-                    method = "LGOCV", index = tmp))
+## tmp <- createDataPartition(logBBB,
+##                            p = .8,
+##                            times = 100)
 
+## rpartFit <- train(bbbDescr, logBBB,
+##                   "rpart", 
+##                   tuneLength = 16,
+##                   trControl = trainControl(
+##                     method = "LGOCV", index = tmp))
 
-ctreeFit <- train(bbbDescr, logBBB,
-                  "ctree", 
-                  trControl = trainControl(
-                    method = "LGOCV", index = tmp))
+## ctreeFit <- train(bbbDescr, logBBB,
+##                   "ctree", 
+##                   trControl = trainControl(
+##                     method = "LGOCV", index = tmp))
 
-
-earthFit <- train(bbbDescr, logBBB,
-                  "earth",
-                  tuneLength = 20,
-                  trControl = trainControl(
-                    method = "LGOCV", index = tmp))
+## earthFit <- train(bbbDescr, logBBB,
+##                   "earth",
+##                   tuneLength = 20,
+##                   trControl = trainControl(
+##                     method = "LGOCV", index = tmp))
 
 ## or load pre-calculated results using:
 ## load(url("http://caret.r-forge.r-project.org/Classification_and_Regression_Training_files/exampleModels.RData"))
 
-resamps <- resamples(list(CART = rpartFit,
-                          CondInfTree = ctreeFit,
-                          MARS = earthFit))
+## resamps <- resamples(list(CART = rpartFit,
+##                           CondInfTree = ctreeFit,
+##                           MARS = earthFit))
 
-resamps
-summary(resamps)
-    
-}
+## resamps
+## summary(resamps)
 }
 
 \keyword{ models }

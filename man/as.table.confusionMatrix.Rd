@@ -48,19 +48,8 @@ as.matrix(results, what = "classes")
 ###################
 ## 3 class example
 
-library(MASS)
-
-fit <- lda(Species ~ ., data = iris)
-model <- predict(fit)$class
-
-irisTabs <- table(model, iris$Species)
-
-results <- confusionMatrix(irisTabs)
-as.table(results)
-as.matrix(results)
-as.matrix(results, what = "overall")
-as.matrix(results, what = "classes")
-
+xtab <- confusionMatrix(iris$Species, sample(iris$Species))
+as.matrix(xtab)
 }
 \keyword{utilities }
 

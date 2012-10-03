@@ -1,7 +1,8 @@
 
 rfeIter <- function(x, y,
                     testX, testY, sizes,
-                    rfeControl = rfeControl(), ...)
+                    rfeControl = rfeControl(),
+                    label = "", ...)
 {
   if(is.null(colnames(x))) stop("x must have column names")
 
@@ -14,19 +15,32 @@ rfeIter <- function(x, y,
   retained <- colnames(x)
   sizeValues <- sort(unique(c(sizes, ncol(x))),
                      decreasing = TRUE)
+  sizeText <- format(sizeValues)
   
   finalVariables <- vector(length(sizeValues), mode = "list")
   
   for(k in seq(along = sizeValues))
     {
-      if(rfeControl$verbose) cat("  Fitting subset size:\t", sizeValues[k], "\n")
+      if(rfeControl$verbose)
+        {
+          cat("+(rfe) fit",
+              ifelse(label != "",
+                     label, ""),
+              "size:",  sizeText[k], "\n")
+        }
       flush.console()
       
       fitObject <- rfeControl$functions$fit(x[,retained,drop = FALSE], y,
                                             first = p == ncol(x[,retained,drop = FALSE]),
                                             last = FALSE,
                                             ...)  
-
+      if(rfeControl$verbose)
+        {
+          cat("-(rfe) fit",
+              ifelse(label != "",
+                     label, ""),
+              "size:",  sizeText[k], "\n")
+        }
       modelPred <- rfeControl$functions$pred(fitObject, testX[,retained,drop = FALSE])
       if(is.data.frame(modelPred) | is.matrix(modelPred))
         {
@@ -41,13 +55,37 @@ rfeIter <- function(x, y,
 
       if(!exists("modImp")) ##todo: get away from this since it finds object in other spaces
         {
-          if(rfeControl$verbose) cat("  Computing importance\n")
+          if(rfeControl$verbose)
+            {
+              cat("+(rfe) imp",
+                  ifelse(label != "",
+                         label, ""), "\n")
+            }
           modImp <- rfeControl$functions$rank(fitObject, x[,retained,drop = FALSE], y)
+          if(rfeControl$verbose)
+            {
+              cat("-(rfe) imp",
+                  ifelse(label != "",
+                         label, ""), "\n")
+            }          
         } else {
           if(rfeControl$rerank)
             {
-              if(rfeControl$verbose) cat("  Recomputing importance\n")              
+              if(rfeControl$verbose)
+                {
+                  cat("+(rfe) imp",
+                      ifelse(label != "",
+                             label, ""),
+                      "size:",  sizeText[k], "\n")
+                }            
               modImp <- rfeControl$functions$rank(fitObject, x[,retained,drop = FALSE], y)
+              if(rfeControl$verbose)
+                {
+                  cat("-(rfe) imp",
+                      ifelse(label != "",
+                             label, ""),
+                      "size:",  sizeText[k], "\n")
+                }    
             }
         }
 
@@ -330,8 +368,8 @@ pickSizeTolerance <- function(x, metric, tol = 1.5, maximize)
         flag <- perf <= tol
       } else {
         best <- max(x[,metric])
-        perf <- (x[,metric] - best)/best * -100
-        flag <- perf >= tol
+        perf <- (best - x[,metric])/best * 100
+        flag <- perf <= tol
       }
     min(x[flag, "Variables"])
   }
@@ -592,10 +630,10 @@ nbFuncs <- list(summary = defaultSummary,
                 },
                 pred = function(object, x)
                 {
-                   tmp <- predict(object, x)
-                   out <- cbind(data.frame(pred = tmp$class),
-                                as.data.frame(tmp$posterior))
-                   out
+                  tmp <- predict(object, x)
+                  out <- cbind(data.frame(pred = tmp$class),
+                               as.data.frame(tmp$posterior))
+                  out
                 },
                 rank = function(object, x, y)
                 {
@@ -619,6 +657,31 @@ nbFuncs <- list(summary = defaultSummary,
                 selectSize = pickSizeBest,
                 selectVar = pickVars)
 
+lrFuncs <- ldaFuncs
+lrFuncs$fit <- function (x, y, first, last, ...) 
+{
+  tmp <- x
+  tmp$Class <- y
+  glm(Class ~ ., data = tmp, family = "binomial")
+}
+lrFuncs$pred <- function (object, x) 
+{
+  lvl <- levels(object$data$Class)
+  tmp <- predict(object, x, type = "response")
+  out <- data.frame(1-tmp, tmp)
+  colnames(out) <- lvl
+  out$pred <- factor(ifelse(tmp > .4, lvl[2], lvl[1]),
+                     levels = lvl)
+  out
+}
+
+lrFuncs$rank <- function (object, x, y) 
+{
+    vimp <- varImp(object, scale = FALSE)
+    vimp <- vimp[order(vimp$Overall, decreasing = TRUE),, drop = FALSE]
+    vimp$var <- rownames(vimp)
+    vimp
+}
 
 ######################################################################
 ######################################################################

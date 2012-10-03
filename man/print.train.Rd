@@ -35,14 +35,15 @@
 \author{Max Kuhn}
 \seealso{\code{\link{train}}}
 \examples{
-
+\dontrun{
 data(iris)
 TrainData <- iris[,1:4]
 TrainClasses <- iris[,5]
 
 library(klaR)
-rdaFit <- train(TrainData, TrainClasses, "rda",
-   control = trainControl(method = "cv"))
+rdaFit <- train(TrainData, TrainClasses, method = "rda",
+                control = trainControl(method = "cv"))
 print(rdaFit)
+}
 }
 \keyword{print}
