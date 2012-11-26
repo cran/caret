@@ -282,6 +282,10 @@ nominalTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing =
         names(apparent)[which(names(apparent) %in% perfNames)] <- paste(names(apparent)[which(names(apparent) %in% perfNames)],
                                                                         "Apparent", sep = "")
         names(apparent) <- gsub("^\\.", "", names(apparent))
+        if(any(!complete.cases(apparent[,!grepl("^cell|Resample", colnames(apparent)),drop = FALSE])))
+          {
+            warning("There were missing values in the apparent performance measures.")
+          }        
         resamples <- subset(resamples, Resample != "AllData")
       }
     names(resamples) <- gsub("^\\.", "", names(resamples))
@@ -289,7 +293,6 @@ nominalTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing =
     if(any(!complete.cases(resamples[,!grepl("^cell|Resample", colnames(resamples)),drop = FALSE])))
       {
         warning("There were missing values in resampled performance measures.")
-
       }
     out <- ddply(resamples[,!grepl("^cell|Resample", colnames(resamples)),drop = FALSE],
                  info$model$parameter,

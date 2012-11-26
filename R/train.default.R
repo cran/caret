@@ -506,7 +506,7 @@ train.default <- function(x, y,
   
 }
 
-train.formula <- function (form, data, ..., weights, subset, na.action, contrasts = NULL) 
+train.formula <- function (form, data, ..., weights, subset, na.action = na.fail, contrasts = NULL) 
 {
   m <- match.call(expand.dots = FALSE)
   if (is.matrix(eval.parent(m$data))) m$data <- as.data.frame(data)
@@ -514,7 +514,7 @@ train.formula <- function (form, data, ..., weights, subset, na.action, contrast
   m[[1]] <- as.name("model.frame")
   m <- eval.parent(m)
   Terms <- attr(m, "terms")
-  x <- model.matrix(Terms, m, contrasts)
+  x <- model.matrix(Terms, m, contrasts, na.action = na.action)
   cons <- attr(x, "contrast")
   xint <- match("(Intercept)", colnames(x), nomatch = 0)
   if (xint > 0)  x <- x[, -xint, drop = FALSE]
