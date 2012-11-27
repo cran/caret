@@ -127,9 +127,7 @@ The algorithm has an optional step (line \ref{A:rerank}) where the predictor ran
     
     \vspace*{3pt} Determine the appropriate number of predictors\vspace*{3pt}\;
 
-    \vspace*{3pt} Determine the final ranks of each predictor\vspace*{3pt}\;
-
-    \vspace*{3pt} Fit the final model based on the optimal $S_i$ \vspace*{3pt}\;    
+    \vspace*{3pt} Use the model corresponding to the optimal $S_i$ \vspace*{3pt}\;    
     
 \end{algorithm}
 

@@ -99,7 +99,6 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
                         
                         out <- try(predict(modelFit, newdata, type="probabilities"),
                                    silent = TRUE)
-                        if(runif(1) < .1) class(out) <-  "try-error"
                         if(class(out)[1] != "try-error")
                           {
                             ## There are times when the SVM probability model will

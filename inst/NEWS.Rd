@@ -2,6 +2,20 @@
 \title{News for Package \pkg{caret}}
 \newcommand{\cpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
+\section{Changes in version  5.15-045}{
+\itemize{ 
+
+\item Minkoo Seo found a bug where na.action was not being properly
+set with train.formula().
+
+\item \code{parallel.resamples} was changed to properly account for
+missing values.
+
+\item Some testing code was removed from \code{probFunction} and 
+\code{predictionFunction}. 
+
+}
+}
 
 \section{Changes in version  5.15-042}{
 \itemize{ 

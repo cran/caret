@@ -69,7 +69,6 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                            {
                              library(kernlab)
                              out <- try(predict(modelFit, newdata), silent = TRUE)
-                             if(runif(1) < .1) class(out) <-  "try-error"
                              if(is.character(lev(modelFit)))
                                {
                                  if(class(out)[1] != "try-error")
