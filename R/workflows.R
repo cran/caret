@@ -453,8 +453,14 @@ nominalSbfWorkflow <- function(x, y, ppOpts, ctrl, lev, ...)
     {
       library(caret)
 
-      modelIndex <- resampleIndex[[iter]]
-      holdoutIndex <- -unique(resampleIndex[[iter]])
+      if(names(resampleIndex)[iter] != "AllData")
+        {
+          modelIndex <- resampleIndex[[iter]]
+          holdoutIndex <- -unique(resampleIndex[[iter]])
+        } else {
+          modelIndex <- 1:nrow(dat)
+          holdoutIndex <- modelIndex
+        }
       
       sbfResults <- caret:::sbfIter(x[modelIndex,,drop = FALSE],
                                     y[modelIndex],
@@ -466,6 +472,7 @@ nominalSbfWorkflow <- function(x, y, ppOpts, ctrl, lev, ...)
         {
           tmpPred <- sbfResults$pred
           tmpPred$Resample <- names(resampleIndex)[iter]
+          tmpPred$rowIndex <- seq(along = y)[unique(holdoutIndex)]
         } else tmpPred <- NULL
       resamples <- ctrl$functions$summary(sbfResults$pred, lev = lev)
       if(is.factor(y)) resamples <- c(resamples, caret:::flatTable(sbfResults$pred$pred, sbfResults$pred$obs))
@@ -476,7 +483,7 @@ nominalSbfWorkflow <- function(x, y, ppOpts, ctrl, lev, ...)
     }
 
     resamples <- rbind.fill(result[names(result) == "resamples"])
-    pred <- rbind.fill(result[names(result) == "pred"])
+    pred <- if(ctrl$saveDetails) rbind.fill(result[names(result) == "pred"]) else NULL
     performance <- caret:::MeanSD(resamples[,!grepl("Resample", colnames(resamples)),drop = FALSE])
     
     if(ctrl$method %in% c("boot632"))
@@ -569,8 +576,13 @@ nominalRfeWorkflow <- function(x, y, sizes, ppOpts, ctrl, lev, ...)
                                     ...)
       resamples <- ddply(rfeResults$pred, .(Variables), ctrl$functions$summary, lev = lev)
       
-      if(ctrl$saveDetails) rfeResults$pred$Resample <- names(resampleIndex)[iter]
-
+      if(ctrl$saveDetails)
+        {
+          rfeResults$pred$Resample <- names(resampleIndex)[iter]
+          rfeResults$pred$rowIndex <- rep(seq(along = y)[unique(holdoutIndex)],
+                                          length(sizes) - 1)
+        }
+      
       if(is.factor(y))
         {
           cells <- ddply(rfeResults$pred, .(Variables), function(x) caret:::flatTable(x$pred, x$obs))

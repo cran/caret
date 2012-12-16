@@ -28,6 +28,7 @@ If the predictions for the original training set are needed, there are two ways 
 \examples{
 \dontrun{
 data(trees)
+## out of bag predictions vs just re-predicting the training set
 fit1 <- bagEarth(Volume ~ ., data = trees, keepX = TRUE)
 fit2 <- bagEarth(Volume ~ ., data = trees, keepX = FALSE)
 hist(predict(fit1) - predict(fit2))

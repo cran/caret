@@ -87,7 +87,7 @@ confusionMatrix(predict(useBayes, testDescr),
 confusionMatrix(predict(useSoftmax, testDescr),
                 testMDRR)
 
-histogram(~predict(useBayes, testDescr, type = "prob")[,"Active"]
+histogram(~predict(useBayes, testDescr, type = "prob")[,"Active",]
           | testMDRR, xlab = "Active Prob", xlim = c(-.1,1.1))
 histogram(~predict(useSoftmax, testDescr, type = "prob")[,"Active",]
           | testMDRR, xlab = "Active Prob", xlim = c(-.1,1.1))

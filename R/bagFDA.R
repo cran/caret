@@ -91,37 +91,44 @@ function(object, newdata = NULL, type = "class", ...)
 {
    library(mda)
    getTrainPred <- function(x)
-   {
-      byObs <- tapply(x$fitted.values, list(index = x$index), mean, rm.na = TRUE)      
-      out <- vector(mode = "numeric", length = length(x$index)) * NA
-      out[sort(unique(x$index))] <- byObs
-      out
-   
-   }
-   # this gives slightly different results 
+     {
+       oobIndex <- 1:nrow(x$fit$fitted.values)
+       oobIndex <- oobIndex[!(oobIndex %in% unique(x$index))]
+       tmp <- predict(x, type = "posterior")[oobIndex,,drop = FALSE]
+       rownames(tmp) <- 1:nrow(tmp)
+       out <- data.frame(pred = tmp,
+                         sample = oobIndex,
+                         check.rows = FALSE)
+       colnames(out)[1:ncol(tmp)] <- names(x$prior)
+       out
+     }
    
    if(is.null(newdata) & !is.null(object$x)) newdata <- object$x
    
    if(is.null(newdata))
      {
        pred <- lapply(object$fit, getTrainPred)
-     } else {
-       ## the incorrect syntax in the prediciton function is ment to handle older and new versions
-       ## of the mda package that switched arguments
-       pred <- lapply(
-                      object$fit, 
+    } else {
+       pred <- lapply(object$fit,
                       function(x, y)
                       {
-                        as.character(predict(x, newdata = y, type = "class"))
+                        tmp <- predict(x, newdata = y, type = "posterior")
+                        nms <- colnames(tmp)
+                        tmp <- as.data.frame(tmp)
+                        names(tmp) <- nms
+                        tmp$sample <- 1:nrow(tmp)
+                        tmp
                       },
                       y = newdata)
-       tmp <- matrix(unlist(pred), ncol = length(pred))
-       votes <- t(apply(tmp, 1, function(x, L) table(factor(x, levels = L))/length(x), L = object$levels))
-       highProb <- apply(votes, 1, which.max)
-       predClass <- factor(colnames(votes)[highProb], levels = object$levels)
      }
-   switch(type, class = predClass, probs = votes)
-   
+   pred <- rbind.fill(pred)
+   out <- ddply(pred, .(sample),
+                function(x) colMeans(x[,seq(along = object$levels)], na.rm = TRUE))  
+   out <- out[,-1,drop = FALSE]
+   rownames(out) <- rownames(newdata)
+   predClass <- object$levels[apply(out, 1, which.max)]
+   predClass <- factor(predClass, levels = object$levels)
+   switch(type, class = predClass, probs = out, posterior = out)
 }
 
 "summary.bagFDA" <-

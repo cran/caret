@@ -2,10 +2,14 @@
 \title{News for Package \pkg{caret}}
 \newcommand{\cpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
-\section{Changes in version  5.15-045}{
+\section{Changes in version  5.15-048}{
 \itemize{ 
 
-\item Minkoo Seo found a bug where na.action was not being properly
+\item The three vignettes were removed and two things were added: a
+smaller vignette and a large collection of help pages at
+\url{http://caret.r-forge.r-project.org/}.
+
+\item Minkoo Seo found a bug where \code{na.action} was not being properly
 set with train.formula().
 
 \item \code{parallel.resamples} was changed to properly account for
@@ -14,6 +18,36 @@ missing values.
 \item Some testing code was removed from \code{probFunction} and 
 \code{predictionFunction}. 
 
+\item Fixed a bug in \code{sbf} exposed by a new version of \cpkg{plyr}.
+
+\item Changed the package dependency on \cpkg{reshape} to \cpkg{reshape2}. 
+
+\item To be more consistent with recent versions of \cpkg{lattice},
+the \code{parallel.resamples} function was changed to
+\code{parallelplot.resamples}.
+
+\item Since \code{ksvm} now allows probabilities when class weights
+are used, the default behavior in \code{train} is to set
+\code{prob.model = TRUE} unless the user explicitly sets it to
+\code{FALSE}. However, I have reported a bug in \code{ksvm} that gives
+inconsistent results with class weights, so this is not advised at
+this point in time.
+
+\item Bugs were fix in \code{predict.bagEarth} and
+\code{predict.bagFDA}.
+
+\item When using \code{rfeControl(saveDetails = TRUE)} or
+\code{sbfControl(saveDetails = TRUE)} an additional column is
+added to \code{object$pred} called \code{rowIndex}. This indicates the
+row from the original data that is being held-out.
+
+}
+}
+
+\section{Changes in version  5.15-045}{
+\itemize{ 
+
+\item A bug was fixed that induced \code{NA} values in SVM model predictions. 
 }
 }
 
@@ -30,6 +64,8 @@ now, we set the package to ORPHANED.")
 \item \cpkg{C5.0} was added (model codes \code{C5.0}, \code{C5.0Tree} and
 \code{C5.0Rules}).
 
+\item Fixed a bug in \code{train} with NaiveBayes when \code{fL != 0}
+was used
 
 \item The output of \code{train} with \code{verboseIter = TRUE} was
 modified to show the resample label as well as logging when the worker
@@ -44,6 +80,10 @@ eliminate the dreaded 'no visible binding for global variable' false
 positives. Specific namespaces were used with several functions for
 avoid similar warnings.
 
+\item A bug was fixed with \code{icr.formula} that was so ridiculous,
+I now know that nobody has ever used that function.
+
+\item Fixed a bug when using \code{method = "oob"} with \code{train}
 
 \item Some exceptions were added to \code{plot.train} so that some
 tuning parameters are better labeled.
@@ -69,6 +109,8 @@ artificial neural network models. ecological modelling, 160(3),
 \item The \code{predictor} function for \code{glmnet} was update and a
 variable importance function was also added.
 
+\item Raghu Nidagal found a bug in \code{predict.avNNet} that was
+fixed.
 
 \item \code{sensitivity} and \code{specificity} were given an
 \code{na.rm} argument.
@@ -88,30 +130,19 @@ of unique probability estimates. Second, a new argument called
 \code{label} is available to use alternate names for the models
 (e.g. names that are not valid R variable names). 
 
-\item Starting using namespaces for \code{ctree} and \code{cforest} to
-avoid conflicts between duplicate funciton names in the \cpkg{party}
-and \cpkg{partykit} package
-
-\item \code{predict.plsda} was modified so that a three dimensional
-array is returned irregardless of the value of \code{probMethod}.
-
-\item A set of functions for RFE and logistic regression
-(\code{lrFuncs}) was added.
-
-\item A bug was fixed with \code{icr.formula} that was so ridiculous,
-I now know that nobody has ever used that function.
-
-\item Fixed a bug when using \code{method = "oob"} with \code{train}
-
-\item Raghu Nidagal found a bug in \code{predict.avNNet} that was
-fixed.
+\item A bug in \code{print.bag} was fixed. 
 
 \item Class probabilities were not being generated for sparseLDA
 models.
 
-\item A bug in \code{print.bag} was fixed. 
-
 \item Bugs were fixed in the new varImp methods for PART and RIPPER
+
+\item Starting using namespaces for \code{ctree} and \code{cforest} to
+avoid conflicts between duplicate funciton names in the \cpkg{party}
+and \cpkg{partykit} package
+
+\item A set of functions for RFE and logistic regression
+(\code{lrFuncs}) was added.
 
 \item A bug in \code{train} with \code{method="glmStepAIC"} was fixed
 so that \code{direction} and other \code{stepAIC} arguments were
@@ -120,15 +151,9 @@ honored.
 \item A bug was fixed in \code{preProcess} where the number of ICA
 components was not specified. (thanks to Alexander Lebedev)
 
-\item Another bug was fixed for oblique random forest methods in
+\item Another bug was fixed for oblique ranodm forest methods in
 \code{train}. (thanks to Alexander Lebedev)
 
-\item \code{knn3} was setup so that it automatically works with data frames.
-
-\item A bug was fixed in \code{formula.avNNet} (thanks to Rob Hyndman)
-
-\item Fixed a bug in \code{train} with NaiveBayes when \code{fL != 0}
-was used
 }
 }
 

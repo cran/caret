@@ -109,6 +109,8 @@ prcomp.resamples <- function(x, metric = x$metrics[1],  ...)
 
 "cluster" <- function(x, ...) UseMethod("cluster")
 
+cluster.default <- function(x, ...) stop("only implemented for resamples objects")
+
 cluster.resamples <- function(x, metric = x$metrics[1],  ...)
   {
     
@@ -408,8 +410,8 @@ xyplot.resamples <- function (x, data = NULL, what = "scatter", models = NULL, m
     }  
   out
 }
-
-parallel.resamples <- function (x, data = NULL, models = x$models, metric = x$metric[1], ...) 
+ 
+parallelplot.resamples <- function (x, data = NULL, models = x$models, metric = x$metric[1], ...) 
 {
   if(length(metric) != 1) stop("exactly one metric must be given")
 
@@ -427,7 +429,7 @@ parallel.resamples <- function (x, data = NULL, models = x$models, metric = x$me
   reord <- order(apply(tmpData, 2, median, na.rm = TRUE))
   tmpData <- tmpData[, reord]
 
-  lattice:::parallel(~tmpData,
+  lattice:::parallelplot(~tmpData,
                      common.scale = TRUE,
                      scales = list(x = list(at = (prng-min(rng))/diff(rng), labels = prng)),
                      xlab = caret:::useMathSymbols(metric),
@@ -477,7 +479,7 @@ splom.resamples <- function (x, data = NULL, variables = "models",
           plotData$Model <- unlist(lapply(tmp, function(x) x[1]))
           plotData$Metric <- unlist(lapply(tmp, function(x) x[2]))
           plotData <- subset(plotData, Model %in% models & Metric  %in% metric)
-          means <- cast(plotData, Model ~ Metric, mean)
+          means <- dcast(plotData, Model ~ Metric, mean, na.rm = TRUE)
           splom(~means[, metric], groups = means$Model, ...)
 
         } else stop ("'variables' should be either 'models' or 'metrics'")

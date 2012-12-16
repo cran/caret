@@ -153,7 +153,9 @@
                        library(kernlab)
                        if(type == "Classification")
                          {
-                           useProbModel <- !(any(names(list(...)) == "class.weights"))
+                           ## By default, fit the prob model
+                           useProbModel <- TRUE          
+                           if(any(names(list(...)) == "prob.model")) useProbModel <- list(...)$prob.model                           
                            out <- ksvm(
                                        as.matrix(trainX),
                                        trainY,
@@ -180,7 +182,9 @@
                        library(kernlab)      
                        if(type == "Classification")
                          {
-                           useProbModel <- !(any(names(list(...)) == "class.weights"))
+                           ## By default, fit the prob model
+                           useProbModel <- TRUE          
+                           if(any(names(list(...)) == "prob.model")) useProbModel <- list(...)$prob.model
                            out <- ksvm(
                                        as.matrix(trainX),
                                        trainY,
@@ -203,7 +207,9 @@
                        library(kernlab)      
                        if(type == "Classification")
                          {
-                           useProbModel <- !(any(names(list(...)) == "class.weights"))
+                           ## By default, fit the prob model
+                           useProbModel <- TRUE          
+                           if(any(names(list(...)) == "prob.model")) useProbModel <- list(...)$prob.model
                            out <- ksvm(
                                        as.matrix(trainX),
                                        trainY,
@@ -224,7 +230,9 @@
                        library(kernlab)      
                        if(type == "Classification")
                          {
-                           useProbModel <- !(any(names(list(...)) == "class.weights"))
+                           ## By default, fit the prob model
+                           useProbModel <- TRUE          
+                           if(any(names(list(...)) == "prob.model")) useProbModel <- list(...)$prob.model
                            out <- ksvm(
                                        as.matrix(trainX),
                                        trainY,
@@ -249,38 +257,38 @@
                        ## between methods on how to specify kernels. Unlike ksvm, we specify
                        ## them here via kpar (same for polynomial kernels)
 
-                       out <- rvm(
-                                  as.matrix(trainX),
-                                  trainY,
-                                  kernel = polydot,
-                                  kpar = list(
-                                    degree = tuneValue$.degree,
-                                    scale = tuneValue$.scale,
-                                    offset = 1),
-                                  ...)
+                       out <- kernlab:::rvm(
+                                            as.matrix(trainX),
+                                            trainY,
+                                            kernel = polydot,
+                                            kpar = list(
+                                              degree = tuneValue$.degree,
+                                              scale = tuneValue$.scale,
+                                              offset = 1),
+                                            ...)
                        out            
                      },
                      rvmRadial = 
                      {      
                        library(kernlab)      
 
-                       out <- rvm(
-                                  as.matrix(trainX),
-                                  trainY,
-                                  kernel = rbfdot,
-                                  kpar = list(sigma = tuneValue$.sigma),
-                                  ...)
+                       out <- kernlab:::rvm(
+                                            as.matrix(trainX),
+                                            trainY,
+                                            kernel = rbfdot,
+                                            kpar = list(sigma = tuneValue$.sigma),
+                                            ...)
 
                        out         
                      },
                      rvmLinear = 
                      {      
                        library(kernlab)
-                       out <- rvm(
-                                  as.matrix(trainX),
-                                  trainY,
-                                  kernel = vanilladot(),
-                                  ...)
+                       out <- kernlab:::rvm(
+                                            as.matrix(trainX),
+                                            trainY,
+                                            kernel = vanilladot(),
+                                            ...)
                        out         
                      },                     
                      lssvmPoly = 
