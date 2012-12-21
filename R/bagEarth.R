@@ -97,13 +97,13 @@
   if(!any(type %in% c("response", "class")))
     stop("type must be either response, class or prob")
   library(earth)
+  ## get oob predictions
   getTrainPred <- function(x)
     {
-      byObs <- tapply(x$fitted.values, list(index = x$index), x$summary)
-      out <- vector(mode = "numeric", length = length(x$index)) * NA
-      out[sort(unique(x$index))] <- byObs
-      out
-
+      oobIndex <- seq(along = x$fitted.values)
+      oobIndex <- oobIndex[!(oobIndex %in% unique(x$index))]
+      data.frame(pred = x$fitted.values[oobIndex],
+                 sample = oobIndex)
     }
 
   if(is.null(newdata) & !is.null(object$x)) newdata <- object$x
@@ -111,6 +111,8 @@
   if(is.null(newdata))
     {
       pred <- lapply(object$fit, getTrainPred)
+      pred <- rbind.fill(pred)
+      out <- ddply(pred, .(sample), function(x) object$summary(x$pred))$V1
     } else {
 
       pred <- lapply(object$fit,
@@ -120,11 +122,11 @@
                      },
                      y = newdata
                      )
-
+      out <- matrix(unlist(pred), ncol = object$B)
+      out <- apply(out, 1, object$summary, na.rm = TRUE)
     }
 
-  out <- matrix(unlist(pred), ncol = object$B)
-  out <- apply(out, 1, object$summary, na.rm = TRUE)
+
   if(!all(is.na(object$levels)))
     {
       if(type == "prob")

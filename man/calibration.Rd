@@ -80,6 +80,8 @@ Max Kuhn, some \pkg{lattice} code and documentation by Deepayan Sarkar
 \dontrun{
 data(mdrr)
 mdrrDescr <- mdrrDescr[, -nearZeroVar(mdrrDescr)]
+mdrrDescr <- mdrrDescr[, -findCorrelation(cor(mdrrDescr), .5)]
+
 
 inTrain <- createDataPartition(mdrrClass)
 trainX <- mdrrDescr[inTrain[[1]], ]

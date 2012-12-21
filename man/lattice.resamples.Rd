@@ -3,7 +3,7 @@
 \alias{densityplot.resamples}
 \alias{bwplot.resamples}
 \alias{splom.resamples}
-\alias{parallel.resamples}
+\alias{parallelplot.resamples}
 \alias{dotplot.resamples}
 
 \title{Lattice Functions for Visualizing Resampling Results}
@@ -25,7 +25,7 @@ Lattice functions for visualizing resampling results across models
 \method{splom}{resamples}(x, data = NULL, variables = "models", 
       models = x$models, metric = NULL, panelRange = NULL, ...)
 
-\method{parallel}{resamples}(x, data = NULL, models = x$models, metric = x$metric[1], ...)
+\method{parallelplot}{resamples}(x, data = NULL, models = x$models, metric = x$metric[1], ...)
 
 }
 \arguments{
@@ -62,7 +62,7 @@ Eugster et al. Exploratory and inferential analysis of benchmark experiments. Lu
 }
 \examples{
 \dontrun{
-#load(url("http://caret.r-forge.r-project.org/Classification_and_Regression_Training_files/exampleModels.RData"))
+#load(url("http://caret.r-forge.r-project.org/exampleModels.RData"))
 
 resamps <- resamples(list(CART = rpartFit,
                           CondInfTree = ctreeFit,
@@ -86,7 +86,7 @@ xyplot(resamps,
 splom(resamps, metric = "RMSE")
 splom(resamps, variables = "metrics")
 
-parallel(resamps, metric = "RMSE")
+parallelplot(resamps, metric = "RMSE")
 
 
 }

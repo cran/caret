@@ -55,7 +55,7 @@ Eugster et al. Exploratory and inferential analysis of benchmark experiments. Lu
 
 \examples{
 \dontrun{
-#load(url("http://caret.r-forge.r-project.org/Classification_and_Regression_Training_files/exampleModels.RData"))
+#load(url("http://caret.r-forge.r-project.org/exampleModels.RData"))
 
 resamps <- resamples(list(CART = rpartFit,
                           CondInfTree = ctreeFit,

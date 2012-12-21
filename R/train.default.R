@@ -88,8 +88,8 @@ train.default <- function(x, y,
              }
         }
       
-      if(method %in% c("svmLinear", "svmRadial", "svmPoly") & any(names(list(...)) == "class.weights"))
-         warning("since class weights are requested, SVM class probabilities cannot be generated")
+#      if(method %in% c("svmLinear", "svmRadial", "svmPoly") & any(names(list(...)) == "class.weights"))
+#         warning("since class weights are requested, SVM class probabilities cannot be generated")
          
          
     } else {
@@ -427,7 +427,12 @@ train.default <- function(x, y,
 
   if(trControl$verboseIter)
     {
-      cat("Fitting model on full training set\n")
+      cat("Fitting",
+          paste(paste(gsub("^\\.", "",
+                           names(bestTune)), "=",
+                      bestTune),
+                collapse = ", "),
+          "on full training set\n")
       flush.console()
     }
     

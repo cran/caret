@@ -23,7 +23,7 @@ Lattice functions for visualizing resampling result differences between models
   \item{data}{Not used}
   \item{what}{\code{levelplot} only: display either the \code{"pvalues"} or \code{"differences"}}
   \item{metric}{a character string for which metrics to plot. Note: \code{dotplot} and \code{levelplot} require exactly two models whereas the other methods can plot more than two.}
-  \item{\dots}{further arguments to pass to either \code{\link[lattice:histogram]{histogram}}, \code{\link[lattice:histogram]{densityplot}}, \code{\link[lattice:dotplot]{dotplot}} or \code{\link[lattice:levelplot]{levelplot}}}
+  \item{\dots}{further arguments to pass to either  \code{\link[lattice:histogram]{densityplot}}, \code{\link[lattice:dotplot]{dotplot}} or \code{\link[lattice:levelplot]{levelplot}}}
 }
 \details{
 \code{densityplot} and \code{bwplot} display univariate visualizations of the resampling distributions. \code{levelplot} displays the matrix of pair-wide comparisons. \code{dotplot} shows the differences along with their associated confidence intervals.
@@ -39,7 +39,7 @@ a lattice object
 }
 \examples{
 \dontrun{
-#load(url("http://caret.r-forge.r-project.org/Classification_and_Regression_Training_files/exampleModels.RData"))
+#load(url("http://caret.r-forge.r-project.org/exampleModels.RData"))
 
 resamps <- resamples(list(CART = rpartFit,
                           CondInfTree = ctreeFit,

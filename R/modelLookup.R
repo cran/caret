@@ -231,10 +231,6 @@ modelLookup <- function(model = NULL)
             'rf',
             ## rFerns
             'rFerns',
-            ## rfLSF
-            'rfLSF', 
-            ## rfNWS
-            'rfNWS',
             ## ridge reg
             'ridge',
             ## rlm
@@ -529,10 +525,6 @@ modelLookup <- function(model = NULL)
               'mtry',
               ## rFerns
               'depth',
-              ## rfLSF
-              'mtry', 
-              ## rfNWS
-              'mtry',
               ## ridge
               'lambda',
               ## rlm
@@ -871,10 +863,6 @@ modelLookup <- function(model = NULL)
               '#Randomly Selected Predictors',
               ## rFerns
               'Fern Depth',
-              ## rfLSF
-              '#Randomly Selected Predictors',
-              ## rfNWS
-              '#Randomly Selected Predictors',
               ## ridge
               'Penalty',
               ## rlm
@@ -1190,10 +1178,6 @@ modelLookup <- function(model = NULL)
              FALSE,
              ## rFerns
              FALSE,
-             ## rfLSF
-             FALSE, 
-             ## rfNWS
-             FALSE,
              ## ridge
              FALSE,
              ## rlm
@@ -1488,10 +1472,6 @@ modelLookup <- function(model = NULL)
                 TRUE,
                 ## rFerns
                 FALSE,
-                ## rfLSF
-                TRUE, 
-                ## rfNWS
-                TRUE,
                 ## ridge
                 TRUE,
                 ## rlm
@@ -1785,10 +1765,6 @@ modelLookup <- function(model = NULL)
                   ## rf
                   TRUE,
                   ## rFerns
-                  TRUE,
-                  ## rfLSF
-                  TRUE, 
-                  ## rfNWS
                   TRUE,
                   ## ridge
                   FALSE,
@@ -2084,10 +2060,6 @@ modelLookup <- function(model = NULL)
                     TRUE,
                     ## rFerns
                     FALSE,
-                    ## rfLSF
-                    TRUE, 
-                    ## rfNWS
-                    TRUE,
                     ## ridge
                     FALSE,
                     ## rlm
