@@ -207,6 +207,6 @@ print.plsda <- function (x, ...)
     switch(x$probMethod,
            softmax = cat("\nThe softmax function was used to compute class probabilities.\n"),
            Bayes = cat("\nBayes rule was used to compute class probabilities.\n"))
-    cat("\nCall:\n", deparse(x$call), "\n", sep = "")
+    printCall(x$call)
     invisible(x)
   }

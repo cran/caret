@@ -79,7 +79,7 @@ knnreg.data.frame <- function(x, y, k = 5, ...)
 print.knnreg <- function (x, ...) 
 {
   cat(x$k, "-nearest neighbor regression model\n", sep = "")
-  cat("\nCall:\n", deparse(x$call), "\n\n", sep = "")
+  printCall(x$call)
   invisible(x)
 }
 

@@ -21,7 +21,7 @@
       out
     }   
 
-  if(printCall) cat("\nCall:\n", truncateText(deparse(x$call, width.cutoff = 500)), "\n\n", sep = "")
+  if(printCall) printCall(x$call)
 
   if(!is.null(x$trainingData))
     {

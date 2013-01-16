@@ -1254,6 +1254,28 @@
                        out$call <- NULL
                        out
                      },
+                     bayesglm = 
+                     {
+                       library(arm)
+                       ##check for family in dot and over-write if none
+                       theDots <- list(...)
+                       if(!any(names(theDots) == "family"))
+                         {
+                           theDots$family <- if(is.factor(data$.outcome)) binomial() else gaussian()              
+                         }
+
+                       ## pass in any model weights
+                       if(!is.null(modelWeights)) theDots$weights <- modelWeights
+                       
+                       modelArgs <- c(
+                                      list(formula = modFormula,
+                                           data = data),
+                                      theDots)
+     
+                       out <- do.call("bayesglm", modelArgs)
+                       out$call <- NULL
+                       out
+                     },                     
                      mda =
                      {
                        library(mda)

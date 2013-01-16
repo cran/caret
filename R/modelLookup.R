@@ -11,6 +11,8 @@ modelLookup <- function(model = NULL)
             'bagEarth', 'bagEarth', 
             ## bagFDA
             'bagFDA', 'bagFDA',
+            ## bayesglm
+            'bayesglm',
             ## bdk
             'bdk', 'bdk', 'bdk', 'bdk',
             ## blackboost
@@ -308,6 +310,8 @@ modelLookup <- function(model = NULL)
               'nprune', 'degree', 
               ## bagFDA
               'nprune', 'degree',
+              ## bayesglm
+              'parameter',
               ## bdk
               'xdim', 'ydim', 'topo', 'xweight',              
               ## blackboost
@@ -609,6 +613,8 @@ modelLookup <- function(model = NULL)
               ## bagFDA
               '#Terms',
               'Product Degree',
+              ## bayesglm
+              'none',
               ## bdk
               'Rows', 'Columns', 'Topology', 'X Weight',
               ## blackboost
@@ -961,6 +967,8 @@ modelLookup <- function(model = NULL)
              FALSE, FALSE, 
              ## bagFDA
              FALSE, FALSE,
+             ## bayesglm
+             FALSE,
              ## bdk
              FALSE, FALSE, FALSE, FALSE,
              ## blackboost
@@ -1255,6 +1263,8 @@ modelLookup <- function(model = NULL)
                 TRUE, TRUE, 
                 ## bagFDA
                 FALSE, FALSE,
+                ## bayesglm
+                TRUE,
                 ## bdk
                 TRUE, TRUE, TRUE, TRUE,
                 ## blackboost
@@ -1550,6 +1560,8 @@ modelLookup <- function(model = NULL)
                   TRUE, TRUE, 
                   ## bagFDA
                   TRUE, TRUE,
+                  ## bayesglm
+                  TRUE,
                   ## bdk
                   TRUE, TRUE, TRUE, TRUE,
                   ## blackboost
@@ -1844,6 +1856,8 @@ modelLookup <- function(model = NULL)
                     TRUE, TRUE, 
                     ## bagFDA
                     TRUE, TRUE,
+                    ## bayesglm
+                    TRUE,
                     ## bdk
                     TRUE, TRUE, TRUE, TRUE,
                     ## blackboost

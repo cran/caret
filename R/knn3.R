@@ -74,7 +74,7 @@ knn3.matrix <- function(x, y, k = 5, ...)
 print.knn3 <- function (x, ...) 
 {
    cat(x$k, "-nearest neighbor classification model\n", sep = "")
-   cat("\nCall:\n", deparse(x$call), "\n\n", sep = "")
+   printCall(x$call)
    cat("Training set class distribution:\n")
    print(table(x$learn$y))
 

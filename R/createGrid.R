@@ -403,7 +403,7 @@
                       glm =, qda =, OneR =, rlm =, lrm =,
                       rvmLinear =, lssvmLinear =, gaussprLinear =,
                       glmStepAIC =, lmStepAIC =, slda =, Linda =, QdaCov =,
-                      C5.0Tree =, C5.0Rules =,
+                      C5.0Tree =, C5.0Rules =, bayesglm =,
                       glmrob =, logforest = data.frame(.parameter = "none"))
   trainGrid
 }

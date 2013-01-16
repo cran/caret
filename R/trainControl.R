@@ -1,19 +1,24 @@
 trainControl <- function(method = "boot",
                          number = ifelse(method %in% c("cv", "repeatedcv"), 10, 25),
                          repeats = ifelse(method %in% c("cv", "repeatedcv"), 1, number),
+                         p = .75,
+                         initialWindow = NULL,
+                         horizon = 1,
+                         fixedWindow = TRUE,
                          verboseIter = FALSE,
                          returnData = TRUE,
                          returnResamp = "final",
                          savePredictions = FALSE,
-                         p = .75,
                          classProbs = FALSE,
                          summaryFunction = defaultSummary,
                          selectionFunction = "best",
                          custom = NULL,
                          preProcOptions = list(thresh = 0.95, ICAcomp = 3, k = 5),
                          index = NULL,
+                         indexOut = NULL,
                          timingSamps = 0,
-                         predictionBounds = rep(FALSE, 2))
+                         predictionBounds = rep(FALSE, 2),
+                         allowParallel = TRUE)
 {
   if(is.null(selectionFunction)) stop("null selectionFunction values not allowed")
   if(!(returnResamp %in% c("all", "final", "none"))) stop("incorrect value of returnResamp")
@@ -35,19 +40,24 @@ trainControl <- function(method = "boot",
   list(method = method,
        number = number,
        repeats = repeats,
+       p = p,
+       initialWindow = initialWindow,
+       horizon = horizon,
+       fixedWindow = fixedWindow,
        verboseIter = verboseIter,
        returnData = returnData,
        returnResamp = returnResamp,
        savePredictions = savePredictions,
-       p = p,
        classProbs = classProbs,
        summaryFunction = summaryFunction,
        selectionFunction = selectionFunction,
        preProcOptions = preProcOptions,
        custom = custom,
        index = index,
+       indexOut = indexOut,
        timingSamps = timingSamps,
-       predictionBounds = predictionBounds)
+       predictionBounds = predictionBounds,
+       allowParallel = allowParallel)
 }
 
 

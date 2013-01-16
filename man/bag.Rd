@@ -26,7 +26,9 @@ bag(x, ...)
 bagControl(fit = NULL, 
            predict = NULL, 
            aggregate = NULL,
-           downSample = FALSE)
+           downSample = FALSE,
+           oob = TRUE,
+           allowParallel = TRUE)
 
 ldaBag
 plsBag
@@ -63,6 +65,8 @@ a function that generates predictions for each sub-model. The function should ha
 a function with arguments \code{x} and \code{type}. The function that takes the output of the \code{predict} function and reduces the bagged predictions to a single prediction per sample. the \code{type} argument can be used to switch between predicting classes or class probabilities for classification models. Example functions are found in \code{ldaBag}, \code{plsBag}, \code{nbBag}, \code{svmBag} and \code{nnetBag}.
 }
  \item{downSample}{a logical: for classification, should the data set be randomly sampled so that each class has the same number of samples as the smallest class?}
+  \item{oob}{a logical: should out-of-bag statistics be computed and the predictions retained?}
+  \item{allowParallel}{if a parallel backend is loaded and available, should the function use it?}
   \item{vars}{
 an integer. If this argument is not \code{NULL}, a random sample of size \code{vars} is taken of the predictors in each bagging iteration. If \code{NULL}, all predictors are used. 
 }
@@ -81,6 +85,7 @@ One note: when \code{vars} is not \code{NULL}, the sub-setting occurs prior to t
 
 When using \code{bag} with \code{\link{train}}, classification models should use \code{type = "prob"} inside of the \code{predict} function so that \code{predict.train(object, newdata, type = "prob")} will work.
 
+If a parallel backend is registered, the \pkg{foreach} package is used to train the models in parallel. 
 }
 
 

@@ -7,6 +7,7 @@ avNNet <- function (x, ...)
 avNNet.formula <- function (formula, data, weights, ...,
                             repeats = 5,
                             bag= FALSE,
+                            allowParallel = TRUE,
                             subset, na.action, contrasts = NULL) 
 {
   class.ind <- function(cl) {
@@ -35,7 +36,12 @@ avNNet.formula <- function (formula, data, weights, ...,
     w <- rep(1, nrow(x))
   y <- model.response(m)
   
-  res <- avNNet.default(x, y, weights = w, repeats = repeats, bag = bag, ...)
+  res <- avNNet.default(x, y,
+                        weights = w,
+                        repeats = repeats,
+                        bag = bag,
+                        allowParallel = allowParallel,
+                        ...)
   res$terms <- Terms
   res$coefnames <- colnames(x)
   res$call <- match.call()
@@ -46,11 +52,11 @@ avNNet.formula <- function (formula, data, weights, ...,
   res
 }
 
-avNNet.default <- function(x, y, repeats = 5, bag = FALSE, ...)
+avNNet.default <- function(x, y, repeats = 5, bag = FALSE, allowParallel = TRUE, ...)
   {
     library(nnet)
-                                        # check for factors
-                                        # this is from nnet.formula
+    ## check for factors
+    ## this is from nnet.formula
     class.ind <- function(cl) {
       n <- length(cl)
       x <- matrix(0, n, length(levels(cl)))
@@ -70,19 +76,25 @@ avNNet.default <- function(x, y, repeats = 5, bag = FALSE, ...)
     
     theDots <- list(...)
 
-    mods <- vector(mode = "list", length = repeats)
-    for(i in 1:repeats)
-      {
-        if(any(names(theDots) == "trace"))
-          {
-            if(theDots$trace) cat("\nFitting Repeat", i, "\n\n")
-          } else cat("Fitting Repeat", i, "\n\n")
-        if(bag)  ind <- sample(1:nrow(x))
-        mods[[i]] <- if(is.null(classLev)) nnet(x[ind,,drop = FALSE], y[ind], ...) else nnet(x[ind,,drop = FALSE], y[ind,], ...)
-        mods[[i]]$lev <- classLev
-      }
+    ## to avoid a "no visible binding for global variable ‘i’" warning:
+    i <- NULL
+    `%op%` <-  if(allowParallel)  `%dopar%` else  `%do%`
+     mods <- foreach(i = 1:repeats,
+                     .verbose = FALSE,
+                     .packages = "caret",
+                     .errorhandling = "stop") %op%  
+    {
+      if(any(names(theDots) == "trace"))
+        {
+          if(theDots$trace) cat("\nFitting Repeat", i, "\n\n")
+        } else cat("Fitting Repeat", i, "\n\n")
+      if(bag)  ind <- sample(1:nrow(x))
+      thisMod <- if(is.null(classLev)) nnet(x[ind,,drop = FALSE], y[ind], ...) else nnet(x[ind,,drop = FALSE], y[ind,], ...)
+      thisMod$lev <- classLev
+      thisMod
+    }
     
-                                        # return results
+    ## return results
     out <- list(model = mods,
                 repeats = repeats,
                 bag = bag,

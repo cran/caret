@@ -46,7 +46,7 @@ calibration.formula <- function(x, data = NULL, class = NULL, cuts = 11, subset 
 
 print.calibration <- function(x, ...)
   {
-    cat("\nCall:\n", truncateText(deparse(x$call, width.cutoff = 500)), "\n\n", sep = "")
+    printCall(x$call)
     cat("Models:", paste(unique(x$data$calibModelVar), collapse = ", "), "\n")
     cat("Event: ", x$class, "\n")      
     cat("Cuts:", x$cuts, "\n")

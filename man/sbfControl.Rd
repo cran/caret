@@ -16,7 +16,8 @@ sbfControl(functions = NULL,
            returnResamp = "all", 
            p = 0.75, 
            index = NULL, 
-           timingSamps = 0)
+           timingSamps = 0,
+           allowParallel = TRUE)
 }
 \arguments{
   \item{functions}{a list of functions for model fitting, prediction and variable filtering (see Details below)}
@@ -30,6 +31,7 @@ sbfControl(functions = NULL,
   \item{p}{For leave-group out cross-validation: the training percentage}
   \item{index}{a list with elements for each external resampling iteration. Each list element is the sample rows used for training at that iteration.}
   \item{timingSamps}{the number of training set samples that will be used to measure the time for predicting samples (zero indicates that the prediction time should not be estimated).}
+  \item{allowParallel}{if a parallel backend is loaded and available, should the function use it?}
 }
 
 \details{
@@ -61,7 +63,7 @@ The \code{score} function is used to return a vector of scores with names for ea
 }
 The function should return a vector, as previously stated. Examples are give by \code{\link{anovaScores}} for classification and  \code{\link{gamScores}} for regression.
 
-The \code{filter} function is used to return a logical vector with names for each predictor (\code{TRUE} indicates that the predicto should be retained). Inputs are:
+The \code{filter} function is used to return a logical vector with names for each predictor (\code{TRUE} indicates that the prediction should be retained). Inputs are:
 \itemize{
       \item{\code{score}}{ the output of the \code{score} function}
       \item{\code{x}}{ the  predictors for the training samples}
@@ -72,7 +74,7 @@ The function should return a named logical vector.
 
 Examples of these functions are included in the package: \code{\link{caretSBF}}, \code{\link{lmSBF}}, \code{\link{rfSBF}}, \code{\link{treebagSBF}}, \code{\link{ldaSBF}} and \code{\link{nbSBF}}.
 
-Model details about these functions, including examples, are in the package vignette for feature selection.
+The web page  \url{http://caret.r-forge.r-project.org/} has more details and examples related to this function.
 
 }
 \value{

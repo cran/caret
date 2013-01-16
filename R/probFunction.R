@@ -420,7 +420,7 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
                         if(!is.matrix(newdata)) newdata <- as.matrix(newdata)
                         sda::predict.sda(modelFit, newdata)$posterior
                       },
-                      glm =, gam =, gamLoess =, gamSpline =, glmStepAIC =
+                      glm =, gam =, gamLoess =, gamSpline =, glmStepAIC =, bayesglm = 
                       {
                         
                         out <- predict(modelFit, newdata, type = "response")
@@ -451,30 +451,50 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
                       glmnet =
                       {
                         
-                        if(!is.null(param))
+                        if(length(obsLevels) == 2)
                           {
-                            probs <- predict(modelFit,
-                                             as.matrix(newdata),
-                                             s = param$.lambda,
-                                             type = "response")
+                            if(!is.null(param))
+                              {
+                                probs <- predict(modelFit,
+                                                 as.matrix(newdata),
+                                                 s = param$.lambda,
+                                                 type = "response")
 
-                            probs <- as.list(as.data.frame(probs))
-                            probs <- lapply(probs,
-                                            function(x, lev)
-                                            {
-                                              tmp <- data.frame(x, 1-x)
-                                              names(tmp) <- lev
-                                              tmp
-                                            },
-                                            lev = modelFit$obsLevels)
-                            
+                                probs <- as.list(as.data.frame(probs))
+                                probs <- lapply(probs,
+                                                function(x, lev)
+                                                {
+                                                  tmp <- data.frame(x, 1-x)
+                                                  names(tmp) <- lev
+                                                  tmp
+                                                },
+                                                lev = modelFit$obsLevels)
+                                
+                              } else {
+                                probs <- predict(modelFit,
+                                                 as.matrix(newdata),
+                                                 s = modelFit$lambdaOpt,
+                                                 type = "response")
+                                probs <- cbind(1-probs, probs)
+                                colnames(probs) <- modelFit$obsLevels
+                              }
                           } else {
-                            probs <- predict(modelFit,
-                                             as.matrix(newdata),
-                                             s = modelFit$lambdaOpt,
-                                             type = "response")
-                            probs <- cbind(1-probs, probs)
-                            colnames(probs) <- modelFit$obsLevels
+                            if(!is.null(param))
+                              {
+                                ## This generates a 3d array
+                                probs <- predict(modelFit,
+                                                 as.matrix(newdata),
+                                                 s = param$.lambda,
+                                                 type = "response")
+                                ## convert it to a list of 2d structures
+                                probs <- apply(probs, 3, function(x) data.frame(x))
+                              } else {
+                                probs <- predict(modelFit,
+                                                 as.matrix(newdata),
+                                                 s = modelFit$lambdaOpt,
+                                                 type = "response")
+                                probs <- probs[,,1]
+                              }
                           }
                         
                         probs

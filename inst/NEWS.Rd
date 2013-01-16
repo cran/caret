@@ -2,6 +2,50 @@
 \title{News for Package \pkg{caret}}
 \newcommand{\cpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
+
+\section{Changes in version 5.15-052}{
+\itemize{ 
+
+\item Added \code{bayesglm} from the \cpkg{arm} package. 
+
+\item A few bugs were fixed in \code{bag}, thanks to Keith
+Woolner. Most notably, out-of-bag estimates are now computed when the
+prediction function includes a column called \code{pred}.
+
+\item Parallel processing was implemented in \code{bag} and
+\code{avNNet}, which can be turned off using an optional arguments.
+
+\item \code{train}, \code{rfe}, \code{sbf}, \code{bag} and
+\code{avNNet} were given an additional argument in their respective
+control files called \code{allowParallel} that defaults to
+\code{TRUE}. When \code{Code}, the code will be executed in parallel
+if a parallel backend (e.g. \cpkg{doMC}) is registered. When
+\code{allowParallel = FALSE}, the parallel backend is always
+ignored. The use case is when \code{rfe} or \code{sbf} calls
+\code{train}. If a parallel backend with P processors is being used,
+the combination of these functions will create P^2 processes. Since
+some operations benefit more from parallelization than others, the
+user has the ability to concentrate computing resources for specific
+functions.
+
+\item A new resampling function called \code{createTimeSlices} was
+contributed by Tony Cooper that generates cross-validation indices for
+time series data.
+
+\item A few more options were added to
+\code{trainControl}. \code{initialWindow}, \code{horizon} and
+\code{fixedWindow} are applicable for when \code{method =
+"timeslice"}. Another, \code{indexOut} is an optional list of
+resampling indices for the hold-out set. By default, these values are
+the unique set of data points not in the training set.
+
+\item A bug was fixed in multiclass \code{glmnet} models when
+generating class probabilities (thanks to Bradley Buchsbaum for
+finding it).
+}
+}
+
+
 \section{Changes in version  5.15-048}{
 \itemize{ 
 

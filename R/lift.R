@@ -64,7 +64,7 @@ lift.formula <- function(x, data = NULL, class = NULL,subset = TRUE,  lattice.op
 
 print.lift <- function(x, ...)
   {
-    cat("\nCall:\n", truncateText(deparse(x$call, width.cutoff = 500)), "\n\n", sep = "")
+    printCall(x$call)
     cat("Models:", paste(unique(x$data$liftModelVar), collapse = ", "), "\n")
     cat("Event: ", x$class, " (", round( x$pct, 1), "%)\n", sep = "")      
     invisible(x)

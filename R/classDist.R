@@ -56,7 +56,7 @@ classDist.default <- function(x, y, groups = 5,
 
 print.classDist <- function(x, ...)
   {
-    cat("\nCall:\n", deparse(x$call), "\n\n", sep = "")
+    printCall(x$call)
 
     if(!is.null(x$cuts))
       {
