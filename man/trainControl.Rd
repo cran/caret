@@ -6,19 +6,24 @@
 trainControl(method = "boot", 
              number = ifelse(method \%in\% c("cv", "repeatedcv"), 10, 25),
              repeats = ifelse(method \%in\% c("cv", "repeatedcv"), 1, number),
-             verboseIter = FALSE, 
-             returnData = TRUE, 
+             p = 0.75, 
+             initialWindow = NULL,
+             horizon = 1,
+             fixedWindow = TRUE,
+             verboseIter = FALSE,
+             returnData = TRUE,
              returnResamp = "final",
              savePredictions = FALSE,
-             p = 0.75, 
              classProbs = FALSE,
              summaryFunction = defaultSummary,
              selectionFunction = "best",
              custom = NULL,
              preProcOptions = list(thresh = 0.95, ICAcomp = 3, k = 5),
              index = NULL,
+             indexOut = NULL,
              timingSamps = 0,
-             predictionBounds = rep(FALSE, 2))
+             predictionBounds = rep(FALSE, 2),
+             allowParallel = TRUE)
 }
 \arguments{
   \item{method}{The resampling method: \code{boot}, \code{boot632}, \code{cv}, \code{repeatedcv},
@@ -31,14 +36,18 @@ trainControl(method = "boot",
   \item{returnResamp}{A character string indicating how much of the resampled summary metrics should be saved. Values can be ``final'', ``all'' or ``none''}
   \item{savePredictions}{a logical to save the hold-out predictions for each resample}
   \item{p}{For leave-group out cross-validation: the training percentage}
+  \item{initialWindow, horizon, fixedWindow}{possible arguments to \code{\link{createTimeSlices}}}
   \item{classProbs}{a logical; should class probabilities be computed for classification models (along with predicted values) in each resample?}
   \item{summaryFunction}{a function to compute performance metrics across resamples. The arguments to the function should be the same as those in \code{\link{defaultSummary}}.}
-  \item{custom}{an optional list of functions that can be used to fit custom models. See the details below and worked examples in the "train" package vignette. This is an "experimental" version for testing. Please send emails to the maintainer for suggestions or problems.}
+  \item{custom}{an optional list of functions that can be used to fit custom models. See the details below and worked examples at  \url{http://caret.r-forge.r-project.org/}.
+. This is an "experimental" version for testing. Please send emails to the maintainer for suggestions or problems.}
   \item{selectionFunction}{the function used to select the optimal tuning parameter. This can be a name of the function or the function itself. See \code{\link{best}} for details and other options.}
   \item{preProcOptions}{A list of options to pass to \code{\link{preProcess}}. The type of pre-processing (e.g. center, scaling etc) is passed in via the \code{preProc} option in \code{\link{train}}.}
   \item{index}{a list with elements for each resampling iteration. Each list element is the sample rows used for training at that iteration.}
+  \item{indexOut}{a list (the same length as \code{index}) that dictates which sample are held-out for each resample. If \code{NULL}, then the unique set of samples not contained in \code{index} is used.}
   \item{timingSamps}{the number of training set samples that will be used to measure the time for predicting samples (zero indicates that the prediction time should not be estimated.}
   \item{predictionBounds}{a logical or numeric vector of length 2 (regression only). If logical, the predictions can be constrained to be within the limit of the training set outcomes. For example, a value of \code{c(TRUE, FALSE)} would only constrain the lower end of predictions. If numeric, specific bounds can be used. For example, if \code{c(10, NA)}, values below 10 would be predicted as 10 (with no constraint in the upper side).}
+  \item{allowParallel}{if a parallel backend is loaded and available, should the function use it?}
 }
 
 \value{
@@ -55,7 +64,7 @@ For custom modeling functions, several functions can be specified using the \cod
     \item{sort}{a function that sorts the tuning parameters by complexity}
     }
 
-For more details and worked examples, see the ``caret Manual -- Model Building'' vignette.
+For more details and worked examples, see \url{http://caret.r-forge.r-project.org/}.
 
 }
 

@@ -8,9 +8,10 @@
 Aggregate several neural network model
 }
 \usage{
-\method{avNNet}{default}(x, y, repeats = 5, bag = FALSE, ...)
+\method{avNNet}{default}(x, y, repeats = 5, bag = FALSE, allowParallel = TRUE, ...)
 \method{avNNet}{formula}(formula, data, weights, ..., 
-        repeats = 5, bag = FALSE, subset, na.action, contrasts = NULL)
+        repeats = 5, bag = FALSE, allowParallel = TRUE,
+        subset, na.action, contrasts = NULL)
 
 \method{predict}{avNNet}(object, newdata, type = c("raw", "class", "prob"), ...)
 }
@@ -32,7 +33,7 @@ matrix or data frame of target values for examples.
 \item{repeats}{the number of neural networks with with different random number seeds}
 
 \item{bag}{a logical for bagging for each repeat}
-
+\item{allowParallel}{if a parallel backend is loaded and available, should the function use it?}
 
 \item{data}{
 Data frame from which variables specified in  \code{formula} are
@@ -45,7 +46,7 @@ sample.  (NOTE: If given, this argument must be named.)
 \item{na.action}{
 A function to specify the action to be taken if \code{NA}s are found.
 The default action is for the procedure to fail.  An alternative is
-na.omit, which leads to rejection of cases with missing values on
+\code{na.omit}, which leads to rejection of cases with missing values on
 any required variable.  (NOTE: If given, this argument must be named.)
 }
 \item{contrasts}{
@@ -71,6 +72,8 @@ arguments passed to \code{\link[nnet]{nnet}}
 }
 \details{
 Following Ripley (1996), the same neural network model is fit using different random number seeds. All of the resulting models are used for prediction. For regression, the output from each network are averaged. For classification, the model scores are first averaged, then translated to predicted classes. Bagging can also be used to create the models.
+
+If a parallel backend is registered, the \pkg{foreach} package is used to train the networks in parallel. 
 
 }
 \value{

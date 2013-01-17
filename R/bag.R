@@ -3,13 +3,16 @@
   UseMethod("bag")
 
 
-bagControl <- function(fit = NULL, predict = NULL, aggregate = NULL, downSample = FALSE)
+bagControl <- function(fit = NULL, predict = NULL, aggregate = NULL, downSample = FALSE,
+                       oob = TRUE, allowParallel = TRUE)
   {
 
     list(fit = fit,
          predict = predict,
          aggregate = aggregate,
-         downSample = downSample)
+         downSample = downSample,
+         oob = oob,
+         allowParallel = allowParallel)
   }
   
 
@@ -30,7 +33,6 @@ bagControl <- function(fit = NULL, predict = NULL, aggregate = NULL, downSample 
   fitter <- function(index, x, y, ctrl, v, ...)
     {
 
-      ## Add OOB summaries too
       subX <- x[index,, drop = FALSE]
       subY <- y[index]
       
@@ -54,14 +56,53 @@ bagControl <- function(fit = NULL, predict = NULL, aggregate = NULL, downSample 
           subY <- subY[keepers]
         }
       fit <- ctrl$fit(subX, subY, ...)
+      if(ctrl$oob)
+        {
+          pred <- ctrl$pred(fit,
+                            x[-unique(index), subVars, drop = FALSE])
+          if(is.vector(pred))
+            {
+              out <- data.frame(pred  = pred, obs = y[-unique(index)])
+            } else {
+              out <- as.data.frame(pred)
+              out$obs <- y[-unique(index)]
+              if(is.factor(y) & !(any(names(out) == "pred")))
+                {
+                  ## Try to detect class probs and make a pred factor
+                  if(all(levels(y) %in% names(out)))
+                    {
+                      pred <- apply(out[, levels(y)], 1, which.max)
+                      pred <- factor(levels(y)[pred], levels = levels(y))
+                      out$pred <- pred
+                    }
+                }
+            }
+          out$key <- paste(sample(letters, 10, replace = TRUE), collapse = "")
+        } else out <- NULL
 
       list(fit = fit,
-           vars = subVars)
+           vars = subVars,
+           oob = out)
     }
   
-  
   btSamples <- createResample(y, times = B)
-  btFits <- lapply(btSamples, fitter, x = x, y = y, ctrl = bagControl, v = vars, ...)
+
+  hasFE <- suppressPackageStartupMessages(require("foreach"))
+  if(bagControl$allowParallel)
+    {
+      if(!hasFE) cat("Install the foreach package for parallel processing; going sequential instead")
+      bagControl$allowParallel <- FALSE
+    }
+  if(hasFE)
+    {
+      `%op%` <-  if(bagControl$allowParallel)  `%dopar%` else  `%do%`
+      btFits <- foreach(iter = seq(along = btSamples),
+                        .verbose = FALSE,
+                        .packages = "caret",
+                        .errorhandling = "stop") %op%
+                fitter(btSamples[[iter]],  x = x, y = y, ctrl = bagControl, v = vars, ...)  
+    } else btFits <- lapply(btSamples, fitter, x = x, y = y, ctrl = bagControl, v = vars, ...)
+
 
   structure(
             list(fits = btFits,
@@ -74,6 +115,8 @@ bagControl <- function(fit = NULL, predict = NULL, aggregate = NULL, downSample 
             class = "bag")
 
 }
+
+
 
 
 
@@ -123,14 +166,14 @@ bagControl <- function(fit = NULL, predict = NULL, aggregate = NULL, downSample 
 
 print.bag <- function (x, ...) 
 {
-  cat("\nCall:\n", deparse(x$call), "\n", sep = "")
+  printCall(x$call)
   cat("\nB:", x$B,"\n")
 
   cat("Training data:", x$dims[2], "variables and", x$dims[1], "samples\n")
   cat(ifelse(is.null(x$vars) || x$dims[2] == x$vars,
              "All variables were used in each model",
-             paste("Each model used", x$control$vars, "random",
-                   ifelse(x$control$vars == 1, "variable", "variables"), "predictors")))
+             paste("Each model used", x$vars, "random",
+                   ifelse(x$vars == 1, "variable", "variables"), "predictors")))
   cat('\n')
   if(x$control$downSample)
     {
@@ -145,11 +188,24 @@ print.bag <- function (x, ...)
   function(object, ...)
 {
 
-  if(object$control$oob)
+  hasPred <- any(names(object$fits[[1]]$oob) == "pred")
+  if(object$control$oob & hasPred)
     {
-      oobStat <- apply(object$oob, 2, function(x) quantile(x, probs = c(0, 0.025, .25, .5, .75, .975, 1)))
-    } else oobStat <- NULL
-  out <- list(oobStat = oobStat, call = object$call)
+      ## to avoid a 'no visible binding for global variable' warning
+      key <- NULL
+      oobData <- lapply(object$fits, function(x) x$oob)
+      oobData <- do.call("rbind", oobData)
+      oobResults <- ddply(oobData, .(key), defaultSummary)
+      oobResults$key <- NULL
+      oobStat <- apply(oobResults, 2, function(x) quantile(x, probs = c(0, 0.025, .25, .5, .75, .975, 1)))
+      rownames(oobStat) <- paste(format(as.numeric(format(gsub("%", "", rownames(oobStat))))),
+                                 "%", sep = "")
+      B <- nrow(oobResults)
+    } else {
+      oobStat <- NULL
+      B <- NULL
+    }
+  out <- list(oobStat = oobStat, call = object$call, B = B)
   class(out) <- "summary.bag"
   out
 }
@@ -157,12 +213,12 @@ print.bag <- function (x, ...)
 "print.summary.bag" <-
   function(x, digits = max(3, getOption("digits") - 3), ...)
 {
-  cat("\nCall:\n", deparse(x$call), "\n\n", sep = "")
+  printCall(x$call)
   if(!is.null(x$oobStat))
     {
-      cat("Out of bag statistics:\n\n")
+      cat("Out of bag statistics (B = ", x$B, "):\n\n", sep = "")
       print(x$oobStat, digits = digits)
-    }
+    } else cat("No out of bag statistics\n")
   cat("\n")
 }
 

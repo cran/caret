@@ -201,7 +201,7 @@ plot.prcomp.resamples <- function(x, what = "scree", dims = max(2, ncol(x$rotati
 
 print.prcomp.resamples <- function (x, digits = max(3, getOption("digits") - 3), print.x = FALSE, ...) 
 {
-  cat("\nCall:\n", deparse(x$call), "\n\n", sep = "")
+  printCall(x$call)
   cat("Metric:", x$metric, "\n")
 
 
@@ -221,7 +221,7 @@ print.prcomp.resamples <- function (x, digits = max(3, getOption("digits") - 3),
 
 print.resamples <- function(x, ...)
   {
-    cat("\nCall:\n", deparse(x$call), "\n\n", sep = "")
+    printCall(x$call)
     cat("Models:", paste(x$models, collapse = ", "), "\n")
     cat("Number of resamples:", nrow(x$values), "\n")
     cat("Performance metrics:",  paste(x$metrics, collapse = ", "), "\n")
@@ -270,7 +270,7 @@ summary.resamples <- function(object, ...)
 
 print.summary.resamples <- function(x, ...)
   {
-    cat("\nCall:\n", deparse(x$call), "\n\n", sep = "")
+    printCall(x$call)
     cat("Models:", paste(x$models, collapse = ", "), "\n")
     cat("Number of resamples:", nrow(x$values), "\n")
 
@@ -554,10 +554,12 @@ dotplot.resamples <- function (x, data = NULL, models = x$models, metric = x$met
   results <- do.call("rbind", results)
   results <- melt(results)
   results <- results[!is.nan(results$value),]
-  tmp <- strsplit(as.character(results$X1), "~", fixed = TRUE)
+  tmp <- strsplit(as.character(results$Var1), "~", fixed = TRUE)
   results$Model <- unlist(lapply(tmp, function(x) x[1]))
   results$Metric <- unlist(lapply(tmp, function(x) x[2]))
-  avPerf <- ddply(subset(results, Metric == metric[1] & X2 == "Estimate"),
+  ## to avoid "no visible binding for global variable 'Var2'"
+  Var2 <- NULL
+  avPerf <- ddply(subset(results, Metric == metric[1] & Var2 == "Estimate"),
                   .(Model),
                   function(x) c(Median = median(x$value, na.rm = TRUE)))
   avPerf <- avPerf[order(avPerf$Median),]
@@ -701,7 +703,7 @@ bwplot.diff.resamples <- function(x, data, metric = x$metric, ...)
 
 print.diff.resamples <- function(x, ...)
   {
-    cat("\nCall:\n", deparse(x$call), "\n\n", sep = "")
+    printCall(x$call)
     cat("Models:", paste(x$models, collapse = ", "), "\n")
     cat("Metrics:", paste(x$metric, collapse = ", "), "\n")
     cat("Number of differences:",  ncol(x$difs[[1]]), "\n")
@@ -827,7 +829,7 @@ levelplot.diff.resamples <- function(x, data = NULL, metric = x$metric[1], what 
 
 print.summary.diff.resamples <- function(x, ...)
   {
-    cat("\nCall:\n", deparse(x$call), "\n\n", sep = "")
+    printCall(x$call)
 
     if(x$adjustment != "none")
       cat("p-value adjustment:", x$adjustment, "\n")

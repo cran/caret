@@ -333,7 +333,8 @@ rfeControl <- function(functions = NULL,
                        returnResamp = "all",
                        p = .75,
                        index = NULL,
-                       timingSamps = 0)
+                       timingSamps = 0,
+                       allowParallel = TRUE)
 {
   list(
        functions = if(is.null(functions)) caretFuncs else functions,
@@ -346,7 +347,8 @@ rfeControl <- function(functions = NULL,
        verbose = verbose,
        p = p,
        index = index,
-       timingSamps = timingSamps)
+       timingSamps = timingSamps,
+       allowParallel = allowParallel)
 }
 
 ######################################################################

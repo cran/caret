@@ -1,3 +1,13 @@
+printCall <- function(x)
+  {
+    call <- paste(deparse(x), collapse = "\n")
+    cat("\nCall:\n", call, "\n\n", sep = "")
+    ## or
+
+    cat("\nCall:\n", truncateText(deparse(x, width.cutoff = 500)), "\n\n", sep = "")
+    invisible(call)
+  }
+
 flatTable <- function(pred, obs)
   {
     cells <- as.vector(table(pred, obs))
@@ -81,11 +91,11 @@ tuneScheme <- function(model, grid, useOOB = FALSE)
       modelInfo <- modelLookup(model)
     } else {
       modelInfo <- data.frame(
-        model = "custom",
-        parameter = gsub("^\\.", "", names(grid)),
-        label = gsub("^\\.", "", names(grid)),
-        seq = FALSE, forReg = TRUE, forClass = TRUE,
-        probModel = TRUE)
+                              model = "custom",
+                              parameter = gsub("^\\.", "", names(grid)),
+                              label = gsub("^\\.", "", names(grid)),
+                              seq = FALSE, forReg = TRUE, forClass = TRUE,
+                              probModel = TRUE)
       ## TODO pass control in for probModel
     }
   
@@ -528,16 +538,16 @@ defaultSummary <- function(data, lev = NULL, model = NULL)
 
 twoClassSummary <- function (data, lev = NULL, model = NULL) 
 {
-    require(pROC)
-    if (!all(levels(data[, "pred"]) == levels(data[, "obs"]))) 
-        stop("levels of observed and predicted data do not match")
-    rocObject <- try(pROC:::roc(data$obs, data[, lev[1]]), silent = TRUE)
-    rocAUC <- if(class(rocObject)[1] == "try-error") NA else rocObject$auc
-    out <- c(rocAUC,
-             sensitivity(data[, "pred"], data[, "obs"], lev[1]),
-             specificity(data[, "pred"], data[, "obs"], lev[2]))
-    names(out) <- c("ROC", "Sens", "Spec")
-    out
+  require(pROC)
+  if (!all(levels(data[, "pred"]) == levels(data[, "obs"]))) 
+    stop("levels of observed and predicted data do not match")
+  rocObject <- try(pROC:::roc(data$obs, data[, lev[1]]), silent = TRUE)
+  rocAUC <- if(class(rocObject)[1] == "try-error") NA else rocObject$auc
+  out <- c(rocAUC,
+           sensitivity(data[, "pred"], data[, "obs"], lev[1]),
+           specificity(data[, "pred"], data[, "obs"], lev[2]))
+  names(out) <- c("ROC", "Sens", "Spec")
+  out
 }
 
 ## make this object oriented
@@ -600,7 +610,7 @@ partRuleSummary <- function(x)
     list(varUsage = varUsage,
          numCond = length(conditions),
          classes = numClass)
-         
+    
   }
 
 ripperRuleSummary <- function(x)
@@ -625,7 +635,7 @@ ripperRuleSummary <- function(x)
     list(varUsage = varUsage,
          numCond = length(conditions),
          classes = numClass)
-         
+    
   }
 
 ##########################################################################################################
@@ -715,7 +725,7 @@ makeTable <- function(x)
     data.frame(method = as.character(x$model)[1],
                Package = cranRef(as.character(x$Package)[1]),
                Parameters = params)
-               
+    
 
   }
 

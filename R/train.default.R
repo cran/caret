@@ -108,16 +108,35 @@ train.default <- function(x, y,
     stop("for oob error rates, model bust be one of: rf, cforest, bagEarth, bagFDA or treebag")
 
   ## If they don't exist, make the data partitions for the resampling iterations.
-  if(is.null(trControl$index)) trControl$index <- switch(
-                                                         tolower(trControl$method),
-                                                         oob = NULL,
-                                                         cv = createFolds(y, trControl$number, returnTrain = TRUE),
-                                                         repeatedcv = createMultiFolds(y, trControl$number, trControl$repeats),
-                                                         loocv = createFolds(y, length(y), returnTrain = TRUE),
-                                                         boot =, boot632 = createResample(y, trControl$number),
-                                                         test = createDataPartition(y, 1, trControl$p),
-                                                         lgocv = createDataPartition(y, trControl$number, trControl$p))
+  if(is.null(trControl$index)) {
+    trControl$index <- switch(tolower(trControl$method),
+                              oob = NULL,
+                              cv = createFolds(y, trControl$number, returnTrain = TRUE),
+                              repeatedcv = createMultiFolds(y, trControl$number, trControl$repeats),
+                              loocv = createFolds(y, length(y), returnTrain = TRUE),
+                              boot =, boot632 = createResample(y, trControl$number),
+                              test = createDataPartition(y, 1, trControl$p),
+                              lgocv = createDataPartition(y, trControl$number, trControl$p),
+                              timeslice = createTimeSlices(seq(along = y),
+                                                           initialWindow = trControl$initialWindow,
+                                                           horizon = trControl$horizon,
+                                                           fixedWindow = trControl$fixedWindow)$train)
+  }
 
+  ## Create hold--out indicies
+  if(is.null(trControl$indexOut)){
+    if(tolower(trControl$method) != "timeslice") {      
+      trControl$indexOut <- lapply(trControl$index,
+                                   function(training, allSamples) allSamples[-unique(training)],
+                                   allSamples = seq(along = y))
+    } else {
+      trControl$indexOut <- createTimeSlices(seq(along = y),
+                                             initialWindow = trControl$initialWindow,
+                                             horizon = trControl$horizon,
+                                             fixedWindow = trControl$fixedWindow)$test
+    }
+  }
+  
   if(trControl$method == "oob" & method == "custom") stop("out-of-bag resampling is not allowed for custom models")
 
   if(trControl$method != "oob" & is.null(trControl$index)) names(trControl$index) <- prettySeq(trControl$index)

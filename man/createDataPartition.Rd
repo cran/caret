@@ -3,12 +3,14 @@
 \alias{createResample}
 \alias{createFolds}
 \alias{createMultiFolds}
+\alias{createTimeSlices}
 \title{Data Splitting functions}
 \description{
   A series of test/training partitions are created using
   \code{createDataPartition} while \code{createResample} creates one or
   more bootstrap samples. \code{createFolds} splits the data into
-  \code{k} groups.
+  \code{k} groups while \code{createTimeSlices} creates cross-validation
+  sample information to be used with time series data.
 }
 \usage{
 createDataPartition(y, 
@@ -19,9 +21,10 @@ createDataPartition(y,
 createResample(y, times = 10, list = TRUE)
 createFolds(y, k = 10, list = TRUE, returnTrain = FALSE)
 createMultiFolds(y, k = 10, times = 5)
+createTimeSlices(y, initialWindow, horizon = 1, fixedWindow = TRUE)
 }
 \arguments{
-  \item{y}{a vector of outcomes}
+  \item{y}{a vector of outcomes. For \code{createTimeSlices}, these should be in chronological order.}
   \item{times}{the number of partitions to create}
   \item{p}{the percentage of data that goes to training}
   \item{list}{logical - should the results be in a list (\code{TRUE}) or a matrix 
@@ -33,6 +36,9 @@ createMultiFolds(y, k = 10, times = 5)
   \item{returnTrain}{a logical. When true, the values returned are the
     sample positions corresponding to the data used during
     training. This argument only works in conjunction with \code{list = TRUE}}  
+  \item{initialWindow}{The initial number of consecutive values in each training set sample}
+  \item{horizon}{The number of consecutive values in test set sample}
+  \item{fixedWindow}{A logical: if \code{FALSE}, the training set always start at the first sample.}
 }
 \details{
 
@@ -64,7 +70,7 @@ createMultiFolds(y, k = 10, times = 5)
    A list or matrix of row position integers corresponding to the training
    data
 }
-\author{Max Kuhn}
+\author{Max Kuhn, \code{createTimeSlices} by Tony Cooper}
 
 \examples{
 data(oil)
@@ -85,6 +91,11 @@ createFolds(oilType, 10)
 createFolds(oilType, 5, FALSE)
 
 createFolds(rnorm(21))
+
+createTimeSlices(1:9, 5, 1, fixedWindow = FALSE)
+createTimeSlices(1:9, 5, 1, fixedWindow = TRUE)
+createTimeSlices(1:9, 5, 3, fixedWindow = TRUE)
+createTimeSlices(1:9, 5, 3, fixedWindow = FALSE)
 }
 \keyword{utilities}
 

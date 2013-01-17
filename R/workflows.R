@@ -4,6 +4,8 @@
 ### functions inside of caret cannot be found despite using the
 ### ".packages" argument and calling the caret package via library().
 
+getOper <- function(x) if(x)  `%dopar%` else  `%do%`
+
 
 progress <- function(x, names, iter, start = TRUE)
   {
@@ -55,8 +57,9 @@ nominalTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing =
     resampleIndex <- ctrl$index
     if(ctrl$method %in% c("boot632")) resampleIndex <- c(list("AllData" = rep(0, nrow(dat))), resampleIndex)
 
+    `%op%` <- getOper(ctrl$allowParallel)
     result <- foreach(iter = seq(along = resampleIndex), .combine = "c", .verbose = FALSE, .packages = "caret", .errorhandling = "stop") %:%
-      foreach(parm = 1:nrow(info$loop), .combine = "c", .verbose = FALSE, .packages = "caret", .errorhandling = "stop") %dopar%
+      foreach(parm = 1:nrow(info$loop), .combine = "c", .verbose = FALSE, .packages = "caret", .errorhandling = "stop")  %op%
     {
       library(caret)
       if(ctrl$verboseIter) caret:::progress(printed[parm,,drop = FALSE],
@@ -65,7 +68,7 @@ nominalTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing =
       if(names(resampleIndex)[iter] != "AllData")
         {
           modelIndex <- resampleIndex[[iter]]
-          holdoutIndex <- -unique(resampleIndex[[iter]])
+          holdoutIndex <- ctrl$indexOut[[iter]]
         } else {
           modelIndex <- 1:nrow(dat)
           holdoutIndex <- modelIndex
@@ -321,9 +324,10 @@ looTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing = FAL
     
     printed <- format(info$loop)
     colnames(printed) <- gsub("^\\.", "", colnames(printed))
-    
+
+    `%op%` <- getOper(ctrl$allowParallel)
     result <- foreach(iter = seq(along = ctrl$index), .combine = "rbind", .verbose = FALSE, .packages = "caret", .errorhandling = "stop") %:%
-      foreach(parm = 1:nrow(info$loop), .combine = "rbind", .verbose = FALSE, .packages = "caret", .errorhandling = "stop") %dopar%
+      foreach(parm = 1:nrow(info$loop), .combine = "rbind", .verbose = FALSE, .packages = "caret", .errorhandling = "stop") %op%
     {
       library(caret)
       if(ctrl$verboseIter) caret:::progress(printed[parm,,drop = FALSE])
@@ -412,8 +416,9 @@ oobTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, ...)
     ppp <- list(options = ppOpts)
     ppp <- c(ppp, ctrl$preProcOptions)
     printed <- format(info$loop)
-    colnames(printed) <- gsub("^\\.", "", colnames(printed))    
-    result <- foreach(parm = 1:nrow(info$loop), .packages = "caret", .combine = "rbind") %dopar%
+    colnames(printed) <- gsub("^\\.", "", colnames(printed))
+    `%op%` <- getOper(ctrl$allowParallel)
+    result <- foreach(parm = 1:nrow(info$loop), .packages = "caret", .combine = "rbind") %op%
     {
       library(caret)
       if(ctrl$verboseIter) caret:::progress(printed[parm,,drop = FALSE])
@@ -449,7 +454,8 @@ nominalSbfWorkflow <- function(x, y, ppOpts, ctrl, lev, ...)
     resampleIndex <- ctrl$index
     if(ctrl$method %in% c("boot632")) resampleIndex <- c(list("AllData" = rep(0, nrow(dat))), resampleIndex)
 
-    result <- foreach(iter = seq(along = resampleIndex), .combine = "c", .verbose = FALSE, .packages = "caret", .errorhandling = "stop") %dopar%
+    `%op%` <- getOper(ctrl$allowParallel)
+    result <- foreach(iter = seq(along = resampleIndex), .combine = "c", .verbose = FALSE, .packages = "caret", .errorhandling = "stop") %op%
     {
       library(caret)
 
@@ -519,7 +525,9 @@ looSbfWorkflow <- function(x, y, ppOpts, ctrl, lev, ...)
     resampleIndex <- ctrl$index
 
     vars <- vector(mode = "list", length = length(y))
-    result <- foreach(iter = seq(along = resampleIndex), .combine = "c", .verbose = FALSE, .packages = "caret", .errorhandling = "stop") %dopar%
+    
+    `%op%` <- getOper(ctrl$allowParallel)
+    result <- foreach(iter = seq(along = resampleIndex), .combine = "c", .verbose = FALSE, .packages = "caret", .errorhandling = "stop") %op%
     {
       library(caret)
 
@@ -553,7 +561,8 @@ nominalRfeWorkflow <- function(x, y, sizes, ppOpts, ctrl, lev, ...)
     resampleIndex <- ctrl$index
     if(ctrl$method %in% c("boot632")) resampleIndex <- c(list("AllData" = rep(0, nrow(x))), resampleIndex)
 
-    result <- foreach(iter = seq(along = resampleIndex), .combine = "c", .verbose = FALSE, .packages = "caret", .errorhandling = "stop") %dopar%
+    `%op%` <- getOper(ctrl$allowParallel)
+    result <- foreach(iter = seq(along = resampleIndex), .combine = "c", .verbose = FALSE, .packages = "caret", .errorhandling = "stop") %op%
     {
       library(caret)
 

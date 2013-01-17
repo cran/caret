@@ -302,7 +302,7 @@ predict.preProcess <- function(object, newdata, ...)
 
 print.preProcess <- function(x, ...)
 {
-  cat("\nCall:\n", truncateText(deparse(x$call, width.cutoff = 500)), "\n\n", sep = "")
+  printCall(x$call)
   cat("Created from", x$dim[1], "samples and", x$dim[2], "variables\n")
 
   pp <- x$method

@@ -121,7 +121,7 @@ byComplexity <- function(x, model)
            treebag =, lda =, lm =, sddaLDA =, sddaQDA =,
            glmStepAIC =,lmStepAIC =, slda =, glm =, qda =, OneR =,
            rvmLinear =, lssvmLinear =, gaussprLinear =,
-           rlm =, vbmpRadial =, glmrob =, logforest =
+           rlm =, vbmpRadial =, glmrob =, logforest =, bayesglm =
            {
              x
            },

@@ -297,7 +297,8 @@ sbfControl <- function(functions = NULL,
                        returnResamp = "all",
                        p = .75,
                        index = NULL,
-                       timingSamps = 0)
+                       timingSamps = 0,
+                       allowParallel = TRUE)
 {
   list(
        functions = if(is.null(functions)) caretSBF else functions,
@@ -309,7 +310,8 @@ sbfControl <- function(functions = NULL,
        verbose = verbose,
        p = p,
        index = index,
-       timingSamps = timingSamps)
+       timingSamps = timingSamps,
+       allowParallel = allowParallel)
 }
 
 ######################################################################
@@ -638,7 +640,7 @@ print.nullModel <- function(x, digits = max(3, getOption("digits") - 3), ...)
   cat("Null",
       ifelse(is.null(x$levels), "Classification", "Regression"),
       "Model\n")
-  cat("\nCall:\n", deparse(x$call), "\n\n", sep = "")
+  printCall(x$call)
 
   cat("Predicted Value:",
       ifelse(is.null(x$levels), format(x$value, digitis = digits), x$value),

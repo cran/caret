@@ -33,6 +33,7 @@ export(anovaScores,
        createModel,
        createMultiFolds,
        createResample,
+       createTimeSlices,
        ctreeBag,
        defaultSummary,
        densityplot.rfe,
@@ -309,6 +310,7 @@ S3method(print, diff.resamples)
 S3method(print, summary.diff.resamples)
 S3method(print, icr)
 S3method(print, bag)
+S3method(print, summary.bag)
 S3method(print, prcomp.resamples)
 S3method(print, dummyVars)
 S3method(print, BoxCoxTrans)

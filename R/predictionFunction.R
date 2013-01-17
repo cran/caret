@@ -602,7 +602,7 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                              library(sparseLDA)
                              as.character(predict(modelFit, newdata)$class)
                            },                           
-                           glm =, glmStepAIC =, gam =, gamLoess =, gamSpline =
+                           glm =, glmStepAIC =, gam =, gamLoess =, gamSpline =, bayesglm =
                            {
                              if(modelFit$problemType == "Classification")
                                {
