@@ -27,8 +27,14 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                                {
                                  gbmProb <- predict(modelFit, newdata, type = "response",
                                                     n.trees = modelFit$tuneValue$.n.trees)
-                                 out <- ifelse(gbmProb >= .5, modelFit$obsLevels[1], modelFit$obsLevels[2])
-                                 ## to correspond to gbmClasses definition above
+                                 gbmProb[is.nan(gbmProb)] <- NA
+                                 if(modelFit$distribution$name == "bernoulli")
+                                   {
+                                     out <- ifelse(gbmProb >= .5, modelFit$obsLevels[1], modelFit$obsLevels[2])
+                                     ## to correspond to gbmClasses definition above
+                                   } else {
+                                     out <- colnames(gbmProb)[apply(gbmProb, 1, which.max)]
+                                   }
                                } else {
                                  out <- predict(modelFit, newdata, type = "response",
                                                 n.trees = modelFit$tuneValue$.n.trees)
@@ -36,14 +42,22 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                              
                              if(!is.null(param))
                                {
-                                 preds <- predict(modelFit, newdata, type = "response", n.trees = param$.n.trees)
+                                 tmp <- predict(modelFit, newdata, type = "response", n.trees = param$.n.trees)
                                  
                                  if(modelFit$problemType == "Classification")
                                    {
-                                     preds <- ifelse(preds >= .5, modelFit$obsLevels[1], modelFit$obsLevels[2])
+                                     if(modelFit$distribution$name == "bernoulli")
+                                       {
+                                         tmp <- apply(tmp, 2,
+                                                      function(x, nm = modelFit$obsLevels) ifelse(x >= .5, nm[1], nm[2]))
+                                                      
+                                       } else {
+                                         tmp <- apply(tmp, 3,
+                                                      function(y, nm = modelFit$obsLevels) nm[apply(y, 1, which.max)])
+                                       }
+                                      tmp <- split(tmp, rep(1:ncol(tmp), each = nrow(tmp)))
                                    }
-                                 out <- c(list(out), as.list(as.data.frame(preds)))
-                                 out <- if(modelFit$problemType == "Classification") lapply(out, as.character) else out
+                                 out <- c(list(out), tmp)
                                }
                              out
                            },

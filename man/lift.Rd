@@ -17,7 +17,7 @@ lift(x, ...)
      subset = TRUE, lattice.options = NULL, labels = NULL, 
      ...)
 
-\method{xyplot}{lift}(x, data, ...)
+\method{xyplot}{lift}(x, data, plot = "gain", ...)
 
 }
 \arguments{
@@ -39,6 +39,8 @@ A list that could be supplied to \code{\link[lattice:lattice.options]{lattice.op
   \item{labels}{
 A named list of labels for keys. The list should have an element for each term on the right-hand side of the formula and the names should match the names of the models.
 }
+  \item{plot}{
+Either "gain" (the default) or "lift". The former plots the number of samples called events versus the event rate while the latter shows the event cut-off versus the lift statistic.}
   \item{\dots}{
 options to pass through to \code{\link[lattice:xyplot]{xyplot}} or the panel function (not used in \code{lift.formula}).
 }
@@ -46,14 +48,14 @@ options to pass through to \code{\link[lattice:xyplot]{xyplot}} or the panel fun
 \details{
 \code{lift.formula} is used to process the data and \code{xyplot.lift} is used to create the plot.
 
-To construct the lift plot, the following steps are used for each model:
+To construct data for the the lift and gain plots, the following steps are used for each model:
 
 \enumerate{
    \item The data are ordered by the numeric model prediction used on the right-hand side of the model formula
    \item Each unque value of the score is treated as a cut point
    \item The number of samples with true results equal to \code{class} are determined
    \item The lift is calculated as the ratio of the percentage of samples in each split corresponding to \code{class} over the same percentage in the entire data set}
-\code{lift} produces a plot of the cumulative lift values by the percentage of samples evaluated. 
+\code{lift} with \code{plot = "gain"} produces a plot of the cumulative lift values by the percentage of samples evaluated while \code{plot = "lift"} shows the cut point value versus the lift statistic. 
 
 This implementation uses the \pkg{lattice} function \code{\link[lattice:xyplot]{xyplot}}, so plot elements can be changed via panel functions, \code{\link[lattice:trellis.par.get]{trellis.par.set}} or other means. \code{lift} uses the panel function \code{\link{panel.lift2}} by default, but it can be changes using \code{\link[lattice:update.trellis]{update.trellis}} (see the examples in \code{\link{panel.lift2}}).
 
@@ -91,5 +93,7 @@ xyplot(lift1)
 lift2 <- lift(obs ~ random + perfect, data = simulated)
 lift2
 xyplot(lift2, auto.key = list(columns = 2))
+
+xyplot(lift2, plot = "lift", auto.key = list(columns = 2))
 }
 \keyword{hplot}

@@ -71,20 +71,29 @@ print.lift <- function(x, ...)
   }
 
 
-xyplot.lift <- function(x, data = NULL, ...)
+xyplot.lift <- function(x, data = NULL, plot = "gain", ...)
   {
-    lFormula <- "CumEventPct ~ CumTestedPct"
-
-    rng <- extendrange(c(0, 100))
-    
-    opts <- list(...)
-    if(!any(names(opts) == "xlab")) opts$xlab <- "% Samples Tested"
-    if(!any(names(opts) == "ylab")) opts$ylab <- "% Samples Found"
-    if(!any(names(opts) == "type")) opts$type <- "l"
-    if(!any(names(opts) == "ylim")) opts$ylim <- rng   
-    if(!any(names(opts) == "xlim")) opts$xlim <- rng
-    if(!any(names(opts) == "panel")) opts$panel <- panel.lift2
-    
+    if(!(plot %in% c("lift", "gain"))) stop(paste("'plot' should be either 'lift' or 'gain'"))
+    if(plot == "gain")
+      {
+        lFormula <- "CumEventPct ~ CumTestedPct"
+        rng <- extendrange(c(0, 100))
+        opts <- list(...)
+        if(!any(names(opts) == "xlab")) opts$xlab <- "% Samples Tested"
+        if(!any(names(opts) == "ylab")) opts$ylab <- "% Samples Found"
+        if(!any(names(opts) == "type")) opts$type <- "l"
+        if(!any(names(opts) == "ylim")) opts$ylim <- rng   
+        if(!any(names(opts) == "xlim")) opts$xlim <- rng
+        if(!any(names(opts) == "panel")) opts$panel <- panel.lift2
+  } else {
+        lFormula <- "lift ~ cuts"
+        x$data <- x$data[order(x$data$liftModelVar, x$data$cuts),]
+        rng <- extendrange(c(0, 100))
+        opts <- list(...)
+        if(!any(names(opts) == "xlab")) opts$xlab <- "Cut-Off"
+        if(!any(names(opts) == "ylab")) opts$ylab <- "Lift"
+        if(!any(names(opts) == "type")) opts$type <- "l"
+  }
     args <- list(x = as.formula(lFormula),
                  data = x$data,
                  pct = x$pc)
@@ -104,14 +113,26 @@ liftCalc <- function(x, class = levels(x$liftClassVar)[1])
     cuts <- sort(unique(x$liftProbVar), decreasing = TRUE)
     cuts <- unique(c(1, cuts, 0))
 
+    class2 <- levels(x$liftClassVar)
+    class2 <- class2[class2 != class]
     tmp <- data.frame(cuts = cuts,
                       events = NA,
-                      n = NA)
+                      n = NA,
+                      Sn = NA,
+                      Sp = NA)
     for(i in seq(along = cuts))
       {
         sub <- x$liftClassVar[x$liftProbVar >= tmp$cuts[i]]
         tmp$n[i] <- length(sub)
         tmp$events[i] <- sum(sub == class)
+        prd <- factor(ifelse(x$liftProbVar >= tmp$cuts[i], class, class2),
+                      levels = levels(x$liftClassVar))
+        tmp$Sn[i] <- sensitivity(prd,
+                                 x$liftClassVar,
+                                 positive = class)
+        tmp$Sp[i] <- specificity(prd,
+                                 x$liftClassVar,
+                                 negative = class2)        
       }
 
     tmp$EventPct <- ifelse(tmp$n > 0, tmp$events/tmp$n*100, 0)

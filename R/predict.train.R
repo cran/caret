@@ -61,36 +61,3 @@ predict.train <- function(object, newdata = NULL, type = "raw", ...)
 
     out  
 }
-
-if(FALSE)
-  {
-    library(caret)
-    library(mlbench)
-    data(BostonHousing)
-
-
-    lmFit <- train(medv ~ . + rm:lstat, "lm",
-                   data = BostonHousing)
-
-    lmFit2 <- train(medv ~ . + rm:lstat,
-                    data = BostonHousing, 
-                    "lm", trControl = trainControl(predictionBounds = rep(TRUE, 2)))
-    lmFit5 <- train(medv ~ . + rm:lstat,
-                    data = BostonHousing, 
-                    "lm", trControl = trainControl(predictionBounds = c(TRUE, FALSE)))
-
-    lmFit3 <- train(medv ~ . + rm:lstat,
-                    data = BostonHousing, 
-                    "lm", trControl = trainControl(predictionBounds = c(NA, 20)))
-
-    lmFit4 <- train(medv ~ . + rm:lstat,
-                    data = BostonHousing, 
-                    "lm", trControl = trainControl(predictionBounds = c(10, 20)))
-
-    summary(predict(lmFit, BostonHousing[, -14]))
-    summary(predict(lmFit2, BostonHousing[, -14]))
-    summary(predict(lmFit3, BostonHousing[, -14]))
-    summary(predict(lmFit4, BostonHousing[, -14]))
-    summary(predict(lmFit5, BostonHousing[, -14]))
-    
-  }

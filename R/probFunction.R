@@ -123,21 +123,37 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
                         library(gbm)
                         out <- predict(modelFit, newdata, type = "response",
                                        n.trees = modelFit$tuneValue$.n.trees)
-                        out <- data.frame(a = out, b = 1-out)
-                        names(out) <-  modelFit$obsLevels
+                        
+                        if(modelFit$distribution$name == "bernoulli") 
+                          {
+                            out <- data.frame(a = out, b = 1-out) 
+                            names(out) <-  modelFit$obsLevels
+                          } else out <- as.data.frame(out[,,1])
                         if(!is.null(param))
                           {
-                            preds <- predict(modelFit, newdata, type = "response", n.trees = param$.n.trees)
-                            preds <- as.list(as.data.frame(preds))
-                            preds <- lapply(preds,
-                                            function(x, lev = modelFit$obsLevels)
-                                            {
-                                              out <- data.frame(a = x, b = 1 - x)
-                                              colnames(out) <- lev
-                                              out
-                                            })
-                            out <- c(list(out), preds)                
-                          }
+                            tmp <- predict(modelFit, newdata, type = "response", n.trees = param$.n.trees)
+
+                            if(modelFit$problemType == "Classification")
+                              {
+                                if(modelFit$distribution$name == "bernoulli")
+                                  {
+                                    tmp <- apply(tmp, 2,
+                                                 function(x, nm = modelFit$obsLevels)
+                                                 {
+                                                   x <- data.frame(x = x, y = 1 - x)
+                                                   colnames(x) <- nm
+                                                   x
+                                                 })
+                                  } else {
+                                    ## Does anyone know of a better
+                                    ## way to convert an array to a
+                                    ## list of matrices or data
+                                    ## frames?                   
+                                    tmp <- apply(tmp, 3, function(x) data.frame(x))
+                                  }
+                              }
+                            out <- c(list(out), tmp)
+                          } 
                         out
                       },
 

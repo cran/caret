@@ -11,6 +11,7 @@ printCall <- function(x)
 flatTable <- function(pred, obs)
   {
     cells <- as.vector(table(pred, obs))
+    if(length(cells) == 0) cells <- rep(NA, length(levels(obs))^2)
     names(cells) <- paste(".cell", seq(along= cells), sep = "")
     cells
   }
