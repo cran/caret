@@ -1,4 +1,4 @@
-% \VignetteIndexEntry{ A Short Introduction to the caret PAckage}
+% \VignetteIndexEntry{ A Short Introduction to the caret Package}
 % \VignetteDepends{caret}
 % \VignettePackage{caret}
 \documentclass[12pt]{article}

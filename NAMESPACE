@@ -429,3 +429,5 @@ S3method(diff, resamples)
 S3method(summary, diff.resamples)
 
 S3method(update, train)
+S3method(fitted, train)
+S3method(residuals, train)

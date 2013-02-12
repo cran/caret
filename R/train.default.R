@@ -62,7 +62,7 @@ train.default <- function(x, y,
                          paste(make.names(classLevels), collapse = ", ")))
          }
       
-      if(length(classLevels) > 2 & (method %in% c("gbm", "glmboost", "ada", "gamboost", "blackboost", "penalized", "glm",
+      if(length(classLevels) > 2 & (method %in% c("glmboost", "ada", "gamboost", "blackboost", "penalized", "glm",
                                                   "earth", "nodeHarvest", "glmrob", "plr", "GAMens", "rocc",
                                                   "logforest", "logreg", "gam", "gamLoess", "gamSpline",
                                                   "bstTree", "bstLs", "bstSm")))
@@ -551,10 +551,41 @@ train.formula <- function (form, data, ..., weights, subset, na.action = na.fail
   res$na.action <- attr(m, "na.action")
   res$contrasts <- cons
   res$xlevels <- .getXlevels(Terms, m)
+  if(!is.null(res$trainingData))
+    {
+      res$trainingData <- data
+      isY <- names(res$trainingData) %in% as.character(form[[2]])
+      if(any(isY)) colnames(res$trainingData)[isY] <- ".outcome"
+    }
   class(res) <- c("train", "train.formula")
   res
 }
 
 summary.train <- function(object, ...) summary(object$finalModel, ...)
-residuals.train <- function(object, ...) residuals(object$finalModel, ...)
+residuals.train <- function(object, ...)
+  {
+    if(object$modelType != "Regression") stop("train() only produces redisuals on numeric outcomes")
+    resid <- residuals(object$finalModel, ...)
+    if(is.null(resid))
+      {    
+        if(!is.null(object$trainingData))
+          {
+            resid <- object$trainingData$.outcome - predict(object, object$trainingData[, names(object$trainingData) != ".outcome",drop = FALSE])
+          } else stop("The training data must be saved to produce residuals")
+      }
+    resid
+  }
 
+fitted.train <- function(object, ...)
+  {
+    prd <- fitted(object$finalModel)
+    if(is.null(prd))
+      {    
+        if(!is.null(object$trainingData))
+          {
+            prd <- predict(object, object$trainingData[, names(object$trainingData) != ".outcome",drop = FALSE])
+          } else stop("The training data must be saved to produce fitted values")
+      }
+    prd
+
+  }

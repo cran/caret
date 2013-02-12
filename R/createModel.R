@@ -49,7 +49,7 @@
                    'blackboost', 'Boruta', 'bstLs', 'bstSm',
                    'bstTree', 'cubist', 'earth', 'earthTest',
                    'enet', 'foba', 'gamboost', 'gaussprLinear',
-                   'gaussprPoly', 'gaussprRadial', 'gbm', 'gcvEarth',
+                   'gaussprPoly', 'gaussprRadial',  'gcvEarth',  ## 'gbm',
                    'glmboost', 'glmnet', 'gpls', 'hda', 'hdda', 'icr',
                    'knn', 'lars', 'lars2', 'lasso', 'lda', 'leapBackward',
                    'leapForward', 'leapSeq', 'Linda', 'logforest', 'logicBag',
@@ -69,7 +69,7 @@
                    'vbmpRadial', 'widekernelpls', 'PenalizedLDA',
                    "mlp", "mlpWeightDecay", "rbf", "rbfDDA", "lda2",
                    "RRF", "RRFglobal", "krlsRadial", "krlsPoly",
-                   "C5.0", "C5.0Tree", "C5.0Rules"))
+                   "C5.0", "C5.0Tree", "C5.0Rules", "treebag"))
     {
       trainX <- data[,!(names(data) %in% ".outcome"), drop = FALSE]
       trainY <- data[,".outcome"]
@@ -103,8 +103,8 @@
         } else ppObj <- NULL
     }
   
-  if(method %in% c("gbm", "plr") & type == "Classification") 
-    numClasses <- ifelse(trainY == obsLevels[1], 1, 0)
+  if(method %in% c("plr") & type == "Classification") numClasses <- ifelse(trainY == obsLevels[1], 1, 0)
+  if(method %in% "gbm" & length(obsLevels) == 2)  numClasses <- ifelse(data$.outcome == obsLevels[1], 1, 0)
   
   modelFit <- switch(method,
                      rda = 
@@ -125,15 +125,18 @@
                            modDist <- theDots$distribution
                            theDots$distribution <- NULL
                          } else {
-                           modDist <- if(type == "Classification") "bernoulli" else "gaussian"
+                           if(type == "Regression")
+                             {
+                               modDist <- "gaussian"
+                             } else modDist <- if(length(obsLevels) == 2)  "bernoulli" else "multinomial"
                          }
 
                        ## check to see if weights were passed in (and availible)
                        if(!is.null(modelWeights)) theDots$w <- modelWeights                      
-                       modY <- if(type == "Classification") numClasses else trainY
+                       if(type == "Classification" & length(obsLevels) == 2) data$.outcome <- numClasses 
 
-                       modArgs <- list(x = trainX,
-                                       y = modY,
+                       modArgs <- list(data = data,
+                                       formula = modFormula,
                                        interaction.depth = tuneValue$.interaction.depth,
                                        n.trees = tuneValue$.n.trees,
                                        shrinkage = tuneValue$.shrinkage, 
@@ -141,7 +144,7 @@
 
                        if(length(theDots) > 0) modArgs <- c(modArgs, theDots)
                        
-                       do.call("gbm.fit", modArgs)
+                       do.call("gbm", modArgs)
                      },
                      rf =
                      {
@@ -659,7 +662,10 @@
                      treebag = 
                      {
                        library(ipred)
-                       bagging(modFormula, data, ...)
+                       theDots <- list(...)
+                       if(!any(names(theDots) == "keepX")) theDots$keepX <- FALSE   
+                       modelArgs <- c(list(X = trainX, y = trainY), theDots)
+                       do.call("ipredbagg", modelArgs)
                      },
                      lm =
                      {

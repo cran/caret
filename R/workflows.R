@@ -55,8 +55,11 @@ nominalTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing =
     ## fitting and predicting the full data set.
 
     resampleIndex <- ctrl$index
-    if(ctrl$method %in% c("boot632")) resampleIndex <- c(list("AllData" = rep(0, nrow(dat))), resampleIndex)
-
+    if(ctrl$method %in% c("boot632"))
+      {
+        resampleIndex <- c(list("AllData" = rep(0, nrow(dat))), resampleIndex)
+        ctrl$indexOut <- c(list("AllData" = rep(0, nrow(dat))),  ctrl$indexOut)
+      }
     `%op%` <- getOper(ctrl$allowParallel)
     result <- foreach(iter = seq(along = resampleIndex), .combine = "c", .verbose = FALSE, .packages = "caret", .errorhandling = "stop") %:%
       foreach(parm = 1:nrow(info$loop), .combine = "c", .verbose = FALSE, .packages = "caret", .errorhandling = "stop")  %op%
@@ -109,7 +112,7 @@ nominalTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing =
               rm(wrn)
               
               ## setup a dummy results with NA values for all predictions
-              nPred <- nrow(dat) - length(unique(holdoutIndex))
+              nPred <- length(holdoutIndex)
               if(!is.null(lev))
                 {
                   predicted <- rep("", nPred)
@@ -136,7 +139,7 @@ nominalTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing =
           rm(wrn)
         
           ## setup a dummy results with NA values for all predictions
-          nPred <- nrow(dat) - length(unique(holdoutIndex))
+          nPred <- length(holdoutIndex)
           if(!is.null(lev))
             {
               predicted <- rep("", nPred)
@@ -213,7 +216,7 @@ nominalTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing =
               tmpPred <- predicted
               for(modIndex in seq(along = tmpPred))
                 {
-                  tmpPred[[modIndex]]$rowIndex <- (1:nrow(dat))[unique(holdoutIndex)]
+                  tmpPred[[modIndex]]$rowIndex <- holdoutIndex
                   tmpPred[[modIndex]] <- cbind(tmpPred[[modIndex]], allParam[modIndex,,drop = FALSE])
                 }
               tmpPred <- rbind.fill(tmpPred)
@@ -250,7 +253,7 @@ nominalTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing =
           if(ctrl$savePredictions)
             {
               tmpPred <- tmp
-              tmpPred$rowIndex <- (1:nrow(dat))[unique(holdoutIndex)]
+              tmpPred$rowIndex <- holdoutIndex
               tmpPred <- cbind(tmpPred, info$loop[parm,,drop = FALSE])
               tmpPred$Resample <- names(resampleIndex)[iter]
             } else tmpPred <- NULL

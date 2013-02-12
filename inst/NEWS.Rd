@@ -2,6 +2,29 @@
 \title{News for Package \pkg{caret}}
 \newcommand{\cpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
+\section{Changes in version 5.15-60}{
+\itemize{ 
+
+\item A bug in \code{predictors.earth}, discovered by Katrina Bennett,
+was fixed.
+
+\item A bug induced by version 5.15-052 for the bootstrap 632 rule was
+fixed.
+
+\item The DESCRIPTION file as of 5.15-048 should have used a
+version-specific lattice dependency.
+
+\item \code{lift} can compute gain and lift charts (and defaults to
+gain)
+
+\item The \cpkg{gbm} model was updated to handle 3 or more classes. 
+
+\item For bagged trees using \cpkg{ipred}, the code in \code{train}
+defaults to \code{keepX = FALSE} to save space. Pass in \code{keepX =
+TRUE} to use out-of-bag sampling for this model.
+
+}
+}
 
 \section{Changes in version 5.15-052}{
 \itemize{ 

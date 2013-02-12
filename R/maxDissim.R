@@ -93,28 +93,3 @@ splitByDissim <- function(x, p = .8, y = NULL, start = NULL, ...)
       }
     out
   }
-
-
-
-if(FALSE)
-  {
-    ind <- splitByDissim(iris[, 1:2],  p = .1, y = iris$Species, start = c(1:2, 51:52, 101:102))
-    iris$Group <- "train"
-    iris$Group[ind] <- "test"
-    xyplot(Sepal.Length ~ Sepal.Width|Species, data = iris, groups = Group)
-
-    plotTheme <- caretTheme()
-    plotTheme$superpose.symbol$col[1] <- "lightgrey"
-    trellis.par.set(plotTheme)
-
-    data(mdrr)
-    set.seed(100)
-    strt <- createDataPartition(mdrrClass, p = .05)[[1]]
-    ind <- splitByDissim(mdrrDescr[, 1:2],  p = .15, y = mdrrClass, start = strt)
-    mdrrDescr$Group <- "pool"
-    mdrrDescr$Group[ind[!(ind %in% strt)]] <- "selected"
-    mdrrDescr$Group[strt] <- "start"
-    
-    xyplot(MW ~ AMW|mdrrClass, data = mdrrDescr, groups = Group, auto.key = list(columns = 3))
-
-  }

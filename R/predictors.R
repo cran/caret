@@ -87,7 +87,9 @@ predictors.fda <- function(x, ...)
 
 predictors.earth <- function(x, ...)
 {
-  basicVars(x$namesx.org, rownames(coef(x)))
+  vi <- varImp(x)
+  notZero <- sort(unique(unlist(lapply(vi, function(x) which(x > 0)))))
+  if(length(notZero) > 0) rownames(vi)[notZero] else NULL
 }
 
 predictors.gausspr <- function(x, ...)
