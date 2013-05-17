@@ -14,7 +14,9 @@ For classification models, this function creates a 'calibration plot' that descr
 
 calibration(x, ...)
 
-\method{calibration}{formula}(x, data = NULL, class = NULL, cuts = 11, subset = TRUE, lattice.options = NULL, ...)
+\method{calibration}{formula}(x, data = NULL, class = NULL, 
+            cuts = 11, subset = TRUE, 
+            lattice.options = NULL, ...)
 
 \method{xyplot}{calibration}(x, data, ...)
 

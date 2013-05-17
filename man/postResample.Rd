@@ -2,6 +2,7 @@
 \alias{postResample}
 \alias{defaultSummary}
 \alias{twoClassSummary}
+\alias{getTrainPerf}
 \alias{R2}
 \alias{RMSE}
 \title{Calculates performance across resamples}
@@ -18,6 +19,8 @@ twoClassSummary(data, lev = NULL, model = NULL)
 
 R2(pred, obs, formula = "corr", na.rm = FALSE)
 RMSE(pred, obs, na.rm = FALSE)
+
+getTrainPerf(x)
 }
 \arguments{
   \item{pred}{A vector of numeric data (could be a factor)}
@@ -28,6 +31,7 @@ RMSE(pred, obs, na.rm = FALSE)
   \item{model}{a character string for the model name (as taken form the \code{method} argument of \code{\link{train}}.}
   \item{formula}{which \eqn{R^2} formula should be used? Either "corr" or "traditional". See Kvalseth (1985) for a summary of the different equations.}
   \item{na.rm}{a logical value indicating whether \code{NA} values should be stripped before the computation proceeds.}
+  \item{x}{an object of class  \code{\link{train}}}.
 }
 \details{
 \code{postResample} is meant to be used with \code{apply} across a matrix. For numeric data
@@ -46,6 +50,9 @@ For \code{defaultSummary} is the default function to compute performance metrics
 \code{twoClassSummary} computes sensitivity, specificity and the area under the ROC curve. To use this function, the  \code{classProbs} argument of \code{\link{trainControl}} should be \code{TRUE}.
 
 Other functions can be used via the \code{summaryFunction} argument of \code{\link{trainControl}}. Custom functions must have the same arguments as\code{defaultSummary}.
+
+The function \code{getTrainPerf} returns a one row data frame with the resampling results for the chosen model. The statistics will have the prefix "\code{Train}" (i.e. "\code{TrainROC}"). There is also a column called "\code{method}" that echoes the argument of the call to  \code{\link{trainControl}} of the same name. 
+
 
 }
 \value{

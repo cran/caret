@@ -2,6 +2,58 @@
 \title{News for Package \pkg{caret}}
 \newcommand{\cpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
+\section{Changes in version 5.16-03}{
+\itemize{
+ \item A function \code{twoClassSim} was added for benchmarking classification models. 
+
+ \item A bug was fixed in \code{predict.nullModel} related to predicted class probabilities. 
+ 
+ \item The version requirement for \cpkg{gbm} was updated.
+ 
+ \item The function \code{getTrainPerf} was made visible.
+ 
+ \item The automatic tuning grid for \code{sda} models from the \cpkg{sda} package was changed to include \code{lambda}.
+ 
+ \item When \code{randomForests} is used with \code{train} and \code{tuneLength == 1}, the \code{randomForests} default value for \code{mtry} is used.
+ 
+ \item Maximum uncertainty linear discriminant analysis (\code{Mlda}) and factor-based linear discriminant analysis (\code{RFlda}) from the \cpkg{HiDimDA} package were added to \code{train}.
+} 
+}
+
+\section{Changes in version 5.15-87}{
+\itemize{
+
+\item Added the Yeo-Johnson power transformation from the \cpkg{car}
+package to the \code{preProcess} function.
+
+\item A \code{train} bug was fixed for the \code{rrlda} model (found
+by Tiago Branquinho Oliveira).
+
+\item The \code{extraTrees} model in the \cpkg{extraTrees} package was
+added.
+
+\item The \code{kknn.train} model in the \cpkg{kknn} package was
+added.
+
+\item A bug was fixed in \code{lrFuncs} where the class threshold was
+improperly set (thanks to David Meyer).
+
+\item A bug related to newer versions of the \cpkg{gbm} package were fixed. 
+Another \cpkg{gbm} bug was fixed related to using non-Bernoulli distributions 
+with two class outcomes (thanks to Zachary Mayer).
+
+\item The old funciton \code{getTrainPerf} was finally made visible. 
+
+\item Some models are created using "do.call" and may contain the
+entire data set in the call object. A funciton to "scrub" some model call
+objects was added to reduce their size. 
+
+\item The tuning process for \code{sda:::sda} models was changed to
+add the \code{lambda} parameter.
+
+}
+}
+
 \section{Changes in version 5.15-60}{
 \itemize{ 
 
@@ -22,6 +74,15 @@ gain)
 \item For bagged trees using \cpkg{ipred}, the code in \code{train}
 defaults to \code{keepX = FALSE} to save space. Pass in \code{keepX =
 TRUE} to use out-of-bag sampling for this model.
+
+\item Changes were made to support vector machines for classification
+models due to bugs with class probabilities in the latest version of
+\cpkg{kernlab}. The \code{prob.model} will default to the value of
+\code{classProbs} in the \code{trControl} function. If
+\code{prob.model} is passed in as an argument to \code{train}, this
+specification over-rides the default. In other words, to avoid
+generating a probability model, set either \code{classProbs = FALSE}
+or \code{prob.model = FALSE}. 
 
 }
 }

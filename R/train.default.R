@@ -42,9 +42,10 @@ train.default <- function(x, y,
     warning("Models using Weka will not work with parallel processing with multicore/doMC")
   flush.console()
   
-  if(!is.null(preProcess) && !(all(preProcess %in% c("center", "scale", "pca", "ica", "BoxCox", "spatialSign", "knnImpute", "bagImpute", "range")))) 
-    stop('pre-processing methods are limited to center, scale, range, pca, ica, knnImpute, bagImpute and spatialSign')
+  ppMethods <- c("BoxCox", "YeoJohnson", "center", "scale", "range", "knnImpute", "bagImpute", "pca", "ica", "spatialSign")
   
+  if(!is.null(preProcess) && !(all(preProcess %in% ppMethods))) 
+    stop(paste('pre-processing methods are limited to:', paste(ppMethods, collapse = ", ")))
   if(modelType == "Classification")
     {     
       if(method != "custom" && !any(modelInfo$forClass)) stop("wrong model type for classification")
@@ -54,7 +55,7 @@ train.default <- function(x, y,
       ## relative to the others
       classLevels <- levels(y)
 
-      if(any(classLevels != make.names(classLevels)))
+      if(trControl$classProbs && any(classLevels != make.names(classLevels)))
          {
            warning(paste("At least one of the class levels are not valid R variables names;",
                          "This may cause errors if class probabilities are generated because",
@@ -153,6 +154,7 @@ train.default <- function(x, y,
       if(any(unlist(isFactor))   | any(unlist(isCharacter)))  
         stop("All predictors must be numeric for this model. Use the formula interface: train(formula, data)") 
     }
+  if(!trControl$returnData & method == "pamr") warning("The training set is required for predicting pam models; use returnData = TRUE in trainControl")
 
   ## Add the outcome to the data passed into the functions
   trainData$.outcome <- y
@@ -471,6 +473,7 @@ train.default <- function(x, y,
                                                      pp = ppOpt,
                                                      last = TRUE,
                                                      custom = trControl$custom$model,
+                                                     classProbs = trControl$classProbs,
                                                      ...))
 
   ## get pp info

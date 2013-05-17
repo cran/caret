@@ -86,6 +86,7 @@ nominalTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing =
                                      obsLevels = lev,
                                      pp = ppp,
                                      custom = ctrl$custom$model,
+                                     classProbs = ctrl$classProbs,
                                      ...),
                  silent = TRUE)
 
@@ -106,7 +107,8 @@ nominalTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing =
                            printed[parm,,drop = FALSE],
                            sep = "=",
                            collapse = ", ")
-              wrn <- paste("predictions failed for ", names(resampleIndex)[iter], ": ", wrn, sep = "")
+              wrn <- paste("predictions failed for ", names(resampleIndex)[iter],
+                           ": ", wrn, " ", as.character(predicted), sep = "")
               if(ctrl$verboseIter) cat(wrn, "\n")
               warning(wrn)
               rm(wrn)
@@ -133,7 +135,8 @@ nominalTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing =
                        printed[parm,,drop = FALSE],
                        sep = "=",
                        collapse = ", ")
-          wrn <- paste("model fit failed for ", names(resampleIndex)[iter], ": ", wrn, sep = "")
+          wrn <- paste("model fit failed for ", names(resampleIndex)[iter],
+                       ": ", wrn, " ", as.character(mod), sep = "")
           if(ctrl$verboseIter) cat(wrn, "\n")
           warning(wrn)
           rm(wrn)
@@ -343,6 +346,7 @@ looTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, testing = FAL
                                  obsLevels = lev,
                                  pp = ppp,
                                  custom = ctrl$custom$model,
+                                 classProbs = ctrl$classProbs,
                                  ...)
       
       holdoutIndex <- -unique(ctrl$index[[iter]])
@@ -432,6 +436,7 @@ oobTrainWorkflow <- function(dat, info, method, ppOpts, ctrl, lev, ...)
                                  obsLevels = lev,
                                  pp = ppp,
                                  custom = ctrl$custom$model,
+                                 classProbs = ctrl$classProbs,
                                  ...)
       out <- switch(
                     class(mod$fit)[1],
@@ -591,8 +596,10 @@ nominalRfeWorkflow <- function(x, y, sizes, ppOpts, ctrl, lev, ...)
       if(ctrl$saveDetails)
         {
           rfeResults$pred$Resample <- names(resampleIndex)[iter]
-          rfeResults$pred$rowIndex <- rep(seq(along = y)[unique(holdoutIndex)],
-                                          length(sizes) - 1)
+          ## If the user did not have nrow(x) in 'sizes', rfeIter added it.
+          ## So, we need to find out how many set of predictions there are:
+          nReps <- length(table(rfeResults$pred$Variables))
+          rfeResults$pred$rowIndex <- rep(seq(along = y)[unique(holdoutIndex)], nReps)
         }
       
       if(is.factor(y))

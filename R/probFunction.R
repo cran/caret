@@ -124,7 +124,7 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
                         out <- predict(modelFit, newdata, type = "response",
                                        n.trees = modelFit$tuneValue$.n.trees)
                         
-                        if(modelFit$distribution$name == "bernoulli") 
+                        if(modelFit$distribution$name != "multinomial") 
                           {
                             out <- data.frame(a = out, b = 1-out) 
                             names(out) <-  modelFit$obsLevels
@@ -135,7 +135,7 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
 
                             if(modelFit$problemType == "Classification")
                               {
-                                if(modelFit$distribution$name == "bernoulli")
+                                if(modelFit$distribution$name != "multinomial")
                                   {
                                     tmp <- apply(tmp, 2,
                                                  function(x, nm = modelFit$obsLevels)

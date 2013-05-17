@@ -1,6 +1,6 @@
 Package: caret
-Version: 5.15-61
-Date: 2013-02-12
+Version: 5.16-04
+Date: 2013-05-17
 Title: Classification and Regression Training
 Author: Max Kuhn. Contributions from Jed Wing, Steve Weston, Andre
         Williams, Chris Keefer, Allan Engelhardt and Tony Cooper
@@ -10,18 +10,20 @@ Maintainer: Max Kuhn <Max.Kuhn@pfizer.com>
 Depends: R (>= 2.10), cluster, foreach, lattice (>= 0.20), plyr,
         reshape2, stats
 URL: http://caret.r-forge.r-project.org/
-Suggests: ada, affy, arm, Boruta, bst, C50, caTools, class, Cubist,
-        e1071, earth (>= 2.2-3), elasticnet, ellipse, evtree, fastICA,
-        foba, gam, GAMens (>= 1.1.1), gbm (>= 2.0-9), glmnet (>= 1.8),
-        gpls, grid, hda, HDclassif, Hmisc, ipred, kernlab, klaR,
-        kohonen, KRLS, lars, leaps, LogicForest, logicFS, LogicReg,
-        MASS, mboost, mda, mgcv, mlbench, neuralnet, nnet, nodeHarvest,
-        obliqueRF, pamr, partDSA, party (>= 0.9-99992), penalized,
-        penalizedLDA, pls, pROC, proxy, qrnn, quantregForest,
-        randomForest, RANN, relaxo, rFerns, rocc, rpart, rrcov, RRF,
-        rrlda, RSNNS, RWeka (>= 0.4-1), sda, SDDA, sparseLDA (>=
-        0.1-1), spls, stepPlr, superpc, vbmp
+Suggests: ada, affy, arm, Boruta, bst, C50, car, caTools, class,
+        Cubist, e1071, earth (>= 2.2-3), elasticnet, ellipse, evtree,
+        extraTrees, fastICA, foba, gam, GAMens (>= 1.1.1), gbm (>=
+        2.1), glmnet (>= 1.8), gpls, grid, hda, HDclassif, HiDimDA,
+        Hmisc, ipred, kernlab, kknn, klaR, kohonen, KRLS, lars, leaps,
+        LogicForest, logicFS, LogicReg, MASS, mboost, mda, mgcv,
+        mlbench, neuralnet, nnet, nodeHarvest, obliqueRF, pamr,
+        partDSA, party (>= 0.9-99992), penalized, penalizedLDA, pls,
+        pROC, proxy, qrnn, quantregForest, randomForest, RANN, relaxo,
+        rFerns, rocc, rpart, rrcov, RRF, rrlda, RSNNS, RWeka (>=
+        0.4-1), sda, SDDA, sparseLDA (>= 0.1-1), spls, stepPlr,
+        superpc, vbmp
 License: GPL-2
-Packaged: 2013-02-12 18:27:01 UTC; kuhna03
+Packaged: 2013-05-17 12:44:34 UTC; kuhna03
+NeedsCompilation: yes
 Repository: CRAN
-Date/Publication: 2013-02-12 21:26:04
+Date/Publication: 2013-05-17 16:14:46

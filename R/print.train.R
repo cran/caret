@@ -56,6 +56,7 @@
       ## Make things look a little nicer:
       pp <- x$preProc$method
       pp <- gsub("BoxCox", "Box-Cox transformation", pp)  
+      pp <- gsub("YeoJohnson", "Yeo-Johnson transformation", pp)  
       pp <- gsub("scale", "scaled", pp)
       pp <- gsub("center", "centered", pp)
       pp <- gsub("pca", "principal component signal extraction", pp)
