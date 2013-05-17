@@ -47,6 +47,8 @@ modelLookup <- function(model = NULL)
             'enet', 'enet',
             ## evtree
             'evtree',
+            ## extraTrees
+            'extraTrees', 'extraTrees',
             ## fda
             'fda', 'fda', 
             ## foba
@@ -95,6 +97,8 @@ modelLookup <- function(model = NULL)
             'JRip',
             ## kernelpls
             'kernelpls',
+            ## kknn
+            'kknn', 'kknn', 'kknn',
             ## knn
             'knn',
             ## krlsRadial
@@ -151,6 +155,8 @@ modelLookup <- function(model = NULL)
             'mars', 'mars', 
             ## mda
             'mda',
+            ##Mlda
+            'Mlda',
             ## mlp
             'mlp',
             ## mlpWeightDecay
@@ -233,6 +239,8 @@ modelLookup <- function(model = NULL)
             'rf',
             ## rFerns
             'rFerns',
+            ## RFlda
+            'RFlda',
             ## ridge reg
             'ridge',
             ## rlm
@@ -248,7 +256,7 @@ modelLookup <- function(model = NULL)
             ## RRFglobal
             'RRFglobal', 'RRFglobal',
             ## rrlda
-            'rrlda', 'rrlda',
+            'rrlda', 'rrlda', 'rrlda',
             ## rvmLinear
             'rvmLinear', 
             ## rvmPoly
@@ -258,7 +266,7 @@ modelLookup <- function(model = NULL)
             ## scrda
             ## 'scrda', 'scrda', 
             ## sda
-            'sda', 
+            'sda','sda', 
             ## sddaLDA
             'sddaLDA', 
             ## sddaQDA
@@ -346,6 +354,8 @@ modelLookup <- function(model = NULL)
               'fraction', 'lambda',
               ## evtree
               'alpha',
+              ## extraTrees
+              'mtry', 'numRandomCuts',
               ## fda
               'nprune', 'degree', 
               ## foba
@@ -394,6 +404,8 @@ modelLookup <- function(model = NULL)
               'NumOpt',
               ## kernelpls
               'ncomp',
+              ## kknn
+              'kmax', 'distance', 'kernel',
               ## knn
               'k',
               ## krlsRadial
@@ -450,6 +462,8 @@ modelLookup <- function(model = NULL)
               'nprune', 'degree', 
               ## mda
               'subclasses',
+              ## Mlda
+              'parameter',
               ## mlp
               'size',
               ## mlpWeightDecay
@@ -529,6 +543,8 @@ modelLookup <- function(model = NULL)
               'mtry',
               ## rFerns
               'depth',
+              ## RFlda
+              'q',
               ## ridge
               'lambda',
               ## rlm
@@ -544,7 +560,7 @@ modelLookup <- function(model = NULL)
               ## RRFglobal
               'mtry', 'coefReg',
               ## rrlda
-              'lambda', 'alpha',
+              'lambda', 'hp', 'penalty',
               ## rvmLinear
               'parameter', 
               ## rvmPoly
@@ -554,7 +570,7 @@ modelLookup <- function(model = NULL)
               ## scrda
               ## 'alpha', 'delta', 
               ## sda
-              'diagonal', 
+              'diagonal','lambda', 
               ## sddaLDA
               'parameter', 
               ## sddaQDA
@@ -653,6 +669,9 @@ modelLookup <- function(model = NULL)
               'Weight Decay',
               ## evtree
               "Complexity Parameter",
+              ## extraTrees
+              '# Randomly Selected Predictors',
+              '# Random Cuts',
               ## fda
               '#Terms',
               'Product Degree',
@@ -714,6 +733,8 @@ modelLookup <- function(model = NULL)
               '# Optimizations',
               ## kernelpls
               '#Components',
+              ## kknn
+              'Max. #Neighbors', 'Distance', 'Kernel',
               ## knn
               '#Neighbors',
               ## krlsRadial
@@ -776,6 +797,8 @@ modelLookup <- function(model = NULL)
               'Product Degree',
               ## mda
               '#Subclasses Per Class',
+              ## Mlda
+              'none',
               ## mlp
               '#Hidden Units',
               ## mlpWeightDecay
@@ -869,6 +892,8 @@ modelLookup <- function(model = NULL)
               '#Randomly Selected Predictors',
               ## rFerns
               'Fern Depth',
+              ## RFlda
+              "# Factors",
               ## ridge
               'Penalty',
               ## rlm
@@ -889,6 +914,7 @@ modelLookup <- function(model = NULL)
               ## rrlda
               'Penalty Parameter',
               'Robustness Parameter',
+              'Penalty Type',
               ## rvmLinear
               'none',
               ## rvmPoly
@@ -900,7 +926,7 @@ modelLookup <- function(model = NULL)
               ## 'Regularization Value',
               ## 'Threshold',
               ## sda
-              'Diagonalize',
+              'Diagonalize','shrinkage',
               ## sddaLDA
               'none',
               ## sddaQDA
@@ -1003,6 +1029,8 @@ modelLookup <- function(model = NULL)
              TRUE, FALSE,
              ## evtree
              FALSE,
+             ## extraTrees
+             FALSE, FALSE,
              ## fda
              FALSE, FALSE, 
              ## foba
@@ -1051,6 +1079,8 @@ modelLookup <- function(model = NULL)
              FALSE,
              ## kernelpls
              TRUE,
+             ## kknn
+             FALSE, FALSE, FALSE,
              ## knn
              FALSE,
              ## krlsRadial
@@ -1106,6 +1136,8 @@ modelLookup <- function(model = NULL)
              ## mars
              FALSE, FALSE, 
              ## mda
+             FALSE,
+             ## Mlda
              FALSE,
              ## mlp
              FALSE,
@@ -1186,6 +1218,8 @@ modelLookup <- function(model = NULL)
              FALSE,
              ## rFerns
              FALSE,
+             ## RFlda
+             FALSE,
              ## ridge
              FALSE,
              ## rlm
@@ -1201,7 +1235,7 @@ modelLookup <- function(model = NULL)
              ## RRFglobal
              FALSE, FALSE,
              ## rrlda
-             FALSE, FALSE,
+             FALSE, FALSE, FALSE,
              ## rvmLinear
              FALSE, 
              ## rvmPoly
@@ -1211,7 +1245,7 @@ modelLookup <- function(model = NULL)
              ## scrda
              ## TRUE, TRUE, 
              ## sda
-             FALSE, 
+             FALSE, FALSE,
              ## sddaLDA
              FALSE, 
              ## sddaQDA
@@ -1299,6 +1333,8 @@ modelLookup <- function(model = NULL)
                 TRUE, TRUE,
                 ## evtree
                 TRUE,
+                ## extraTrees
+                TRUE, TRUE,
                 ## fda
                 FALSE, FALSE, 
                 ## foba
@@ -1347,6 +1383,8 @@ modelLookup <- function(model = NULL)
                 FALSE,
                 ## kernelpls
                 TRUE,
+                ## kknn
+                TRUE, TRUE, TRUE,
                 ## knn
                 TRUE,
                 ## krlsRadial
@@ -1402,6 +1440,8 @@ modelLookup <- function(model = NULL)
                 ## mars
                 TRUE, TRUE, 
                 ## mda
+                FALSE,
+                ## Mlda
                 FALSE,
                 ## mlp
                 TRUE,
@@ -1482,6 +1522,8 @@ modelLookup <- function(model = NULL)
                 TRUE,
                 ## rFerns
                 FALSE,
+                ## RFlda
+                FALSE,
                 ## ridge
                 TRUE,
                 ## rlm
@@ -1497,7 +1539,7 @@ modelLookup <- function(model = NULL)
                 ## RRFglobal
                 TRUE, TRUE,
                 ## rrlda
-                FALSE, FALSE,
+                FALSE, FALSE, FALSE,
                 ## rvmLinear
                 TRUE, 
                 ## rvmPoly
@@ -1507,7 +1549,7 @@ modelLookup <- function(model = NULL)
                 ## scrda
                 ## FALSE, FALSE, 
                 ## sda
-                FALSE, 
+                FALSE, FALSE,
                 ## sddaLDA
                 FALSE, 
                 ## sddaQDA
@@ -1596,6 +1638,8 @@ modelLookup <- function(model = NULL)
                   FALSE, FALSE,
                   ## evtree
                   TRUE,
+                  ## extraTrees
+                  TRUE, TRUE,
                   ## fda
                   TRUE, TRUE, 
                   ## foba
@@ -1644,6 +1688,8 @@ modelLookup <- function(model = NULL)
                   TRUE,
                   ## kernelpls
                   TRUE,
+                  ## kknn
+                  TRUE, TRUE, TRUE,
                   ## knn
                   TRUE,
                   ## krlsRadial
@@ -1699,6 +1745,8 @@ modelLookup <- function(model = NULL)
                   ## mars
                   FALSE, FALSE, 
                   ## mda
+                  TRUE,
+                  ## Mlda
                   TRUE,
                   ## mlp
                   TRUE,
@@ -1778,6 +1826,8 @@ modelLookup <- function(model = NULL)
                   TRUE,
                   ## rFerns
                   TRUE,
+                  ## RFlda
+                  TRUE,
                   ## ridge
                   FALSE,
                   ## rlm
@@ -1793,7 +1843,7 @@ modelLookup <- function(model = NULL)
                   ## RRFglobal
                   TRUE, TRUE,
                   ## rrlda
-                  TRUE, TRUE,
+                  TRUE, TRUE, TRUE,
                   ## rvmLinear
                   FALSE, 
                   ## rvmPoly
@@ -1803,7 +1853,7 @@ modelLookup <- function(model = NULL)
                   ## scrda
                   ## TRUE, TRUE, 
                   ## sda
-                  TRUE, 
+                  TRUE, TRUE,
                   ## sddaLDA
                   TRUE, 
                   ## sddaQDA
@@ -1892,6 +1942,8 @@ modelLookup <- function(model = NULL)
                     FALSE, FALSE,
                     ## evtree
                     TRUE,
+                    ## extraTrees
+                    FALSE, FALSE,
                     ## fda
                     TRUE, TRUE, 
                     ## foba
@@ -1940,6 +1992,8 @@ modelLookup <- function(model = NULL)
                     TRUE,
                     ## kernelpls
                     TRUE,
+                    ## kknn
+                    FALSE, FALSE, FALSE,
                     ## knn
                     TRUE,
                     ## krlsRadial
@@ -1996,6 +2050,8 @@ modelLookup <- function(model = NULL)
                     FALSE, FALSE, 
                     ## mda
                     TRUE,
+                    ## Mlda
+                    FALSE,
                     ## mlp
                     TRUE,
                     TRUE, TRUE,
@@ -2074,6 +2130,8 @@ modelLookup <- function(model = NULL)
                     TRUE,
                     ## rFerns
                     FALSE,
+                    ## RFlda
+                    FALSE,
                     ## ridge
                     FALSE,
                     ## rlm
@@ -2089,7 +2147,7 @@ modelLookup <- function(model = NULL)
                     ## RRFglobal
                     TRUE, TRUE,
                     ## rrlda does not generate probabilities, only discrim values
-                    FALSE, FALSE,
+                    FALSE, FALSE, FALSE,
                     ## rvmLinear
                     FALSE, 
                     ## rvmPoly
@@ -2099,7 +2157,7 @@ modelLookup <- function(model = NULL)
                     ## scrda
                     ## TRUE, TRUE, 
                     ## sda
-                    TRUE, 
+                    TRUE, TRUE,
                     ## sddaLDA
                     TRUE, 
                     ## sddaQDA

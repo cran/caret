@@ -115,13 +115,17 @@
     {
       library(randomForest)
       p <- dim(data)[2] - 1 
-      if(p <= len)
+      if(len == 1) {  
+        tuneSeq <- if(!is.factor(data$.outcome)) max(floor(p/3), 1) else floor(sqrt(p))
+      } else {
+        if(p <= len)
         { 
           tuneSeq <- floor(seq(2, to = p, length = p))
         } else {
           if(p < 500 ) tuneSeq <- floor(seq(2, to = p, length = len))
           else tuneSeq <- floor(2^seq(1, to = log(p, base = 2), length = len))
         }
+      }
       if(any(table(tuneSeq) > 1))
         {
           tuneSeq <- unique(tuneSeq)
@@ -334,7 +338,7 @@
                       penalized = expand.grid(.lambda1 = 2^((1:len) -1),
                         .lambda2 = 2^((1:len) -1)),
                       spls = expand.grid(.K = 1:len, .eta = seq(.1, .9, length = len), .kappa = .5),
-                      sda = data.frame(.diagonal = FALSE),
+                      sda = data.frame(.diagonal = FALSE, .lambda = seq(0, 1, length = len)),
                       mda = data.frame(.subclasses = (1:len) + 1),
                       pda = data.frame(.lambda = 1:len),
                       pda2 = data.frame(.df = 2* (0:(len - 1) + 1)),
@@ -380,7 +384,8 @@
                       bstTree = expand.grid(.maxdepth = seq(1, len), .mstop = floor((1:len) * 50), .nu = .1),
                       bstLs =, bstSm =  expand.grid(.mstop = floor((1:len) * 50), .nu = .1),
                       rrlda = expand.grid(.lambda = c(0, 10 ^ seq(-1, -4, length = len - 1)),
-                                          .alpha = seq(.5, 1, length = len)),
+                                          .hp = seq(.5, 1, length = len),
+                                          .penalty = "L2"),
                       leapForward =, leapBackward =, leapSeq = data.frame(.nvmax = 1:len),
                       evtree = data.frame(.alpha = seq(0, 1, length = len)),
                       PenalizedLDA = data.frame(.lambda = 10 ^ seq(-1, -4, length = len), .K = length(levels(data$.outcome)) - 1),
@@ -399,11 +404,14 @@
                       krlsPoly = expand.grid(.lambda = NA, .degree = 1:3),
                       lda2 = data.frame(.dimen = 1:min(ncol(data)-1, length(levels(data$.outcome)) - 1)),
                       C5.0 = expand.grid(.trials = c5seq, .model = c("tree", "rules"), .winnow = c(TRUE, FALSE)),
+                      extraTrees = expand.grid(.mtry = rfTune(data, len)[,1], .numRandomCuts = 1:len),
+                      kknn = data.frame(.kmax = (5:((2 * len)+4))[(5:((2 * len)+4))%%2 > 0], .distance = 2, .kernel = "optimal"),
+                      RFlda = data.frame(.q = 1:len),
                       lda =, lm =, treebag =, sddaLDA =, sddaQDA =,
                       glm =, qda =, OneR =, rlm =, lrm =,
                       rvmLinear =, lssvmLinear =, gaussprLinear =,
                       glmStepAIC =, lmStepAIC =, slda =, Linda =, QdaCov =,
-                      C5.0Tree =, C5.0Rules =, bayesglm =,
+                      C5.0Tree =, C5.0Rules =, bayesglm =, Mlda =,
                       glmrob =, logforest = data.frame(.parameter = "none"))
   trainGrid
 }

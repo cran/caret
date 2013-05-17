@@ -28,7 +28,7 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                                  gbmProb <- predict(modelFit, newdata, type = "response",
                                                     n.trees = modelFit$tuneValue$.n.trees)
                                  gbmProb[is.nan(gbmProb)] <- NA
-                                 if(modelFit$distribution$name == "bernoulli")
+                                 if(modelFit$distribution$name != "multinomial")
                                    {
                                      out <- ifelse(gbmProb >= .5, modelFit$obsLevels[1], modelFit$obsLevels[2])
                                      ## to correspond to gbmClasses definition above
@@ -46,7 +46,7 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                                  
                                  if(modelFit$problemType == "Classification")
                                    {
-                                     if(modelFit$distribution$name == "bernoulli")
+                                     if(modelFit$distribution$name != "multinomial")
                                        {
                                          tmp <- apply(tmp, 2,
                                                       function(x, nm = modelFit$obsLevels) ifelse(x >= .5, nm[1], nm[2]))
@@ -55,8 +55,8 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                                          tmp <- apply(tmp, 3,
                                                       function(y, nm = modelFit$obsLevels) nm[apply(y, 1, which.max)])
                                        }
-                                      tmp <- split(tmp, rep(1:ncol(tmp), each = nrow(tmp)))
                                    }
+                                 if(!is.list(tmp)) tmp <- split(tmp, rep(1:ncol(tmp), each = nrow(tmp)))
                                  out <- c(list(out), tmp)
                                }
                              out
@@ -1095,6 +1095,34 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                                      out[[j+1]] <- as.character(predict(modelFit, newdata, trial = param$.trials[j]))
                                    }
                                }
+                             out
+                           },
+                           extraTrees = 
+                           {
+                             library(extraTrees)
+                             if(modelFit$problemType == "Classification")
+                               {
+                                 out <-  as.character(predict(modelFit, newdata))
+                               } else {
+                                 out <- predict(modelFit, newdata)
+                               }
+                             out
+                           },
+                           kknn =
+                           {
+                             library(kknn)
+                             if(modelFit$problemType == "Classification")
+                               {
+                                 out <-  as.character(predict(modelFit, newdata))
+                               } else {
+                                 out <- predict(modelFit, newdata)
+                               }
+                           },
+                           Mlda =, RFlda = 
+                           {
+                             library(HiDimDA)
+                             out <- predict(modelFit, newdata)$class
+                             out <- modelFit$obsLevels[as.numeric(out)]
                              out
                            },
                            custom =

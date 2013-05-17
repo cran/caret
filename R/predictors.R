@@ -553,3 +553,6 @@ predictors.C5.0 <- function(x, ...)
     vars <- C5imp(x, metric = "splits")
     rownames(vars)[vars$Overall > 0]
   }
+
+predictors.canldaRes <- function(x, ...) names(x$vkpt)
+

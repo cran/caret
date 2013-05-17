@@ -672,7 +672,7 @@ lrFuncs$pred <- function (object, x)
   tmp <- predict(object, x, type = "response")
   out <- data.frame(1-tmp, tmp)
   colnames(out) <- lvl
-  out$pred <- factor(ifelse(tmp > .4, lvl[2], lvl[1]),
+  out$pred <- factor(ifelse(tmp > .5, lvl[2], lvl[1]),
                      levels = lvl)
   out
 }

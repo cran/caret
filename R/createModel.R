@@ -1,6 +1,6 @@
 
 "createModel" <-
-  function(data, method, tuneValue, obsLevels, pp = NULL, last = FALSE, custom = NULL, ...)
+  function(data, method, tuneValue, obsLevels, pp = NULL, last = FALSE, custom = NULL, classProbs, ...)
 {
 
   ## pam and will crash if there is a resample with <2 observations
@@ -49,7 +49,7 @@
                    'blackboost', 'Boruta', 'bstLs', 'bstSm',
                    'bstTree', 'cubist', 'earth', 'earthTest',
                    'enet', 'foba', 'gamboost', 'gaussprLinear',
-                   'gaussprPoly', 'gaussprRadial',  'gcvEarth',  ## 'gbm',
+                   'gaussprPoly', 'gaussprRadial',  'gcvEarth', 'gbm',
                    'glmboost', 'glmnet', 'gpls', 'hda', 'hdda', 'icr',
                    'knn', 'lars', 'lars2', 'lasso', 'lda', 'leapBackward',
                    'leapForward', 'leapSeq', 'Linda', 'logforest', 'logicBag',
@@ -69,7 +69,8 @@
                    'vbmpRadial', 'widekernelpls', 'PenalizedLDA',
                    "mlp", "mlpWeightDecay", "rbf", "rbfDDA", "lda2",
                    "RRF", "RRFglobal", "krlsRadial", "krlsPoly",
-                   "C5.0", "C5.0Tree", "C5.0Rules", "treebag"))
+                   "C5.0", "C5.0Tree", "C5.0Rules", "treebag", "rrlda",
+                   "extraTrees", "Mlda", "RFlda"))
     {
       trainX <- data[,!(names(data) %in% ".outcome"), drop = FALSE]
       trainY <- data[,".outcome"]
@@ -133,18 +134,19 @@
 
                        ## check to see if weights were passed in (and availible)
                        if(!is.null(modelWeights)) theDots$w <- modelWeights                      
-                       if(type == "Classification" & length(obsLevels) == 2) data$.outcome <- numClasses 
-
-                       modArgs <- list(data = data,
-                                       formula = modFormula,
+                       modY <- if(type == "Classification" & modDist != "multinomial") numClasses else trainY
+                       
+                       modArgs <- list(x = trainX,
+                                       y = modY,
                                        interaction.depth = tuneValue$.interaction.depth,
                                        n.trees = tuneValue$.n.trees,
                                        shrinkage = tuneValue$.shrinkage, 
                                        distribution = modDist)
-
+                       
                        if(length(theDots) > 0) modArgs <- c(modArgs, theDots)
                        
-                       do.call("gbm", modArgs)
+                       do.call("gbm.fit", modArgs)
+
                      },
                      rf =
                      {
@@ -153,104 +155,95 @@
                      },                  
                      svmpoly =, svmPoly = 
                      {
-                       library(kernlab)
-                       if(type == "Classification")
-                         {
-                           ## By default, fit the prob model
-                           useProbModel <- TRUE          
-                           if(any(names(list(...)) == "prob.model")) useProbModel <- list(...)$prob.model                           
-                           out <- ksvm(
-                                       as.matrix(trainX),
-                                       trainY,
-                                       kernel = polydot(
-                                         degree = tuneValue$.degree,
-                                         scale = tuneValue$.scale,
-                                         offset = 1),
-                                       C = tuneValue$.C,
-                                       prob.model = useProbModel,
-                                       ...)
-                         } else out <- ksvm(
-                                            as.matrix(trainX),
-                                            trainY,
-                                            kernel = polydot(
-                                              degree = tuneValue$.degree,
-                                              scale = tuneValue$.scale,
-                                              offset = 1),
-                                            C = tuneValue$.C,
-                                            ...)
+                       library(kernlab)                      
+                       if(any(names(list(...)) == "prob.model") | type == "Regression")
+                       {
+                         out <- ksvm(
+                           as.matrix(trainX),
+                           trainY,
+                           kernel = polydot(
+                             degree = tuneValue$.degree,
+                             scale = tuneValue$.scale,
+                             offset = 1),
+                           C = tuneValue$.C,
+                           ...)
+                       } else {
+                         out <- ksvm(
+                           as.matrix(trainX),
+                           trainY,
+                           kernel = polydot(
+                             degree = tuneValue$.degree,
+                             scale = tuneValue$.scale,
+                             offset = 1),
+                           C = tuneValue$.C,
+                           prob.model = classProbs,
+                           ...)
+                       }
+
                        out            
                      },
                      svmradial =, svmRadial = 
                      {      
-                       library(kernlab)      
-                       if(type == "Classification")
-                         {
-                           ## By default, fit the prob model
-                           useProbModel <- TRUE          
-                           if(any(names(list(...)) == "prob.model")) useProbModel <- list(...)$prob.model
-                           out <- ksvm(
-                                       as.matrix(trainX),
-                                       trainY,
-                                       kernel = rbfdot(sigma = tuneValue$.sigma),
-                                       C = tuneValue$.C,
-                                       prob.model = useProbModel,
-                                       ...)
-                         } else {
-                           out <- ksvm(
-                                       as.matrix(trainX),
-                                       trainY,
-                                       kernel = rbfdot(sigma = tuneValue$.sigma),
-                                       C = tuneValue$.C,
-                                       ...)
-                         }
+                       library(kernlab)    
+                       if(any(names(list(...)) == "prob.model") | type == "Regression")
+                       {
+                         out <- ksvm(
+                           as.matrix(trainX),
+                           trainY,
+                           kernel = rbfdot(sigma = tuneValue$.sigma),
+                           C = tuneValue$.C,
+                           ...)
+                       } else {
+                         out <- ksvm(
+                           as.matrix(trainX),
+                           trainY,
+                           kernel = rbfdot(sigma = tuneValue$.sigma),
+                           C = tuneValue$.C,
+                           prob.model = classProbs,
+                           ...)
+                       }                       
                        out         
                      },
                      svmRadialCost = 
                      {      
-                       library(kernlab)      
-                       if(type == "Classification")
-                         {
-                           ## By default, fit the prob model
-                           useProbModel <- TRUE          
-                           if(any(names(list(...)) == "prob.model")) useProbModel <- list(...)$prob.model
-                           out <- ksvm(
-                                       as.matrix(trainX),
-                                       trainY,
-                                       C = tuneValue$.C,
-                                       prob.model = useProbModel,
-                                       ...)
-                         } else {
-                           out <- ksvm(
-                                       as.matrix(trainX),
-                                       trainY,
-                                       C = tuneValue$.C,
-                                       ...)
-                         }
+                       library(kernlab)  
+                       if(any(names(list(...)) == "prob.model") | type == "Regression")
+                       {
+                         out <- ksvm(
+                           as.matrix(trainX),
+                           trainY,
+                           C = tuneValue$.C,
+                           ...)
+                       } else {
+                         out <- ksvm(
+                           as.matrix(trainX),
+                           trainY,
+                           C = tuneValue$.C,
+                           prob.model = classProbs,
+                           ...)
+                       }
                        out         
                      },                     
                      svmLinear = 
                      {      
                        library(kernlab)      
-                       if(type == "Classification")
-                         {
-                           ## By default, fit the prob model
-                           useProbModel <- TRUE          
-                           if(any(names(list(...)) == "prob.model")) useProbModel <- list(...)$prob.model
-                           out <- ksvm(
-                                       as.matrix(trainX),
-                                       trainY,
-                                       kernel = vanilladot(),
-                                       C = tuneValue$.C,
-                                       prob.model = useProbModel,
-                                       ...)
-                         } else {
-                           out <- ksvm(
-                                       as.matrix(trainX),
-                                       trainY,
-                                       kernel = vanilladot(),
-                                       C = tuneValue$.C,
-                                       ...)
-                         }
+                       if(any(names(list(...)) == "prob.model") | type == "Regression")
+                       {
+                         out <- ksvm(
+                           as.matrix(trainX),
+                           trainY,
+                           kernel = vanilladot(),
+                           C = tuneValue$.C,
+                           ...)
+                       } else {
+                         out <- ksvm(
+                           as.matrix(trainX),
+                           trainY,
+                           kernel = vanilladot(),
+                           C = tuneValue$.C,
+                           prob.model = classProbs,
+                           ...)
+                       }
                        out         
                      },                     
                      rvmPoly = 
@@ -1215,7 +1208,7 @@
                      {
                        library(sda)
                        if(!is.matrix(trainX)) trainX <- as.matrix(trainX)
-                       sda::sda(trainX, trainY, diagonal = tuneValue$.diagonal, ...)
+                       sda::sda(trainX, trainY, diagonal = tuneValue$.diagonal, lambda = tuneValue$.lambda, ...)
                      },
                      penalized =
                      {
@@ -1800,7 +1793,7 @@
                      {
                        library(rrlda)
                        rrlda:::rrlda(trainX, trainY, lambda = tuneValue$.lambda,
-                                     alpha = tuneValue$.alpha, ...)
+                                     hp = tuneValue$.hp, penalty = tuneValue$.penalty, ...)
                      },
                      evtree =
                      {
@@ -2018,6 +2011,32 @@
                        C5.0(x = trainX, y = trainY, 
                             rules = method == "C5.0Rules",
                             ...)
+                     },
+                     extraTrees =
+                     {
+                       library(extraTrees)
+                       extraTrees(trainX, trainY, mtry = tuneValue$.mtry, numRandomCuts = tuneValue$.numRandomCuts, ...)
+                     },
+                     kknn =
+                     {
+                       library(kknn)
+                       train.kknn(modFormula, data = data,
+                                  kmax = tuneValue$.kmax,
+                                  distance = tuneValue$.distance,
+                                  kernel = as.character(tuneValue$.kernel), ...)
+                     },
+                     Mlda = 
+                       {
+                         library(HiDimDA)
+                         Mlda(trainX, trainY, ...)
+                       },
+                     RFlda = 
+                     {
+                       library(HiDimDA)
+                       RFlda(trainX, trainY, 
+                             q = tuneValue$.q, 
+                             maxq = tuneValue$.q,
+                             ...)
                      },                     
                      custom =
                      {
@@ -2054,6 +2073,8 @@
       modelFit$tuneValue <- tuneValue
       modelFit$obsLevels <- obsLevels
     }
+  if(!is.null(modelFit) && any(names(modelFit) == "call")) modelFit$call <- scrubCall(modelFit$call)
+  if(length(slotNames(modelFit)) > 0 && any(slotNames(modelFit) == "call")) modelFit@call <- scrubCall(modelFit@call)
 
   list(fit = modelFit, preProc = ppObj)
 }

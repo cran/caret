@@ -98,7 +98,7 @@ library(mlbench)
 data(Sonar)
 library(pROC)
 library(pls)
-
+options(useFancyQuotes = FALSE) 
 getInfo <- function(what = "Suggests")
 {
   text <- packageDescription("caret")[what][[1]]

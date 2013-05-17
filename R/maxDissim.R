@@ -93,3 +93,4 @@ splitByDissim <- function(x, p = .8, y = NULL, start = NULL, ...)
       }
     out
   }
+

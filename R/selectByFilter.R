@@ -620,7 +620,7 @@ nullModel.default <- function(x = NULL, y, ...)
         lvls <- levels(y)
         tab <- table(y)
         value <- names(tab)[which.max(tab)]
-        pct <- max(tab)/sum(tab)
+        pct <- tab/sum(tab)
       } else {
         lvls <- NULL
         pct <- NULL
@@ -659,9 +659,9 @@ predict.nullModel <- function (object, newdata = NULL, type  = NULL, ...)
       {
         if(type == "prob")
           {
-            out <- as.data.frame(matrix(0, nrow = n, ncol = length(object$levels)))
-            names(out) <- object$levels
-            out[, object$value] <- object$pct
+            out <- matrix(rep(object$pct, n), nrow = n, byrow = TRUE)
+            colnames(out) <- object$levels
+            out <- as.data.frame(out)
           } else {
             out <- factor(rep(object$value, n), levels = object$levels)
           }

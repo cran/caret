@@ -730,3 +730,9 @@ makeTable <- function(x)
 
   }
 
+scrubCall <- function(x)
+  {
+    items <- c("x", "y", "data")
+    for(i in items) if(nchar(as.character(x[i])) > 100) x[i] <- "scrubbed"
+    x
+  }

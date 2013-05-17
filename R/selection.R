@@ -33,8 +33,8 @@ byComplexity <- function(x, model)
            rFerns =, rf =, rfNWS =, rfLSF =, parRF =, gpls =, pcr =, pls =, simpls =, widekernelpls =, PLS =, pam =, cforest =,
            nb =, ctree2 =, logitBoost=, J48 =, LMT =, ppr =, mda =, pda =, pda2 =, lrm =,
            lars =, lars2 =, Linda =, QdaCov =, icr =, qrf =,Boruta =, kernelpls = , lda2 =,
-           leapForward=, leapBackward=, leapSeq =, rpart2 =, ORFridge =, ORFpls =, ORFsvm =, ORFlog =, evtree =,
-           C5.0Tree =, C5.0Rules =
+           leapForward=, leapBackward=, leapSeq =, rpart2 =, ORFridge =, ORFpls =, ORFsvm =, ORFlog =, evtree =, extraTrees =,
+           C5.0Tree =, C5.0Rules =, Mlda =, RFlda = 
            {
              x[order(x[,1]),]
            },
@@ -102,7 +102,7 @@ byComplexity <- function(x, model)
            {
              x[order(x$n.hidden, -x$penalty),]
            },           
-           knn =, multinom =
+           knn =, kknn =, multinom =
            {
              x[order(-x[,1]),]
            },
@@ -225,7 +225,7 @@ byComplexity <- function(x, model)
            foba = x[order(x$k, -x$lambda),], 
            obliqueTree = x[order(x$variable.selection),],
            PART = x[order(x$pruned, -x$threshold),],
-           sda = x[order(x$diagonal),],
+           sda = x[order(x$diagonal, x$lambda),],
            glmnet = x[order(-x$lambda, x$alpha),],
            stepLDA =, stepQDA = x[order(x$maxvar),],
            GAMens = x[order(x$iter, x$rsm_size),],

@@ -13,7 +13,7 @@ preProcess.default <- function(x, method = c("center", "scale"),
                                ...)
 {
 
-  allMethods <- c("BoxCox", "center", "scale", "range", "knnImpute", "bagImpute", "pca", "ica", "spatialSign")
+  allMethods <- c("BoxCox", "YeoJohnson", "center", "scale", "range", "knnImpute", "bagImpute", "pca", "ica", "spatialSign")
   if(any(!(method %in% allMethods))) stop(paste("'method' should be one of:", paste(allMethods, collapse = ", ")))
   if(is.null(method)) stop("NULL values of 'method' are not allowed")
   if(any(method %in% "range") & any(method %in% c("center", "scale", "BoxCox")))
@@ -71,6 +71,34 @@ preProcess.default <- function(x, method = c("center", "scale"),
       ## Find a better way of doing this
       for(i in seq(along = bc)) x[,i] <- predict(bc[[i]], x[,i])
     } else bc <- NULL
+
+  if(any(method == "YeoJohnson"))
+    {
+      library(car)
+      yjWrap <- function(x, numUnique = numUnique)
+        {
+          if(length(unique(x)) >= numUnique)
+            {
+              out <- powerTransform(y ~ 1,
+                                    data = data.frame(y = x[!is.na(x)]),
+                                    family = "yjPower")
+            } else out <- NA
+        }
+      if(verbose) cat("Estimating Yeo-Johnson transformations for the predictors...")
+      yj <- lapply(x, yjWrap, numUnique = numUnique)
+      if(verbose) cat(" applying them to training data\n")
+      ## Find a better way of doing this
+      lam <- unlist(lapply(yj, function(x) if(class(x) == "powerTransform") coef(x) else NA))
+      lam <- lam[!is.na(lam)]
+      if(length(lam) > 0)
+        {
+          for(i in seq(along = lam))
+            {
+              who <-  gsub("\\.Y1$", "", names(lam)[i])
+              x[,who] <- yjPower(x[,who], coef(yj[[who]]))
+            }
+        }
+    } else yj <- NULL
 
   if(any(method  %in% c("center")))
     {
@@ -151,6 +179,7 @@ preProcess.default <- function(x, method = c("center", "scale"),
   out <- list(call = theCall,
               dim = dim(x),
               bc = bc,
+              yj = yj,
               mean = centerValue,
               std = scaleValue,
               ranges = ranges,
@@ -232,6 +261,20 @@ predict.preProcess <- function(object, newdata, ...)
         }
     }
 
+  if(!is.null(object$yj))
+    {
+      lam <- unlist(lapply(object$yj, function(x) if(class(x) == "powerTransform") coef(x) else NA))
+      lam <- lam[!is.na(lam)]
+      if(length(lam) > 0)
+        {
+          for(i in seq(along = lam))
+            {
+              who <-  gsub("\\.Y1$", "", names(lam)[i])
+              newdata[,who] <- yjPower(newdata[,who], coef(object$yj[[who]]))
+            }
+        }
+    }  
+
   if(any(object$method == "range"))
     {
       newdata <- sweep(newdata, 2, object$ranges[1,], "-")
@@ -306,7 +349,8 @@ print.preProcess <- function(x, ...)
   cat("Created from", x$dim[1], "samples and", x$dim[2], "variables\n")
 
   pp <- x$method
-  pp <- gsub("BoxCox", "Box-Cox transformation", pp)  
+  pp <- gsub("BoxCox", "Box-Cox transformation", pp)
+  pp <- gsub("YeoJohnson", "Yeo-Johnson transformation", pp)    
   pp <- gsub("scale", "scaled", pp)
   pp <- gsub("center", "centered", pp)
   pp <- gsub("pca", "principal component signal extraction", pp)
@@ -331,6 +375,18 @@ print.preProcess <- function(x, ...)
          } else print(summary(unlist(lapply(x$bc, function(x) x$lambda))))
       cat("\n")
     }
+  if(any(x$method == "YeoJohnson"))
+    {
+      cat("Lambda estimates for Yeo-Johnson transformation:\n")
+      if(length(x$yj) < 11)
+         {
+           lmbda <- unlist(lapply(x$yj, function(x) if(class(x) == "powerTransform") coef(x) else NA))
+           naLmbda <- sum(is.na(lmbda))
+           cat(paste(round(lmbda[!is.na(lmbda)], 2), collapse = ", "))
+           if(naLmbda > 0) cat(" (#NA: ", naLmbda, ")\n", sep = "")
+         } else print(summary(unlist(lapply(x$yj, function(x) if(class(x) == "powerTransform") coef(x) else NA))))
+      cat("\n")
+    }  
   
   if(any(x$method == "pca"))
     {
@@ -382,4 +438,5 @@ bagImp <- function(var, x, B = 10)
     list(var = var,
          model = mod)
   }
+
 

@@ -28,7 +28,7 @@ preProcess(x, ...)
 
 \arguments{
   \item{x}{a matrix or data frame. All variables must be numeric.}
-  \item{method}{a character vector specifying the type of processing. Possible values are "BoxCox", "center", "scale", "range", "knnImpute", "bagImpute", "pca", "ica" and "spatialSign" (see Details below)}
+  \item{method}{a character vector specifying the type of processing. Possible values are "BoxCox", "YeoJohnson", center", "scale", "range", "knnImpute", "bagImpute", "pca", "ica" and "spatialSign" (see Details below)}
   \item{thresh}{a cutoff for the cumulative percent of variance to be retained by PCA}
   \item{pcaComp}{the specific number of PCA components to keep. If specified, this over-rides \code{thresh}}
   \item{na.remove}{a logical; should missing values be removed from the calculations?}
@@ -48,11 +48,11 @@ preProcess(x, ...)
   \item{\dots}{additional arguments to pass to \code{\link[fastICA]{fastICA}}, such as \code{n.comp}}
 }
 \details{
-The Box-Cox transformation has been "repurposed" here: it is being used to transform the predictor variables. This method was developed for transforming the response variable while another method, the Box-Tidwell transformation, was created to estimate transformations of predictor data. However, the Box-Cox method is simpler, more computationally efficient and is equally effective for estimating power transformations.
+The Box-Cox and Yeo-Johnson transformations have been "repurposed" here: they are being used to transform the predictor variables. The Box-Cox transformation was developed for transforming the response variable while another method, the Box-Tidwell transformation, was created to estimate transformations of predictor data. However, the Box-Cox method is simpler, more computationally efficient and is equally effective for estimating power transformations. The Yeo-Johnson transformation is similar to the Box-Cox model but can accommodate predictors with zero and/or negative values (while the predictors values for the Box-Cox transformation must be strictly positive.)
 
 The "range" transformation scales the data to be within [0, 1]. If new samples have values larger or smaller than those in the training set, values will be outside of this range.
 
-The operations are applied in this order: Box-Cox transformation, centering, scaling, range, imputation, PCA, ICA then spatial sign. This is a departure from versions of \pkg{caret} prior to version 4.76 (where imputation was done first) and is not backwards compatible if bagging was used for imputation.
+The operations are applied in this order: Box-Cox/Yeo-Johnson transformation, centering, scaling, range, imputation, PCA, ICA then spatial sign. This is a departure from versions of \pkg{caret} prior to version 4.76 (where imputation was done first) and is not backwards compatible if bagging was used for imputation.
 
 If PCA is requested but centering and scaling are not, the values will still be centered and scaled. Similarly, when ICA is requested, the data are automatically centered and scaled.
 
@@ -79,11 +79,13 @@ The function will throw an error of any variables in \code{x} has less than two 
 
 \author{ Max Kuhn }
 
-\references{Kuhn (2008), ``Building Predictive Models in R Using the caret'' (\url{http://www.jstatsoft.org/v28/i05/})
+\references{Kuhn (2008), Building predictive models in R using the caret (\url{http://www.jstatsoft.org/v28/i05/})
 
 Box, G. E. P. and Cox, D. R. (1964) An analysis of transformations (with discussion). Journal of the Royal Statistical Society B, 26, 211-252.
 
 Box, G. E. P. and Tidwell, P. W. (1962) Transformation of the independent variables. Technometrics 4, 531-550.
+
+Yeo, I-K. and Johnson, R. (2000). A new family of power transformations to improve normality or symmetry. Biometrika, 87, 954-959.
 }
 
 \seealso{\code{\link{BoxCoxTrans}}, \code{\link[MASS]{boxcox}}, \code{\link[stats]{prcomp}}, \code{\link[fastICA]{fastICA}}, \code{\link{spatialSign}}}
