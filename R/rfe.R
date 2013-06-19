@@ -89,6 +89,9 @@ rfeIter <- function(x, y,
             }
         }
 
+      if(nrow(modImp) < sizeValues[k]) stop(paste("rfe is expecting", sizeValues[k], 
+                                                  "importance values but only has", nrow(modImp)))
+      if(any(!complete.cases(modImp))) stop("There were missing importance values")
       retained <- as.character(modImp$var)[1:sizeValues[k]]
       finalVariables[[k]] <- subset(modImp, var %in% retained)
       finalVariables[[k]]$Variables <- sizeValues[[k]]

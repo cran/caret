@@ -64,9 +64,10 @@ train.default <- function(x, y,
          }
       
       if(length(classLevels) > 2 & (method %in% c("glmboost", "ada", "gamboost", "blackboost", "penalized", "glm",
-                                                  "earth", "nodeHarvest", "glmrob", "plr", "GAMens", "rocc",
+                                                  "earth", "nodeHarvest", "glmrob", "plr", "rocc",
                                                   "logforest", "logreg", "gam", "gamLoess", "gamSpline",
-                                                  "bstTree", "bstLs", "bstSm")))
+                                                  "bstTree", "bstLs", "bstSm", "rpartCost", "svmRadialWeights", 
+                                                  "C5.0Cost")))
         stop("This model is only implemented for two class problems")
       if(length(classLevels) < 3 & (method %in% c("vbmpRadial")))
         stop("This model is only implemented for 3+ class problems")      
@@ -334,7 +335,7 @@ train.default <- function(x, y,
           resampleResults <- tmp$resample
         }
     }
-    
+
     ## TODO we used to give resampled results for LOO
   if(!(trControl$method %in% c("LOOCV", "oob")))
     {
@@ -364,6 +365,11 @@ train.default <- function(x, y,
     } else {
       performance <- trControl$custom$sort(performance) 
     }
+  if(any(is.na(performance[, metric])))
+  {
+    warning("missing values found in aggregated results")
+    print(performance)
+  }
   
   if(trControl$verboseIter)
     {
@@ -410,6 +416,7 @@ train.default <- function(x, y,
       }
   }
 
+  if(is.na(bestIter) || length(bestIter) != 1) stop("final tuning parameters could not be determined")
 
   ## Based on the optimality criterion, select the tuning parameter(s)
   bestTune <- performance[bestIter, trainInfo$model$parameter, drop = FALSE]

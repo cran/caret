@@ -8,7 +8,7 @@
 {
   stringFunc <- function (x) 
     {
-      if (!is.character(x)) x <- as.character(x)
+      if (!is.character(x)) x <- format(x)
       numElements <- length(x)
       out <- if (length(x) > 0) {
         switch(min(numElements, 3), x, paste(x, collapse = " and "), 
@@ -164,10 +164,7 @@
                                  paste("Tuning parameter '",
                                        names(numVals)[i],
                                        "' was held constant at a value of ",
-                                       ifelse(is.character(tuneAcc[1,names(numVals)[i]]) |
-                                              is.factor(tuneAcc[1,names(numVals)[i]]),
-                                              paste("'", tuneAcc[1,names(numVals)[i]], "'", sep = ""),
-                                              signif(tuneAcc[1,names(numVals)[i]], digits)),
+                                       stringFunc(tuneAcc[1,names(numVals)[i]]),
                                        sep = ""))
             }
           discard <- names(numVals)[which(numVals == 1)]
