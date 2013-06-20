@@ -2,6 +2,55 @@
 \title{News for Package \pkg{caret}}
 \newcommand{\cpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
+\section{Changes in version 5.16-24}{
+\itemize{
+ \item The \code{protoclass} function in the \cpkg{protoclass} 
+ package was added. The model uses a distance matrix as input and 
+ the \code{train} method also uses the \cpkg{proxy} package to 
+ compute the distance using the Minkowski distance. The two tuning 
+ parameters is the neighborhood size (\code{eps}) and the Minkowski 
+ distance parameter (\code{p}).
+
+ \item A bug was (hopfully) fixed that occurred when some type of 
+ parallel processing was used with \code{train}. The problem is 
+ that the \cpkg{methods} package was not being loaded in the workers. 
+ While reproducible, it is unknown why this occurs and why it is 
+ only for some technologies and systems. The \cpkg{methods} package 
+ is now a formal dependency and we coerce the workers to load it 
+ remotely. 
+ 
+ \item A bug was fixed where some calls were printed twice. 
+
+ \item For \code{rpart}, \code{C5.0} and \code{ksvm}, cost-sensitive 
+ versions of these models for two classes were added to \code{train}. 
+ The method values are \code{rpartCost}, \code{C5.0Cost} and 
+ \code{svmRadialWeights}.
+
+ \item The prediction code for the \code{ksvm} models was changed. There 
+are some cases where the class predictions and the predicted class 
+probabilities disagree. This usually happens when the probabilities are 
+close to 0.50 (in the two class case). A \cpkg{kernlab} bug has been 
+filed. In the meantime, if the \code{ksvm} model uses a probability 
+model, the class probabilities are generated first and the predicted 
+class is assigned to the probability with the largest value. Thanks to
+Kjell Johnson for finding that one. 
+
+\item \code{print.train} was changed so that tune parameters that are
+logicals are printed well.  
+ 
+ }
+ }
+
+
+\section{Changes in version 5.16-13}{
+\itemize{
+ \item Added a few exemptions to the logic that determines whether a model call should be scrubbed.
+ 
+ \item An error trap was created to catch issues with missing importance scores in \code{rfe}.
+ 
+ }
+ }
+
 \section{Changes in version 5.16-03}{
 \itemize{
  \item A function \code{twoClassSim} was added for benchmarking classification models. 

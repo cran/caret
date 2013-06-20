@@ -27,6 +27,8 @@ modelLookup <- function(model = NULL)
             'bstSm', 'bstSm',
             ## C5.0
             'C5.0', 'C5.0', 'C5.0',
+            ## C5.0Cost
+            'C5.0Cost', 'C5.0Cost', 'C5.0Cost', 'C5.0Cost',            
             ## C5.0Tree
             'C5.0Tree',
             ## C5.0Rules
@@ -61,8 +63,6 @@ modelLookup <- function(model = NULL)
             'gamSpline',
             ## gamboost
             'gamboost', 'gamboost', 
-            ## GAMens
-            'GAMens', 'GAMens', 'GAMens', 
             ## gaussprLinear
             'gaussprLinear', 
             ## gaussprPoly
@@ -219,6 +219,8 @@ modelLookup <- function(model = NULL)
             'plsTest', 
             ## ppr
             'ppr', 
+            ## protoclass
+            'protoclass', 'protoclass',
             ## qda
             'qda', 
             ## QdaCov
@@ -248,9 +250,11 @@ modelLookup <- function(model = NULL)
             ## rocc
             'rocc', 
             ## rpart
-            'rpart2',
-            ## rpart2
             'rpart',
+            ## rpart2
+            'rpart2',
+            ## rpartCost
+            'rpartCost', 'rpartCost',
             ## RRF
             'RRF', 'RRF', 'RRF',
             ## RRFglobal
@@ -298,7 +302,9 @@ modelLookup <- function(model = NULL)
             ## svmRadial
             'svmRadial', 'svmRadial',
             ## svmRadialCost
-            'svmRadialCost',              
+            'svmRadialCost',  
+            ## svmRadialWeights
+            'svmRadialWeights', 'svmRadialWeights', 'svmRadialWeights',            
             ## treebag
             'treebag', 
             ## vbmpRadial
@@ -334,6 +340,8 @@ modelLookup <- function(model = NULL)
               'mstop', 'nu',
               ## C5.0
               'trials', 'model', 'winnow',
+              ## C5.0Cost
+              'trials', 'model', 'winnow', 'Cost',              
               ## C5.0Tree
               'parameter',
               ## C5.0Rules
@@ -368,8 +376,6 @@ modelLookup <- function(model = NULL)
               'df',
               ## gamboost
               'mstop', 'prune', 
-              ## GAMens
-              'iter', 'rsm_size', 'fusion', 
               ## gaussprLinear
               'parameter', 
               ## gaussprPoly
@@ -522,7 +528,9 @@ modelLookup <- function(model = NULL)
               ## plsTest
               'ncomp', 
               ## ppr
-              'nterms', 
+              'nterms',
+              ## protoclass
+              'eps', 'Minkowski',
               ## qda
               'parameter', 
               ## QdaCov
@@ -551,10 +559,12 @@ modelLookup <- function(model = NULL)
               'parameter', 
               ## rocc
               'xgenes', 
-              ## rpart2
-              'maxdepth',
               ## rpart
               'cp',
+              ## rpart2
+              'maxdepth',
+              ## rpartCost
+              'cp', 'Cost',
               ## RRF
               'mtry', 'coefReg', 'coefImp',
               ## RRFglobal
@@ -602,7 +612,9 @@ modelLookup <- function(model = NULL)
               ## svmRadial
               'C', 'sigma',
               ## svmRadialCost
-              'C',               
+              'C',    
+              ## svmRadialWeights
+              'C', 'sigma', "Weight",
               ## treebag
               'parameter', 
               ## vbmpRadial
@@ -646,6 +658,8 @@ modelLookup <- function(model = NULL)
               '# Boosting Iterations', 'Shrinkage',
               ## C5.0
               '# Boosting Iterations', 'Model Type', 'Winnow',
+              ## C5.0Cost
+              '# Boosting Iterations', 'Model Type', 'Winnow', 'Cost',              
                ## C5.0Tree
               'none',
               ## C5.0Rules
@@ -687,10 +701,6 @@ modelLookup <- function(model = NULL)
               ## gamboost
               '# Boosting Iterations',
               'AIC Prune?',
-              ## GAMens
-              'Ensemble Size',
-              '#Random Feature Subsets',
-              'Data Fusion Function',
               ## gaussprLinear
               'none',
               ## gaussprPoly
@@ -870,6 +880,8 @@ modelLookup <- function(model = NULL)
               '#Components',
               ## ppr
               '# Terms',
+              ## protoclass
+              'Ball Size', 'Distance Order',
               ## qda
               'none',
               ## QdaCov
@@ -900,10 +912,12 @@ modelLookup <- function(model = NULL)
               'none',
               ## rocc
               '#Variables Retained',
-              ## rpart2
-              'Max Tree Depth',
               ## rpart
               'Complexity Parameter',
+              ## rpart2
+              'Max Tree Depth',
+              ## rpartCost
+              'Complexity Parameter', 'Cost',
               ## RRF
               '#Randomly Selected Predictors',
               'Regularization Value',
@@ -973,6 +987,8 @@ modelLookup <- function(model = NULL)
               'Sigma',
               ## svmRadialCost
               'Cost',
+              ## svmRadialWeights
+              'Cost', 'Sigma', 'Class Weight',
               ## treebag
               'none',
               ## vbmpRadial
@@ -1009,6 +1025,8 @@ modelLookup <- function(model = NULL)
              TRUE, FALSE,
              ## C5.0
              TRUE, FALSE, FALSE,
+             ## C5.0Cost
+             TRUE, FALSE, FALSE, FALSE,             
              ## C5.0Tree
              FALSE,
              ## C5.0Rules
@@ -1043,8 +1061,6 @@ modelLookup <- function(model = NULL)
              FALSE,
              ## gamboost
              TRUE, FALSE, 
-             ## GAMens
-             FALSE, FALSE, FALSE, 
              ## gaussprLinear
              FALSE, 
              ## gaussprPoly
@@ -1197,7 +1213,9 @@ modelLookup <- function(model = NULL)
              ## plsTest
              FALSE, 
              ## ppr
-             FALSE, 
+             FALSE,
+             ## protoclass
+             FALSE, FALSE,
              ## qda
              FALSE, 
              ## QdaCov
@@ -1226,10 +1244,12 @@ modelLookup <- function(model = NULL)
              FALSE, 
              ## rocc
              FALSE, 
+             ## rpart
+             TRUE,             
              ## rpart2
              TRUE,
-             ## rpart
-             TRUE,
+             ## rpartCost
+             TRUE, TRUE,
              ## RRF
              FALSE, FALSE, FALSE,
              ## RRFglobal
@@ -1277,7 +1297,9 @@ modelLookup <- function(model = NULL)
              ## svmRadial
              FALSE, FALSE,
              ## svmRadialCost
-             FALSE,               
+             FALSE,  
+             ## svmRadialWeights
+             FALSE, FALSE, FALSE,
              ## treebag
              FALSE, 
              ## vbmpRadial
@@ -1313,6 +1335,8 @@ modelLookup <- function(model = NULL)
                 TRUE, TRUE,
                 ## C5.0
                 FALSE, FALSE, FALSE,
+                ## C5.0Cost
+                FALSE, FALSE, FALSE, FALSE,                
                 ## C5.0Tree
                 FALSE,
                 ## C5.0Rules
@@ -1347,8 +1371,6 @@ modelLookup <- function(model = NULL)
                 TRUE,
                 ## gamboost
                 TRUE, TRUE, 
-                ## GAMens
-                FALSE, FALSE, FALSE, 
                 ## gaussprLinear
                 TRUE, 
                 ## gaussprPoly
@@ -1502,6 +1524,8 @@ modelLookup <- function(model = NULL)
                 TRUE, 
                 ## ppr
                 TRUE, 
+                ## protoclass
+                FALSE, FALSE,
                 ## qda
                 FALSE, 
                 ## QdaCov
@@ -1530,10 +1554,12 @@ modelLookup <- function(model = NULL)
                 TRUE, 
                 ## rocc
                 FALSE, 
+                ## rpart
+                TRUE,                
                 ## rpart2
                 TRUE,
-                ## rpart
-                TRUE,
+                ## rpartCost
+                FALSE, FALSE,
                 ## RRF
                 TRUE, TRUE, TRUE,
                 ## RRFglobal
@@ -1582,6 +1608,8 @@ modelLookup <- function(model = NULL)
                 TRUE, TRUE, 
                 ## svmRadialCost
                 TRUE,
+                ## svmRadialWeights
+                FALSE, FALSE, FALSE,
                 ## treebag
                 TRUE, 
                 ## vbmpRadial
@@ -1618,6 +1646,8 @@ modelLookup <- function(model = NULL)
                   TRUE, TRUE,
                   ## C5.0
                   TRUE, TRUE, TRUE,
+                  ## C5.0Cost
+                  TRUE, TRUE, TRUE, TRUE,                 
                   ## C5.0Tree
                   TRUE,
                   ## C5.0Rules
@@ -1652,8 +1682,6 @@ modelLookup <- function(model = NULL)
                   TRUE,
                   ## gamboost
                   TRUE, TRUE, 
-                  ## GAMens
-                  TRUE, TRUE, TRUE, 
                   ## gaussprLinear
                   TRUE, 
                   ## gaussprPoly
@@ -1805,7 +1833,9 @@ modelLookup <- function(model = NULL)
                   ## plsTest
                   TRUE, 
                   ## ppr
-                  FALSE, 
+                  FALSE,
+                  ## protoclass
+                  TRUE, TRUE,
                   ## qda
                   TRUE, 
                   ## QdaCov
@@ -1834,10 +1864,12 @@ modelLookup <- function(model = NULL)
                   FALSE, 
                   ## rocc
                   TRUE, 
+                  ## rpart
+                  TRUE,                  
                   ## rpart2
                   TRUE,
-                  ## rpart
-                  TRUE,
+                  ## rpartCost
+                  TRUE, TRUE,
                   ## RRF
                   TRUE, TRUE, TRUE,
                   ## RRFglobal
@@ -1886,6 +1918,8 @@ modelLookup <- function(model = NULL)
                   TRUE, TRUE, 
                   ## svmRadialCost
                   TRUE,
+                  ## svmRadialWeights
+                  TRUE, TRUE, TRUE,
                   ## treebag
                   TRUE, 
                   ## vbmpRadial
@@ -1922,6 +1956,8 @@ modelLookup <- function(model = NULL)
                     FALSE, FALSE,
                     ## C5.0
                     TRUE, TRUE, TRUE,
+                    ## C5.0Cost
+                    FALSE, FALSE, FALSE, FALSE,                   
                     ## C5.0Tree
                     TRUE,
                     ## C5.0Rules
@@ -1956,8 +1992,6 @@ modelLookup <- function(model = NULL)
                     TRUE,
                     ## gamboost
                     TRUE, TRUE, 
-                    ## GAMens
-                    TRUE, TRUE, TRUE, 
                     ## gaussprLinear
                     TRUE, 
                     ## gaussprPoly
@@ -2109,7 +2143,9 @@ modelLookup <- function(model = NULL)
                     ## plsTest
                     TRUE, 
                     ## ppr
-                    FALSE, 
+                    FALSE,
+                    ## protoclass
+                    FALSE, FALSE,
                     ## qda
                     TRUE, 
                     ## QdaCov
@@ -2138,10 +2174,12 @@ modelLookup <- function(model = NULL)
                     FALSE, 
                     ## rocc
                     FALSE, 
+                    ## rpart
+                    TRUE,                    
                     ## rpart2
                     TRUE,
-                    ## rpart
-                    TRUE,
+                    ## rpartCost
+                    FALSE, FALSE,
                     ## RRF
                     TRUE, TRUE, TRUE,
                     ## RRFglobal
@@ -2190,6 +2228,8 @@ modelLookup <- function(model = NULL)
                     TRUE, TRUE, 
                     ## svmRadialCost
                     TRUE,
+                    ## svmRadialWeights
+                    FALSE, FALSE, FALSE,
                     ## treebag
                     TRUE, 
                     ## vbmpRadial

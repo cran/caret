@@ -546,15 +546,6 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
                         dimnames(out)[[2]] <-  modelFit$obsLevels
                         out
                       },
-                      GAMens =
-                      {
-                        library(GAMens)
-                        out <- predict(modelFit, newdata)$pred
-                        out <- cbind(1 - out, out)
-                        dimnames(out)[[2]] <-  modelFit$obsLevels
-                        out
-
-                      },
                       hda =
                       {
                         library(hda)

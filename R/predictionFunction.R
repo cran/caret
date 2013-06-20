@@ -79,10 +79,19 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                            rvmRadial =, rvmPoly =, rvmLinear =,
                            lssvmRadial =, lssvmPoly =, lssvmLinear =,
                            gaussprRadial =, gaussprPoly =, gaussprLinear =,
-                           svmRadialCost =
+                           svmRadialCost =, svmRadialWeights =
                            {
                              library(kernlab)
-                             out <- try(predict(modelFit, newdata), silent = TRUE)
+                             svmPred <- function(obj, x)
+                             {
+                               hasPM <- !is.null(unlist(obj@prob.model))
+                               if(hasPM) {
+                                 pred <- lev(obj)[apply(predict(obj, x, type = "probabilities"), 
+                                                        1, which.max)]
+                               } else pred <- predict(obj, x)
+                               pred
+                             }
+                             out <- try(svmPred(modelFit, newdata), silent = TRUE)
                              if(is.character(lev(modelFit)))
                                {
                                  if(class(out)[1] != "try-error")
@@ -163,7 +172,7 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                              
                            },
 
-                           rpart =
+                           rpart =, rpartCost =
                            {
                              library(rpart)
                              
@@ -775,11 +784,6 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                                     modelFit$obsLevels[1],
                                     modelFit$obsLevels[2])
                            },
-                           GAMens =
-                           {
-                             library(GAMens)
-                             predict(modelFit, newdata)$class[,1]
-                           },
                            rocc =
                            {
                              library(rocc)
@@ -1079,7 +1083,7 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                              library(KRLS)
                              predict(modelFit, newdata)$fit[,1]
                            },
-                           C5.0 =, C5.0Tree =, C5.0Rules =
+                           C5.0 =, C5.0Tree =, C5.0Rules =, C5.0Cost =
                            {
                              library(C50)
                              out <- as.character(predict(modelFit, newdata))
@@ -1124,6 +1128,14 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                              out <- predict(modelFit, newdata)$class
                              out <- modelFit$obsLevels[as.numeric(out)]
                              out
+                           },
+                           protoclass = {
+                             library(protoclass)
+                             library(proxy)
+                             as.character(predictwithd.protoclass(modelFit, 
+                                                                  as.matrix(proxy:::dist(newdata, modelFit$training,
+                                                                                         "Minkowski", 
+                                                                                         p = modelFit$Minkowski))))
                            },
                            custom =
                            {

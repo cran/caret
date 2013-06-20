@@ -94,7 +94,6 @@ classLevels.plr <- function(x, ...) unique(unlist(lapply(strsplit(rownames(x$mea
 
 
 
-#classLevels.GAMens <- function(x, ...)
 #  classLevels.rocc <- function(x, ...)
 #  classLevels.partDSA <- function(x, ...)
 #  classLevels.hda <- function(x, ...)

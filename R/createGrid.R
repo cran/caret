@@ -51,8 +51,6 @@
       colnames(tuneSeq) <- ".cp"
       tuneSeq
     }
-
-  
   
   rbfTune <- function(data, len, center = TRUE)
     {
@@ -139,19 +137,6 @@
       data.frame(.mtry = tuneSeq)
     }
 
-  GAMensTune <- function(data, len)
-    {
-      tmp <- rfTune(data, len)
-      out <- expand.grid(
-                         .rsm_size = tmp[,1],
-                         .iter = (1:len) * 10,
-                         .fusion = "avgagg")
-      out$.fusion <- as.character(out$.fusion)
-      colnames(out) <- c(".rsm_size", ".iter", ".fusion")
-      out
-    }
-
-  
   cforestTune <- function(data, len)
     {
       p <- dim(data)[2] - 1 
@@ -360,7 +345,6 @@
                       plr = expand.grid(
                         .cp = "bic", 
                         .lambda = c(0, 10 ^ seq(-1, -4, length = len - 1))),
-                      GAMens = GAMensTune(data, len),
                       rocc = roccTune(data, len),
                       foba = expand.grid(
                         .lambda = 10 ^ seq(-5, -1, length = len),
@@ -407,6 +391,15 @@
                       extraTrees = expand.grid(.mtry = rfTune(data, len)[,1], .numRandomCuts = 1:len),
                       kknn = data.frame(.kmax = (5:((2 * len)+4))[(5:((2 * len)+4))%%2 > 0], .distance = 2, .kernel = "optimal"),
                       RFlda = data.frame(.q = 1:len),
+                      protoclass = data.frame(.eps = 1:len, .Minkowski = 2),
+                      rpartCost = expand.grid(.cp = rpartTune(data, len)$.cp, .Cost = 1:len),
+                      svmRadialWeights = expand.grid(.sigma = rbfTune(data, len),
+                                                     .C = 2 ^((1:len) - 3),
+                                                     .Weight = 1:len),  
+                      C5.0Cost = expand.grid(.trials = c5seq, 
+                                             .model = c("tree", "rules"), 
+                                             .winnow = c(TRUE, FALSE),
+                                             .Cost = 1:len),
                       lda =, lm =, treebag =, sddaLDA =, sddaQDA =,
                       glm =, qda =, OneR =, rlm =, lrm =,
                       rvmLinear =, lssvmLinear =, gaussprLinear =,
