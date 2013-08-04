@@ -2,6 +2,52 @@
 \title{News for Package \pkg{caret}}
 \newcommand{\cpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
+\section{Changes in version 5.17-07}{
+\itemize{
+ \item A bug in \code{spatialSign} was fixed for data frames with 
+ a single column.
+
+ \item Pre-processing was not applied to the training data set 
+ prior to grid creation. This is now done but only for models
+ that use the data when defining the grid. Thanks to Brad Buchsbaum
+ for finding the bug.
+
+ \item Some code was added to \code{rfe} to truncate the subset
+ sizes in case the user over-specified them.
+
+ \item A bug was fixed in \code{gamFuncs} for the \code{rfe} 
+ function.  
+ 
+ \item Option in \code{trainControl}, \code{rfeControl} and 
+ \code{sbfControl} were added so that the user can set the 
+ seed at each resampling iteration (most useful for parallel 
+ processing). Thanks to Allan Engelhardt for the recommendation. 
+
+ \item Some internal refactoring of the data was done to prepare
+ for some upcoming resampling options.
+ 
+ \item \code{predict.train} now has an explict \code{na.action} 
+ argument defaulted to \code{na.omit}. If imputation is used in 
+ \code{train}, then \code{na.action = na.pass} is recommended. 
+ 
+ \item A bug was fixed in \code{dummyVars} that occured when 
+ missing data were in \code{newdata}. The function 
+ \code{contr.dummy} is now deprecated and \code{contr.ltfr} 
+ should be used (if you are using it at all). Thanks to 
+ stackexchange user mchangun for finding the bug.
+ 
+ \item A check is now done inside \code{dummyVars} when 
+ \code{levelsOnly = TRUE} to see if any predictors share common 
+ levels. 
+ 
+ \item A new option \code{fullRank} was added to \code{dummyVars}. 
+ When true, \code{contr.treatment} is used. Otherwise,  
+ \code{contr.ltfr} is used.
+ 
+ }
+ }
+
+
 \section{Changes in version 5.16-24}{
 \itemize{
  \item The \code{protoclass} function in the \cpkg{protoclass} 

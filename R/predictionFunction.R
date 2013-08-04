@@ -48,6 +48,7 @@ predictionFunction <- function(method, modelFit, newdata, preProc = NULL, param 
                                    {
                                      if(modelFit$distribution$name != "multinomial")
                                        {
+                                       if(is.vector(tmp)) tmp <- matrix(tmp, ncol = 1)
                                          tmp <- apply(tmp, 2,
                                                       function(x, nm = modelFit$obsLevels) ifelse(x >= .5, nm[1], nm[2]))
                                                       

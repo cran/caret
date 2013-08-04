@@ -27,6 +27,7 @@ export(anovaScores,
        confusionMatrix,
        confusionMatrix.train,
        contr.dummy,
+       contr.ltfr,
        createDataPartition,
        createFolds,
        createGrid,
@@ -42,6 +43,7 @@ export(anovaScores,
        downSample,
        dummyVars,
        dummyVars.default,
+       expoTrans,
        extractPrediction,
        extractProb,
        featurePlot,
@@ -208,6 +210,7 @@ S3method(bag,             default)
 S3method(dummyVars,       default)
 S3method(BoxCoxTrans,     default)
 S3method(cluster,         default)
+S3method(expoTrans,       default)
 
 S3method(calibration, formula)
 S3method(lift,        formula)
@@ -318,7 +321,7 @@ S3method(print, dummyVars)
 S3method(print, BoxCoxTrans)
 S3method(print, lift)
 S3method(print, calibration)
-
+S3method(print, expoTrans)
 
 S3method(predict, PLS)
 S3method(predict, plsda)
@@ -340,6 +343,7 @@ S3method(predict, bag)
 S3method(predict, rfe)
 S3method(predict, dummyVars)
 S3method(predict, BoxCoxTrans)
+S3method(predict, expoTrans)
 
 S3method(summary, bagEarth)
 S3method(summary, bagFDA)

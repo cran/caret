@@ -42,7 +42,7 @@ train.default <- function(x, y,
     warning("Models using Weka will not work with parallel processing with multicore/doMC")
   flush.console()
   
-  ppMethods <- c("BoxCox", "YeoJohnson", "center", "scale", "range", "knnImpute", "bagImpute", "pca", "ica", "spatialSign")
+  ppMethods <- c("BoxCox", "YeoJohnson", "expoTrans", "center", "scale", "range", "knnImpute", "bagImpute", "pca", "ica", "spatialSign")
   
   if(!is.null(preProcess) && !(all(preProcess %in% ppMethods))) 
     stop(paste('pre-processing methods are limited to:', paste(ppMethods, collapse = ", ")))
@@ -113,10 +113,10 @@ train.default <- function(x, y,
   if(is.null(trControl$index)) {
     trControl$index <- switch(tolower(trControl$method),
                               oob = NULL,
-                              cv = createFolds(y, trControl$number, returnTrain = TRUE),
-                              repeatedcv = createMultiFolds(y, trControl$number, trControl$repeats),
+                              alt_cv =, cv = createFolds(y, trControl$number, returnTrain = TRUE),
+                              repeatedcv =, adaptive_cv = createMultiFolds(y, trControl$number, trControl$repeats),
                               loocv = createFolds(y, length(y), returnTrain = TRUE),
-                              boot =, boot632 = createResample(y, trControl$number),
+                              boot =, boot632 =,  adaptive_boot = createResample(y, trControl$number),
                               test = createDataPartition(y, 1, trControl$p),
                               lgocv = createDataPartition(y, trControl$number, trControl$p),
                               timeslice = createTimeSlices(seq(along = y),
@@ -161,13 +161,22 @@ train.default <- function(x, y,
   trainData$.outcome <- y
   if(!is.null(weights)) trainData$.modelWeights <- weights
 
+  ## Gather all the pre-processing info. We will need it to pass into the grid creation
+  ## code so that there is a concorance between the data used for modeling and grid creation
+  
+  if(!is.null(preProcess))
+  {
+    ppOpt <- list(options = preProcess)
+    if(length(trControl$preProcOptions) > 0) ppOpt <- c(ppOpt,trControl$preProcOptions)
+  } else ppOpt <- NULL
+  
   ## If no default training grid is specified, get one. We have to pass in the formula
   ## and data for some models (rpart, pam, etc - see manual for more details)
   if(method != "custom")
     {
       if(is.null(tuneGrid))
         {
-          tuneGrid <- createGrid(method, tuneLength, trainData)
+          tuneGrid <- createGrid(method, tuneLength, trainData, ppOpt)
         } else {
           if(is.function(tuneGrid))
             {
@@ -200,8 +209,7 @@ train.default <- function(x, y,
             } else stop("the parameters element should be either a function or a data frame")
         }
     }
-
-
+  
   ##------------------------------------------------------------------------------------------------------------------------------------------------------#
 
   ## For each tuning parameter combination, we will loop over them, fit models and generate predictions.
@@ -280,6 +288,30 @@ train.default <- function(x, y,
   trainInfo <- tuneScheme(method, tuneGrid, trControl$method == "oob")
   paramCols <- paste(".", trainInfo$model$parameter, sep = "")
 
+  ## Set or check the seeds when needed
+  if(is.null(trControl$seeds))
+  {
+    seeds <- vector(mode = "list", length = length(trControl$index))
+    seeds <- lapply(seeds, function(x) sample.int(n = 1000000, size = nrow(trainInfo$loop)))
+    seeds[[length(trControl$index) + 1]] <- sample.int(n = 1000000, size = 1)
+    trControl$seeds <- seeds     
+  } else {
+    if(!(length(trControl$seeds) == 1 && is.na(trControl$seeds)))
+    {
+      ## check versus number of tasks
+      numSeeds <- unlist(lapply(trControl$seeds, length))
+      badSeed <- (length(trControl$seeds) < length(trControl$index) + 1) ||
+        (any(numSeeds[-length(numSeeds)] < nrow(trainInfo$loop)))
+      if(badSeed) stop(paste("Bad seeds: the seed object should be a list of length",
+                             length(trControl$index) + 1, "with", 
+                             length(trControl$index), "integer vectors of size",
+                             nrow(trainInfo$loop), "and the last list element having a",
+                             "single integer"))      
+    }
+  }
+  
+    
+  ## run some data thru the sumamry function and see what we get  
   if(trainInfo$scheme == "oob")
     {
       perfNames <- if(modelType == "Regression") c("RMSE", "Rsquared") else  c("Accuracy", "Kappa")    
@@ -316,6 +348,7 @@ train.default <- function(x, y,
                     sep = ""))
     }
 
+
   if(trControl$method == "oob")
     {
        tmp <- oobTrainWorkflow(dat = trainData, info = trainInfo, method = method,
@@ -329,10 +362,18 @@ train.default <- function(x, y,
                                   ppOpts = preProcess, ctrl = trControl, lev = classLevels, ...)
           performance <- tmp$performance
         } else {
-          tmp <- nominalTrainWorkflow(dat = trainData, info = trainInfo, method = method,
-                                      ppOpts = preProcess, ctrl = trControl, lev = classLevels, ...)
-          performance <- tmp$performance
-          resampleResults <- tmp$resample
+          if(trControl$method != "alt_cv")
+          {
+            tmp <- nominalTrainWorkflow(dat = trainData, info = trainInfo, method = method,
+                                        ppOpts = preProcess, ctrl = trControl, lev = classLevels, ...)
+            performance <- tmp$performance
+            resampleResults <- tmp$resample
+          } else {
+#             tmp <- altTrainWorkflow(dat = trainData, info = trainInfo, method = method,
+#                                     ppOpts = preProcess, ctrl = trControl, lev = classLevels, ...)
+            performance <- tmp$performance
+            resampleResults <- tmp$resample            
+          }
         }
     }
 
@@ -466,12 +507,7 @@ train.default <- function(x, y,
     
   ## Make the final model based on the tuning results
 
-  if(!is.null(preProcess))
-    {
-      ppOpt <- list(options = preProcess)
-      if(length(trControl$preProcOptions) > 0) ppOpt <- c(ppOpt,trControl$preProcOptions)
-    } else ppOpt <- NULL
-
+  if(!(length(trControl$seeds) == 1 && is.na(trControl$seeds))) set.seed(trControl$seeds[[length(trControl$seeds)]][1])
   finalTime <- system.time(
                            finalModel <- createModel(data = trainData, 
                                                      method = method, 

@@ -6,7 +6,7 @@ predict.list <- function(object, ...)
     out
   }
 
-predict.train <- function(object, newdata = NULL, type = "raw", ...)
+predict.train <- function(object, newdata = NULL, type = "raw", na.action = na.omit, ...)
   {
 
     if(!(type %in% c("raw", "prob"))) stop("type must be either \"raw\" or \"prob\"")
@@ -23,8 +23,7 @@ predict.train <- function(object, newdata = NULL, type = "raw", ...)
             newdata <- as.data.frame(newdata)
             rn <- row.names(newdata)
             Terms <- delete.response(object$terms)
-            m <- model.frame(Terms, newdata, na.action = na.omit, 
-                             xlev = object$xlevels)
+            m <- model.frame(Terms, newdata, na.action = na.action, xlev = object$xlevels)
             if (!is.null(cl <- attr(Terms, "dataClasses"))) 
               .checkMFClasses(cl, m)
             keep <- match(row.names(m), rn)
