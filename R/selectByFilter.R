@@ -72,6 +72,21 @@ sbf <- function (x, ...) UseMethod("sbf")
   test <- sbfControl$functions$summary(testOutput, lev = classLevels)
   perfNames <- names(test)
 
+  ## Set or check the seeds when needed
+  if(is.null(sbfControl$seeds))
+  {
+    sbfControl$seeds <- sample.int(n = 1000000, size = length(sbfControl$index) + 1)
+  } else {
+    if(!(length(sbfControl$seeds) == 1 && is.na(sbfControl$seeds)))
+    {
+      if(length(sbfControl$seeds) != length(sbfControl$index) + 1)
+        stop(paste("Bad seeds: the seed object should be an integer vector of length",
+                             length(sbfControl$index) + 1))      
+    }
+  }
+  
+  
+  
   #########################################################################
 
 
@@ -298,6 +313,7 @@ sbfControl <- function(functions = NULL,
                        p = .75,
                        index = NULL,
                        timingSamps = 0,
+                       seeds = NA,
                        allowParallel = TRUE)
 {
   list(
@@ -311,6 +327,7 @@ sbfControl <- function(functions = NULL,
        p = p,
        index = index,
        timingSamps = timingSamps,
+       seeds = seeds,
        allowParallel = allowParallel)
 }
 

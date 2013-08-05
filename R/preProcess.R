@@ -13,7 +13,7 @@ preProcess.default <- function(x, method = c("center", "scale"),
                                ...)
 {
 
-  allMethods <- c("BoxCox", "YeoJohnson", "center", "scale", "range", "knnImpute", "bagImpute", "pca", "ica", "spatialSign")
+  allMethods <- c("BoxCox", "YeoJohnson", "expoTrans", "center", "scale", "range", "knnImpute", "bagImpute", "pca", "ica", "spatialSign")
   if(any(!(method %in% allMethods))) stop(paste("'method' should be one of:", paste(allMethods, collapse = ", ")))
   if(is.null(method)) stop("NULL values of 'method' are not allowed")
   if(any(method %in% "range") & any(method %in% c("center", "scale", "BoxCox")))
@@ -99,6 +99,14 @@ preProcess.default <- function(x, method = c("center", "scale"),
             }
         }
     } else yj <- NULL
+  
+  if(any(method == "expoTrans"))
+  {
+    if(verbose) cat("Estimating exponential transformations for the predictors...")
+    et <- lapply(x, expoTrans.default, numUnique = numUnique)
+    if(verbose) cat(" applying them to training data\n")
+    for(i in seq(et)) x[,i] <- predict(et[[i]], x[,i])
+  } else et <- NULL  
 
   if(any(method  %in% c("center")))
     {
@@ -180,6 +188,7 @@ preProcess.default <- function(x, method = c("center", "scale"),
               dim = dim(x),
               bc = bc,
               yj = yj,
+              et = et,
               mean = centerValue,
               std = scaleValue,
               ranges = ranges,
@@ -274,7 +283,16 @@ predict.preProcess <- function(object, newdata, ...)
             }
         }
     }  
-
+  
+  if(!is.null(object$et))
+  {
+      for(i in seq(along = object$et))
+      {
+        who <-  names(object$et)[i]
+        newdata[,who] <- predict(object$et[[who]], newdata[,who])
+      }
+  }  
+  
   if(any(object$method == "range"))
     {
       newdata <- sweep(newdata, 2, object$ranges[1,], "-")

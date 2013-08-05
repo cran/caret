@@ -18,6 +18,7 @@ trainControl <- function(method = "boot",
                          indexOut = NULL,
                          timingSamps = 0,
                          predictionBounds = rep(FALSE, 2),
+                         seeds = NA,
                          allowParallel = TRUE)
 {
   if(is.null(selectionFunction)) stop("null selectionFunction values not allowed")
@@ -57,6 +58,7 @@ trainControl <- function(method = "boot",
        indexOut = indexOut,
        timingSamps = timingSamps,
        predictionBounds = predictionBounds,
+       seeds = seeds,
        allowParallel = allowParallel)
 }
 

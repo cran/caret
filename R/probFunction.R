@@ -137,6 +137,7 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
                               {
                                 if(modelFit$distribution$name != "multinomial")
                                   {
+                                    if(is.vector(tmp)) tmp <- matrix(tmp, ncol = 1)
                                     tmp <- apply(tmp, 2,
                                                  function(x, nm = modelFit$obsLevels)
                                                  {
@@ -641,7 +642,7 @@ probFunction <- function(method, modelFit, newdata, preProc = NULL, param = NULL
                             out <- tmp
                           }
                         out
-                      },                      
+                      },    
                       custom =
                       {
                         custom(object = modelFit, newdata = newdata)

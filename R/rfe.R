@@ -2,7 +2,9 @@
 rfeIter <- function(x, y,
                     testX, testY, sizes,
                     rfeControl = rfeControl(),
-                    label = "", ...)
+                    label = "", 
+                    seeds = NA,
+                    ...)
 {
   if(is.null(colnames(x))) stop("x must have column names")
 
@@ -13,14 +15,14 @@ rfeIter <- function(x, y,
   p <- ncol(x)
 
   retained <- colnames(x)
-  sizeValues <- sort(unique(c(sizes, ncol(x))),
-                     decreasing = TRUE)
+  sizeValues <- sort(unique(c(sizes, ncol(x))), decreasing = TRUE)
   sizeText <- format(sizeValues)
   
   finalVariables <- vector(length(sizeValues), mode = "list")
   
   for(k in seq(along = sizeValues))
     {
+      if(!any(is.na(seeds))) set.seed(seeds[k])
       if(rfeControl$verbose)
         {
           cat("+(rfe) fit",
@@ -131,8 +133,8 @@ rfe <- function (x, ...) UseMethod("rfe")
 
   if(is.null(names(rfeControl$index))) names(rfeControl$index) <- prettySeq(rfeControl$index)
 
-  sizeValues <- sort(unique(sizes))
-  sizeValues <- sizeValues[sizeValues <= ncol(x)]
+  sizes <- sort(unique(sizes))
+  sizes <- sizes[sizes <= ncol(x)]
 
   ## check summary function and metric
   testOutput <- data.frame(pred = sample(y, min(10, length(y))),
@@ -153,6 +155,30 @@ rfe <- function (x, ...) UseMethod("rfe")
       metric <- perfNames[1]
     }
 
+  ## Set or check the seeds when needed
+  totalSize <- if(any(sizes == ncol(x))) length(sizes) else length(sizes) + 1
+  if(is.null(rfeControl$seeds))
+  {
+    seeds <- vector(mode = "list", length = length(rfeControl$index))
+    seeds <- lapply(seeds, function(x) sample.int(n = 1000000, size = totalSize))
+    seeds[[length(rfeControl$index) + 1]] <- sample.int(n = 1000000, size = 1)
+    rfeControl$seeds <- seeds     
+  } else {
+    if(!(length(rfeControl$seeds) == 1 && is.na(rfeControl$seeds)))
+    {
+      ## check versus number of tasks
+      numSeeds <- unlist(lapply(rfeControl$seeds, length))
+      badSeed <- (length(rfeControl$seeds) < length(rfeControl$index) + 1) ||
+        (any(numSeeds[-length(numSeeds)] < totalSize))
+      if(badSeed) stop(paste("Bad seeds: the seed object should be a list of length",
+                             length(rfeControl$index) + 1, "with", 
+                             length(rfeControl$index), "integer vectors of size",
+                             totalSize, "and the last list element having a",
+                             "single integer"))      
+    }
+  }
+  
+  
   if(rfeControl$method == "LOOCV")
     {
       tmp <- looRfeWorkflow(x, y, sizes, ppOpts = NULL, ctrl = rfeControl, lev = classLevels, ...)
@@ -337,6 +363,7 @@ rfeControl <- function(functions = NULL,
                        p = .75,
                        index = NULL,
                        timingSamps = 0,
+                       seeds = NA,
                        allowParallel = TRUE)
 {
   list(
@@ -351,6 +378,7 @@ rfeControl <- function(functions = NULL,
        p = p,
        index = index,
        timingSamps = timingSamps,
+       seeds = seeds,
        allowParallel = allowParallel)
 }
 

@@ -1,5 +1,5 @@
 "createGrid" <-
-  function(method, len = 3, data = NULL)
+  function(method, len = 3, data = NULL, pp = NULL)
 {
 
   somDims <- function(x)
@@ -232,6 +232,28 @@
 
   c5seq <- if(len == 1)  1 else  c(1, 10*((2:min(len, 11)) - 1))
   
+  if(!is.null(pp) & method %in% c("hda", "rf", "qrf", "Boruta", "ORFridge",
+                                  "ORFpls", "ORFsvm", "ORFlog", "lvq", "rpart",
+                                  "rpart2", "pam", "bagEarth", "bagFDA", "earth",
+                                  "fda", "svmRadial", "rvmRadial", "lssvmRadial", 
+                                  "gaussprRadial", "cforest", "relaxo", "sparseLDA",
+                                  "lars2", "smda", "rocc", "foba", "bag", "RRFglobal",
+                                  "RRF", "lda2", "extraTrees", "rpartCost", "svmRadialWeights",
+                                  "adaboost"))
+  {
+    pp$method <- pp$options
+    pp$options <- NULL
+    if("ica" %in% pp$method) pp$n.comp <- pp$ICAcomp
+    pp$ICAcomp <- NULL          
+    y <- data$.outcome
+    data$.outcome <- NULL
+    pp$x <- data
+    ppObj <- do.call("preProcess", pp)
+    ppObj$call <- "scrubed"
+    data <- predict(ppObj, data)
+    data$.outcome <- y
+  }
+  
   trainGrid <- switch(method,
                       nnet =, pcaNNet = expand.grid(
                                 .size = ((1:len) * 2) - 1, 
@@ -400,6 +422,10 @@
                                              .model = c("tree", "rules"), 
                                              .winnow = c(TRUE, FALSE),
                                              .Cost = 1:len),
+                      adabag = data.frame(.cp = 0),
+                      adaboost = expand.grid(.mfinal = (1:3)*10,
+                                             .cp = rpartTune(data, len)$.cp,
+                                             .coeflearn = c("Breiman", "Freund", "Zhu")),
                       lda =, lm =, treebag =, sddaLDA =, sddaQDA =,
                       glm =, qda =, OneR =, rlm =, lrm =,
                       rvmLinear =, lssvmLinear =, gaussprLinear =,

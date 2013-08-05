@@ -12,7 +12,7 @@ training and test data predictions and class probabilities.
 
 \method{predict}{list}(object, ...)
 
-\method{predict}{train}(object, newdata = NULL, type = "raw", ...)
+\method{predict}{train}(object, newdata = NULL, type = "raw", na.action = na.omit, ...)
 
 extractPrediction(models,
                   testX = NULL, testY = NULL,
@@ -32,6 +32,7 @@ extractProb(models,
   \item{type}{either "raw" or "prob", for the number/class predictions or class probabilities, respectively. Class probabilities are not available  for all classification models}
   \item{models}{a list of objects of the class \code{train}. The objects must have been generated with 
    \code{fitBest = FALSE} and \code{returnData = TRUE}.}
+   \item{na.action}{the method for handling missing data }  
   \item{testX}{an optional set of data to predict}
   \item{testY}{an optional outcome corresponding to the data given in \code{testX}}
   \item{unkX}{another optional set of data to predict without known outcomes}  

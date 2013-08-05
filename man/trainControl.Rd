@@ -23,6 +23,7 @@ trainControl(method = "boot",
              indexOut = NULL,
              timingSamps = 0,
              predictionBounds = rep(FALSE, 2),
+             seeds = NA,
              allowParallel = TRUE)
 }
 \arguments{
@@ -47,6 +48,7 @@ trainControl(method = "boot",
   \item{indexOut}{a list (the same length as \code{index}) that dictates which sample are held-out for each resample. If \code{NULL}, then the unique set of samples not contained in \code{index} is used.}
   \item{timingSamps}{the number of training set samples that will be used to measure the time for predicting samples (zero indicates that the prediction time should not be estimated.}
   \item{predictionBounds}{a logical or numeric vector of length 2 (regression only). If logical, the predictions can be constrained to be within the limit of the training set outcomes. For example, a value of \code{c(TRUE, FALSE)} would only constrain the lower end of predictions. If numeric, specific bounds can be used. For example, if \code{c(10, NA)}, values below 10 would be predicted as 10 (with no constraint in the upper side).}
+  \item{seeds}{an optional set of integers that will be used to set the seed at each resampling iteration. This is useful when the models are run in parallel. A value of \code{NA} will stop the seed from being set within the worker processes while a value of \code{NULL} will set the seeds using a random set of integers. Alternatively, a list can be used. The list should have \code{B+1} elements where \code{B} is the number of resamples. The first \code{B} elements of the list should be vectors of integers of length \code{M} where \code{M} is the number of models being evaluated. The last element of the list only needs to be a single integer (for the final model). See the Examples section below and the Details section. }
   \item{allowParallel}{if a parallel backend is loaded and available, should the function use it?}
 }
 
@@ -66,8 +68,35 @@ For custom modeling functions, several functions can be specified using the \cod
 
 For more details and worked examples, see \url{http://caret.r-forge.r-project.org/}.
 
+When setting the seeds manually, the number of models being evaluated is required. This may not be obvious as \code{train} does some optimizations for certain models. For example, when tuning over PLS model, the only model that is fit is the one with the largest number of components. So if the model is being tuned over \code{comp in 1:10}, the only model fit is \code{ncomp = 10}. However, if the vector of integers used in the \code{seeds} arguments is longer than actually needed, no error is thrown. 
 }
 
 \author{Max Kuhn}
+
+\examples{
+\dontrun{
+
+## Do 5 repeats of 10-Fold CV for the iris data. We will fit
+## a KNN model that evaluates 12 values of k and set the seed
+## at each iteration.
+
+set.seed(123)
+seeds <- vector(mode = "list", length = 51)
+for(i in 1:50) seeds[[i]] <- sample.int(1000, 22)
+
+## For the last model:
+seeds[[51]] <- sample.int(1000, 1)
+
+ctrl <- trainControl(method = "repeatedcv", 
+                     repeats = 5,
+                     seeds = seeds)
+
+set.seed(1)
+mod <- train(Species ~ ., data = iris, 
+             method = "knn", 
+             tuneLength = 12,
+             trControl = ctrl)
+}
+}
 
 \keyword{utilities}

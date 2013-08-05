@@ -23,6 +23,7 @@ rfeIter(x, y,
         sizes, 
         rfeControl = rfeControl(), 
         label = "",
+        seeds = NA,
         ...)
 
 \method{predict}{rfe}(object, newdata, ...)
@@ -40,6 +41,7 @@ rfeIter(x, y,
   \item{object}{an object of class \code{rfe}}
   \item{newdata}{a matrix or data frame of new samples for prediction}
   \item{label}{an optional character string to be printed when in verbose mode.}
+  \item{seeds}{an optional vector of integers for the size. The vector should have length of \code{length(sizes)+1}}
   \item{\dots}{options to pass to the model fitting function (ignored in \code{predict.rfe})}
 }
 \details{

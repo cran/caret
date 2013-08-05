@@ -3,6 +3,10 @@ modelLookup <- function(model = NULL)
 {
   mods <- c(## ada
             'ada', 'ada', 'ada',
+            ## adaboost
+            'adaboost', 'adaboost', 'adaboost',
+            ## adabag
+            'adabag', 
             ## avnnet
             'avNNet', 'avNNet', 'avNNet',               
             ## bag
@@ -316,6 +320,10 @@ modelLookup <- function(model = NULL)
 
   pNames <- c(## ada
               'iter', 'maxdepth', 'nu',
+              ## adaboost
+              'mfinal', 'cp', 'coeflearn',
+              ## adabag
+              'cp',               
               ## avnnet
               'size', 'decay', 'bag',              
               ## bag
@@ -629,6 +637,12 @@ modelLookup <- function(model = NULL)
               '#Trees',
               'Max Tree Depth',
               'Learning Rate',
+              ## adaboost
+              '#Trees', 
+              'Complexity Parameter', 
+              'Weighting Scheme',
+              ## adabag
+              'Complexity Parameter',               
               ## avnnet
               '#Hidden Units',
               'Weight Decay',
@@ -1001,6 +1015,10 @@ modelLookup <- function(model = NULL)
 
   isSeq <- c(## ada
              FALSE, FALSE, FALSE,
+             ## adaboost
+             TRUE, FALSE, FALSE,
+             ## adabag
+             FALSE, 
              ## avnnet
              FALSE, FALSE, FALSE,             
              ## bag
@@ -1311,6 +1329,10 @@ modelLookup <- function(model = NULL)
              )
   isRegMod <- c(## ada
                 FALSE, FALSE, FALSE,
+                ## adaboost
+                FALSE, FALSE, FALSE,
+                ## adabag
+                FALSE,                 
                 ## avnnet
                 TRUE, TRUE, TRUE,                 
                 ## bag
@@ -1622,6 +1644,10 @@ modelLookup <- function(model = NULL)
 
   isClassMod <- c(## ada
                   TRUE, TRUE, TRUE,
+                  ## adaboost
+                  TRUE, TRUE, TRUE,
+                  ## adabag
+                  TRUE,                   
                   ## avnnet
                   TRUE, TRUE, TRUE,                  
                   ## bag
@@ -1932,6 +1958,10 @@ modelLookup <- function(model = NULL)
 
   hasProbModel <- c(## ada
                     TRUE, TRUE, TRUE,
+                    ## adaboost
+                    TRUE, TRUE, TRUE,
+                    ## adabag
+                    TRUE,                     
                     ## avnnet
                     TRUE, TRUE, TRUE,                     
                     ## bag

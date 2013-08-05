@@ -38,7 +38,7 @@ byComplexity <- function(x, model)
            {
              x[order(x[,1]),]
            },
-           rpart =, JRip =
+           rpart =, JRip =, adabag = 
            {
              x[order(x[,1], decreasing = TRUE),]
            },

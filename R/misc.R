@@ -1,3 +1,33 @@
+Kim2009 <- function(n)
+{
+  grid <- matrix(runif(n*10), ncol = 10)
+  grid <- as.data.frame(grid)
+  names(grid) = paste("x", 1:10, sep = "")
+  grid$x5 <- floor((grid$x5*3)+1)
+  pred <- -10 + 10 * sin(pi * grid$x1* grid$x2) + 5*(grid$x3 - .5)^2 + 5*grid$x4 + 2*grid$x5
+  prob <-  binomial()$linkinv(pred)
+  grid$Class <- ifelse(prob <= runif(n), "Class1", "Class2")
+  grid$Class <- factor(grid$Class, levels = c("Class1","Class2"))
+  grid
+}
+
+
+gamFormula <- function(data, smoother = "s", cut = 8, y = "y")
+{
+  nzv <- nearZeroVar(data)
+  if(length(nzv) > 0) data <- data[, -nzv, drop = FALSE]
+  
+  numValues <- apply(data, 2, function(x) length(unique(x)))
+  prefix <- rep("", ncol(data))
+  prefix[numValues > cut] <- paste(smoother, "(", sep = "")
+  suffix <- rep("", ncol(data))
+  suffix[numValues > cut] <- ")"
+  rhs <- paste(prefix, names(numValues), suffix, sep = "")
+  rhs <- paste(rhs, collapse = "+")
+  form <- as.formula(paste(y, "~", rhs, sep = ""))
+  form
+}
+
 printCall <- function(x)
   {
     call <- paste(deparse(x), collapse = "\n")
@@ -305,7 +335,7 @@ tuneScheme <- function(model, grid, useOOB = FALSE)
                loop <- grid[1,,drop = FALSE]
                seqParam <- list(grid[-1,,drop = FALSE])
              },
-             rpart = 
+             rpart =, 
              {
                grid <- grid[order(grid$.cp, decreasing = FALSE),, drop = FALSE]
                loop <- grid[1,,drop = FALSE]

@@ -3,6 +3,8 @@
 \alias{dummyVars.default}
 \alias{predict.dummyVars}
 \alias{contr.dummy}
+\alias{contr.ltfr}
+
 
 \title{
 Create A Full Set of Dummy Variables
@@ -13,11 +15,14 @@ Create A Full Set of Dummy Variables
 \usage{
 dummyVars(formula, ...)
 
-\method{dummyVars}{default}(formula, data, sep = ".", levelsOnly = FALSE, ...)
+\method{dummyVars}{default}(formula, data, sep = ".", levelsOnly = FALSE, 
+          fullRank = FALSE, ...)
 
 \method{predict}{dummyVars}(object, newdata, na.action = na.pass, ...)
 
-contr.dummy(n, ...)
+contr.dummy(n, ...) ## DEPRECATED
+
+contr.ltfr(n, contrasts = TRUE, sparse = FALSE)
 }
 \arguments{
   \item{formula}{
@@ -32,6 +37,9 @@ An optional separator between factor variable names and their levels. Use \code{
   \item{levelsOnly}{
 A logical; \code{TRUE} means to completely remove the variable names from the column names
 }
+  \item{fullRank}{
+A logical; should a full rank or less than full rank parameterization be used? If \code{TRUE}, factors are encoded to be consistent with \code{\link[stats]{model.matrix}} and the resulting there are no linear dependencies induced between the columns.
+}
   \item{object}{
 An object of class \code{dummyVars}
 }
@@ -39,10 +47,16 @@ An object of class \code{dummyVars}
 A data frame with the required columns
 }
   \item{na.action}{
-A function determining what should be done with missing values in newdata. The default is to predict \code{NA}.
+A function determining what should be done with missing values in \code{newdata}. The default is to predict \code{NA}.
 }
   \item{n}{
 A vector of levels for a factor, or the number of levels.
+}
+  \item{contrasts}{
+A logical indicating whether contrasts should be computed.
+}
+  \item{sparse}{
+A logical indicating if the result should be sparse.
 }
   \item{...}{additional arguments to be passed to other methods}
 }
@@ -75,7 +89,7 @@ In some situations, there may be a need for dummy variables for all of the level
 9      1      0      0      0      0      0      0
 }
 
-Given a formula and initial data set, the class \code{dummyVars} gathers all the information needed to produce a full set of dummy variables for any data set. It uses \code{contr.dummy} as the base function to do this.
+Given a formula and initial data set, the class \code{dummyVars} gathers all the information needed to produce a full set of dummy variables for any data set. It uses \code{contr.ltfr} as the base function to do this.
 
 }
 \value{
@@ -91,11 +105,11 @@ The output of \code{dummyVars} is a list of class 'dummyVars' with elements
 
 The \code{predict} function produces a data frame.
 
-\code{contr.dummy} generates a matrix with n rows and n columns.
+\code{contr.ltfr} generates a design matrix.
 }
 
 \author{
-The initial code was graciously provided by Gabor Grothendieck on R-Help; refined by Max Kuhn
+\code{contr.ltfr} is a small modification of \code{\link[stats]{contr.treatment}} by Max Kuhn
 }
 
 \references{
@@ -120,10 +134,15 @@ levels(when$day) <- c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 ## Default behavior:
 model.matrix(~day, when)
 
-
 mainEffects <- dummyVars(~ day + time, data = when)
 mainEffects
 predict(mainEffects, when[1:3,])
+
+when2 <- when
+when2[1, 1] <- NA
+predict(mainEffects, when2[1:3,])
+predict(mainEffects, when2[1:3,], na.action = na.omit)
+
 
 interactionModel <- dummyVars(~ day + time + day:time,
                               data = when,
