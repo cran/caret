@@ -4,7 +4,8 @@ twoClassSim <- function(n = 100,
                         noiseVars = 0,    ## Number of uncorrelated x's
                         corrVars = 0,     ## Number of correlated x's
                         corrType = "AR1", ## Corr structure ('AR1' or 'exch')
-                        corrValue = 0)    ## Corr parameter)
+                        corrValue = 0,    ## Corr parameter
+                        mislabel = 0)
 {
   require(MASS)
   sigma <- matrix(c(2,1.3,1.3,2),2,2)
@@ -63,6 +64,10 @@ twoClassSim <- function(n = 100,
   }
   
   prob <- binomial()$linkinv(lp)
+  if(mislabel > 0 & mislabel < 1) {
+    shuffle <- sample(1:nrow(tmpData), floor(nrow(tmpData)*j))
+    prob[shuffle] <- 1 - prob[shuffle]
+  }
   tmpData$Class <- ifelse(prob <= runif(n), "Class1", "Class2")
   tmpData$Class <- factor(tmpData$Class, levels = c("Class1", "Class2"))
   

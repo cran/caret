@@ -3,8 +3,6 @@ function(x, y,
    plot = if(is.factor(y)) "strip" else "scatter", 
    labels = c("Feature", ""), ...)
 {
-   require(lattice)
-
    if(!is.data.frame(x))  x <- as.data.frame(x)
    numFeat <- dim(x)[2]
    

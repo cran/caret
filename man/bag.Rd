@@ -131,6 +131,6 @@ mdrrDescr <- mdrrDescr[, -findCorrelation(cor(mdrrDescr), .95)]
 ##                  bagControl = bagControl(fit = ldaBag$fit,
 ##                                          predict = ldaBag$pred,
 ##                                          aggregate = ldaBag$aggregate),
-##                  tuneGrid = data.frame(.vars = c((1:10)*10 , ncol(mdrrDescr))))
+##                  tuneGrid = data.frame(vars = c((1:10)*10 , ncol(mdrrDescr))))
 }
 \keyword{models }

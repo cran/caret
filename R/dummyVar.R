@@ -10,7 +10,7 @@ contr.ltfr <- function (n, contrasts = TRUE, sparse = FALSE)
     levels <- as.character(n)
     n <- length(n)
   }
-  contr <- stats:::.Diag(levels, sparse = sparse)
+  contr <- .RDiag(levels, sparse = sparse)
   if (contrasts) {
     if (n < 2L) stop(gettextf("contrasts not defined for %d degrees of freedom", n - 1L), domain = NA)
   }

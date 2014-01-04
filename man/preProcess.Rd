@@ -28,7 +28,7 @@ preProcess(x, ...)
 
 \arguments{
   \item{x}{a matrix or data frame. All variables must be numeric.}
-  \item{method}{a character vector specifying the type of processing. Possible values are "BoxCox", "YeoJohnson", "expoTrans", "center", "scale", "range", "knnImpute", "bagImpute", "pca", "ica" and "spatialSign" (see Details below)}
+  \item{method}{a character vector specifying the type of processing. Possible values are "BoxCox", "YeoJohnson", "expoTrans", "center", "scale", "range", "knnImpute", "bagImpute", "medianImpute", pca", "ica" and "spatialSign" (see Details below)}
   \item{thresh}{a cutoff for the cumulative percent of variance to be retained by PCA}
   \item{pcaComp}{the specific number of PCA components to keep. If specified, this over-rides \code{thresh}}
   \item{na.remove}{a logical; should missing values be removed from the calculations?}
@@ -48,7 +48,7 @@ preProcess(x, ...)
   \item{\dots}{additional arguments to pass to \code{\link[fastICA]{fastICA}}, such as \code{n.comp}}
 }
 \details{
-The Box-Cox and Yeo-Johnson transformations have been "repurposed" here: they are being used to transform the predictor variables. The Box-Cox transformation was developed for transforming the response variable while another method, the Box-Tidwell transformation, was created to estimate transformations of predictor data. However, the Box-Cox method is simpler, more computationally efficient and is equally effective for estimating power transformations. The Yeo-Johnson transformation is similar to the Box-Cox model but can accommodate predictors with zero and/or negative values (while the predictors values for the Box-Cox transformation must be strictly positive.) The exponential transformation of Manly (1976) can also be used for positive or negative data.
+The Box-Cox, Yeo-Johnson and exponential transformations have been "repurposed" here: they are being used to transform the predictor variables. The Box-Cox transformation was developed for transforming the response variable while another method, the Box-Tidwell transformation, was created to estimate transformations of predictor data. However, the Box-Cox method is simpler, more computationally efficient and is equally effective for estimating power transformations. The Yeo-Johnson transformation is similar to the Box-Cox model but can accommodate predictors with zero and/or negative values (while the predictors values for the Box-Cox transformation must be strictly positive.) The exponential transformation of Manly (1976) can also be used for positive or negative data.
  
 The "range" transformation scales the data to be within [0, 1]. If new samples have values larger or smaller than those in the training set, values will be outside of this range.
 
@@ -56,7 +56,7 @@ The operations are applied in this order: Box-Cox/Yeo-Johnson transformation, ce
 
 If PCA is requested but centering and scaling are not, the values will still be centered and scaled. Similarly, when ICA is requested, the data are automatically centered and scaled.
 
-k-nearest neighbor imputation is carried out by finding the k closest samples (Euclidian distance) in the training set. Imputation via bagging fits a bagged tree model for each predictor (as a function of all the others). This method is simple, accurate and accepts missing values, but it has much higher computational cost.
+k-nearest neighbor imputation is carried out by finding the k closest samples (Euclidian distance) in the training set. Imputation via bagging fits a bagged tree model for each predictor (as a function of all the others). This method is simple, accurate and accepts missing values, but it has much higher computational cost. Imputation via medians takes the median of each predictor in the training set, and uses them to fill missing values.  This method is simple, fast, and accepts missing values, but treats each predictor independently, and may be inaccurate.
 
 A warning is thrown if both PCA and ICA are requested. ICA, as implemented by the \code{\link[fastICA]{fastICA}} package automatically does a PCA decomposition prior to finding the ICA scores.
 
@@ -75,11 +75,15 @@ The function will throw an error of any variables in \code{x} has less than two 
   \item{ranges}{a matrix of min and max values for each predictor when \code{method} includes "range" (and \code{NULL} otherwise)}
   \item{numComp}{the number of principal components required of capture the specified amount of variance}
   \item{ica}{contains values for the \code{W} and \code{K} matrix of the decomposition}
+  \item{median}{a vector of medians (if median imputation was requested)}
 }
 
-\author{ Max Kuhn }
+\author{ Max Kuhn, median imputation by Zachary Mayer }
 
-\references{Kuhn (2008), Building predictive models in R using the caret (\url{http://www.jstatsoft.org/v28/i05/})
+\references{
+\url{http://caret.r-forge.r-project.org/preprocess.html}
+
+Kuhn (2008), Building predictive models in R using the caret (\url{http://www.jstatsoft.org/v28/i05/})
 
 Box, G. E. P. and Cox, D. R. (1964) An analysis of transformations (with discussion). Journal of the Royal Statistical Society B, 26, 211-252.
 

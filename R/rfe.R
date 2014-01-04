@@ -289,16 +289,8 @@ print.rfe <- function(x, top = 5, digits = max(3, getOption("digits") - 3), ...)
   resampleN <- unlist(lapply(x$control$index, length))
   numResamp <- length(resampleN)
   
-  resampName <- switch(tolower(x$control$method),
-                       boot = paste("Bootstrap (", numResamp, " reps)", sep = ""),
-                       boot632 = paste("Bootstrap 632 Rule (", numResamp, " reps)", sep = ""),
-                       cv = paste("Cross-Validation (", x$control$number, " fold)", sep = ""),
-                       repeatedcv = paste("Cross-Validation (", x$control$number, " fold, repeated ",
-                         x$control$repeats, " times)", sep = ""),
-                       loocv = "Leave-One-Out Cross-Validation",
-                       lgocv = paste("Repeated Train/Test Splits (", numResamp, " reps, ",
-                         round(x$control$p, 2), "%)", sep = ""))
-  cat("Outer resampling method:", resampName, "\n")      
+  resampText <- resampName(x)
+  cat("Outer resampling method:", resampText, "\n")      
 
   cat("\nResampling performance over subset size:\n\n")
   x$results$Selected <- ""
@@ -322,30 +314,26 @@ print.rfe <- function(x, top = 5, digits = max(3, getOption("digits") - 3), ...)
 ######################################################################
 
 plot.rfe <- function (x,
-                      plotType = "size",
                       metric = x$metric,
-                      digits = getOption("digits") - 5,
-                      xTrans = NULL,
-                      ...)
-{
-  switch(plotType,
-         size =
-         {
-           x$results$Selected <- ""
-           x$results$Selected[x$results$Variables == x$bestSubset] <- "*"
-           
-           results <- x$results[, colnames(x$results) %in% c("Variables", "Selected", metric)]
-           metric <- metric[which(metric %in% colnames(results))]
-           
-           plotForm <- as.formula(paste(metric, "~ Variables"))
-           panel.profile <- function(x, y, groups, ...)
-             {
-               panel.xyplot(x, y, ...)
-               panel.xyplot(x[groups == "*"], y[groups == "*"], pch = 16)
-             }
-           
-           out <- xyplot(plotForm, data = results, groups = Selected, panel =  panel.profile, ...)
-         })
+                      ...) {  
+  x$results$Selected <- ""
+  x$results$Selected[x$results$Variables == x$bestSubset] <- "*"
+  
+  results <- x$results[, colnames(x$results) %in% c("Variables", "Selected", metric)]
+  metric <- metric[which(metric %in% colnames(results))]
+  
+  plotForm <- as.formula(paste(metric, "~ Variables"))
+  panel.profile <- function(x, y, groups, ...)
+  {
+    panel.xyplot(x, y, ...)
+    panel.xyplot(x[groups == "*"], y[groups == "*"], pch = 16)
+  }
+  resampText <- resampName(x, FALSE)
+  resampText <- paste(metric, resampText)
+  out <- xyplot(plotForm, data = results, groups = Selected, panel =  panel.profile, 
+                ylab = resampText,
+                ...)
+  
   out
 }
 
@@ -359,7 +347,7 @@ rfeControl <- function(functions = NULL,
                        number = ifelse(method %in% c("cv", "repeatedcv"), 10, 25),
                        repeats = ifelse(method %in% c("cv", "repeatedcv"), 1, number),
                        verbose = FALSE,
-                       returnResamp = "all",
+                       returnResamp = "final",
                        p = .75,
                        index = NULL,
                        timingSamps = 0,
@@ -426,7 +414,7 @@ caretFuncs <- list(summary = defaultSummary,
                    {
                      tmp <- predict(object, x)
                      if(object$modelType == "Classification" &
-                        modelLookup(object$method)$probModel[1])
+                          !is.null(object$modelInfo$prob))
                        {
                          out <- cbind(data.frame(pred = tmp),
                                       as.data.frame(predict(object, x, type = "prob")))
@@ -511,7 +499,7 @@ treebagFuncs <- list(summary = defaultSummary,
                      },
                      rank = function(object, x, y)
                      {
-                       vimp <- varImp(object, scale = FALSE)
+                       vimp <- varImp(object)
                        vimp <- vimp[
                                     order(vimp$Overall, decreasing = TRUE)
                                     ,,drop = FALSE]
@@ -533,7 +521,7 @@ gamFuncs <- list(summary = defaultSummary,
                    library(mgcv)
                    dat <- if(is.data.frame(x)) x else as.data.frame(x)
                    dat$y <- y
-                   args <- list(formula = caret:::gamFormula(x, smoother = "s", y = "y"),
+                   args <- list(formula = gamFormula(x, smoother = "s", y = "y"),
                                 data = dat,
                                 family = if(!is.factor(y)) gaussian else  binomial)
                    do.call("gam", args)

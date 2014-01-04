@@ -45,6 +45,8 @@ rfeIter(x, y,
   \item{\dots}{options to pass to the model fitting function (ignored in \code{predict.rfe})}
 }
 \details{
+More details on this function can be found at \url{http://caret.r-forge.r-project.org/featureselection.html}.
+
 This function implements backwards selection of predictors based on predictor importance ranking. The predictors are ranked and the less important ones are sequentially eliminated prior to modeling. The goal is to find a subset of predictors that can be used to produce an accurate model. The web page  \url{http://caret.r-forge.r-project.org/} has more details and examples related to this function.
 
 
@@ -104,7 +106,7 @@ svmProfile <- rfe(x, logBBB,
                   ## pass options to train()
                   method = "svmRadial")
 
-## classification with no resampling
+## classification 
 
 data(mdrr)
 mdrrDescr <- mdrrDescr[,-nearZeroVar(mdrrDescr)]

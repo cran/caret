@@ -4,7 +4,6 @@ lift.default <- function(x, ...) stop("'x' should be a formula")
 
 lift.formula <- function(x, data = NULL, class = NULL,subset = TRUE,  lattice.options = NULL, labels = NULL, ...)
   {
-    library(plyr)
 
     if (!is.null(lattice.options)) {
       oopt <- lattice.options(lattice.options)
@@ -70,8 +69,9 @@ print.lift <- function(x, ...)
     invisible(x)
   }
 
-
-xyplot.lift <- function(x, data = NULL, plot = "gain", ...)
+plot.lift <- function(x, y = NULL, ...) xyplot.lift(x = x, data = NULL, ...)
+  
+xyplot.lift <- function(x, data = NULL, plot = "gain", values = NULL, ...)
   {
     if(!(plot %in% c("lift", "gain"))) stop(paste("'plot' should be either 'lift' or 'gain'"))
     if(plot == "gain")
@@ -96,7 +96,8 @@ xyplot.lift <- function(x, data = NULL, plot = "gain", ...)
   }
     args <- list(x = as.formula(lFormula),
                  data = x$data,
-                 pct = x$pc)
+                 pct = x$pc,
+                 values = values)
     if(length(x$probNames) > 1) args$groups <- x$data$liftModelVar
 
     args <- c(args, opts)    
@@ -149,15 +150,51 @@ panel.lift <- function(x,  y, ...)
 }
 
 
-panel.lift2 <- function (x, y, pct = 0, ...) 
-{
+panel.lift2 <- function (x, y, pct = 0, values = NULL, ...) 
+{ 
   polyx <- c(0, pct, 100, 0)
   polyy <- c(0, 100, 100, 0)
   regionStyle <- trellis.par.get("reference.line")
+  
   panel.polygon(polyx, polyy,
                 col = regionStyle$col,
                 border = regionStyle$col)
   panel.xyplot(x, y, ...)
+  if(!is.null(values))
+  {
+    theDots <- list(...)
+    if(any(names(theDots) == "groups"))
+    {
+      dat <- data.frame(x = x, y = y, groups = theDots$groups)
+      ung <- unique(dat$groups)
+      for(i in seq(along = ung)) 
+      {
+        dat0 <- subset(dat, groups == ung[i])
+        plotRef(dat0$x, dat0$y, values, iter = i)
+      }
+      
+    } else plotRef(x, y, values)
+
+  }
 }
 
-
+plotRef <- function(x, y, v, iter = 0)
+{
+  if(iter == 0) {
+    lineStyle <- trellis.par.get("plot.line")
+  } else {
+    lineStyle <- trellis.par.get("superpose.line")
+    lineStyle <- lapply(lineStyle, function(x, i) x[min(length(x), i)], i = iter)
+  }
+  erx <- extendrange(x)
+  ery <- extendrange(y)
+  values <- approx(y, x, xout = v)
+  for(i in seq(along = values$x)) {
+    panel.segments(values$y[i], ery[1], values$y[i], values$x[i],
+                   lty = lineStyle$lty, col = lineStyle$col,
+                   alpha = lineStyle$alpha, lwd = lineStyle$lwd)
+    panel.segments(erx[1], values$x[i], values$y[i], values$x[i],
+                   lty = lineStyle$lty, col = lineStyle$col,
+                   alpha = lineStyle$alpha, lwd = lineStyle$lwd)
+  }
+}

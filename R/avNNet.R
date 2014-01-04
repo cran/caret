@@ -22,7 +22,7 @@ avNNet.formula <- function (formula, data, weights, ...,
     m$data <- as.data.frame(data)
 ##  bag <- m$bag
 ##  repeats <- m$repeats
-  m$... <- m$contrasts <- m$bag <- m$repeats <- NULL
+  m$... <- m$contrasts <- m$bag <- m$repeats <- m$allowParallel <- NULL
   m[[1]] <- as.name("model.frame")
   m <- eval.parent(m)
   Terms <- attr(m, "terms")

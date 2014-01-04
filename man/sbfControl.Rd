@@ -13,7 +13,7 @@ sbfControl(functions = NULL,
            number = ifelse(method \%in\% c("cv", "repeatedcv"), 10, 25),
            repeats = ifelse(method \%in\% c("cv", "repeatedcv"), 1, number),
            verbose = FALSE, 
-           returnResamp = "all", 
+           returnResamp = "final", 
            p = 0.75, 
            index = NULL, 
            timingSamps = 0,
@@ -28,7 +28,7 @@ sbfControl(functions = NULL,
   \item{repeats}{For repeated k-fold cross-validation only: the number of complete sets of folds to compute}
   \item{saveDetails}{a logical to save the predictions and variable importances from the selection process}
   \item{verbose}{a logical to print a log for each external resampling iteration}
-  \item{returnResamp}{A character string indicating how much of the resampled summary metrics should be saved. Values can be ``all'' or ``none''}
+  \item{returnResamp}{A character string indicating how much of the resampled summary metrics should be saved. Values can be ``final'' or ``none''}
   \item{p}{For leave-group out cross-validation: the training percentage}
   \item{index}{a list with elements for each external resampling iteration. Each list element is the sample rows used for training at that iteration.}
   \item{timingSamps}{the number of training set samples that will be used to measure the time for predicting samples (zero indicates that the prediction time should not be estimated).}
@@ -37,6 +37,8 @@ sbfControl(functions = NULL,
 }
 
 \details{
+More details on this function can be found at \url{http://caret.r-forge.r-project.org/featureselection.html}.
+
 Simple filter-based feature selection requires function to be specified for some operations. 
 
 The \code{fit} function builds the model based on the current data set. The arguments for the function must be:

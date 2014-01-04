@@ -120,7 +120,7 @@ confusionMatrix(data = plsClasses, testing$Class)
 ### code chunk number 11: rdaFit
 ###################################################
 ## To illustrate, a custom grid is used
-rdaGrid = data.frame(.gamma = (0:4)/4, .lambda = 3/4)
+rdaGrid = data.frame(gamma = (0:4)/4, lambda = 3/4)
 set.seed(123)                    
 rdaFit <- train(Class ~ ., 
                 data = training,

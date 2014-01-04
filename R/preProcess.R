@@ -1,3 +1,6 @@
+ppMethods <- c("BoxCox", "YeoJohnson", "expoTrans", "center", "scale", "range", "knnImpute", "bagImpute", "pca", "ica", "spatialSign", "medianImpute")
+
+
 preProcess <- function(x, ...) UseMethod("preProcess")
 
 preProcess.default <- function(x, method = c("center", "scale"),
@@ -13,8 +16,8 @@ preProcess.default <- function(x, method = c("center", "scale"),
                                ...)
 {
 
-  allMethods <- c("BoxCox", "YeoJohnson", "expoTrans", "center", "scale", "range", "knnImpute", "bagImpute", "pca", "ica", "spatialSign")
-  if(any(!(method %in% allMethods))) stop(paste("'method' should be one of:", paste(allMethods, collapse = ", ")))
+  ppMethods <- c("BoxCox", "YeoJohnson", "expoTrans", "center", "scale", "range", "knnImpute", "bagImpute", "medianImpute", "pca", "ica", "spatialSign")
+  if(any(!(method %in% ppMethods))) stop(paste("'method' should be one of:", paste(ppMethods, collapse = ", ")))
   if(is.null(method)) stop("NULL values of 'method' are not allowed")
   if(any(method %in% "range") & any(method %in% c("center", "scale", "BoxCox")))
     stop("centering, scaling and/or Box-Cox transformations are inconsistent with scaling to a range of [0, 1]")
@@ -28,7 +31,7 @@ preProcess.default <- function(x, method = c("center", "scale"),
   if(any(method %in% c("pca", "ica", "knnImpute", "spatialSign")) & !(any(method == "scale"))) method  <- c(method, "scale")
   if(any(method %in% c("pca", "ica", "knnImpute", "spatialSign")) & !(any(method == "center"))) method  <- c(method, "center")
   
-  if(any(method == "knnImpute") & any(method == "bagImpute"))
+  if(sum(c("knnImpute","bagImpute", "medianImpute") %in% method) > 1)
     stop("please pick only one imputation method")
   
   method <- unique(method)
@@ -74,28 +77,31 @@ preProcess.default <- function(x, method = c("center", "scale"),
 
   if(any(method == "YeoJohnson"))
     {
-      library(car)
+
       yjWrap <- function(x, numUnique = numUnique)
         {
           if(length(unique(x)) >= numUnique)
-            {
-              out <- powerTransform(y ~ 1,
-                                    data = data.frame(y = x[!is.na(x)]),
-                                    family = "yjPower")
+          {
+            out <- try(powerTransform(y ~ 1,
+                                      data = data.frame(y = x[!is.na(x)]),
+                                      family = "yjPower"),
+                       silent = TRUE)
+            if(class(out)[1] == "try-error") out <- NA
             } else out <- NA
+          out
         }
       if(verbose) cat("Estimating Yeo-Johnson transformations for the predictors...")
       yj <- lapply(x, yjWrap, numUnique = numUnique)
       if(verbose) cat(" applying them to training data\n")
       ## Find a better way of doing this
-      lam <- unlist(lapply(yj, function(x) if(class(x) == "powerTransform") coef(x) else NA))
+      lam <- unlist(lapply(yj, function(x) if(class(x) == "powerTransform") x$lambda else NA))
       lam <- lam[!is.na(lam)]
       if(length(lam) > 0)
         {
           for(i in seq(along = lam))
             {
               who <-  gsub("\\.Y1$", "", names(lam)[i])
-              x[,who] <- yjPower(x[,who], coef(yj[[who]]))
+              x[,who] <- yjPower(x[,who], yj[[who]]$lambda)
             }
         }
     } else yj <- NULL
@@ -151,6 +157,14 @@ preProcess.default <- function(x, method = c("center", "scale"),
   
   x <- x[complete.cases(x),,drop = FALSE]
   
+  if (any(method == "medianImpute")) 
+    {
+    if(verbose) cat("Computing medians for each predictor...")
+    median <- sapply(x, median, na.rm=TRUE)
+    names(median) <- names(x)
+    if(verbose) cat(" done\n")
+  }
+  
   if(any(method == "pca"))
     {
       if(verbose) cat("Computing PCA loadings\n")
@@ -201,6 +215,7 @@ preProcess.default <- function(x, method = c("center", "scale"),
               k = k,
               knnSummary = knnSummary,
               bagImp = bagModels,
+              median = median,
               cols = cols,
               data = if(any(method == "knnImpute")) scale(x[complete.cases(x),,drop = FALSE]) else NULL)
   structure(out, class = "preProcess")
@@ -272,14 +287,14 @@ predict.preProcess <- function(object, newdata, ...)
 
   if(!is.null(object$yj))
     {
-      lam <- unlist(lapply(object$yj, function(x) if(class(x) == "powerTransform") coef(x) else NA))
+      lam <- unlist(lapply(object$yj, function(x) if(class(x) == "powerTransform") x$lambda else NA))
       lam <- lam[!is.na(lam)]
       if(length(lam) > 0)
         {
           for(i in seq(along = lam))
             {
               who <-  gsub("\\.Y1$", "", names(lam)[i])
-              newdata[,who] <- yjPower(newdata[,who], coef(object$yj[[who]]))
+              newdata[,who] <- yjPower(newdata[,who], object$yj[[who]]$lambda)
             }
         }
     }  
@@ -340,6 +355,17 @@ predict.preProcess <- function(object, newdata, ...)
       newdata[!cc,] <- hasMiss
     }
   
+  if (any(object$method == "medianImpute") && any(!cc)) {
+    hasMiss <- newdata[!cc, , drop = FALSE]
+    missingVars <- apply(hasMiss, 2, function(x) any(is.na(x)))
+    missingVars <- names(missingVars)[missingVars]
+    if (!is.data.frame(hasMiss)) 
+      hasMiss <- as.data.frame(hasMiss)
+    for (i in seq(along = missingVars)) {
+      hasMiss[is.na(hasMiss[, missingVars[i]]), missingVars[i]] <- object$median[missingVars[i]]
+    }
+    newdata[!cc, ] <- hasMiss
+  }
   
   if(any(object$method == "pca"))
     {
@@ -398,11 +424,11 @@ print.preProcess <- function(x, ...)
       cat("Lambda estimates for Yeo-Johnson transformation:\n")
       if(length(x$yj) < 11)
          {
-           lmbda <- unlist(lapply(x$yj, function(x) if(class(x) == "powerTransform") coef(x) else NA))
+           lmbda <- unlist(lapply(x$yj, function(x) if(class(x) == "powerTransform") x$lambda else NA))
            naLmbda <- sum(is.na(lmbda))
            cat(paste(round(lmbda[!is.na(lmbda)], 2), collapse = ", "))
            if(naLmbda > 0) cat(" (#NA: ", naLmbda, ")\n", sep = "")
-         } else print(summary(unlist(lapply(x$yj, function(x) if(class(x) == "powerTransform") coef(x) else NA))))
+         } else print(summary(unlist(lapply(x$yj, function(x) if(class(x) == "powerTransform") x$lambda else NA))))
       cat("\n")
     }  
   

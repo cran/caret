@@ -1,7 +1,7 @@
 "normalize2Reference" <-
   function (data, refData = NULL, ties = TRUE) 
 {
-  ## adapted from limma:::normalizeQuantiles
+  ## adapted from limma's normalizeQuantiles
   if (is.null(dim(data)))
     {
       numSamples <- 1

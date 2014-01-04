@@ -49,8 +49,7 @@ filterVarImp(mdrrDescr[, 1:5], mdrrClass)
 data(BloodBrain)
 
 filterVarImp(bbbDescr[, 1:5], logBBB, nonpara = FALSE)
-apply(
-      bbbDescr[, 1:5],
+apply(bbbDescr[, 1:5],
       2,
       function(x, y) summary(lm(y~x))$coefficients[2,3],
       y = logBBB)

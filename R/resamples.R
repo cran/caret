@@ -64,6 +64,7 @@ resamples.default <- function(x, modelNames = names(x), ...)
         names(tmp)[names(tmp) %in% pNames] <- paste(modelNames[i], names(tmp)[names(tmp) %in% pNames], sep = "~")
         out <- if(i == 1) tmp else merge(out, tmp)
       }
+    if(any(unlist(lapply(x, function(x) x$control$returnResamp)) != "final")) stop("some model did not have 'returnResamp=\"final\"")
 
     timings <- do.call("rbind", lapply(x, getTimes))
     colnames(timings) <- c("Everything", "FinalModel", "Prediction")
@@ -157,13 +158,13 @@ plot.prcomp.resamples <- function(x, what = "scree", dims = max(2, ncol(x$rotati
              {
                
                splom(~x$rotation[, 1:dims,drop = FALSE],
-                     main = caret:::useMathSymbols(x$metric),
+                     main = useMathSymbols(x$metric),
                      prepanel.limits = function(x) panelRange,
                      type = c("p", "g"),
                      ...)
              } else {
                xyplot(PC2~PC1, data = as.data.frame(x$rotation),
-                     main = caret:::useMathSymbols(x$metric),
+                     main = useMathSymbols(x$metric),
                      xlim = panelRange,
                      ylim = panelRange,
                      type = c("p", "g"),
@@ -179,14 +180,14 @@ plot.prcomp.resamples <- function(x, what = "scree", dims = max(2, ncol(x$rotati
              {
                
                splom(~x$x[, 1:dims,drop = FALSE],
-                     main = caret:::useMathSymbols(x$metric),
+                     main = useMathSymbols(x$metric),
                      prepanel.limits = function(x) panelRange,
                      groups = rownames(x$x),
                      type = c("p", "g"),
                      ...)
              } else {
                xyplot(PC2~PC1, data = as.data.frame(x$x),
-                     main = caret:::useMathSymbols(x$metric),
+                     main = useMathSymbols(x$metric),
                      xlim = panelRange,
                      ylim = panelRange,
                      
@@ -305,7 +306,7 @@ xyplot.resamples <- function (x, data = NULL, what = "scatter", models = NULL, m
                     data = tmpData,
                     ylab = paste(models, collapse = " - "),
                     ylim = ylm,
-                    main = caret:::useMathSymbols(metric),
+                    main = useMathSymbols(metric),
                     panel = function(x, y, ...)
                     {
                       panel.abline(h = 0, col = "darkgrey", lty = 2)
@@ -323,7 +324,7 @@ xyplot.resamples <- function (x, data = NULL, what = "scatter", models = NULL, m
                     ylab = colnames(tmpData)[1],
                     xlab = colnames(tmpData)[2],
                     xlim = ylm, ylim = ylm,
-                    main = caret:::useMathSymbols(metric),
+                    main = useMathSymbols(metric),
                     panel = function(x, y, ...)
                     {
                       panel.abline(0, 1, col = "darkgrey", lty = 2)
@@ -402,7 +403,7 @@ xyplot.resamples <- function (x, data = NULL, what = "scatter", models = NULL, m
       out <- with(plotData,
                   xyplot(Time ~ point,
                          lx = lower, ux = upper,
-                         xlab = caret:::useMathSymbols(metric),
+                         xlab = useMathSymbols(metric),
                          ylab = lab,
                          prepanel = prepanel.ci,
                          panel = panel.ci, groups = Model,
@@ -429,12 +430,12 @@ parallelplot.resamples <- function (x, data = NULL, models = x$models, metric = 
   reord <- order(apply(tmpData, 2, median, na.rm = TRUE))
   tmpData <- tmpData[, reord]
 
-  lattice:::parallelplot(~tmpData,
-                     common.scale = TRUE,
-                     scales = list(x = list(at = (prng-min(rng))/diff(rng), labels = prng)),
-                     xlab = caret:::useMathSymbols(metric),
-                     ...)
-    
+  parallelplot(~tmpData,
+               common.scale = TRUE,
+               scales = list(x = list(at = (prng-min(rng))/diff(rng), labels = prng)),
+               xlab = useMathSymbols(metric),
+               ...)
+  
 }
 
 splom.resamples <- function (x, data = NULL, variables = "models",
@@ -466,7 +467,7 @@ splom.resamples <- function (x, data = NULL, variables = "models",
               panel.abline(0, 1, lty = 2, col = "darkgrey")
 
             },
-            main = caret:::useMathSymbols(metric),
+            main = useMathSymbols(metric),
             prepanel.limits = function(x) panelRange,
             ...)
     } else{
@@ -879,7 +880,7 @@ dotplot.diff.resamples <- function(x, data = NULL, metric = x$metric[1], ...)
     plotData$Difference <- gsub(".diff.", " - ", colnames(x$difs[[metric]]), fixed = TRUE)
     plotData <- melt(plotData, id.vars = "Difference")
     xText <- paste("Difference in",
-                   caret:::useMathSymbols(metric),
+                   useMathSymbols(metric),
                    "\nConfidence Level",
                    round(x$confLevel, 3),
                    ifelse(x$adjustment == "bonferroni",
@@ -925,4 +926,21 @@ dotplot.diff.resamples <- function(x, data = NULL, metric = x$metric[1], ...)
             },
             ...)
   }
+
+
+modelCor <- function(x, metric = x$metric[1], ...)
+{
+  dat <- x$values[, grep(paste("~", metric[1], sep = ""), names(x$values))]
+  colnames(dat) <- gsub(paste("~", metric[1], sep = ""), "", colnames(dat))
+  cor(dat, ...)
+}
+
+sort.resamples <- function(x, decreasing = FALSE, metric = x$metric[1], FUN = mean, ...) 
+{
+  dat <- x$values[, grep(paste("~", metric[1], sep = ""), names(x$values))]
+  colnames(dat) <- gsub(paste("~", metric[1], sep = ""), "", colnames(dat))
+  stats <- apply(dat, 2, FUN, ...)
+  names(sort(stats, decreasing = decreasing))
+}
+
 

@@ -130,7 +130,7 @@ iter <- parm <- method <- Resample <- dat <- NULL
 ##
 ## ????
 ##
-## > formals(klaR:::rda.default)
+## > formals(klaR::rda.default)
 ## $x
 ## <snip>
 ## $gamma
@@ -181,3 +181,11 @@ thresh <- NULL
 probValues <- min_prob <- NULL
 
 altTrainWorkflow <- function(x) x
+
+groups <- NULL
+
+trainData <- NULL
+
+j <- NULL
+
+x <- NULL

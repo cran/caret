@@ -86,7 +86,7 @@ oldfilterVarImp <- function(x, y, nonpara = FALSE, ...)
 }
 
 
-rocPerCol <- function(dat, cls) pROC:::roc(cls, dat)$auc
+rocPerCol <- function(dat, cls) pROC::roc(cls, dat)$auc
 
 filterVarImp <- function(x, y, nonpara = FALSE, ...)
 {

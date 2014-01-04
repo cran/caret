@@ -50,6 +50,7 @@ The formulas used here are:
 \deqn{NPV = (specificity * (1-Prevalence))/(((1-sensitivity)*Prevalence) + ((specificity)*(1-Prevalence)))}
 \deqn{Detection Rate =  A/(A+B+C+D)}
 \deqn{Detection Prevalence =  (A+B)/(A+B+C+D)}
+\deqn{Balanced Accuracy =  (Sensitivity+Specificity)/2}
 
 See the references for discusions of the first five formulas.
 
@@ -67,7 +68,7 @@ a list with elements
   \item{table}{the results of \code{table} on \code{data} and  \code{reference}}
   \item{positive}{the positive result level}
   \item{overall}{a numeric vector with overall accuracy and Kappa statistic values}
-  \item{byClass}{the sensitivity, specificity, positive predictive value, negative predictive value, prevalence, dection rate and detection prevalence for each class. For two class systems, this is calculated once using the \code{positive} argument}
+  \item{byClass}{the sensitivity, specificity, positive predictive value, negative predictive value, prevalence, dection rate, detection prevalence and balanced accuracy for each class. For two class systems, this is calculated once using the \code{positive} argument}
 
 }
 \author{Max Kuhn}
@@ -77,6 +78,8 @@ a list with elements
 Altman,  D.G., Bland,  J.M. (1994) ``Diagnostic tests 1: sensitivity and specificity,'' \emph{British Medical Journal}, vol 308, 1552.
 
 Altman,  D.G., Bland,  J.M. (1994) ``Diagnostic tests 2: predictive values,'' \emph{British Medical Journal}, vol 309, 102. 
+
+Velez,  D.R., et. al. (2008) ``A balanced accuracy function for epistasis modeling in imbalanced datasets using multifactor dimensionality reduction.,'' \emph{Genetic Epidemiology}, vol 4, 306. 
 }
 \seealso{\code{\link{as.table.confusionMatrix}}, \code{\link{as.matrix.confusionMatrix}}, 
 \code{\link{sensitivity}},   \code{\link{specificity}}, \code{\link{posPredValue}}, \code{\link{negPredValue}}, 

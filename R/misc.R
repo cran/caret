@@ -1,3 +1,48 @@
+evalSummaryFunction <- function(y, ctrl, lev, metric, method) {
+  ## get phoney performance to obtain the names of the outputs
+  testOutput <- data.frame(pred = sample(y, min(10, length(y))),
+                           obs = sample(y, min(10, length(y))))
+  
+  if(ctrl$classProbs)
+  {
+    for(i in seq(along = lev)) testOutput[, lev[i]] <- runif(nrow(testOutput))
+    testOutput[, lev] <- t(apply(testOutput[, lev], 1, function(x) x/sum(x)))
+  } else {
+    if(metric == "ROC" & !ctrl$classProbs)
+      stop("train()'s use of ROC codes requires class probabilities. See the classProbs option of trainControl()")
+  }
+  ctrl$summaryFunction(testOutput, lev, method)
+}
+
+
+hasDots <- function(grid, info) {
+  mnames <- sort(as.character(info$parameters$parameter))
+  mnames2 <- paste(".", mnames, sep = "")
+  gnames <- sort(colnames(grid))
+  out <- all.equal(mnames2, gnames)
+  if(class(out)[1] != "logical") out <- FALSE
+  out
+}
+
+model2method <- function(x)
+{
+  ## There are some disconnecs between the object class and the
+  ## method used by train.
+  
+  switch(x,
+         randomForest = "rf",
+         rvm = "rvmRadial",
+         ksvm = "svmRadial",
+         lssvm = "lssvmRadial",
+         gausspr = "gaussprRadial",
+         NaiveBayes = "nb",
+         classbagg =, regbagg = "treebag",
+         plsda = "pls",
+         pamrtrained = "pam",
+         x)
+}
+
+
 Kim2009 <- function(n)
 {
   grid <- matrix(runif(n*10), ncol = 10)
@@ -112,477 +157,6 @@ cforestStats <- function(x)
 
 bagEarthStats <- function(x) apply(x$oob, 2, function(x) quantile(x, probs = .5))
 
-tuneScheme <- function(model, grid, useOOB = FALSE)
-{
-  ## this function extracts information about the requested model and figures 
-  ## out the details about how the tuning process should be executed
-
-  if(model != "custom")
-    {
-      modelInfo <- modelLookup(model)
-    } else {
-      modelInfo <- data.frame(
-                              model = "custom",
-                              parameter = gsub("^\\.", "", names(grid)),
-                              label = gsub("^\\.", "", names(grid)),
-                              seq = FALSE, forReg = TRUE, forClass = TRUE,
-                              probModel = TRUE)
-      ## TODO pass control in for probModel
-    }
-  
-  ## a little hack hre to change when this goes into production:
-  
-  if(all(is.na(grid)) & !is.null(grid$.parameter)) grid <- data.frame(.parameter = "none")
-  
-  ## some models have "sequential" parameters where several different models can be
-  ## derived form one R object. For example, in gbm models you can fit a model with
-  ## 500 trees and get predictions for any mode with <= 500 trees from the same object
-
-  ## if we don't have any of these types of parameters, use a basic looping strategy
-  ## i.e. scheme = "basic"
-  if(!any(modelInfo$seq) | useOOB) 
-    return(
-           list(
-                scheme = ifelse(useOOB, "oob", "basic"), 
-                loop = grid, 
-                seqParam = NULL, 
-                model = modelInfo, 
-                constant = names(grid), 
-                vary = NULL))
-
-  ## I've included a pruning technique for models in the mboost packages. This wouldn't
-  ## easily lend itself to a sequential version, so use the basic approach if any 
-  ## prune = "yes"
-  if(model %in% c("glmboost", "gamboost") && any(grid$.prune == "yes")) modelInfo$seq <- FALSE
-
-  ## some models have sequential parameters, but if the tune grid is manually specified
-  ## and there is only 1 value of the sequential parameter(s), we should use the basic
-  ## approach
-  
-  paramVary <- unlist(lapply(grid, function(u) length(unique(u)) > 1))
-  paramVary <- data.frame(
-                          parameter = substring(names(paramVary), 2),
-                          column = names(paramVary),
-                          varies = paramVary)
-  
-  modelInfo <- merge(modelInfo, paramVary)
-  modelInfo$varyingSeq <- modelInfo$varies & modelInfo$seq
-
-  scheme <- if(any(modelInfo$varyingSeq)) "seq" else "basic"
-
-  ## if we do have sequential parameters (with more than one value), we need to figure
-  ## out what parmeters we should loop over, their values and the values of the 
-  ## sequential parameters for each loop
-
-  if(scheme == "seq")
-    {
-      constant <- as.character(modelInfo$column)[!modelInfo$varyingSeq]
-      vary <- as.character(modelInfo$column)[modelInfo$varyingSeq] 
-      
-      ## The data frame loop is the combination(s) of tuning parameters that we will
-      ## be looping over. For each combination in loop, the list seqParam will provide the
-      ## value(s) of the sequential parameter that should be evaluated for the same R model
-      ## object      
-      
-      switch(model,
-             logitBoost = 
-             {
-               grid <- grid[order(grid$.nIter, decreasing = TRUE),, drop = FALSE]
-               loop <- grid[1,,drop = FALSE]
-               seqParam <- list(grid[-1,,drop = FALSE])
-             },             
-             pcr =, simpls =, widekernelpls =, pls =, kernelpls =  
-             {
-               grid <- grid[order(grid$.ncomp, decreasing = TRUE),, drop = FALSE]
-               loop <- grid[1,,drop = FALSE]
-               seqParam <- list(grid[-1,,drop = FALSE])
-             },
-             leapForward = , leapBackward =, leapSeq =
-             {
-               grid <- grid[order(grid$.nvmax, decreasing = TRUE),, drop = FALSE]
-               loop <- grid[1,,drop = FALSE]
-               seqParam <- list(grid[-1,,drop = FALSE])
-             },             
-             cubist = 
-             {
-               grid <- grid[order(-grid$.committees, grid$.neighbors, decreasing = TRUE),, drop = FALSE]
-               
-               uniqueCom <- unique(grid$.committees)
-               
-               loop <- data.frame(.committees = uniqueCom)
-               loop$.neighbors <- NA
-               
-               seqParam <- vector(mode = "list", length = length(uniqueCom))
-               
-               for(i in seq(along = uniqueCom))
-                 {
-                   subK <- grid[grid$.committees == uniqueCom[i],".neighbors"]
-                   loop$.neighbors[loop$.committees == uniqueCom[i]] <- subK[which.max(subK)]
-                   seqParam[[i]] <- data.frame(.neighbors = subK[-which.max(subK)])
-                 }
-             },            
-             earth = 
-             {
-               grid <- grid[order(grid$.degree, grid$.nprune, decreasing = TRUE),, drop = FALSE]
-               
-               uniqueDegree <- unique(grid$.degree)
-               
-               loop <- data.frame(.degree = uniqueDegree)
-               loop$.nprune <- NA
-               
-               seqParam <- vector(mode = "list", length = length(uniqueDegree))
-               
-               for(i in seq(along = uniqueDegree))
-                 {
-                   subNK <- grid[grid$.degree == uniqueDegree[i],".nprune"]
-                   loop$.nprune[loop$.degree == uniqueDegree[i]] <- subNK[which.max(subNK)]
-                   seqParam[[i]] <- data.frame(.nprune = subNK[-which.max(subNK)])
-                 }
-             },
-             gbm = 
-             {
-               loop <- aggregate(
-                                 grid$.n.trees, 
-                                 list(
-                                      .interaction.depth = grid$.interaction.depth, 
-                                      .shrinkage = grid$.shrinkage), max)
-               loop <- decoerce(loop, grid, TRUE)                  
-               names(loop)[3] <- ".n.trees"
-               seqParam <- vector(mode = "list", length = nrow(loop))
-               for(i in seq(along = loop$.n.trees))
-                 {
-                   index <- which(
-                                  grid$.interaction.depth == loop$.interaction.depth[i] & 
-                                  grid$.shrinkage == loop$.shrinkage[i])
-                   subTrees <- grid[index, ".n.trees"] 
-                   seqParam[[i]] <- data.frame(.n.trees = subTrees[subTrees != loop$.n.trees[i]])
-                 }         
-             },
-             C5.0 = 
-             {
-               loop <- aggregate(
-                                 grid$.trials, 
-                                 list(
-                                      .model = grid$.model, 
-                                      .winnow = grid$.winnow), max)
-               loop <- decoerce(loop, grid, TRUE)                  
-               names(loop)[3] <- ".trials"
-               seqParam <- vector(mode = "list", length = nrow(loop))
-               for(i in seq(along = loop$.trials))
-                 {
-                   index <- which(
-                                  grid$.model == loop$.model[i] & 
-                                  grid$.winnow == loop$.winnow[i])
-                   subTrees <- grid[index, ".trials"] 
-                   seqParam[[i]] <- data.frame(.trials = subTrees[subTrees != loop$.trials[i]])
-                 }         
-             },  
-             C5.0Cost = {
-               loop <- aggregate(grid$.trials, 
-                                 list(.model = grid$.model, 
-                                      .winnow = grid$.winnow,
-                                      .Cost = grid$.Cost), 
-                                 max)
-               loop <- decoerce(loop, grid, TRUE)                  
-               names(loop)[4] <- ".trials"
-               seqParam <- vector(mode = "list", length = nrow(loop))
-               for(i in seq(along = loop$.trials))
-               {
-                 index <- which(grid$.model == loop$.model[i] & 
-                                grid$.winnow == loop$.winnow[i]& 
-                                grid$.Cost == loop$.Cost[i])
-                 subTrees <- grid[index, ".trials"] 
-                 seqParam[[i]] <- data.frame(.trials = subTrees[subTrees != loop$.trials[i]])
-               }         
-             },              
-             bstTree = 
-             {
-               loop <- aggregate(grid$.mstop, 
-                                 list(
-                                      .maxdepth = grid$.maxdepth, 
-                                      .nu = grid$.nu),
-                                 max)
-               loop <- decoerce(loop, grid, TRUE)                  
-               names(loop)[3] <- ".mstop"
-               seqParam <- vector(mode = "list", length = nrow(loop))
-               for(i in seq(along = loop$.mstop))
-                 {
-                   index <- which(
-                                  grid$.maxdepth == loop$.maxdepth[i] & 
-                                  grid$.nu == loop$.nu[i])
-                   subTrees <- grid[index, ".mstop"] 
-                   seqParam[[i]] <- data.frame(.mstop = subTrees[subTrees != loop$.mstop[i]])
-                 }         
-             },
-             bstLs =, bstSm =  
-             {
-               loop <- aggregate(grid$.mstop, 
-                                 list(.nu = grid$.nu),
-                                 max)
-               loop <- decoerce(loop, grid, TRUE)                  
-               names(loop)[2] <- ".mstop"
-               seqParam <- vector(mode = "list", length = nrow(loop))
-               for(i in seq(along = loop$.mstop))
-                 {
-                   index <- which(grid$.nu == loop$.nu[i])
-                   subTrees <- grid[index, ".mstop"] 
-                   seqParam[[i]] <- data.frame(.mstop = subTrees[subTrees != loop$.mstop[i]])
-                 }         
-             },              
-             rpart2 = 
-             {
-               grid <- grid[order(grid$.maxdepth, decreasing = TRUE),, drop = FALSE]
-               loop <- grid[1,,drop = FALSE]
-               seqParam <- list(grid[-1,,drop = FALSE])
-             },
-             rpart =, 
-             {
-               grid <- grid[order(grid$.cp, decreasing = FALSE),, drop = FALSE]
-               loop <- grid[1,,drop = FALSE]
-               seqParam <- list(grid[-1,,drop = FALSE])
-             },    
-             rpartCost = {
-               grid <- grid[order(grid$.Cost, grid$.cp, decreasing = TRUE),, drop = FALSE]
-               
-               uniqueCost <- unique(grid$.Cost)
-               
-               loop <- data.frame(.Cost = uniqueCost)
-               loop$.cp <- NA
-               
-               seqParam <- vector(mode = "list", length = length(uniqueCost))
-               
-               for(i in seq(along = uniqueCost))
-               {
-                 subNK <- grid[grid$.Cost == uniqueCost[i],".cp"]
-                 loop$.cp[loop$.Cost == uniqueCost[i]] <- subNK[which.min(subNK)]
-                 seqParam[[i]] <- data.frame(.cp = subNK[-which.max(subNK)])
-               }   
-             },
-             glmboost =, gamboost =
-             {
-               grid <- grid[order(grid$.mstop, decreasing = TRUE),, drop = FALSE]
-               loop <- grid[1,,drop = FALSE]
-               seqParam <- list(grid[-1, ".mstop", drop = FALSE])         
-             },
-             pam = 
-             {
-               grid <- grid[order(grid$.threshold, decreasing = TRUE),, drop = FALSE]
-               loop <- grid[1,,drop = FALSE]
-               seqParam <- list(grid[-1,,drop = FALSE])
-             },
-
-             ## About ctree ...
-             ## It used to be a seqeuntial model, but teh prediciotn function cannot create
-             ## class probabilities in a sequential manner (as it can for predicting the class or
-             ## regression output). I left this code here in case that changes, but the seq
-             ## flag by modelLookup has been changed to FALSE so this next block never gets
-             ## executed.
-             ctree = 
-             {
-               ## there is an exception here:
-               ## There does not appear to be a way to tell what value of mincriterion was used
-               ## when looking at an object of class BinaryTree. We want to fit a model with the 
-               ## smallest mincriterion (the largest tree in the tuning grid), then derive the 
-               ## predictions from the smaller trees.
-               
-               ## Unlike the other models in this function, the seqParam vector *will* include the 
-               ## parameter corresponding to the largest tree ( = smallest  mincriterion), but we
-               ## will remove this value from the vector in the prediction function
-               loop <- data.frame(.mincriterion = min(grid$.mincriterion))
-               seqParam <- list(grid[order(grid$.mincriterion), ".mincriterion",drop = FALSE])
-             },
-             blackboost = 
-             {
-               loop <- aggregate(grid$.mstop, list(.maxdepth = grid$.maxdepth), max)
-               names(loop)[2] <- ".mstop"
-               loop <- decoerce(loop, grid, TRUE)                              
-               seqParam <- vector(mode = "list", length = nrow(loop))
-               for(i in seq(along = loop$.mstop))
-                 {
-                   index <- which(grid$.maxdepth == loop$.maxdepth[i])
-                   subStops <- grid[index, ".mstop"] 
-                   seqParam[[i]] <- data.frame(.mstop = subStops[subStops != loop$.mstop[i]])
-                 }        
-             },
-             enet = 
-             {
-               grid <- grid[order(grid$.lambda, grid$.fraction, decreasing = TRUE),, drop = FALSE]
-               
-               uniqueLambda <- unique(grid$.lambda)
-               
-               loop <- data.frame(.lambda = uniqueLambda)
-               loop$.fraction <- NA
-               
-               seqParam <- vector(mode = "list", length = length(uniqueLambda))
-               
-               for(i in seq(along = uniqueLambda))
-                 {
-                   subFrac <- grid[grid$.lambda == uniqueLambda[i],".fraction"]
-                   loop$.fraction[loop$.lambda == uniqueLambda[i]] <- subFrac[which.max(subFrac)]
-                   seqParam[[i]] <- data.frame(.fraction = subFrac[-which.max(subFrac)])
-                 }         
-             },             
-             lasso = 
-             {
-               grid <- grid[order(grid$.fraction, decreasing = TRUE),, drop = FALSE]
-               loop <- grid[1,,drop = FALSE]
-               seqParam <- list(grid[-1,,drop = FALSE])
-             },
-             penalized = 
-             {
-               grid <- grid[order(grid$.lambda1, grid$.lambda2, decreasing = TRUE),, drop = FALSE]
-               
-               uniqueLambda2 <- unique(grid$.lambda2)
-               
-               loop <- data.frame(.lambda2 = uniqueLambda2)
-               loop$.lambda1 <- NA
-               
-               seqParam <- vector(mode = "list", length = length(uniqueLambda2))
-               
-               for(i in seq(along = uniqueLambda2))
-                 {
-                   subL1 <- grid[grid$.lambda2 == uniqueLambda2[i],".lambda2"]
-                   loop$.lambda1[loop$.lambda2 == uniqueLambda2[i]] <- subL1[which.max(subL1)]
-                   seqParam[[i]] <- data.frame(.lambda1 = subL1[-which.max(subL1)])
-                 }         
-             },             
-             superpc =
-             {
-               largest <- which(grid$.n.components == max(grid$.n.components) &
-                                grid$.threshold == max(grid$.threshold))
-               loop <- grid[largest,, drop = FALSE]
-               seqParam <- list(grid[-largest,, drop = FALSE])
-             },
-             glmnet =
-             {  
-               uniqueAlpha <- unique(grid$.alpha)
-               
-               loop <- data.frame(.alpha = uniqueAlpha)
-               loop$.lambda <- NA
-               
-               seqParam <- vector(mode = "list", length = length(uniqueAlpha))
-               
-               for(i in seq(along = uniqueAlpha))
-                 {
-                   seqParam[[i]] <- data.frame(.lambda = subset(grid, subset = .alpha == uniqueAlpha[i])$.lambda)
-                 } 
-             },
-             relaxo =
-             {
-
-               loop <- aggregate(
-                                 grid$.lambda, 
-                                 list(.phi = grid$.phi),
-                                 max)
-               names(loop) <- c(".phi", ".lambda")
-               
-               seqParam <- vector(mode = "list", length = nrow(loop))
-               
-               for(i in seq(along = seqParam))
-                 {
-                   seqParam[[i]] <- data.frame(.lambda = subset(grid,
-                                                 subset = .phi == loop$.phi[i] & .lambda < loop$.lambda[i])$.lambda)
-                 } 
-             },
-             lars = 
-             {
-               grid <- grid[order(grid$.fraction, decreasing = TRUE),, drop = FALSE]
-               loop <- grid[1,,drop = FALSE]
-               seqParam <- list(grid[-1,,drop = FALSE])
-             },
-             lars2 = 
-             {
-               grid <- grid[order(grid$.step, decreasing = TRUE),, drop = FALSE]
-               loop <- grid[1,,drop = FALSE]
-               seqParam <- list(grid[-1,,drop = FALSE])
-             },
-             foba = 
-             {
-               grid <- grid[order(grid$.lambda, grid$.k, decreasing = TRUE),, drop = FALSE]
-               
-               uniqueLambda <- unique(grid$.lambda)
-               
-               loop <- data.frame(.lambda = uniqueLambda)
-               loop$.k <- NA
-               
-               seqParam <- vector(mode = "list", length = length(uniqueLambda))
-               
-               for(i in seq(along = uniqueLambda))
-                 {
-                   subK <- grid[grid$.lambda == uniqueLambda[i],".k"]
-                   loop$.k[loop$.lambda == uniqueLambda[i]] <- subK[which.max(subK)]
-                   seqParam[[i]] <- data.frame(.k = subK[-which.max(subK)])
-                 }         
-             },
-             partDSA = 
-             {
-               grid <- grid[order(grid$.MPD, grid$.cut.off.growth, decreasing = TRUE),, drop = FALSE]
-               
-               uniqueMPD <- unique(grid$.MPD)
-               
-               loop <- data.frame(.MPD = uniqueMPD)
-               loop$.cut.off.growth <- NA
-               
-               seqParam <- vector(mode = "list", length = length(uniqueMPD))
-               
-               for(i in seq(along = uniqueMPD))
-                 {
-                   subCuts <- grid[grid$.MPD == uniqueMPD[i],".cut.off.growth"]
-                   loop$.cut.off.growth[loop$.MPD == uniqueMPD[i]] <- subCuts[which.max(subCuts)]
-                   seqParam[[i]] <- data.frame(.cut.off.growth = subCuts[-which.max(subCuts)])
-                 }
-             },
-             scrda = 
-             {
-               grid <- grid[order(grid$.alpha, grid$.delta, decreasing = TRUE),]
-               loop <- grid[1,,drop = FALSE]
-               seqParam <- list(grid[-1,,drop = FALSE])
-             },
-             PenalizedLDA =
-             {
-               loop <- ddply(grid, .(.lambda), function(x) c(.K = max(x$.K)))
-               seqParam <- vector(mode = "list", length = nrow(loop))
-               for(i in seq(along = loop$.K))
-                 {
-                   index <- which(grid$.lambda == loop$.lambda[i])
-                   subK <- grid[index, ".K"]
-                   otherK <- data.frame(.K = subK[subK != loop$.K[i]])
-                   if(nrow(otherK) > 0) seqParam[[i]] <- otherK
-                 }        
-             },
-             lda2 =  
-             {
-               grid <- grid[order(grid$.dimen, decreasing = TRUE),, drop = FALSE]
-               loop <- grid[1,,drop = FALSE]
-               seqParam <- list(grid[-1,,drop = FALSE])
-             }
-             )
-      out <- list(scheme = "seq", loop = loop, seqParam = seqParam, model = modelInfo, constant = constant, vary = vary)
-    } else out <- list(scheme = "basic", loop = grid, seqParam = NULL, model = modelInfo, constant = names(grid), vary = NULL)
-  
-  out
-}
-
-
-decoerce <- function(x, grid, dot = FALSE)
-{
-  for(k in names(grid))
-    {
-      origMode <- mode(grid[, k])
-      paramName <- if(dot) k else substring(k, 2)        
-      if(any(names(x) %in% paramName) & !is.factor(grid[, k]))
-        {
-          x[, paramName] <- switch(origMode,
-                                   numeric = as.numeric(as.character(x[, paramName])),
-                                   character = as.character(x[, paramName]),
-                                   logical = as.logical(x[, paramName]))
-        }
-    }
-  x
-}  
-
-
-
 
 R2 <- function(pred, obs, formula = "corr", na.rm = FALSE)
   {
@@ -607,7 +181,7 @@ twoClassSummary <- function (data, lev = NULL, model = NULL)
   require(pROC)
   if (!all(levels(data[, "pred"]) == levels(data[, "obs"]))) 
     stop("levels of observed and predicted data do not match")
-  rocObject <- try(pROC:::roc(data$obs, data[, lev[1]]), silent = TRUE)
+  rocObject <- try(pROC::roc(data$obs, data[, lev[1]]), silent = TRUE)
   rocAUC <- if(class(rocObject)[1] == "try-error") NA else rocObject$auc
   out <- c(rocAUC,
            sensitivity(data[, "pred"], data[, "obs"], lev[1]),
@@ -615,46 +189,6 @@ twoClassSummary <- function (data, lev = NULL, model = NULL)
   names(out) <- c("ROC", "Sens", "Spec")
   out
 }
-
-## make this object oriented
-getClassLevels <- function(x) 
-  {
-    if(tolower(x$method) %in% tolower(c("svmRadial", "svmPoly", "svmLinear",
-                                        "rvmRadial", "rvmPoly", "rvmLinear",
-                                        "lssvmRadial", "lssvmPoly", "lssvmLinear",
-                                        "gaussprRadial", "gaussprPoly", "gaussprLinear",
-                                        "ctree", "ctree2", "cforest", "svmRadialCost",
-                                        "svmRadialWeights",
-                                        "penalized", "Linda", "QdaCov")))
-      
-      {
-        obsLevels <- switch(tolower(x$method),
-                            penalized = NULL,
-                            svmradial =, svmpoly =, svmlinear =, 
-                            rvmradial =, rvmpoly =, svmlinear =,
-                            svmradialcost = , svmradialweights =,
-                            lssvmradial =, lssvmpoly =,  lssvmlinear =,
-                            gaussprpadial =, gaussprpoly =, gaussprlinear =
-                            {
-                              library(kernlab)
-                              lev(x$finalModel)
-                            },
-
-                            linda =, qdacov = 
-                            {
-                              names(x$finalModel@prior)
-                            },
-                            
-                            ctree =, ctree2 =, cforest =
-                            {
-                              library(party)
-                              levels(x$finalModel@data@get("response")[,1])
-                            })
-      } else {
-        obsLevels <- x$finalModel$obsLevels
-      }
-    obsLevels
-  }
 
 partRuleSummary <- function(x)
   {
@@ -741,10 +275,6 @@ depth2cp <- function(x, depth)
     out
   }
 
-
-
-
-
 smootherFormula <- function(data, smoother = "s", cut = 10, df = 0, span = .5, degree = 1, y = ".outcome")
   {
     nzv <- nearZeroVar(data)
@@ -772,15 +302,12 @@ smootherFormula <- function(data, smoother = "s", cut = 10, df = 0, span = .5, d
     form
   }
 
-
 varSeq <- function(x)
   {
     vars <- apply(summary(x)$which, 1, function(x) names(which(x)))
     vars <- lapply(vars, function(x) x[x != "(Intercept)"])
     vars
   }
-
-
 
 cranRef <- function(x) paste("{\\tt \\href{http://cran.r-project.org/web/packages/", x, "/index.html}{", x, "}}", sep = "")
 

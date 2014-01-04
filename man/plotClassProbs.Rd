@@ -45,22 +45,18 @@ ctrl <- trainControl(method = "cv")
 
 nbFit1 <- train(trainData, trainY, "nb",
                 trControl = ctrl,
-                tuneGrid = data.frame(.usekernel = TRUE, .fL = 0))
+                tuneGrid = data.frame(usekernel = TRUE, fL = 0))
 
 nbFit2 <- train(trainData, trainY, "nb",
                 trControl = ctrl,
-                tuneGrid = data.frame(.usekernel = FALSE, .fL = 0))
+                tuneGrid = data.frame(usekernel = FALSE, fL = 0))
 
 
-models <- list(para = nbFit2,
-               nonpara = nbFit1)
+models <- list(para = nbFit2, nonpara = nbFit1)
 
-predProbs <- extractProb(models,
-                         testX = testData, 
-                         testY = testY)
+predProbs <- extractProb(models, testX = testData,  testY = testY)
 
-plotClassProbs(predProbs,
-               useObjects = TRUE)
+plotClassProbs(predProbs, useObjects = TRUE)
 plotClassProbs(predProbs,
                subset = object == "para" & dataType == "Test")
 plotClassProbs(predProbs,

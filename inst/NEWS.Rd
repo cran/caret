@@ -2,6 +2,72 @@
 \title{News for Package \pkg{caret}}
 \newcommand{\cpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
+\section{Changes in version 6.0-21}{
+\itemize{
+\item A new system for user-defined models has been added. See 
+\href{http://caret.r-forge.r-project.org/custom_models.html}{http://caret.r-forge.r-project.org/custom_models.html}.
+
+\item When creating the grid of tuning parameter values, the column 
+names no longer need to be preceded by a period. Periods can still be 
+used as before but are not required. This isn't guaranteed to break
+backwards compatibility but it may in some cases. 
+
+\item \code{trainControl} now has a \code{method = "none"} resampling
+option that bypasses model tuning and fits the model to the entire
+training set. Note that if more than one model is specified an error
+will occur.
+
+ \item \code{logicForest} models were removed since the package is
+ now archived.
+
+ \item \code{CSimca} and \code{RSimca} models from the \cpkg{rrcovHD} 
+ package were added.
+
+ \item  Model \code{elm} from the \cpkg{elmNN} 
+ package was added.
+
+  \item  Models \code{rknn} and \code{rknnBel} from the \cpkg{rknn} 
+ package were added
+
+  \item  Model \code{brnn} from the \cpkg{brnn} 
+ package was added.
+
+ \item \code{panel.lift2} and \code{xyplot.lift} now have an argument 
+ called \code{values} that show the percentages of samples found for
+ the specified percentages of samples tested. 
+
+\item \code{train}, \code{rfe} and \code{sbf} should no longer throw 
+a warning that "executing %dopar% sequentially: no parallel backend registered".
+
+\item A \code{ggplot} method for \code{train} was added.
+
+\item Imputation via medians was added to \code{preProcess} by Zachary Mayer.
+
+\item A small change was made to \code{rpart} models. Previously, when the 
+final model is determined, it would be fit by specifying the model using the 
+\code{cp} argument of \code{rpart.control}. This could lead to duplicated Cp 
+values in the final list of possible Cp values. The current version fits the 
+final model slightly different. An initial model is fit using \code{cp = 0} 
+then it is pruned using \code{prune.rpart} to the desired depth. This 
+shouldn't be different for the vast majority of data sets. Thanks to Jeff
+Evans for pointing this out.
+
+\item The method for estimating sigma for SVM and RVM models was slightly 
+changed to make them consistent with how \code{ksvm} and \code{rvm} does the 
+estimation.
+
+\item The default behavior for \code{returnResamp} in \code{rfeControl} and
+ \code{sbfControl} is now \code{returnResamp = "final"}. 
+
+\item \code{cluster} was added as a general class with a specific method
+for \code{resamples} objects.
+
+\item The refactoring of model code resulted in a number of packages being
+eliminated from the depends field. Additionally, a few were moved to exports.
+
+}
+}
+
 \section{Changes in version 5.17-07}{
 \itemize{
  \item A bug in \code{spatialSign} was fixed for data frames with 
@@ -43,6 +109,9 @@
  \item A new option \code{fullRank} was added to \code{dummyVars}. 
  When true, \code{contr.treatment} is used. Otherwise,  
  \code{contr.ltfr} is used.
+
+ \item A bug in \code{train} was fixed with \code{gbm} models 
+ (thanks to stackoverflow user screechOwl for finding it).
  
  }
  }
@@ -57,7 +126,7 @@
  parameters is the neighborhood size (\code{eps}) and the Minkowski 
  distance parameter (\code{p}).
 
- \item A bug was (hopfully) fixed that occurred when some type of 
+ \item A bug was (hopefully) fixed that occurred when some type of 
  parallel processing was used with \code{train}. The problem is 
  that the \cpkg{methods} package was not being loaded in the workers. 
  While reproducible, it is unknown why this occurs and why it is 

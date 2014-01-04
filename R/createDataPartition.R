@@ -33,9 +33,9 @@ createDataPartition <- function (y, times = 1, p = 0.5, list = TRUE, groups = mi
   if (!list)
     {
       out <- matrix(unlist(out), ncol = times)
-      colnames(out) <- caret:::prettySeq(1:ncol(out))
+      colnames(out) <- prettySeq(1:ncol(out))
     } else {
-      names(out) <- caret:::prettySeq(out)
+      names(out) <- prettySeq(out)
     }
   out
 }

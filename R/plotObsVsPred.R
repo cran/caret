@@ -1,7 +1,6 @@
 plotObsVsPred <- function(object, equalRanges = TRUE, ...)
 {
-   require(lattice)
-   
+  
    object <- object[object$dataType != "Unknown",]
    object$dataType <- factor(object$dataType)
 

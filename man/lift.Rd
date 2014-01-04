@@ -17,7 +17,7 @@ lift(x, ...)
      subset = TRUE, lattice.options = NULL, labels = NULL, 
      ...)
 
-\method{xyplot}{lift}(x, data, plot = "gain", ...)
+\method{xyplot}{lift}(x, data, plot = "gain", values = NULL, ...)
 
 }
 \arguments{
@@ -41,6 +41,8 @@ A named list of labels for keys. The list should have an element for each term o
 }
   \item{plot}{
 Either "gain" (the default) or "lift". The former plots the number of samples called events versus the event rate while the latter shows the event cut-off versus the lift statistic.}
+ \item{values}{
+A vector of numbers between 0 and 100 specifying reference values for the percentage of samples found (i.e. the y-axis). Corresponding points on the x-axis are found via interpolation and line segments are shown to indicate how many samples must be tested before these percentages are found. The lines use either the \code{plot.line} or \code{superpose.line} component of the current lattice theme to draw the lines (depending on whether groups were used. These values are only used when \code{type = "gain"}.}
   \item{\dots}{
 options to pass through to \code{\link[lattice:xyplot]{xyplot}} or the panel function (not used in \code{lift.formula}).
 }
@@ -93,6 +95,8 @@ xyplot(lift1)
 lift2 <- lift(obs ~ random + perfect, data = simulated)
 lift2
 xyplot(lift2, auto.key = list(columns = 2))
+
+xyplot(lift2, auto.key = list(columns = 2), value = c(10, 30))
 
 xyplot(lift2, plot = "lift", auto.key = list(columns = 2))
 }

@@ -12,13 +12,15 @@
 \alias{varImp.lm}
 \alias{varImp.mvr}
 \alias{varImp.bagEarth}
+\alias{varImp.bagFDA}
 \alias{varImp.RandomForest}
 \alias{varImp.rfe}
 \alias{varImp.dsa}
 \alias{varImp.fda}
 \alias{varImp.multinom}
-\alias{varImp.gam}
+%\alias{varImp.gam}
 \alias{varImp.cubist}
+\alias{varImp.plsda}
 \alias{varImp.JRip}
 \alias{varImp.PART}
 \alias{varImp.nnet}
@@ -57,6 +59,8 @@ A generic method for calculating variable importance for objects produced by
 
 \method{varImp}{bagEarth}(object, ...)
 
+\method{varImp}{bagFDA}(object, ...)
+
 \method{varImp}{RandomForest}(object, ...)
 
 \method{varImp}{rfe}(object, drop = FALSE, ...)
@@ -64,8 +68,6 @@ A generic method for calculating variable importance for objects produced by
 \method{varImp}{dsa}(object, cuts = NULL, ...)
 
 \method{varImp}{multinom}(object, ...)
-
-\method{varImp}{gam}(object, ...)
 
 \method{varImp}{cubist}(object, weights = c(0.5, 0.5), ...)
 
@@ -78,6 +80,8 @@ A generic method for calculating variable importance for objects produced by
 \method{varImp}{nnet}(object, ...)
 
 \method{varImp}{glmnet}(object, lambda = NULL, ...)
+
+\method{varImp}{plsda}(object, ...)
 }
 
 \arguments{
@@ -209,6 +213,10 @@ option \code{metric = "usage"}.
 weights. For classification models, the class-specific importances
 will be the same.
   
+\bold{Recursive Feature Elimination}: Variable importance is computed using the ranking method used for feature selection. For the final subset size, the importances for the models across all resamples are averaged to compute an overall value. 
+
+\bold{Feature Selection via Univariate Filters}, the percentage of resamples that a predictor was selected is determined. In other words, an importance of 0.50 means that the predictor survived the filter in half of the resamples. 
+
 }
 
 \author{Max Kuhn}

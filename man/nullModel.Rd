@@ -50,8 +50,7 @@ The output of \code{nullModel} is a list of class \code{nullModel} with elements
 
 
 \examples{
-outcome <- factor(
-                  sample(letters[1:2], 
+outcome <- factor(sample(letters[1:2], 
                          size = 100, 
                          prob = c(.1, .9), 
                          replace = TRUE))
