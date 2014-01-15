@@ -84,6 +84,10 @@ nominalTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, tes
   
   if(testing) cat("pre-model\n")
   
+  if(is.null(info$submodels[[parm]]) || nrow(info$submodels[[parm]]) > 0) {
+    submod <- info$submodels[[parm]]
+  } else submod <- NULL
+  
   mod <- try(
     createModel(x = x[modelIndex,,drop = FALSE ],
                 y = y[modelIndex],
@@ -103,7 +107,7 @@ nominalTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, tes
                          modelFit = mod$fit,
                          newdata = x[holdoutIndex,, drop = FALSE],
                          preProc = mod$preProc,
-                         param = info$submodels[[parm]]),
+                         param = submod),
       silent = TRUE)
     
     if(class(predicted)[1] == "try-error")
@@ -127,7 +131,7 @@ nominalTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, tes
       } else {
         predicted <- rep(NA, nPred)
       }
-      if(!is.null(info$submodels[[parm]]))
+      if(!is.null(submod))
       {
         tmp <- predicted
         predicted <- vector(mode = "list", length = nrow(info$submodels[[parm]]) + 1)
@@ -155,7 +159,7 @@ nominalTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, tes
     } else {
       predicted <- rep(NA, nPred)
     }
-    if(!is.null(info$submodels[[parm]]))
+    if(!is.null(submod))
     {
       tmp <- predicted
       predicted <- vector(mode = "list", length = nrow(info$submodels[[parm]]) + 1)
@@ -173,11 +177,11 @@ nominalTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, tes
                                  modelFit = mod$fit,
                                  newdata = x[holdoutIndex,, drop = FALSE],
                                  preProc = mod$preProc,
-                                 param = info$submodels[[parm]])
+                                 param = submod)
     } else {
       probValues <- as.data.frame(matrix(NA, nrow = nPred, ncol = length(lev)))
       colnames(probValues) <- lev
-      if(!is.null(info$submodels[[parm]]))
+      if(!is.null(submod))
       {
         tmp <- probValues
         probValues <- vector(mode = "list", length = nrow(info$submodels[[parm]]) + 1)
@@ -190,7 +194,7 @@ nominalTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, tes
   
   ##################################
   
-  if(!is.null(info$submodels))
+  if(!is.null(submod))
   {
     ## merge the fixed and seq parameter values together
     allParam <- expandParameters(info$loop[parm,,drop = FALSE], info$submodels[[parm]])
@@ -351,6 +355,9 @@ looTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, testing
       library(caret)
       if(ctrl$verboseIter) progress(printed[parm,,drop = FALSE],
                                     names(ctrl$index), iter, TRUE)
+      if(is.null(info$submodels[[parm]]) || nrow(info$submodels[[parm]]) > 0) {
+        submod <- info$submodels[[parm]]
+      } else submod <- NULL
       
       mod <- createModel(x = x[ctrl$index[[iter]],,drop = FALSE ],
                          y = y[ctrl$index[[iter]] ],
@@ -368,7 +375,7 @@ looTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, testing
                                       modelFit = mod$fit,
                                       newdata = x[-ctrl$index[[iter]],, drop = FALSE],
                                       preProc = mod$preProc,
-                                      param = info$submodels[[parm]])
+                                      param = submod)
       
       if(testing) print(head(predicted))
       if(ctrl$classProbs)
@@ -377,7 +384,7 @@ looTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, testing
                                    modelFit = mod$fit,
                                    newdata = x[holdoutIndex,, drop = FALSE],
                                    preProc = mod$preProc,
-                                   param = info$submodels[[parm]])
+                                   param = submod)
         if(testing) print(head(probValues))
       }
       
@@ -402,7 +409,7 @@ looTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, testing
           for(k in seq(along = predicted)) predicted[[k]] <- cbind(predicted[[k]], probValues[[k]])
         }
         predicted <- do.call("rbind", predicted)
-        allParam <- expandParameters(info$loop[parm,,drop = FALSE], info$submodels[[parm]])
+        allParam <- expandParameters(info$loop[parm,,drop = FALSE], submod)
         rownames(predicted) <- NULL
         predicted <- cbind(predicted, allParam)
         ## if saveDetails then save and export 'predicted'
@@ -438,7 +445,9 @@ oobTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, testing
   printed <- format(info$loop)
   colnames(printed) <- gsub("^\\.", "", colnames(printed))
   `%op%` <- getOper(ctrl$allowParallel && getDoParWorkers() > 1)
-  result <- foreach(parm = 1:nrow(info$loop), .packages = c("methods", "caret"), .combine = "rbind") %op%
+  pkgs <- c("methods", "caret")
+  if(!is.null(method$library)) pkgs <- c(pkgs, method$library)
+  result <- foreach(parm = 1:nrow(info$loop), .packages = pkgs, .combine = "rbind") %op%
 {
   library(caret)
   if(ctrl$verboseIter) progress(printed[parm,,drop = FALSE], "", 1, TRUE)
@@ -589,7 +598,7 @@ nominalRfeWorkflow <- function(x, y, sizes, ppOpts, ctrl, lev, ...)
   if(ctrl$method %in% c("boot632")) resampleIndex <- c(list("AllData" = rep(0, nrow(x))), resampleIndex)
   
   `%op%` <- getOper(ctrl$allowParallel && getDoParWorkers() > 1)
-  result <- foreach(iter = seq(along = resampleIndex), .combine = "c", .verbose = FALSE, .packages = c("methods", "caret"), .errorhandling = "stop") %op%
+  result <- foreach(iter = seq(along = resampleIndex), .combine = "c", .verbose = FALSE, .packages = c("methods", "caret", "plyr"), .errorhandling = "stop") %op%
 {
   library(caret)
   
@@ -675,7 +684,8 @@ looRfeWorkflow <- function(x, y, sizes, ppOpts, ctrl, lev, ...)
   ppp <- c(ppp, ctrl$preProcOptions)
   
   resampleIndex <- ctrl$index
-  result <- foreach(iter = seq(along = resampleIndex), .combine = "c", .verbose = FALSE, .packages = c("methods", "caret"), .errorhandling = "stop") %dopar%
+  `%op%` <- getOper(ctrl$allowParallel && getDoParWorkers() > 1)
+  result <- foreach(iter = seq(along = resampleIndex), .combine = "c", .verbose = FALSE, .packages = c("methods", "caret"), .errorhandling = "stop") %op%
 {
   library(caret)
   

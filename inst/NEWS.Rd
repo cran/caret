@@ -2,6 +2,19 @@
 \title{News for Package \pkg{caret}}
 \newcommand{\cpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
+\section{Changes in version 6.0-22}{
+\itemize{
+\item For some parallel processing technologies, the package now export 
+more internal functions. 
+ 
+\item A bug was fixed in \code{rfe} that occured when LOO CV was used.
+
+\item Another bug was fixed that occured for some models when 
+\code{tuneGrid} contained only a single model.
+ }
+}
+
+
 \section{Changes in version 6.0-21}{
 \itemize{
 \item A new system for user-defined models has been added. See 
