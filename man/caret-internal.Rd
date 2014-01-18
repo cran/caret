@@ -6,11 +6,29 @@
 \alias{caretTheme}
 \alias{progress}
 \alias{hasTerms}
+\alias{predictionFunction}
+\alias{probFunction}
+\alias{expandParameters}
+\alias{flatTable}
+\alias{MeanSD}
+\alias{sbfIter}
+\alias{gamFormula}
+\alias{bagEarthStats}
+\alias{cforestStats}
+\alias{ipredStats}
+\alias{rfStats}
 
 \description{Internal functions}
 \usage{
 createModel(x, y, wts, method, tuneValue, obsLevels, 
 	        pp = NULL, last = FALSE, classProbs, ...)
+predictionFunction(method, modelFit, newdata, 
+	               preProc = NULL, param = NULL)
+probFunction(method, modelFit, newdata, 
+	         preProc = NULL, param = NULL)
+flatTable(pred, obs) 
+expandParameters(fixed, seq) 
+MeanSD(x, exclude = NULL) 
 sortImp(object, top)
 resampleWrapper(x, ind)
 caretTheme()
@@ -21,6 +39,9 @@ bagEarthStats(x)
 cforestStats(x)
 progress(x, names, iter, start = TRUE)
 hasTerms(x)
+sbfIter(x, y, testX, testY, sbfControl = sbfControl(), ...)
+gamFormula(data, smoother = "s", cut = 8, y = "y") 
+
 }
 \author{Max Kuhn, but \code{caretTheme} uses an expanded grid of the "Blues" palette designed by Cynthia Brewer and Mark Harrower}
 

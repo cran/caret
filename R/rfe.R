@@ -177,8 +177,7 @@ rfe <- function (x, ...) UseMethod("rfe")
                              "single integer"))      
     }
   }
-  
-  
+
   if(rfeControl$method == "LOOCV")
     {
       tmp <- looRfeWorkflow(x, y, sizes, ppOpts = NULL, ctrl = rfeControl, lev = classLevels, ...)
@@ -214,10 +213,12 @@ rfe <- function (x, ...) UseMethod("rfe")
       tmp$performance <- tmp$performance[, -grep("\\.cell", names(tmp$performance))]
     } else resampledCM <- NULL
 
-  resamples <- switch(rfeControl$returnResamp,
-                      none = NULL, 
-                      all = resamples,
-                      final = subset(resamples, Variables == bestSubset))
+  if(!(rfeControl$method %in% c("LOOCV"))) {
+    resamples <- switch(rfeControl$returnResamp,
+                        none = NULL, 
+                        all = resamples,
+                        final = subset(resamples, Variables == bestSubset))
+    } else resamples <- NULL
 
   endTime <- proc.time()
   times <- list(everything = endTime - startTime,

@@ -232,7 +232,7 @@ train.default <- function(x, y,
     
     # paramCols <- paste(".", as.character(models$parameters$parameter), sep = "")
     
-    if(is.function(models$loop)){
+    if(is.function(models$loop) && nrow(tuneGrid) > 1){
       trainInfo <- models$loop(tuneGrid)
       if(!all(c("loop", "submodels") %in% names(trainInfo))) 
         stop("The 'loop' function should produce a list with elements 'loop' and 'submodels'")
