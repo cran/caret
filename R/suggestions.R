@@ -1,7 +1,6 @@
 suggestions <- function(model)
 {
 
-  if(!(model %in% modelLookup()$model)) stop("unknown model code; see ?train()")
   out <- c("center" = FALSE, "scale" = FALSE,
            "nzv" = FALSE, "corr" = FALSE)
 

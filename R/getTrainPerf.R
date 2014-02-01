@@ -6,7 +6,7 @@ getTrainPerf <- function(x)
   out <- out[, colnames(out) %in% x$perfNames]
 
   colnames(out) <- paste("Train", colnames(out), sep = "")
-  out$method <- x$call[["method"]]
+  out$method <- x$method
   out
 }
 

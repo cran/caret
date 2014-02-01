@@ -4,7 +4,7 @@ calibration.default <- function(x, ...) stop("'x' should be a formula")
 
 calibration.formula <- function(x, data = NULL, class = NULL, cuts = 11, subset = TRUE, lattice.options = NULL, ...)
   {
-    library(plyr)
+    #library(plyr)  # not needed since caret now depends on plyr
 
     if (!is.null(lattice.options)) {
       oopt <- lattice.options(lattice.options)
@@ -71,6 +71,8 @@ calibCalc <- function(x, class = levels(obs)[1], cuts = 11)
     dataPoints
   }
 
+plot.calibration <- function(x, y = NULL, ...) 
+  xyplot(x = x, data = NULL, ...)
 
 xyplot.calibration <- function(x, data = NULL, ...)
   {

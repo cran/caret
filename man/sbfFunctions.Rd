@@ -30,6 +30,8 @@ nbSBF
   \item{y}{a numeric or factor vector of outcomes}
 }
 \details{
+More details on these functions can be found at \url{http://caret.r-forge.r-project.org/featureselection.html}.
+
 This page documents the functions that are used in selection by filtering (SBF). The functions described here are passed to the algorithm via the 
 \code{functions} argument of \code{\link{sbfControl}}. 
 

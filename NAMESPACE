@@ -1,6 +1,8 @@
 useDynLib(caret)
-import(lattice)
-importFrom(stats, prcomp)
+import(foreach, methods, plyr, reshape2, ggplot2, lattice)
+importFrom(car, powerTransform, yjPower)
+importFrom(stats, prcomp, hclust)
+
 
 export(anovaScores,
        avNNet,
@@ -21,16 +23,17 @@ export(anovaScores,
        caretSBF,
        caretTheme,
        checkConditionalX,
+       checkInstall,
        checkResamples,
        classDist,
        classDist.default,
+       cluster,
        confusionMatrix,
        confusionMatrix.train,
        contr.dummy,
        contr.ltfr,
        createDataPartition,
        createFolds,
-       createGrid,
        createModel,
        createMultiFolds,
        createResample,
@@ -53,7 +56,11 @@ export(anovaScores,
        gamFuncs,
        gamScores,
        generateExprVal.method.trimMean,
+       getModelInfo,
        getTrainPerf,
+       ggplot.rfe,
+       ggplot.train,
+       hasTerms,
        histogram.rfe,
        icr,
        icr.default,
@@ -77,6 +84,7 @@ export(anovaScores,
        lrFuncs,
        maxDissim,
        minDiss,
+       modelCor,
        modelLookup,
        nbBag,
        nbFuncs,
@@ -101,6 +109,7 @@ export(anovaScores,
        pickSizeBest,
        pickSizeTolerance,
        pickVars,
+       plot.rfe,
        plot.train,
        plotClassProbs,
        plotObsVsPred,
@@ -179,7 +188,9 @@ export(anovaScores,
        upSample,
        varImp,
        varImp.bagEarth,
-       xyplot.rfe
+       varImp.bagFDA,
+       xyplot.rfe,
+       varImp.plsda
        )
 
 S3method(confusionMatrix, default)
@@ -230,9 +241,11 @@ S3method(varImp, classbagg)
 S3method(varImp, regbagg)
 S3method(varImp, pamrtrained)
 S3method(varImp, lm)
+S3method(varImp, glm)
 S3method(varImp, mvr)
 S3method(varImp, earth)
 S3method(varImp, bagEarth)
+S3method(varImp, bagFDA)
 S3method(varImp, RandomForest)
 S3method(varImp, rfe)
 S3method(varImp, sbf)
@@ -240,7 +253,6 @@ S3method(varImp, dsa)
 S3method(varImp, plsda)
 S3method(varImp, fda)
 S3method(varImp, multinom)
-S3method(varImp, gam)
 S3method(varImp, cubist)
 S3method(varImp, RRF)
 S3method(varImp, PART)
@@ -248,6 +260,7 @@ S3method(varImp, JRip)
 S3method(varImp, C5.0)
 S3method(varImp, nnet)
 S3method(varImp, glmnet)
+S3method(varImp, gam)
 
 S3method(densityplot, train)
 S3method(histogram,   train)
@@ -255,7 +268,6 @@ S3method(stripplot,   train)
 S3method(xyplot,      train)
 S3method(xyplot,      lift)
 S3method(xyplot,      calibration)
-
 
 S3method(densityplot, rfe)
 S3method(histogram,   rfe)
@@ -283,6 +295,8 @@ S3method(plot,  train)
 S3method(plot,  varImp.train)
 S3method(plot,  rfe)
 S3method(plot,  prcomp.resamples)
+S3method(plot,  lift)
+S3method(plot,  calibration)
 
 S3method(confusionMatrix,  train)
 S3method(confusionMatrix,  rfe)
@@ -357,61 +371,9 @@ S3method(predictors, train)
 S3method(predictors, terms)
 S3method(predictors, formula)
 S3method(predictors, list)
-S3method(predictors, mvr)
-S3method(predictors, gbm)
-S3method(predictors, Weka_classifier)
-S3method(predictors, fda)
-S3method(predictors, earth)
-S3method(predictors, gausspr)
-S3method(predictors, ksvm)
-S3method(predictors, rvm)
-S3method(predictors, lssvm)
-S3method(predictors, gpls)
-S3method(predictors, knn3)
-S3method(predictors, knnreg)
-S3method(predictors, LogitBoost)
-S3method(predictors, lda)
-S3method(predictors, rda)
-S3method(predictors, multinom)
-S3method(predictors, NaiveBayes)
-S3method(predictors, pamrtrained)
-S3method(predictors, superpc)
-S3method(predictors, randomForest)
-S3method(predictors, slda)
-S3method(predictors, rpart)
-S3method(predictors, regbagg)
-S3method(predictors, classbagg)
-S3method(predictors, lm)
-S3method(predictors, glmboost)
-S3method(predictors, blackboost)
-S3method(predictors, gamboost)
-S3method(predictors, BinaryTree)
-S3method(predictors, RandomForest)
-S3method(predictors, bagEarth)
-S3method(predictors, bagFDA)
-S3method(predictors, nnet)
-S3method(predictors, pcaNNet)
-S3method(predictors, avNNet)
+S3method(predictors, default)
 S3method(predictors, rfe)
-S3method(predictors, spls)
-S3method(predictors, splsda)
-S3method(predictors, glm)
-S3method(predictors, mda)
-S3method(predictors, glmnet)
-S3method(predictors, qda)
-S3method(predictors, penfit)
-S3method(predictors, lars)
-S3method(predictors, sda)
-S3method(predictors, smda)
 S3method(predictors, sbf)
-S3method(predictors, trocc)
-S3method(predictors, foba)
-S3method(predictors, dsa)
-S3method(predictors, logreg)
-S3method(predictors, logforest)
-S3method(predictors, logicBagg)
-S3method(predictors, gam)
-S3method(predictors, C5.0)
 
 S3method(confusionMatrix, table)
 
@@ -431,9 +393,15 @@ S3method(summary, resamples)
 S3method(summary, bag)
 
 S3method(diff, resamples)
+S3method(sort, resamples)
 
 S3method(summary, diff.resamples)
 
 S3method(update, train)
 S3method(fitted, train)
 S3method(residuals, train)
+
+S3method(levels, train)
+
+S3method(ggplot, train)
+S3method(ggplot, rfe)

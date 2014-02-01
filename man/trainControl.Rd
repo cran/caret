@@ -17,7 +17,6 @@ trainControl(method = "boot",
              classProbs = FALSE,
              summaryFunction = defaultSummary,
              selectionFunction = "best",
-             custom = NULL,
              preProcOptions = list(thresh = 0.95, ICAcomp = 3, k = 5),
              index = NULL,
              indexOut = NULL,
@@ -28,7 +27,7 @@ trainControl(method = "boot",
 }
 \arguments{
   \item{method}{The resampling method: \code{boot}, \code{boot632}, \code{cv}, \code{repeatedcv},
-    \code{LOOCV},  \code{LGOCV} (for repeated training/test splits), or
+    \code{LOOCV},  \code{LGOCV} (for repeated training/test splits), \code{none} (only fits one model to the entire training set) or
     \code{oob} (only for random forest, bagged trees, bagged earth, bagged flexible discriminant analysis, or conditional tree forest models)}
   \item{number}{Either the number of folds or number of resampling iterations}
   \item{repeats}{For repeated k-fold cross-validation only: the number of complete sets of folds to compute}
@@ -40,8 +39,6 @@ trainControl(method = "boot",
   \item{initialWindow, horizon, fixedWindow}{possible arguments to \code{\link{createTimeSlices}}}
   \item{classProbs}{a logical; should class probabilities be computed for classification models (along with predicted values) in each resample?}
   \item{summaryFunction}{a function to compute performance metrics across resamples. The arguments to the function should be the same as those in \code{\link{defaultSummary}}.}
-  \item{custom}{an optional list of functions that can be used to fit custom models. See the details below and worked examples at  \url{http://caret.r-forge.r-project.org/}.
-. This is an "experimental" version for testing. Please send emails to the maintainer for suggestions or problems.}
   \item{selectionFunction}{the function used to select the optimal tuning parameter. This can be a name of the function or the function itself. See \code{\link{best}} for details and other options.}
   \item{preProcOptions}{A list of options to pass to \code{\link{preProcess}}. The type of pre-processing (e.g. center, scaling etc) is passed in via the \code{preProc} option in \code{\link{train}}.}
   \item{index}{a list with elements for each resampling iteration. Each list element is the sample rows used for training at that iteration.}
@@ -57,18 +54,10 @@ trainControl(method = "boot",
 }
 
 \details{
-For custom modeling functions, several functions can be specified using the \code{custom} argument:
-\itemize{
-    \item{parameters}{a data frame or function of tuning parameters}
-    \item{model}{a function that trains the model}
-    \item{prediction}{a function that predicts new samples (either numbers or character/factor vectors)}
-    \item{probability}{an optional function for classification models that returns a matrix or data frame of class probabilities (in columns)}
-    \item{sort}{a function that sorts the tuning parameters by complexity}
-    }
-
-For more details and worked examples, see \url{http://caret.r-forge.r-project.org/}.
-
 When setting the seeds manually, the number of models being evaluated is required. This may not be obvious as \code{train} does some optimizations for certain models. For example, when tuning over PLS model, the only model that is fit is the one with the largest number of components. So if the model is being tuned over \code{comp in 1:10}, the only model fit is \code{ncomp = 10}. However, if the vector of integers used in the \code{seeds} arguments is longer than actually needed, no error is thrown. 
+
+Using \code{method = "none"} and specifying model than one model in \code{\link{train}}'s \code{tuneGrid} or \code{tuneLength} arguments will result in an error. 
+
 }
 
 \author{Max Kuhn}

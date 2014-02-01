@@ -1,6 +1,7 @@
 \name{prcomp.resamples}
 \alias{prcomp.resamples}
 \alias{cluster.resamples}
+\alias{cluster}
 \alias{plot.prcomp.resamples}
 \title{
 Principal Components Analysis of Resampling Results
@@ -12,8 +13,8 @@ Performs a principal components analysis on an object of class \code{\link{resam
 \usage{
 \method{prcomp}{resamples}(x, metric = x$metrics[1], ...)
 
+cluster(x, ...)
 \method{cluster}{resamples}(x, metric = x$metrics[1], ...)
-
 
 \method{plot}{prcomp.resamples}(x, what = "scree", dims = max(2, ncol(x$rotation)), ...)
 
@@ -74,12 +75,14 @@ resampPCA <- prcomp(resamps)
 
 resampPCA
 
-plot(resampPCA, "scree")
+plot(resampPCA, what = "scree")
 
-plot(resampPCA, "components")
+plot(resampPCA, what = "components")
 
-plot(resampPCA, "components", dims = 2, auto.key = list(columns = 3))
+plot(resampPCA, what = "components", dims = 2, auto.key = list(columns = 3))
 
+clustered <- cluster(resamps)
+plot(clustered)
 
 }
 }

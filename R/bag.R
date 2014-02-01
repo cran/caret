@@ -38,7 +38,7 @@ bagControl <- function(fit = NULL, predict = NULL, aggregate = NULL, downSample 
       
       if(!is.null(v))
         {
-          if(v < ncol(x)) v <- ncol(x)
+          if(v > ncol(x)) v <- ncol(x)
           subVars <- sample(1:ncol(subX), ceiling(v))
           subX <- subX[, subVars, drop = FALSE]
         } else subVars <- NULL
@@ -87,7 +87,7 @@ bagControl <- function(fit = NULL, predict = NULL, aggregate = NULL, downSample 
   
   btSamples <- createResample(y, times = B)
 
-  hasFE <- suppressPackageStartupMessages(require("foreach"))
+  hasFE <- TRUE
   if(bagControl$allowParallel)
     {
       if(!hasFE) cat("Install the foreach package for parallel processing; going sequential instead")
@@ -130,7 +130,7 @@ bagControl <- function(fit = NULL, predict = NULL, aggregate = NULL, downSample 
   m <- match.call(expand.dots = FALSE)  
   mIndex <- match(c("formula", "data", "subset", "weights", "na.action"), names(m), 0)
   m <- m[c(1, mIndex)]
-  m$... <- NULL
+  m$... <- m$B <- m$vars <- m$bagControl <- NULL
   m$na.action <- na.action
   m[[1]] <- as.name("model.frame")
   m <- eval(m, parent.frame())
@@ -197,7 +197,10 @@ print.bag <- function (x, ...)
       oobData <- do.call("rbind", oobData)
       oobResults <- ddply(oobData, .(key), defaultSummary)
       oobResults$key <- NULL
-      oobStat <- apply(oobResults, 2, function(x) quantile(x, probs = c(0, 0.025, .25, .5, .75, .975, 1)))
+      oobStat <- apply(oobResults, 2, 
+                       function(x) quantile(x, 
+                                            na.rm = TRUE, 
+                                            probs = c(0, 0.025, .25, .5, .75, .975, 1)))
       rownames(oobStat) <- paste(format(as.numeric(format(gsub("%", "", rownames(oobStat))))),
                                  "%", sep = "")
       B <- nrow(oobResults)

@@ -325,7 +325,7 @@ To fit an another model to the data, \code{train} can be invoked with minimal ch
 For example, to fit a regularized discriminant model to these data, the following syntax can be used:
 <<rdaFit>>=
 ## To illustrate, a custom grid is used
-rdaGrid = data.frame(.gamma = (0:4)/4, .lambda = 3/4)
+rdaGrid = data.frame(gamma = (0:4)/4, lambda = 3/4)
 set.seed(123)                    
 rdaFit <- train(Class ~ ., 
                 data = training,

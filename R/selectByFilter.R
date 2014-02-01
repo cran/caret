@@ -133,7 +133,7 @@ sbf <- function (x, ...) UseMethod("sbf")
   
   resamples <- switch(sbfControl$returnResamp,
                       none = NULL, 
-                      all = resamples)
+                      all =, final = resamples)
 
   endTime <- proc.time()
   times <- list(everything = endTime - startTime,
@@ -201,16 +201,8 @@ print.sbf <- function(x, top = 5, digits = max(3, getOption("digits") - 3), ...)
   resampleN <- unlist(lapply(x$control$index, length))
   numResamp <- length(resampleN)
   
-  resampName <- switch(tolower(x$control$method),
-                       boot = paste("Bootstrap (", numResamp, " reps)", sep = ""),
-                       boot632 = paste("Bootstrap 632 Rule (", numResamp, " reps)", sep = ""),
-                       cv = paste("Cross-Validation (", x$control$number, " fold)", sep = ""),
-                       repeatedcv = paste("Cross-Validation (", x$control$number, " fold, repeated ",
-                         x$control$repeats, " times)", sep = ""),
-                       loocv = "Leave-One-Out Cross-Validation",
-                       lgocv = paste("Repeated Train/Test Splits (", numResamp, " reps, ",
-                         round(x$control$p, 2), "%)", sep = ""))
-  cat("Outer resampling method:", resampName, "\n")      
+  resampText <- resampName(x)
+  cat("Outer resampling method:", resampText, "\n")     
 
   cat("\nResampling performance:\n\n")
   print(format(x$results, digits = digits), row.names = FALSE)
@@ -309,7 +301,7 @@ sbfControl <- function(functions = NULL,
                        number = ifelse(method %in% c("cv", "repeatedcv"), 10, 25),
                        repeats = ifelse(method %in% c("cv", "repeatedcv"), 1, number),
                        verbose = FALSE,
-                       returnResamp = "all",
+                       returnResamp = "final",
                        p = .75,
                        index = NULL,
                        timingSamps = 0,
@@ -362,22 +354,22 @@ caretSBF <- list(summary = defaultSummary,
                  pred = function(object, x)
                  {
                    if(class(object) != "nullModel")
+                   {
+                     tmp <- predict(object, x)
+                     if(object$modelType == "Classification" &
+                          !is.null(object$modelInfo$prob))
                      {
-                       tmp <- predict(object, x)
-                       if(object$modelType == "Classification" &
-                          modelLookup(object$method)$probModel[1])
-                         {
-                           out <- cbind(data.frame(pred = tmp),
-                                        as.data.frame(predict(object, x, type = "prob")))
-                         } else out <- tmp
-                     } else {
-                       tmp <- predict(object, x)
-                       if(!is.null(object$levels))
-                         {
-                           out <- cbind(data.frame(pred = tmp),
-                                        as.data.frame(predict(object, x, type = "prob")))
-                         } else out <- tmp 
-                     }
+                       out <- cbind(data.frame(pred = tmp),
+                                    as.data.frame(predict(object, x, type = "prob")))
+                     } else out <- tmp
+                   } else {
+                     tmp <- predict(object, x)
+                     if(!is.null(object$levels))
+                     {
+                       out <- cbind(data.frame(pred = tmp),
+                                    as.data.frame(predict(object, x, type = "prob")))
+                     } else out <- tmp 
+                   }
                    out
                  },
                  score = function(x, y)

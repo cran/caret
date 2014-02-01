@@ -36,6 +36,8 @@ sbf(x, ...)
 }
 
 \details{
+More details on this function can be found at \url{http://caret.r-forge.r-project.org/featureselection.html}.
+
 This function can be used to get resampling estimates for models when simple, filter-based feature selection is applied to the training data.
 
 For each iteration of resampling, the predictor variables are univariately filtered prior to modeling. Performance of this approach is estimated using resampling. The same filter and model are then applied to the entire training set and the final model (and final features) are saved.

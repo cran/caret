@@ -10,7 +10,7 @@ Two panel functions that be used in conjunction with \code{\link{lift}}.
 \usage{
 panel.lift(x, y, ...)
 
-panel.lift2(x, y, pct = 0, ...)
+panel.lift2(x, y, pct = 0, values = NULL, ...)
 }
 \arguments{
   \item{x}{
@@ -22,6 +22,8 @@ the percentage of events found to be plotted in the scatterplot
   \item{pct}{
 the baseline percentage of true events in the data
 }
+\item{values}{
+A vector of numbers between 0 and 100 specifying reference values for the percentage of samples found (i.e. the y-axis). Corresponding points on the x-axis are found via interpolation and line segments are shown to indicate how many samples must be tested before these percentages are found. The lines use either the \code{plot.line} or \code{superpose.line} component of the current lattice theme to draw the lines (depending on whether groups were used}
   \item{\dots}{
 options to pass to \code{\link[lattice:panel.xyplot]{panel.xyplot}}
 }

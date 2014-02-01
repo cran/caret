@@ -21,6 +21,8 @@ tolerance(x, metric, tol = 1.5, maximize)
 \details{
 These functions can be used by \code{\link{train}} to select the "optimal" model form a series of models. Each requires the user to select a metric that will be used to judge performance. For regression models, values of \code{"RMSE"} and \code{"Rsquared"} are applicable. Classification models use either \code{"Accuracy"} or \code{"Kappa"} (for unbalanced class distributions.
 
+More details on these functions can be found at \url{http://caret.r-forge.r-project.org/training.html#custom}.
+
 By default, \code{\link{train}} uses \code{best}.
 
 \code{best} simply chooses the tuning parameter associated with the largest (or lowest for \code{"RMSE"}) performance.
@@ -55,8 +57,7 @@ Elastic net models are ordered first n the L1 penalty, then by the L2 penalty.
 \examples{
 \dontrun{
 # simulate a PLS regression model
-test <- data.frame(
-                   ncomp = 1:5,
+test <- data.frame(ncomp = 1:5,
                    RMSE = c(3, 1.1, 1.02, 1, 2),
                    RMSESD = .4)
 
@@ -68,19 +69,15 @@ tolerance(test, "RMSE", tol = 3, maximize = FALSE)
 
 data(BloodBrain)
 
-marsGrid <- data.frame(
-                       .degree = 1,
-                       .nprune = (1:10) * 3)
+marsGrid <- data.frame(degree = 1, nprune = (1:10) * 3)
 
 set.seed(1)
-marsFit <- train(
-                 bbbDescr, logBBB,
-                 "earth",
+marsFit <- train(bbbDescr, logBBB,
+                 method = "earth",
                  tuneGrid = marsGrid,
-                 trControl = trainControl(
-                   method = "cv",
-                   number = 10,
-                   selectionFunction = "tolerance"))
+                 trControl = trainControl(method = "cv",
+                                          number = 10,
+                                          selectionFunction = "tolerance"))
 
 # around 18 terms should yield the smallest CV RMSE     
 }

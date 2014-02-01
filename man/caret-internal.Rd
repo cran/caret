@@ -5,11 +5,12 @@
 \alias{sortImp}
 \alias{caretTheme}
 \alias{progress}
+\alias{hasTerms}
 
 \description{Internal functions}
 \usage{
-createModel(data, method, tuneValue, obsLevels, pp = NULL, 
-            last = FALSE, custom = NULL, classProbs, ...)
+createModel(x, y, wts, method, tuneValue, obsLevels, 
+	        pp = NULL, last = FALSE, classProbs, ...)
 sortImp(object, top)
 resampleWrapper(x, ind)
 caretTheme()
@@ -19,6 +20,7 @@ rfStats(x)
 bagEarthStats(x)
 cforestStats(x)
 progress(x, names, iter, start = TRUE)
+hasTerms(x)
 }
 \author{Max Kuhn, but \code{caretTheme} uses an expanded grid of the "Blues" palette designed by Cynthia Brewer and Mark Harrower}
 

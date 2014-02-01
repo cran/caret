@@ -65,11 +65,19 @@ createTimeSlices(y, initialWindow, horizon = 1, fixedWindow = TRUE)
  "Foldi.Repj" meaning the ith section (of k) of the jth cross-validation set 
  (of \code{times}). Note that this function calls \code{createFolds} with 
  \code{list = TRUE} and \code{returnTrain = TRUE}.
+
+  Hyndman and Athanasopoulos (2013)) discuss rolling forecasting origin< techniques that move the training and test sets in time. \code{createTimeSlices} can create the indices for this type of splitting. 
 }
 \value{
    A list or matrix of row position integers corresponding to the training
    data
 }
+\references{
+\url{http://caret.r-forge.r-project.org/splitting.html}
+
+Hyndman and Athanasopoulos (2013), Forecasting: principles and practice. \url{https://www.otexts.org/fpp}
+}
+
 \author{Max Kuhn, \code{createTimeSlices} by Tony Cooper}
 
 \examples{

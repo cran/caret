@@ -21,6 +21,7 @@
       out
     }   
 
+  if(!is.null(x$modelInfo$label)) cat(x$modelInfo$label, "\n\n")
   if(printCall) printCall(x$call)
 
   if(!is.null(x$trainingData))
@@ -29,7 +30,7 @@
       chDim[2] <- chDim[2] - 1
      if(x$modelType == "Classification")
         {
-          lev <- caret:::getClassLevels(x)
+          lev <- levels(x)
           if(is.character(lev)) chDim <- c(chDim, length(lev))
         } else lev <- NULL      
       chDim <- format(chDim)
@@ -72,160 +73,142 @@
       cat(truncateText(ppText), "\n")
     } else cat("No pre-processing\n")
 
-
-  
-  if(!is.null(x$control$index))
-    {
-      resampleN <- unlist(lapply(x$control$index, length))
-      numResamp <- length(resampleN)
-      
-      resampName <- switch(tolower(x$control$method),
-                           boot = paste("Bootstrap (", numResamp, " reps)", sep = ""),
-                           boot632 = paste("Bootstrap 632 Rule (", numResamp, " reps)", sep = ""),
-                           cv = paste("Cross-Validation (", x$control$number, " fold)", sep = ""),
-                           repeatedcv = paste("Cross-Validation (", x$control$number, " fold, repeated ",
-                                              x$control$repeats, " times)", sep = ""),
-                           loocv = "Leave-One-Out Cross-Validation",
-                           lgocv = paste("Repeated Train/Test Splits (", numResamp, " reps, ",
-                             round(x$control$p, 2), "%)", sep = ""))
-      cat("Resampling:", resampName, "\n\n")      
+  if(!is.null(x$control$index)) {
+    resampleN <- unlist(lapply(x$control$index, length))
+    numResamp <- length(resampleN)
+    
+    resampText <- resampName(x)
+    
+    cat("Resampling:", resampText, "\n\n")   
+    if(x$control$method != "none") {
       outLabel <- x$metric
-
+      
       resampleN <- as.character(resampleN)
       if(numResamp > 5) resampleN <- c(resampleN[1:6], "...")
       cat("Summary of sample sizes:", paste(resampleN, collapse = ", "), "\n\n")
-
-      
-      if(is.null(x$control$index) & x$control$number != numResamp)
-        {
-          cat(
-              "(", 
-              x$control$number - numResamp,
-              " resamples were not returned",
-              "by the lsf process)\n\n")
-        }
     }
-  tuneAcc <- x$results 
-  tuneAcc <- tuneAcc[, names(tuneAcc) != "parameter"]
-
-  cat("Resampling results")
-  if(dim(tuneAcc)[1] > 1) cat(" across tuning parameters:\n") else cat("\n")
-  cat("\n")
-
-
+  }
   
-  if(dim(tuneAcc)[1] > 1)
+  if(x$control$method != "none") {
+
+    tuneAcc <- x$results 
+    tuneAcc <- tuneAcc[, names(tuneAcc) != "parameter"]
+    
+    cat("Resampling results")
+    if(dim(tuneAcc)[1] > 1) cat(" across tuning parameters:\n") else cat("\n")
+    cat("\n")
+    
+    if(dim(tuneAcc)[1] > 1)
     {
       numParam <- length(x$bestTune)
-
+      
       finalTune <- x$bestTune
-      names(finalTune) <- substring(names(finalTune), 2)
-
+      
       optValues <- paste(names(finalTune), "=", format(finalTune, digits = digits))
       optString <- paste(
-                         "The final ",
-                         ifelse(numParam > 1, "values", "value"),
-                         " used for the model ",
-                         ifelse(numParam > 1, "were ", "was "),
-                         stringFunc(optValues),
-                         ".",
-                         sep = "")
-
+        "The final ",
+        ifelse(numParam > 1, "values", "value"),
+        " used for the model ",
+        ifelse(numParam > 1, "were ", "was "),
+        stringFunc(optValues),
+        ".",
+        sep = "")
+      
       
       finalTune$Selected <- "*"
-
+      
       tuneAcc <- merge(tuneAcc, finalTune, all.x = TRUE)
       tuneAcc$Selected[is.na(tuneAcc$Selected)] <- ""
-
+      
     } else optString <- ""
-  
-  sdCols <- grep("SD$", colnames(tuneAcc))
-  sdCheck <- unlist(lapply(
-                           tuneAcc[, sdCols, drop = FALSE],
-                           function(u) all(is.na(u))))
-  if(any(sdCheck))
+    
+    sdCols <- grep("SD$", colnames(tuneAcc))
+    sdCheck <- unlist(lapply(
+      tuneAcc[, sdCols, drop = FALSE],
+      function(u) all(is.na(u))))
+    if(any(sdCheck))
     {
       rmCols <- names(sdCheck)[sdCheck]
-      tuneAcc <- tuneAcc[, !(names(tuneAcc) %in% rmCols)]	
+      tuneAcc <- tuneAcc[, !(names(tuneAcc) %in% rmCols)]  
     }
-
-  params <- gsub("^\\.", "", names(x$bestTune))
-  
-  if(!all(params == "parameter"))
+    
+    params <- names(x$bestTune)
+    
+    if(!all(params == "parameter"))
     {
       numVals <- apply(tuneAcc[, params, drop = FALSE], 2, function(x) length(unique(x)))
       if(any(numVals < 2))
+      {
+        constString <- NULL
+        for(i in seq(along = numVals))
         {
-          constString <- NULL
-          for(i in seq(along = numVals))
-            {
-              if(numVals[i] == 1)
-                constString <- c(constString,
-                                 paste("Tuning parameter '",
-                                       names(numVals)[i],
-                                       "' was held constant at a value of ",
-                                       stringFunc(tuneAcc[1,names(numVals)[i]]),
-                                       sep = ""))
-            }
-          discard <- names(numVals)[which(numVals == 1)]
-          tuneAcc <- tuneAcc[, !(names(tuneAcc) %in% discard), drop = FALSE]
-
-        } else constString <- NULL
+          if(numVals[i] == 1)
+            constString <- c(constString,
+                             paste("Tuning parameter '",
+                                   names(numVals)[i],
+                                   "' was held constant at a value of ",
+                                   stringFunc(tuneAcc[1,names(numVals)[i]]),
+                                   sep = ""))
+        }
+        discard <- names(numVals)[which(numVals == 1)]
+        tuneAcc <- tuneAcc[, !(names(tuneAcc) %in% discard), drop = FALSE]
+        
+      } else constString <- NULL
     } else constString <- NULL
-  
-  printList <- lapply(
-                      tuneAcc, 
-                      function(data, dig = digits)
-                      {
-                        if(is.numeric(data) & !is.factor(data)) out <- paste(signif(data, dig))
-                        else out <- as.character(data)
-                        out
-                      }) 
-  printMat <- as.matrix(as.data.frame(printList))      
-  rownames(printMat) <- rep("", dim(printMat)[1])
-  colnames(printMat) <- gsub("SD", " SD", colnames(printMat))
-
-  if(!selectCol) printMat <- printMat[, colnames(printMat) != "Selected", drop = FALSE]
-
-  print(printMat, quote = FALSE, print.gap = 2)
-  cat("\n")
-
-  if(!is.null(constString))
+    
+    printList <- lapply( tuneAcc, 
+                         function(data, dig = digits)
+                         {
+                           if(is.numeric(data) & !is.factor(data)) out <- paste(signif(data, dig))
+                           else out <- as.character(data)
+                           out
+                         }) 
+    printMat <- as.matrix(as.data.frame(printList))      
+    rownames(printMat) <- rep("", dim(printMat)[1])
+    colnames(printMat) <- gsub("SD", " SD", colnames(printMat))
+    
+    if(!selectCol) printMat <- printMat[, colnames(printMat) != "Selected", drop = FALSE]
+    
+    print(printMat, quote = FALSE, print.gap = 2)
+    cat("\n")
+    
+    if(!is.null(constString))
     {
       cat(truncateText(paste(constString, collapse = "\n")))
       cat("\n")
     }
-
-  
-  if(dim(tuneAcc)[1] > 1)
+    
+    
+    if(dim(tuneAcc)[1] > 1)
     {
       if(is.null(x$update))
+      {
+        met <- paste(x$metric, "was used to select the optimal model using")
+        if(is.function(x$control$selectionFunction))
         {
-          met <- paste(x$metric, "was used to select the optimal model using")
-          if(is.function(x$control$selectionFunction))
-            {
-              met <- paste(met, " a custom selection rule.\n")
-            } else {
-
-              met <- paste(met,
-                           switch(
-                                  x$control$selectionFunction,
-                                  best = paste(
-                                    " the",
-                                    ifelse(x$maximize, "largest", "smallest"),
-                                    "value.\n"),
-                                  oneSE = " the one SE rule.\n",
-                                  tolerance = " a tolerance rule.\n"))
-            }
+          met <- paste(met, " a custom selection rule.\n")
         } else {
-          met <- paste("The tuning", ifelse(ncol(x$bestTune) > 1, "parameters", "parameter"),
-                       "was set manually.\n") 
-
+          
+          met <- paste(met,
+                       switch(
+                         x$control$selectionFunction,
+                         best = paste(
+                           " the",
+                           ifelse(x$maximize, "largest", "smallest"),
+                           "value.\n"),
+                         oneSE = " the one SE rule.\n",
+                         tolerance = " a tolerance rule.\n"))
         }
+      } else {
+        met <- paste("The tuning", ifelse(ncol(x$bestTune) > 1, "parameters", "parameter"),
+                     "was set manually.\n") 
+        
+      }
       cat(truncateText(met))
     }
-  
-  cat(truncateText(optString), "\n")
+    
+    cat(truncateText(optString), "\n")
+  } else printList <- NULL
   
   if(details)
     {

@@ -159,15 +159,16 @@ print.bagEarth <- function (x, ...)
 "summary.bagEarth" <-
   function(object, ...)
 {
-  
+  require(earth)
   oobStat <- apply(object$oob, 2, function(x) quantile(x, probs = c(0, 0.025, .25, .5, .75, .975, 1)))
 
   numTerms <- unlist(lapply(object$fit, function(x) length(x$selected.terms)))
   numVar <- unlist(lapply(
                           object$fit, 
-                          function(x)
-                          {
-                            earth:::get.nused.preds.per.subset(x$dirs, x$selected.terms)
+                          function(x) {
+                          imp <- rownames(evimp(x, trim = FALSE))
+                          imp <- imp[!grepl("-unused", imp)]
+                          imp  
                           }))
   modelInfo <- cbind(numTerms, numVar)
   colnames(modelInfo) <- c("Num Terms", "Num Variables")

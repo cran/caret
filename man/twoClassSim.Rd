@@ -9,7 +9,7 @@ This function simulates data with two classes, truly important predictors and ir
 \usage{
 twoClassSim(n = 100, intercept = -5, 
             linearVars = 10, noiseVars = 0, corrVars = 0, 
-            corrType = "AR1", corrValue = 0)
+            corrType = "AR1", corrValue = 0, mislabel = 0)
 }
 \arguments{
   \item{n}{
@@ -33,6 +33,9 @@ The correlation structure of the correlated irrelevant predictors. Values of "AR
   \item{corrValue}{
 The correlation value.
 }
+  \item{mislabel}{
+  The proportion of data that is possibly mislabeled. See Details below.
+  }
 }
 \details{
 The data are simulated in sets. First, two multivariate normal predictors (denoted here as \code{A} and \code{B}) are created with a correlation our about 0.65. They change the log-odds using main effects and an interaction:
@@ -61,7 +64,7 @@ The fourth set of informative predictors are copied from one of Friedman's syste
 2sin(KL)
 }
 
-All of these effects are added up to model the log-odds. This is used to calculate the probability of a sample being in the first class and a random uniform number is used to actually make the assignment of the actual class. 
+All of these effects are added up to model the log-odds. This is used to calculate the probability of a sample being in the first class and a random uniform number is used to actually make the assignment of the actual class. To mislabel the data, the probability is reversed (i.e. \code{p = 1 - p}) before the random number generation. 
 
 The user can also add non-informative predictors to the data. These are random standard normal predictors and can be optionally added to the data in two ways: a specified number of independent predictors or a set number of predictors that follow a particular correlation structure. The only two correlation structure that have been implemented are 
 
@@ -78,7 +81,6 @@ The user can also add non-informative predictors to the data. These are random s
       | r^3  r^2  r    1    |
       | r^4  r^3  r^2  r  1 |
 }   
-
 
 }
 \value{

@@ -30,7 +30,7 @@ maxDissim <- function(a, b, n = 2, obj = minDiss, useNames = FALSE, randomFrac =
           cat("Number of candidates:", length(free), "\n")
           cat("Sampling from", length(pool), "samples\n")		
         }
-      diss <- proxy:::dist(newA, b[pool,, drop = FALSE], ...)
+      diss <- proxy::dist(newA, b[pool,, drop = FALSE], ...)
       bNames <- colnames(b)[pool] 
       tmp <- pool[which.max(apply(diss, 2, obj))]
       if(verbose)cat("new sample:", tmp, "\n")      
@@ -67,7 +67,6 @@ splitter <- function(x, p = .8, start = NULL, ...)
 
 splitByDissim <- function(x, p = .8, y = NULL, start = NULL, ...)
   {
-    library(plyr)
     if(!is.data.frame(x)) x <- as.data.frame(x)
     
     if(!is.null(y))

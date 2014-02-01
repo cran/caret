@@ -1,10 +1,10 @@
 \name{update.train}
 \alias{update.train}
 \title{
-Update and Re-fit a Model
+Update or Re-fit a Model
 }
 \description{
-\code{update} allows a user to over-ride the tuning parameter selection process by specifying a set of tuning parameters.
+\code{update} allows a user to over-ride the tuning parameter selection process by specifying a set of tuning parameters or to update the model object to the latest version of this package.
 }
 \usage{
 \method{update}{train}(object, param = NULL, ...)
@@ -21,11 +21,10 @@ not currently used
 }
 }
 \details{
-To update the model, the training data must be stored in the model object (see the option \code{returnData} in \code{\link{trainControl}}. Also, all tuning parameters must be specified (with the preceding dot in the name).
+If the model object was created with version 5.17-7 or earlier, the underlying package structure was different. To make old \code{\link{train}} objects consistent with the new structure, use \code{param = NULL} to get the same object back with updates.
 
-All other options are held constant, including the original pre-processing (if any), options passed in using code{...} and so on.
 
-When printing, the verbiage "The tuning parameter was set manually." is used to describe how the tuning parameters were created.
+To update the model parameters, the training data must be stored in the model object (see the option \code{returnData} in \code{\link{trainControl}}. Also, all tuning parameters must be specified in the \code{param} slot. All other options are held constant, including the original pre-processing (if any), options passed in using code{...} and so on. When printing, the verbiage "The tuning parameter was set manually." is used to describe how the tuning parameters were created.
 }
 \value{
 a new \code{\link{train}} object

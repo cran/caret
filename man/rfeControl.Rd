@@ -12,7 +12,7 @@ rfeControl(functions = NULL,
            number = ifelse(method \%in\% c("cv", "repeatedcv"), 10, 25),
            repeats = ifelse(method \%in\% c("cv", "repeatedcv"), 1, number),
            verbose = FALSE,
-           returnResamp = "all",
+           returnResamp = "final",
            p = .75,
            index = NULL,
            timingSamps = 0,
@@ -36,6 +36,8 @@ rfeControl(functions = NULL,
   \item{allowParallel}{if a parallel backend is loaded and available, should the function use it?}
 }
 \details{
+More details on this function can be found at \url{http://caret.r-forge.r-project.org/featureselection.html}.
+
 Backwards selection requires function to be specified for some operations. 
 
 The \code{fit} function builds the model based on the current data set. The arguments for the function must be:
@@ -103,7 +105,7 @@ This function should return a character string of predictor names (of length \co
 
 Examples of these functions are included in the package: \code{\link{lmFuncs}}, \code{\link{rfFuncs}}, \code{\link{treebagFuncs}} and \code{\link{nbFuncs}}.
 
-Model details about these functions, including examples, are at \url{http://caret.r-forge.r-project.org/}.
+Model details about these functions, including examples, are at \url{http://caret.r-forge.r-project.org/featureselection.html}.
 .
 
 }
@@ -116,7 +118,6 @@ A list
 
 \examples{
   \dontrun{
-{
 subsetSizes <- c(2, 4, 6, 8)
 set.seed(123)
 seeds <- vector(mode = "list", length = 51)
@@ -129,9 +130,7 @@ rfMod <- rfe(bbbDescr, logBBB,
              rfeControl = rfeControl(functions = rfFuncs, 
                                      seeds = seeds,
                                      number = 50))
-}
   }
-
 }
 
 \keyword{ utilities }

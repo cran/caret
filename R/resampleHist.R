@@ -6,7 +6,7 @@ resampleHist <- function(object, type = "density", ...)
 
 
   resample <- object$resample
-  tuneNames <- modelLookup(object$method)$parameter
+  tuneNames <- as.character(object$modelInfo$parameter$parameter)
   if(any(names(resample) %in% tuneNames))
     {
       bestTune <- object$bestTune
