@@ -2,14 +2,22 @@
 \title{News for Package \pkg{caret}}
 \newcommand{\cpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
+\section{Changes in version 6.0-24}{
+\itemize{
+\item Several models were updated to work with case weights.
+
+\item A bug in \code{rfe} was found where the largest subset size have the same results as the full model. Thanks to Jose Seoane for reporting the bug. 
+}
+}
+
 \section{Changes in version 6.0-22}{
 \itemize{
 \item For some parallel processing technologies, the package now export 
 more internal functions. 
  
-\item A bug was fixed in \code{rfe} that occured when LOO CV was used.
+\item A bug was fixed in \code{rfe} that occurred when LOO CV was used.
 
-\item Another bug was fixed that occured for some models when 
+\item Another bug was fixed that occurred for some models when 
 \code{tuneGrid} contained only a single model.
  }
 }
@@ -105,7 +113,7 @@ eliminated from the depends field. Additionally, a few were moved to exports.
  \item Some internal refactoring of the data was done to prepare
  for some upcoming resampling options.
  
- \item \code{predict.train} now has an explict \code{na.action} 
+ \item \code{predict.train} now has an explicit \code{na.action} 
  argument defaulted to \code{na.omit}. If imputation is used in 
  \code{train}, then \code{na.action = na.pass} is recommended. 
  
@@ -222,7 +230,7 @@ with two class outcomes (thanks to Zachary Mayer).
 \item The old funciton \code{getTrainPerf} was finally made visible. 
 
 \item Some models are created using "do.call" and may contain the
-entire data set in the call object. A funciton to "scrub" some model call
+entire data set in the call object. A function to "scrub" some model call
 objects was added to reduce their size. 
 
 \item The tuning process for \code{sda:::sda} models was changed to
@@ -443,7 +451,7 @@ models.
 \item Bugs were fixed in the new varImp methods for PART and RIPPER
 
 \item Starting using namespaces for \code{ctree} and \code{cforest} to
-avoid conflicts between duplicate funciton names in the \cpkg{party}
+avoid conflicts between duplicate function names in the \cpkg{party}
 and \cpkg{partykit} package
 
 \item A set of functions for RFE and logistic regression
@@ -456,7 +464,7 @@ honored.
 \item A bug was fixed in \code{preProcess} where the number of ICA
 components was not specified. (thanks to Alexander Lebedev)
 
-\item Another bug was fixed for oblique ranodm forest methods in
+\item Another bug was fixed for oblique random forest methods in
 \code{train}. (thanks to Alexander Lebedev)
 
 }
