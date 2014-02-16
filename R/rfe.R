@@ -19,7 +19,6 @@ rfeIter <- function(x, y,
   sizeText <- format(sizeValues)
   
   finalVariables <- vector(length(sizeValues), mode = "list")
-  
   for(k in seq(along = sizeValues))
     {
       if(!any(is.na(seeds))) set.seed(seeds[k])
@@ -31,7 +30,6 @@ rfeIter <- function(x, y,
               "size:",  sizeText[k], "\n")
         }
       flush.console()
-      
       fitObject <- rfeControl$functions$fit(x[,retained,drop = FALSE], y,
                                             first = p == ncol(x[,retained,drop = FALSE]),
                                             last = FALSE,
@@ -94,10 +92,9 @@ rfeIter <- function(x, y,
       if(nrow(modImp) < sizeValues[k]) stop(paste("rfe is expecting", sizeValues[k], 
                                                   "importance values but only has", nrow(modImp)))
       if(any(!complete.cases(modImp))) stop("There were missing importance values")
-      retained <- as.character(modImp$var)[1:sizeValues[k]]
       finalVariables[[k]] <- subset(modImp, var %in% retained)
       finalVariables[[k]]$Variables <- sizeValues[[k]]
-      
+      if(k < length(sizeValues)) retained <- as.character(modImp$var)[1:sizeValues[k+1]]
     }
   list(finalVariables = finalVariables, pred = rfePred)
 

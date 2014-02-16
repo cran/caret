@@ -1,4 +1,4 @@
-1e05b24744cdeb49a3a1caf2f9cae528 *DESCRIPTION
+460628ef0d023f14b7824ad2e4c61bde *DESCRIPTION
 ac8af21d983bd6be95999abbc96e6f4e *NAMESPACE
 70aedf85d67b594ec7ce311b3c4a03f1 *R/BoxCoxTrans.R
 99a1f5dcd0a31ca28674563eb3e9ec62 *R/PLS.R
@@ -70,7 +70,7 @@ cbdf8b5c7be8f3dc434a5436020b1d97 *R/probFunction.R
 f9ef4c63ed0bb0a827668ecddb32838c *R/resampleSummary.R
 cc344a4e8ac4f9cfa43d9c12eff62290 *R/resampleWrapper.R
 dba7472f6776128865ee8c0372349660 *R/resamples.R
-801adcb1dacaba7d15ac6a0307538d03 *R/rfe.R
+95a55a9425e7deb943f378293ac62720 *R/rfe.R
 0d0a263738354e3f6827d2e452cafd5d *R/roc.R
 e383cd083e49767ce7c1f2a638ed54e5 *R/rocPoint.R
 d50838861605b20ec8f1c6a74831baaa *R/sampling.R
@@ -101,11 +101,11 @@ eca0c2532cc328c1d0ac5d32b3c9bbdc *data/oil.RData
 ecdae454e7a1a320b438d5e98e33606f *data/pottery.RData
 82d12ed229545b7a39820522a2af82f6 *data/segmentationData.RData
 30958b520366b02a43372f65773b77ac *data/tecator.RData
-5aa9d8eb7fb07ad03aad2d64da8aacfb *inst/NEWS.Rd
+edbbfac8d57374341d834f6c4e47f870 *inst/NEWS.Rd
 80473638febf2e00614dabca366830be *inst/doc/caret.R
 e04eec501a79ccd32408cc1138ee6eac *inst/doc/caret.Rnw
-e3c9279e910203b05d8bb54afbce62be *inst/doc/caret.pdf
-93401c774cc1ffa4c6e30b3aef7a0c48 *inst/models/models.RData
+d07398f9ec43b72b03475554c8cb475f *inst/doc/caret.pdf
+2718b3b2c737b8b7ce871aea0d465eb8 *inst/models/models.RData
 2f930c29bc2f795db458385b0da13062 *man/BloodBrain.Rd
 4a34b02e30c3c81d42ea99439d3a1b77 *man/BoxCoxTrans.Rd
 a84e244e0154375ca9e902cfe9ac9c78 *man/GermanCredit.Rd
