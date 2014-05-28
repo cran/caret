@@ -15,7 +15,7 @@ resampleHist(object, type = "density", ...)
 \details{
 All the metrics from the object are plotted, but only for the final model. For more comprehensive plots functions, see  \code{\link{histogram.train}}, \code{\link{densityplot.train}}, \code{\link{xyplot.train}}, \code{\link{stripplot.train}}.
 
-For the the plot to be made, the \code{returnResamp} argument in \code{\link{trainControl}} should be either "final" or "all".
+For the plot to be made, the \code{returnResamp} argument in \code{\link{trainControl}} should be either "final" or "all".
 }
 \value{
 a object of class \code{trellis}

@@ -59,7 +59,7 @@ To construct the calibration plot, the following steps are used for each model:
 
 This implementation uses the \pkg{lattice} function \code{\link[lattice:xyplot]{xyplot}}, so plot elements can be changed via panel functions, \code{\link[lattice:trellis.par.get]{trellis.par.set}} or other means. \code{calibration} uses the panel function \code{\link{panel.calibration}} by default, but it can be changed by passing that argument into \code{xyplot.calibration}.
 
-The folowing elements are set by default in the plot but can be changed by passing new values into \code{xyplot.calibration}: \code{xlab = "Bin Midpoint"}, \code{ylab = "Observed Event Percentage"}, \code{type = "o"}, \code{ylim = extendrange(c(0, 100))},\code{xlim = extendrange(c(0, 100))} and \code{panel = panel.calibration}
+The following elements are set by default in the plot but can be changed by passing new values into \code{xyplot.calibration}: \code{xlab = "Bin Midpoint"}, \code{ylab = "Observed Event Percentage"}, \code{type = "o"}, \code{ylim = extendrange(c(0, 100))},\code{xlim = extendrange(c(0, 100))} and \code{panel = panel.calibration}
 
 }
 \value{

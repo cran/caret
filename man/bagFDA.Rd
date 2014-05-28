@@ -37,7 +37,7 @@ bagFDA(x, ...)
           with missing values on any required variable.  (NOTE: If
           given, this argument must be named.) }
    
-  \item{B}{the numebr of bootstrap samples }  
+  \item{B}{the number of bootstrap samples }  
   
   \item{keepX}{a logical: should the original training data be kept?}  
   

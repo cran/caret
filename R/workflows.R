@@ -1,3 +1,4 @@
+
 ### In this file, there are a lot of functions form caret that are
 ### references using the explicit namespace operator (:::). For some
 ### reason, with some parallel processing technologies and foreach,
@@ -67,6 +68,7 @@ nominalTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, tes
   result <- foreach(iter = seq(along = resampleIndex), .combine = "c", .verbose = FALSE, .packages = pkgs, .errorhandling = "stop") %:%
     foreach(parm = 1:nrow(info$loop), .combine = "c", .verbose = FALSE, .packages = pkgs, .errorhandling = "stop")  %op%
 {
+  testing <- FALSE
   if(!(length(ctrl$seeds) == 1 && is.na(ctrl$seeds))) set.seed(ctrl$seeds[[iter]][parm])
   
   library(caret)
@@ -202,12 +204,14 @@ nominalTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, tes
     
     ## collate the predicitons across all the sub-models
     predicted <- lapply(predicted,
-                        function(x, y, lv)
-                        {
+                        function(x, y, wts, lv) {
                           if(!is.factor(x) & is.character(x)) x <- factor(as.character(x), levels = lv)
-                          data.frame(pred = x, obs = y, stringsAsFactors = FALSE)
+                          out <- data.frame(pred = x, obs = y, stringsAsFactors = FALSE)
+                          if(!is.null(wts)) out$weights <- wts
+                          out
                         },
                         y = y[holdoutIndex],
+                        wts = wts[holdoutIndex],
                         lv = lev)
     if(testing) print(head(predicted))
     
@@ -256,6 +260,7 @@ nominalTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, tes
     ## Sometimes the code above does not coerce the first
     ## columnn to be named "pred" so force it
     names(tmp)[1] <- "pred"
+    if(!is.null(wts)) tmp$weights <- wts[holdoutIndex]
     if(ctrl$classProbs) tmp <- cbind(tmp, probValues)
     
     if(ctrl$savePredictions)
@@ -289,7 +294,7 @@ nominalTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, tes
   pred <- if(ctrl$savePredictions)  rbind.fill(result[names(result) == "pred"]) else NULL
   if(ctrl$method %in% c("boot632"))
   {
-    perfNames <- names(ctrl$summaryFunction(data.frame(obs = y, pred = sample(y)),
+    perfNames <- names(ctrl$summaryFunction(data.frame(obs = y, pred = sample(y), weights = 1),
                                             lev = lev,
                                             model = method))
     apparent <- subset(resamples, Resample == "AllData")
@@ -394,12 +399,14 @@ looTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, testing
       {
         ## collate the predictions across all the sub-models
         predicted <- lapply(predicted,
-                            function(x, y, lv)
-                            {
+                            function(x, y, wts, lv) {
                               if(!is.factor(x) & is.character(x)) x <- factor(as.character(x), levels = lv)
-                              data.frame(pred = x, obs = y, stringsAsFactors = FALSE)
+                              out <- data.frame(pred = x, obs = y, stringsAsFactors = FALSE)
+                              if(!is.null(wts)) out$weights <- wts
+                              out
                             },
                             y = y[holdoutIndex],
+                            wts = wts[holdoutIndex],
                             lv = lev)
         if(testing) print(head(predicted))
         
@@ -420,8 +427,10 @@ looTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, testing
         predicted <-  data.frame(pred = predicted,
                                  obs = y[holdoutIndex],
                                  stringsAsFactors = FALSE)
+        if(!is.null(wts)) predicted$weights <- wts[holdoutIndex]
         if(ctrl$classProbs) predicted <- cbind(predicted, probValues)
         predicted <- cbind(predicted, info$loop[parm,,drop = FALSE])
+        
       }
       if(ctrl$verboseIter) progress(printed[parm,,drop = FALSE],
                                     names(ctrl$index), iter, FALSE)

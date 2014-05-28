@@ -38,7 +38,7 @@
           with missing values on any required variable.  (NOTE: If
           given, this argument must be named.) }
    
-  \item{B}{the numebr of bootstrap samples }  
+  \item{B}{the number of bootstrap samples }  
 
   \item{summary}{a function with a single argument specifying how the bagged predictions should be summarized }  
   

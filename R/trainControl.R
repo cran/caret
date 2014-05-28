@@ -18,6 +18,7 @@ trainControl <- function(method = "boot",
                          timingSamps = 0,
                          predictionBounds = rep(FALSE, 2),
                          seeds = NA,
+                         adaptive = list(min = 5, alpha = 0.05, method = "gls"),
                          allowParallel = TRUE)
 {
   if(is.null(selectionFunction)) stop("null selectionFunction values not allowed")
@@ -26,6 +27,14 @@ trainControl <- function(method = "boot",
   if(any(names(preProcOptions) == "method")) stop("'method' cannot be specified here")
   if(any(names(preProcOptions) == "x")) stop("'x' cannot be specified here")
 
+  if(!(adaptive$method %in% c("gls", "BT"))) stop("incorrect value of adaptive$method")
+  if(adaptive$alpha < .0000001 | adaptive$alpha > 1) stop("incorrect value of adaptive$alpha")
+  if(grepl("adapt", method)) {
+    num <- if(method == "adaptive_cv") number*repeats else number
+    if(adaptive$min >= num) stop(paste("adaptive$min should be less than", num))
+    if(adaptive$min <= 1) stop("adaptive$min should be greater than 1")
+  }
+  
   list(method = method,
        number = number,
        repeats = repeats,
@@ -46,6 +55,7 @@ trainControl <- function(method = "boot",
        timingSamps = timingSamps,
        predictionBounds = predictionBounds,
        seeds = seeds,
+       adaptive = adaptive,
        allowParallel = allowParallel)
 }
 

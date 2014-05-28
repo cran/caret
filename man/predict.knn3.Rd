@@ -10,7 +10,7 @@
 \arguments{
   \item{object}{object of class \code{knn3}.}
   \item{newdata}{a data frame of new observations. }
-  \item{type}{return either the predicted class or the 
+  \item{type}{return either the predicted class or  
               the proportion of the votes for the winning
               class.}
   \item{...}{additional arguments.}
@@ -22,7 +22,7 @@ a copy of \code{\link[ipred]{predict.ipredknn}}.
 
 }
 \value{
-Either the predicted class or the
+Either the predicted class or 
 the proportion of the votes for each class.
 }
 

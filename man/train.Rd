@@ -90,7 +90,7 @@ A variety of models are currently available and are enumerated by tag (i.e. thei
 
 Kuhn (2008), ``Building Predictive Models in R Using the caret'' (\url{http://www.jstatsoft.org/v28/i05/})}
 
-\seealso{\code{\link{trainControl}}, \code{\link{update.train}},
+\seealso{\code{\link{models}}, \code{\link{trainControl}}, \code{\link{update.train}},
 \code{\link{modelLookup}},
 \code{\link{createFolds}}}
 
@@ -133,12 +133,12 @@ data(BostonHousing)
 
 lmFit <- train(medv ~ . + rm:lstat,
                data = BostonHousing, 
-               "lm")
+               method = "lm")
 
 library(rpart)
 rpartFit <- train(medv ~ .,
                   data = BostonHousing,
-                  "rpart",
+                  method = "rpart",
                   tuneLength = 9)
 
 #######################################
@@ -146,8 +146,7 @@ rpartFit <- train(medv ~ .,
 
 madSummary <- function (data,
                         lev = NULL,
-                        model = NULL) 
-{
+                        model = NULL) {
   out <- mad(data$obs - data$pred, 
              na.rm = TRUE)  
   names(out) <- "MAD"
@@ -159,7 +158,7 @@ marsGrid <- expand.grid(degree = 1, nprune = (1:10) * 2)
 
 earthFit <- train(medv ~ .,
                   data = BostonHousing, 
-                  "earth",
+                  method = "earth",
                   tuneGrid = marsGrid,
                   metric = "MAD",
                   maximize = FALSE,
@@ -178,10 +177,11 @@ earthFit <- train(medv ~ .,
 set.seed(1)
 usingMC <-  train(medv ~ .,
                   data = BostonHousing, 
-                  "glmboost")
+                  method = "glmboost")
 
 ## or use:
 ## library(doMPI) or 
+## library(doParallel) or 
 ## library(doSMP) and so on
 
 }

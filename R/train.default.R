@@ -24,7 +24,11 @@ train.default <- function(x, y,
                                    paste(minNames[!nameCheck], collapse = ", ")))
     models <- method
     method <- "custom"
-  } else models <- getModelInfo(method, regex = FALSE)[[1]]
+  } else {
+    models <- getModelInfo(method, regex = FALSE)[[1]]
+    if (length(models) == 0) 
+      stop(paste("Model", method, "is not in caret's built-in library"))
+  }
   checkInstall(models$library)
   for(i in seq(along = models$library)) do.call("require", list(package = models$library[i]))
   
@@ -33,6 +37,11 @@ train.default <- function(x, y,
   funcCall <- match.call(expand.dots = TRUE)
   modelType <- if(is.factor(y)) "Classification"  else "Regression"
   if(!(modelType %in% models$type)) stop(paste("wrong model type for", tolower(modelType)))
+  
+  if(any(class(x) == "data.table")) x <- as.data.frame(x)
+  stopifnot(length(y) > 1)
+  stopifnot(nrow(x) > 1)
+  stopifnot(nrow(x) == length(y))
   
   ## TODO add check method and execute here
   
@@ -80,7 +89,7 @@ train.default <- function(x, y,
     }   
   }
   
-  if(trControl$method == "oob" & !(method %in% c("rf", "treebag", "cforest", "bagEarth", "bagFDA")))
+  if(trControl$method == "oob" & !(method %in% c("rf", "treebag", "cforest", "bagEarth", "bagFDA", "parRF")))
     stop("for oob error rates, model bust be one of: rf, cforest, bagEarth, bagFDA or treebag")
   
   ## If they don't exist, make the data partitions for the resampling iterations.
@@ -93,7 +102,7 @@ train.default <- function(x, y,
                               loocv = createFolds(y, length(y), returnTrain = TRUE),
                               boot =, boot632 =,  adaptive_boot = createResample(y, trControl$number),
                               test = createDataPartition(y, 1, trControl$p),
-                              lgocv = createDataPartition(y, trControl$number, trControl$p),
+                              adaptive_lgocv =, lgocv = createDataPartition(y, trControl$number, trControl$p),
                               timeslice = createTimeSlices(seq(along = y),
                                                            initialWindow = trControl$initialWindow,
                                                            horizon = trControl$horizon,
@@ -267,12 +276,13 @@ train.default <- function(x, y,
     {
       perfNames <- if(modelType == "Regression") c("RMSE", "Rsquared") else  c("Accuracy", "Kappa")    
     } else {
-      testSummary <- evalSummaryFunction(y, trControl, classLevels, metric, method)
+      testSummary <- evalSummaryFunction(y, wts = weights, ctrl = trControl, 
+                                         lev = classLevels, metric = metric, 
+                                         method = method)
       perfNames <- names(testSummary)
     }
     
-    if(!(metric %in% perfNames))
-    {
+    if(!(metric %in% perfNames)){
       oldMetric <- metric
       metric <- perfNames[1]
       warning(paste("The metric \"",
@@ -284,25 +294,36 @@ train.default <- function(x, y,
                     sep = ""))
     }
     
-    if(trControl$method == "oob")
-    {
+    if(trControl$method == "oob"){
       tmp <- oobTrainWorkflow(x = x, y = y, wts = weights, 
                               info = trainInfo, method = models,
                               ppOpts = preProcess, ctrl = trControl, lev = classLevels, ...)
       performance <- tmp
     } else {
-      if(trControl$method == "LOOCV")
-      {
+      if(trControl$method == "LOOCV"){
         tmp <- looTrainWorkflow(x = x, y = y, wts = weights, 
                                 info = trainInfo, method = models,
                                 ppOpts = preProcess, ctrl = trControl, lev = classLevels, ...)
         performance <- tmp$performance
       } else {
-        tmp <- nominalTrainWorkflow(x = x, y = y, wts = weights, 
-                                    info = trainInfo, method = models,
-                                    ppOpts = preProcess, ctrl = trControl, lev = classLevels, ...)
-        performance <- tmp$performance
-        resampleResults <- tmp$resample
+        if(!grepl("adapt", trControl$method)){
+          tmp <- nominalTrainWorkflow(x = x, y = y, wts = weights, 
+                                      info = trainInfo, method = models,
+                                      ppOpts = preProcess, ctrl = trControl, lev = classLevels, ...)
+          performance <- tmp$performance
+          resampleResults <- tmp$resample
+        } else {
+          tmp <- adaptiveWorkflow(x = x, y = y, wts = weights, 
+                                  info = trainInfo, method = models,
+                                  ppOpts = preProcess, 
+                                  ctrl = trControl, 
+                                  lev = classLevels, 
+                                  metric = metric, 
+                                  maximize = maximize, 
+                                  ...)
+          performance <- tmp$performance
+          resampleResults <- tmp$resample     
+        }
       }
     }
     
@@ -343,34 +364,49 @@ train.default <- function(x, y,
     selectClass <- class(trControl$selectionFunction)[1]
     
     ## Select the "optimal" tuning parameter.
+    if(grepl("adapt", trControl$method)) {
+      perf_check <- subset(performance, .B == max(performance$.B))
+    } else perf_check <- performance
+    
+    ## Make adaptive only look at parameters with B = max(B)
     if(selectClass == "function")
     {
-      bestIter <- trControl$selectionFunction(x = performance,
+      bestIter <- trControl$selectionFunction(x = perf_check,
                                               metric = metric,
                                               maximize = maximize)
     }
     else {
       if(trControl$selectionFunction == "oneSE")
       {
-        bestIter <- oneSE(performance,
+        bestIter <- oneSE(perf_check,
                           metric,
                           length(trControl$index),
                           maximize)
       } else {
         bestIter <- do.call(trControl$selectionFunction,
-                            list(x = performance,
+                            list(x = perf_check,
                                  metric = metric,
                                  maximize = maximize))
       }
     }
-    
+
     if(is.na(bestIter) || length(bestIter) != 1) stop("final tuning parameters could not be determined")
+    
+    if(grepl("adapt", trControl$method)) {
+      best_perf <- perf_check[bestIter,as.character(models$parameters$parameter),drop = FALSE]
+      performance$order <- 1:nrow(performance)
+      bestIter <- merge(performance, best_perf)$order
+      performance$order <- NULL
+    }
+    
     
     ## Based on the optimality criterion, select the tuning parameter(s)
     bestTune <- performance[bestIter, paramNames, drop = FALSE]
   } else {
     bestTune <- tuneGrid
-    performance <- evalSummaryFunction(y, trControl, classLevels, metric, method)
+    performance <- evalSummaryFunction(y, wts = weights, ctrl = trControl, 
+                                       lev = classLevels, metric = metric, 
+                                       method = method)
     perfNames <- names(performance)
     performance <- as.data.frame(t(performance))
     performance <- cbind(performance, tuneGrid)
@@ -397,7 +433,7 @@ train.default <- function(x, y,
   } 
   
   # names(bestTune) <- paste(".", names(bestTune), sep = "")   
-
+  
   ## Reorder rows of performance
   orderList <- list()
   for(i in seq(along = paramNames)) orderList[[i]] <- performance[,paramNames[i]]
@@ -491,6 +527,7 @@ train.formula <- function (form, data, ..., weights, subset, na.action = na.fail
   m$... <- m$contrasts <- NULL
   m[[1]] <- as.name("model.frame")
   m <- eval.parent(m)
+  stopifnot(nrow(m)>1)
   Terms <- attr(m, "terms")
   x <- model.matrix(Terms, m, contrasts, na.action = na.action)
   cons <- attr(x, "contrast")

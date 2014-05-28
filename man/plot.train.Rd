@@ -23,10 +23,10 @@
 }
 \arguments{
   \item{x}{an object of class \code{\link{train}}.}
-  \item{metric}{What measure of performance to plot. Examples of possible values are "RMSE", "Rsquared", "Accuracy" or "Kappa". Other values can be used depending n what metrics have been calculated.}
+  \item{metric}{What measure of performance to plot. Examples of possible values are "RMSE", "Rsquared", "Accuracy" or "Kappa". Other values can be used depending on what metrics have been calculated.}
   \item{plotType}{a string describing the type of plot (\code{"scatter"}, \code{"level"} or \code{"line"} (\code{plot} only))}
   \item{digits}{an integer specifying the number of significant digits used to label the parameter value.}
-  \item{xTrans}{a fuction that will be used to scale the x-axis in scatter plots.}
+  \item{xTrans}{a function that will be used to scale the x-axis in scatter plots.}
   \item{data}{an object of class \code{\link{train}}.}  
   \item{output}{either "data", "ggplot" or "layered". The first returns a data frame while the second returns a simple \code{ggplot} object with no layers. The third value returns a plot with a set of layers. }  
   \item{\dots}{\code{plot} only: specifications to be passed to \code{\link[lattice]{levelplot}}, \code{\link[lattice]{xyplot}}, \code{\link[lattice:xyplot]{stripplot}} (for line plots). The function automatically sets some arguments (e.g. axis labels) but passing in values here will over-ride the defaults }

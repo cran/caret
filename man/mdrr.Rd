@@ -23,7 +23,7 @@ original descriptors, but we generated a set of 342 descriptors
 of three different types that should be similar to the original
 descriptors, using the DRAGON software."
 
-The data and R code are in the Supplimental Data file for the article.
+The data and R code are in the Supplemental Data file for the article.
 }
 
 \usage{data(mdrr)}

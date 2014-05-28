@@ -60,7 +60,7 @@ knn3Train(train, test, cl, k=1, l=0, prob = TRUE, use.all=TRUE)
 \details{
   \code{knn3} is essentially the same code as \code{\link[ipred]{ipredknn}}
   and \code{knn3Train} is a copy of \code{\link[class]{knn}}. The underlying 
-  C code from the \code{class} pacakge has been modifed to return the vote
+  C code from the \code{class} package has been modified to return the vote
   percentages for each class (previously the percentage for the winning 
   class was returned).
   

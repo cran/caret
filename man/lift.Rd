@@ -54,7 +54,7 @@ To construct data for the the lift and gain plots, the following steps are used 
 
 \enumerate{
    \item The data are ordered by the numeric model prediction used on the right-hand side of the model formula
-   \item Each unque value of the score is treated as a cut point
+   \item Each unique value of the score is treated as a cut point
    \item The number of samples with true results equal to \code{class} are determined
    \item The lift is calculated as the ratio of the percentage of samples in each split corresponding to \code{class} over the same percentage in the entire data set}
 \code{lift} with \code{plot = "gain"} produces a plot of the cumulative lift values by the percentage of samples evaluated while \code{plot = "lift"} shows the cut point value versus the lift statistic. 
