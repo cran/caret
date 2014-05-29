@@ -44,6 +44,7 @@ getModelInfo <- function(model = NULL, regex = TRUE, ...) {
     keepers <- if(regex) grepl(model, names(models), ...) else which(model == names(models))[1]
     models <- models[keepers]
   }
+  if(length(models) == 0) stop("That model is not in caret's built-in library")
   models
 }
 
@@ -69,4 +70,11 @@ modelLookup <- function(model = NULL){
   rownames(out) <- NULL
   out <- out[, c('model', 'parameter', 'label', 'forReg', 'forClass', 'probModel')]
   out[order(out$model),]
+}
+
+
+missing_packages <- function(mods = getModelInfo()) {
+  libs <- unique(unlist(lapply(mods, function(x) x$library)))
+  here <- rownames(installed.packages())
+  libs[!(libs %in% here)]
 }

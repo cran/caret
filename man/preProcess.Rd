@@ -5,7 +5,7 @@
 
 \title{Pre-Processing of Predictors }
 \description{
-Pre-processing transformation (centering, scaling etc) can be estimated from the training data and applied to any data set with the same variables. 
+Pre-processing transformation (centering, scaling etc.) can be estimated from the training data and applied to any data set with the same variables. 
 }
 \usage{
 preProcess(x, ...)

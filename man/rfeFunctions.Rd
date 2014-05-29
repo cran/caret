@@ -13,7 +13,7 @@
 
 \title{Backwards Feature Selection Helper Functions}
 \description{
-Ancillary fuctions for backwards selection
+Ancillary functions for backwards selection
 }
 \usage{
 pickSizeTolerance(x, metric, tol = 1.5, maximize) 
@@ -43,7 +43,7 @@ lrFuncs
 }
 \details{
 This page describes the functions that are used in backwards selection (aka recursive 
-feature elimination). The funcitons described here are passed to the algorithm via the 
+feature elimination). The functions described here are passed to the algorithm via the 
 \code{functions} argument of \code{\link{rfeControl}}. 
 
 See \code{\link{rfeControl}} for details on how these functions should be defined.

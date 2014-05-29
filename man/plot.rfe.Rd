@@ -19,14 +19,14 @@ These functions plot the resampling results for the candidate subset sizes evalu
 an object of class \code{\link{rfe}}.
 }
 
- \item{metric}{What measure of performance to plot. Examples of possible values are "RMSE", "Rsquared", "Accuracy" or "Kappa". Other values can be used depending n what metrics have been calculated.}
+ \item{metric}{What measure of performance to plot. Examples of possible values are "RMSE", "Rsquared", "Accuracy" or "Kappa". Other values can be used depending on what metrics have been calculated.}
 
   \item{\dots}{\code{plot} only: specifications to be passed to \code{\link[lattice]{xyplot}}. The function automatically sets some arguments (e.g. axis labels) but passing in values here will over-ride the defaults. 
  }
   \item{data}{
 an object of class \code{\link{rfe}}.
 }
-  \item{output}{either "data", "ggplot" or "layered". The first returns a data frame while the second retruns a simple \code{ggplot} object with no layers. The third value returns a plot with a set of layers. }  
+  \item{output}{either "data", "ggplot" or "layered". The first returns a data frame while the second returns a simple \code{ggplot} object with no layers. The third value returns a plot with a set of layers. }  
 }
 \details{
 These plots show the average performance versus the subset sizes. 

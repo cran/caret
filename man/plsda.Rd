@@ -39,7 +39,7 @@ If a factor is supplied, the appropriate indicator matrix is created.
 
 A multivariate PLS model is fit to the indicator matrix using the \code{\link[pls:mvr]{plsr}} or  \code{\link[spls]{spls}} function. 
 
-Two prediciton methods can be used.
+Two prediction methods can be used.
 
   The \bold{softmax function} transforms the model predictions to "probability-like" values (e.g. on  [0, 1] and sum to 1). The class with the largest class probability is the predicted class.
 
@@ -100,7 +100,7 @@ dim(predict(useBayes, testDescr, type = "prob"))
 dim(predict(useBayes, testDescr, type = "prob", ncomp = 1:3))
 
 ## Using spls:
-## (As of 11/09, the spls package now has a similar funciton with
+## (As of 11/09, the spls package now has a similar function with
 ## the same mane. To avoid conflicts, use caret:::splsda to 
 ## get this version)
 

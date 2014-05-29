@@ -8,7 +8,7 @@
 \alias{knnreg}
 \title{ k-Nearest Neighbour Regression }
 \description{
-  $k$-nearest neighbour clasregressionsification that can return the average value for the neighbours.
+  $k$-nearest neighbour regression that can return the average value for the neighbours.
 }
 \usage{
 
@@ -54,7 +54,7 @@ knnregTrain(train, test, y, k = 5, use.all=TRUE)
 \details{
   \code{knnreg} is similar to \code{\link[ipred]{ipredknn}}
   and \code{knnregTrain} is a modification of \code{\link[class]{knn}}. The underlying 
-  C code from the \code{class} pacakge has been modifed to return average outcome.
+  C code from the \code{class} package has been modified to return average outcome.
   
 }
 

@@ -6,7 +6,7 @@ function(x, top = min(20, dim(x$importance)[1]), digits = max(3, getOption("digi
    printObj <- sortImp(x, top)
 
    if(dim(x$importance)[2] > 2)
-     cat("  variables are sorted by average importance across the classes\n")
+     cat("  variables are sorted by maximum importance across the classes\n")
      
    if(top < dim(x$importance)[1]) 
       cat("  only ", top, " most important variables shown (out of ", dim(x$importance)[1], ")\n\n", sep = "")

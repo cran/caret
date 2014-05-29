@@ -103,7 +103,7 @@ A generic method for calculating variable importance for objects produced by
    \item{estimate}{which estimate of performance should be used? See \code{\link[pls]{mvrVal}}}  
    \item{drop}{a logical: should variables not included in the final set be calculated?}
    \item{cuts}{the number of rule sets to use in the model (for \code{partDSA} only)}
-   \item{weights}{a numeric vector of length two that weighs the usage of variabels in the rule conditions and the usuage in the linear models (see details below).}
+  \item{weights}{a numeric vector of length two that weighs the usage of variables in the rule conditions and the usage in the linear models (see details below).}
    \item{lambda}{a single value of the penalty parameter}
 }
 

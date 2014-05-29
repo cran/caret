@@ -17,9 +17,9 @@ plotObsVsPred(object, equalRanges = TRUE, ...)
 }
 \arguments{
   \item{object}{an object (preferably from the function \code{\link{extractPrediction}}. There 
-  should be columns named \code{obs}, \code{pred}, \code{model} (e.g. "rpart", "nnet" etc)
+  should be columns named \code{obs}, \code{pred}, \code{model} (e.g. "rpart", "nnet" etc.)
   and \code{dataType} (e.g. "Training", "Test" etc) }
-  \item{equalRanges}{a logical; should teh x- and y-axis ranges be the same?}
+  \item{equalRanges}{a logical; should the x- and y-axis ranges be the same?}
   \item{\dots}{parameters to pass to   \code{\link[lattice]{xyplot}} or \code{\link[lattice:xyplot]{dotplot}}, such as  \code{auto.key}}
 }
 

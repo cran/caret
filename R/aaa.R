@@ -189,3 +189,7 @@ trainData <- NULL
 j <- NULL
 
 x <- NULL
+
+.B <- NULL
+
+model_id <- player1 <- player2 <- playa <- win1 <- win2 <- NULL

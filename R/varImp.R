@@ -11,18 +11,14 @@ GarsonWeights <- function(object)
     i2h <- array(NA, dim = object$n[2:1])
     h2o <- array(NA, dim = object$n[2:3])
 
-    for(hidden in 1:object$n[2])
-      {
-        for(input in 1:object$n[1])
-          {
-            label <- paste("i", input, "->h", hidden, sep = "")
-            i2h[hidden, input] <- abeta[grep(label, nms, fixed = TRUE)]
-          }
+    for (hidden in 1:object$n[2]) {
+      for (input in 1:object$n[1]) {
+        label <- paste("i", input, "->h", hidden,"$", sep = "")
+        i2h[hidden, input] <- abeta[grep(label, nms, fixed = FALSE)]
       }
-    for(hidden in 1:object$n[2])
-      {
-        for(output in 1:object$n[3])
-          {
+    }
+    for(hidden in 1:object$n[2]){
+        for(output in 1:object$n[3]){
             label <- paste("h", hidden, "->o",
                            ifelse(object$n[3] == 1, "", output),
                            sep = "")

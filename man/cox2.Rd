@@ -14,7 +14,7 @@ recombinant enzyme expressed as IC50 values ranging from
 1 nM to >100 uM (53 compounds have indeterminate IC50
 values)."
 
-The data are in the Supplimental Data file for the article.
+The data are in the Supplemental Data file for the article.
 
 A set of 255 descriptors (MOE2D and QikProp) were generated. To classify the data, we used a cutoff of $2^2.5$ to determine activity
 }

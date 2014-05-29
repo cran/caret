@@ -11,7 +11,7 @@ findCorrelation(x, cutoff = .90, verbose = FALSE)
 
 \arguments{
   \item{x}{A correlation matrix}
-  \item{cutoff}{A numeric value for the pariwise absolute correlation cutoff}
+  \item{cutoff}{A numeric value for the pair-wise absolute correlation cutoff}
   \item{verbose}{A boolean for printing the details}
 }
 \details{
@@ -25,7 +25,7 @@ findCorrelation(x, cutoff = .90, verbose = FALSE)
 \value{
   A vector of indices denoting the columns to remove. If no correlations meet the criteria, \code{numeric(0)} is returned.
 }
-\author{Orignal R code by Dong Li, modified by Max Kuhn}
+\author{Original R code by Dong Li, modified by Max Kuhn}
 
 \seealso{\code{\link[subselect:eleaps]{leaps}}, \code{\link[subselect:genetic]{genetic}}, \code{\link[subselect:anneal]{anneal}}, \code{\link{findLinearCombos}}}
 

@@ -23,12 +23,13 @@ trainControl(method = "boot",
              timingSamps = 0,
              predictionBounds = rep(FALSE, 2),
              seeds = NA,
+             adaptive = list(min = 5, alpha = 0.05, method = "gls"),
              allowParallel = TRUE)
 }
 \arguments{
   \item{method}{The resampling method: \code{boot}, \code{boot632}, \code{cv}, \code{repeatedcv},
-    \code{LOOCV},  \code{LGOCV} (for repeated training/test splits), \code{none} (only fits one model to the entire training set) or
-    \code{oob} (only for random forest, bagged trees, bagged earth, bagged flexible discriminant analysis, or conditional tree forest models)}
+    \code{LOOCV},  \code{LGOCV} (for repeated training/test splits), \code{none} (only fits one model to the entire training set), 
+    \code{oob} (only for random forest, bagged trees, bagged earth, bagged flexible discriminant analysis, or conditional tree forest models), \code{"adaptive_cv"}, \code{"adaptive_boot"} or \code{"adaptive_LGOCV"}}
   \item{number}{Either the number of folds or number of resampling iterations}
   \item{repeats}{For repeated k-fold cross-validation only: the number of complete sets of folds to compute}
   \item{verboseIter}{A logical for printing a training log.}
@@ -46,6 +47,8 @@ trainControl(method = "boot",
   \item{timingSamps}{the number of training set samples that will be used to measure the time for predicting samples (zero indicates that the prediction time should not be estimated.}
   \item{predictionBounds}{a logical or numeric vector of length 2 (regression only). If logical, the predictions can be constrained to be within the limit of the training set outcomes. For example, a value of \code{c(TRUE, FALSE)} would only constrain the lower end of predictions. If numeric, specific bounds can be used. For example, if \code{c(10, NA)}, values below 10 would be predicted as 10 (with no constraint in the upper side).}
   \item{seeds}{an optional set of integers that will be used to set the seed at each resampling iteration. This is useful when the models are run in parallel. A value of \code{NA} will stop the seed from being set within the worker processes while a value of \code{NULL} will set the seeds using a random set of integers. Alternatively, a list can be used. The list should have \code{B+1} elements where \code{B} is the number of resamples. The first \code{B} elements of the list should be vectors of integers of length \code{M} where \code{M} is the number of models being evaluated. The last element of the list only needs to be a single integer (for the final model). See the Examples section below and the Details section. }
+  \item{adaptive}{a list used when \code{method} is \code{"adaptive_cv"}, \code{"adaptive_boot"} or \code{"adaptive_LGOCV"}. See Details below. }
+
   \item{allowParallel}{if a parallel backend is loaded and available, should the function use it?}
 }
 
@@ -58,9 +61,18 @@ When setting the seeds manually, the number of models being evaluated is require
 
 Using \code{method = "none"} and specifying model than one model in \code{\link{train}}'s \code{tuneGrid} or \code{tuneLength} arguments will result in an error. 
 
+Using adaptive resampling when \code{method} is either \code{"adaptive_cv"}, \code{"adaptive_boot"} or \code{"adaptive_LGOCV"}, the full set of resamples is not run for each model. As resampling continues, a futility analysis is conducted and models with a low probability of being optimal are removed. These features are experimental. See Kuhn (2014) for more details. The options for this procedure are:
+
+\itemize{
+ \item min: the minimum number of resamples used before models are removed
+ \item alpha: the confidence level of the one-sided intervals used to measure futility
+ \item method: either generalized least squares (\code{method = "gls"}) or a Bradley-Terry model (\code{method = "BT"})
+}
 }
 
 \author{Max Kuhn}
+
+\references{Kuhn (2014), ``Futility Analysis in the Cross-Validation of Machine Learning Models'' \url{http://arxiv.org/abs/1405.6974}}
 
 \examples{
 \dontrun{

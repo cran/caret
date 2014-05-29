@@ -4,7 +4,7 @@
 \alias{tolerance}
 \title{Selecting tuning Parameters}
 \description{
-Various funcitons for setting tuning parameters
+Various functions for setting tuning parameters
 }
 \usage{
 best(x, metric, maximize)
@@ -31,7 +31,7 @@ By default, \code{\link{train}} uses \code{best}.
 
 \code{tolerance} takes the simplest model that is within a percent tolerance of the empirically optimal model. For example, if the largest Kappa value is 0.5 and a simpler model within 3 percent is acceptable, we score the other models using \code{(x - 0.5)/0.5 * 100}. The simplest model whose score is not less than 3 is chosen (in this case, a model with a Kappa value of 0.35 is acceptable).
 
-User--defined functions can also be used. The argument \code{selectionFunction} in \code{\link{trainControl}} can be used to pass the function directly or to pass the funciton by name.
+User--defined functions can also be used. The argument \code{selectionFunction} in \code{\link{trainControl}} can be used to pass the function directly or to pass the function by name.
 }
 \value{
 an row index 

@@ -2,6 +2,36 @@
 \title{News for Package \pkg{caret}}
 \newcommand{\cpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
+\section{Changes in version 6.0-29}{
+\itemize{
+\item  A man page with the list of models available via \code{trian} was added back into the package. See \code{?models}.
+
+\item  Thoralf Mildenberger found and fixed a bug in the variable importance
+calculation for neural network models. 
+
+\item The output of \code{varImp} for \code{pamr} models was updated to clarify the ordering of the importance scores.
+
+\item \code{getModelInfo} was updated to generate a more informative error message if the user looks for a model that is not in the package's model library. 
+
+\item A bug was fixed related to how seeds were set inside of \code{train}. 
+
+\item The model \code{"parRF"} (parallel random forest) was added back into the library.  
+
+\item When case weights are specified in \code{train}, the hold-out weights are exposed when computing the summary function. 
+
+\item A check was made to convert a \code{data.table} given to \code{train} to a data frame (see \url{http://stackoverflow.com/questions/23256177/r-caret-renames-column-in-data-table-after-training}).
+
+}
+}
+
+\section{Changes in version 6.0-25}{
+\itemize{
+\item Changes were made that stoped execution of \code{train} if there are no rows in the data (changes suggested by Andrew Ziem)
+
+\item Andrew Ziem also helped improve the documentation.
+}
+}
+
 \section{Changes in version 6.0-24}{
 \itemize{
 \item Several models were updated to work with case weights.

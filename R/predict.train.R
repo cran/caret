@@ -10,10 +10,10 @@ predict.train <- function(object, newdata = NULL, type = "raw", na.action = na.o
 {
   if(all(names(object) != "modelInfo")) {
     object <- update(object, param = NULL)
-    if(!is.null(object$modelInfo$library))
-      for(i in object$modelInfo$library) 
-        do.call("require", list(package = i))
   }
+  if(!is.null(object$modelInfo$library))
+    for(i in object$modelInfo$library) 
+      do.call("require", list(package = i))
   if(!(type %in% c("raw", "prob"))) stop("type must be either \"raw\" or \"prob\"")
   if(type == "prob")
   {

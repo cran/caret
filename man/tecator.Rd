@@ -17,7 +17,7 @@ In addition, please send a preprint of your article to
     Karin Thente, Tecator AB, 
     Box 70, S-263 21 Hoganas, Sweden
 
-The data are available in the public domain with no responsability from 
+The data are available in the public domain with no responsibility from 
 the original data source. The data can be redistributed as long as this 
 permission note is attached."
 
