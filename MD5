@@ -1,4 +1,4 @@
-9ff08adbeeddd64fe1259aa1511585e4 *DESCRIPTION
+85b07f6c154ee258668a296a2ec1df7f *DESCRIPTION
 6770045bb66efca03772183ff73a5599 *NAMESPACE
 70aedf85d67b594ec7ce311b3c4a03f1 *R/BoxCoxTrans.R
 99a1f5dcd0a31ca28674563eb3e9ec62 *R/PLS.R
@@ -34,7 +34,7 @@ c0138758f51a40fc14ded96de45e99cb *R/featurePlot.R
 fc38e7fd9962d936efc514edf8b2a2e4 *R/format.bagEarth.R
 5768289b7de14431f96a7b3f2efaa3ce *R/generateExprVal.method.trimMean.R
 800f69b2aba70c6bdf4c522d5c4bb1b0 *R/getTrainPerf.R
-6e0abf7aaa92c32b142a879525b4f139 *R/ggplot.R
+5df9e91d3a3a8c1aa3e097e296f5ffbb *R/ggplot.R
 22e43ce6d2ad5c1c295eb4a3dec2ef63 *R/icr.R
 8664cbaea64779cd56ecf15c19b79acf *R/knn3.R
 35fea4ce060e071b473e87f5d5b2aa8f *R/knn3Train.R
@@ -50,7 +50,7 @@ a3e64fdde6404b275141a2b2d654f5f9 *R/negPredValue.R
 c8ede72cb008519a3216e9c2368fb902 *R/normalize2Reference.R
 24ada61bde8c6ab496fbecb202756bce *R/panel.needle.R
 ee554c1239d66718117c553cd7f37cea *R/pcaNNet.R
-ebac245d54537e3571885ed94d5f9734 *R/plot.train.R
+201700b08cf9544a70fda9e7b34d3fdb *R/plot.train.R
 da1ab72783bf9b096b8c9ad70e8e8f0a *R/plot.varImp.train.R
 20fa40ca5f7622de3c95eaca02f7c822 *R/plotClassProbs.R
 d3198159665e5d9c1f73934d697b863b *R/plotObsVsPred.R
@@ -84,13 +84,13 @@ d50838861605b20ec8f1c6a74831baaa *R/sampling.R
 c971e8bb3e5753d3b98c7b8888ee1dc8 *R/splsda.R
 60caf5e68706cfe32ecb2aa079ad80e7 *R/suggestions.R
 6f970aa3c107b9446fd205e0bfd6c8a5 *R/train.default.R
-ffb48d0ed0ae15ee29a6329e0d139079 *R/trainControl.R
+666e5073ca7005f596d64649dc780d2b *R/trainControl.R
 94d5adf8200bf73ed45a444754e5e3de *R/twoClassSim.R
 647c1f31c316609f51179bb3d660a769 *R/updates.R
 364891224e963009b2d822eeede91ab1 *R/varImp.R
 480d183463fc0fc32a9006ef4d81ac31 *R/varImp.train.R
 55aa80c7c7ff440c7bfb7eb0602e1354 *R/workflows.R
-8f5b9c890495e9b409c3a0f6bd2b6c19 *build/vignette.rds
+e3a36da3706f58b8ab9a4a51dbf07dde *build/vignette.rds
 207388f37483d387a1bdb928c42bb4e7 *data/BloodBrain.RData
 2f905a97a1bdf8c66c2d1859fb6c3c94 *data/GermanCredit.RData
 cada87cea215be8bc2b5388b0c31841a *data/cars.RData
@@ -102,10 +102,10 @@ eca0c2532cc328c1d0ac5d32b3c9bbdc *data/oil.RData
 ecdae454e7a1a320b438d5e98e33606f *data/pottery.RData
 82d12ed229545b7a39820522a2af82f6 *data/segmentationData.RData
 30958b520366b02a43372f65773b77ac *data/tecator.RData
-eceddb4bd1ab93cf2d8192ff204e6de5 *inst/NEWS.Rd
+3138b3b3c4c94af0f1e2a3ce68a38753 *inst/NEWS.Rd
 80473638febf2e00614dabca366830be *inst/doc/caret.R
 e04eec501a79ccd32408cc1138ee6eac *inst/doc/caret.Rnw
-b83ddd1d2d0af6d4d215db130dd13e9e *inst/doc/caret.pdf
+e33cb116d9e7f4e5ab6c6746b9cd869b *inst/doc/caret.pdf
 f1e96f7d4e1bfe403d7778c715983f06 *inst/models/models.RData
 2f930c29bc2f795db458385b0da13062 *man/BloodBrain.Rd
 4a34b02e30c3c81d42ea99439d3a1b77 *man/BoxCoxTrans.Rd
@@ -187,7 +187,7 @@ eeede7f0f4ec2b0829ead67e041cde57 *man/sensitivity.Rd
 92af316de9fcceb4dcb5162f22e86815 *man/summary.bagEarth.Rd
 e04319c6dcd4f7b97ec698173102ce3d *man/tecator.Rd
 16bd913f454972e2b4a1b57b36db255d *man/train.Rd
-0362d148ee4af56a6be91150dddf5dec *man/trainControl.Rd
+a493e991f4105ba4a98342fd942eb87a *man/trainControl.Rd
 b7e603101004e9b83602896ee06e1a04 *man/twoClassSim.Rd
 b251c0f8c64d502d0ba5a8993a0ca413 *man/update.train.Rd
 356288c9faaf86315eb2cdd769f6e480 *man/varImp.Rd

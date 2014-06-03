@@ -27,8 +27,9 @@
     ## Get tuning parameter info
 
     params <- x$modelInfo$parameters$parameter
-
-
+    
+    if(grepl("adapt", x$control$method)) 
+      warning("When using adaptive resampling, this plot may not accurately capture the relationship between the tuning parameters and model performance.")
     
     plotIt <- "yes"
     if(all(params == "parameter"))
