@@ -2,9 +2,20 @@
 \title{News for Package \pkg{caret}}
 \newcommand{\cpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
+\section{Changes in version 6.0-30}{
+\itemize{
+\item A missing piece of documentation in \code{trainControl} for adaptive models was filled in. 
+
+\item A warning was added to \code{plot.train} and \code{ggplot.train} to note that the relationship between the resampled performance measures and the tuning parameters can be deceiving when using adaptive resampling.
+
+\item A check was added to \code{trainControl} to make sure that a value of \code{min} makes sense when using adaptive resampling.  
+
+}
+}
+
 \section{Changes in version 6.0-29}{
 \itemize{
-\item  A man page with the list of models available via \code{trian} was added back into the package. See \code{?models}.
+\item  A man page with the list of models available via \code{train} was added back into the package. See \code{?models}.
 
 \item  Thoralf Mildenberger found and fixed a bug in the variable importance
 calculation for neural network models. 

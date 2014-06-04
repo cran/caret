@@ -3,6 +3,10 @@ ggplot.train <- function(data = NULL, metric = data$metric[1], plotType = "scatt
   params <- data$modelInfo$parameters$parameter
   paramData <- data$modelInfo$parameters
   
+  if(grepl("adapt", data$control$method)) 
+    warning("When using adaptive resampling, this plot may not accurately capture the relationship between the tuning parameters and model performance.")
+  
+  
   plotIt <- "yes"
   if(all(params == "parameter"))
   {

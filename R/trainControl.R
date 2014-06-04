@@ -1,6 +1,6 @@
 trainControl <- function(method = "boot",
-                         number = ifelse(method %in% c("cv", "repeatedcv"), 10, 25),
-                         repeats = ifelse(method %in% c("cv", "repeatedcv"), 1, number),
+                         number = ifelse(grepl("cv", method), 10, 25),
+                         repeats = ifelse(grepl("cv", method), 1, number),
                          p = .75,
                          initialWindow = NULL,
                          horizon = 1,
@@ -18,7 +18,7 @@ trainControl <- function(method = "boot",
                          timingSamps = 0,
                          predictionBounds = rep(FALSE, 2),
                          seeds = NA,
-                         adaptive = list(min = 5, alpha = 0.05, method = "gls"),
+                         adaptive = list(min = 5, alpha = 0.05, method = "gls", complete = TRUE),
                          allowParallel = TRUE)
 {
   if(is.null(selectionFunction)) stop("null selectionFunction values not allowed")

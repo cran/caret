@@ -4,8 +4,8 @@
 \description{Control the computational nuances of the \code{\link{train}} function}
 \usage{
 trainControl(method = "boot", 
-             number = ifelse(method \%in\% c("cv", "repeatedcv"), 10, 25),
-             repeats = ifelse(method \%in\% c("cv", "repeatedcv"), 1, number),
+             number = ifelse(grepl("cv", method), 10, 25),
+             repeats = ifelse(grepl("cv", method), 1, number),
              p = 0.75, 
              initialWindow = NULL,
              horizon = 1,
@@ -23,7 +23,8 @@ trainControl(method = "boot",
              timingSamps = 0,
              predictionBounds = rep(FALSE, 2),
              seeds = NA,
-             adaptive = list(min = 5, alpha = 0.05, method = "gls"),
+             adaptive = list(min = 5, alpha = 0.05, 
+             	               method = "gls", complete = TRUE),
              allowParallel = TRUE)
 }
 \arguments{
@@ -64,9 +65,10 @@ Using \code{method = "none"} and specifying model than one model in \code{\link{
 Using adaptive resampling when \code{method} is either \code{"adaptive_cv"}, \code{"adaptive_boot"} or \code{"adaptive_LGOCV"}, the full set of resamples is not run for each model. As resampling continues, a futility analysis is conducted and models with a low probability of being optimal are removed. These features are experimental. See Kuhn (2014) for more details. The options for this procedure are:
 
 \itemize{
- \item min: the minimum number of resamples used before models are removed
- \item alpha: the confidence level of the one-sided intervals used to measure futility
- \item method: either generalized least squares (\code{method = "gls"}) or a Bradley-Terry model (\code{method = "BT"})
+ \item \code{min}: the minimum number of resamples used before models are removed
+ \item \code{alpha}: the confidence level of the one-sided intervals used to measure futility
+ \item \code{method}: either generalized least squares (\code{method = "gls"}) or a Bradley-Terry model (\code{method = "BT"})
+  \item \code{complete}: if a single parameter value is found before the end of resampling, should the full set of resamples be computed for that parameter. )
 }
 }
 
@@ -97,6 +99,19 @@ mod <- train(Species ~ ., data = iris,
              method = "knn", 
              tuneLength = 12,
              trControl = ctrl)
+
+
+ctrl2 <- trainControl(method = "adaptive_cv", 
+                      repeats = 5,
+                      verboseIter = TRUE,
+                      seeds = seeds)
+
+set.seed(1)
+mod2 <- train(Species ~ ., data = iris, 
+              method = "knn", 
+              tuneLength = 12,
+              trControl = ctrl2)
+
 }
 }
 
