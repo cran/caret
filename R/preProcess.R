@@ -69,7 +69,9 @@ preProcess.default <- function(x, method = c("center", "scale"),
                    fudge = fudge,
                    na.rm = na.remove,
                    numUnique = numUnique,
-                   x = if(is.null(outcome)) rep(1, nrow(x)) else outcome)
+                   x = if(is.null(outcome)) rep(1, nrow(x)) else outcome,
+                   ## ... allows passing of args such as lambda to BoxCoxTrans
+                   ...)
       if(verbose) cat(" applying them to training data\n")
       ## Find a better way of doing this
       for(i in seq(along = bc)) x[,i] <- predict(bc[[i]], x[,i])
