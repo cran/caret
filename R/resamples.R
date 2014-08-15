@@ -9,6 +9,15 @@ resamples.default <- function(x, modelNames = names(x), ...)
     classes <- unlist(lapply(x, function(x) class(x)[1]))
     if(!all(classes %in% c("sbf", "rfe", "train"))) stop("all objects in x must of class train, sbf or rfe")
 
+    if(is.null(modelNames)){
+      modelNames <- well_numbered("Model", length(x)) 
+      
+    } else {
+      if(any(modelNames == "")) {
+        no_name <- which(modelNames == "")
+        modelNames[no_name] <- well_numbered("Model", length(x))[no_name] 
+      }
+    }
  
     numResamp <- unlist(lapply(x, function(x) length(x$control$index)))
     if(length(unique(numResamp)) > 1) stop("There are different numbers of resamples in each model")
@@ -46,25 +55,19 @@ resamples.default <- function(x, modelNames = names(x), ...)
     pNames <- unique(as.vector(perfs))
 
     
-    if(is.null(modelNames)) modelNames <- paste("Model", seq(along = x))
-    for(i in seq(along = x))
-      {
-
-        ## TODO check for returnResamp in control object and select appropriate
-        ## data for train
-        if(class(x[[i]])[1] == "rfe" && x[[i]]$control$returnResamp == "all")
-          {
-            x[[i]]$resample <- subset(x[[i]]$resample, Variables == x[[i]]$bestSubset)
-          }
-##        if(class(x[[i]])[1] == "train" && x[[i]]$control$returnResamp == "all")
-##          {
-##            x[[i]]$resample <- merge(x[[i]]$resample, x[[i]]$bestTune)
-##          }          
+    for(i in seq(along = x)) {
+        if(class(x[[i]])[1] == "rfe" && x[[i]]$control$returnResamp == "all"){
+            x[[i]]$resample <- subset(x[[i]]$resample, Variables == x[[i]]$bestSubset) 
+            warning(paste0("'", modelNames[i], "' did not have 'returnResamp=\"final\"; the optimal subset is used"))
+        }
+        if(class(x[[i]])[1] == "train" && x[[i]]$control$returnResamp == "all"){
+          x[[i]]$resample <- merge(x[[i]]$resample, x[[i]]$bestTune) 
+          warning(paste0("'", modelNames[i], "' did not have 'returnResamp=\"final\"; the optimal tuning parameters are used"))
+        }        
         tmp <- x[[i]]$resample[, c(pNames, "Resample"), drop = FALSE]
         names(tmp)[names(tmp) %in% pNames] <- paste(modelNames[i], names(tmp)[names(tmp) %in% pNames], sep = "~")
         out <- if(i == 1) tmp else merge(out, tmp)
       }
-    if(any(unlist(lapply(x, function(x) x$control$returnResamp)) != "final")) stop("some model did not have 'returnResamp=\"final\"")
 
     timings <- do.call("rbind", lapply(x, getTimes))
     colnames(timings) <- c("Everything", "FinalModel", "Prediction")
@@ -99,8 +102,11 @@ prcomp.resamples <- function(x, metric = x$metrics[1],  ...)
                            names(tmpData),
                            fixed = TRUE)
 
-    tmpData <- t(tmpData)
-    out <- prcomp(tmpData)
+    tmpData <- as.data.frame(t(tmpData))
+    colnames(tmpData) <- paste("Resample", 
+                               gsub(" ", "0", format(1:ncol(tmpData))), 
+                               sep = "")
+    out <- prcomp(~., data = tmpData, ...)
     out$metric <- metric
     out$call <- match.call()
     class(out) <- c("prcomp.resamples", "prcomp")
@@ -142,12 +148,16 @@ plot.prcomp.resamples <- function(x, what = "scree", dims = max(2, ncol(x$rotati
   switch(what,
          scree =
          {
-           barchart(x$sdev ~ paste("PC", seq(along = x$sdev)),
+           barchart(x$sdev ~ paste("PC", 
+                                   gsub(" ", "0", format(seq(along = x$sdev))), 
+                                   sep = ""),
                     ylab = "Standard Deviation", ...)
          },
          cumulative =
          {
-           barchart(cumsum(x$sdev^2)/sum(x$sdev^2) ~ paste("PC", seq(along = x$sdev)),
+           barchart(cumsum(x$sdev^2)/sum(x$sdev^2) ~ paste("PC", 
+                                                           gsub(" ", "0", format(seq(along = x$sdev))), 
+                                                           sep = ""),
                     ylab = "Culmulative Percent of Variance", ...)
          },
          loadings =
@@ -236,33 +246,29 @@ print.resamples <- function(x, ...)
     invisible(x)
   }
 
-summary.resamples <- function(object, ...)
-{
-
+summary.resamples <- function(object, metric = object$metrics, ...){
   vals <- object$values[, names(object$values) != "Resample", drop = FALSE]
-
-  out <- vector(mode = "list", length = length(object$metrics))
-  for(i in seq(along = object$metrics))
-    {
-      tmpData <- vals[, grep(paste("~", object$metrics[i], sep = ""), names(vals), fixed = TRUE), drop = FALSE]
+  out <- vector(mode = "list", length = length(metric))
+  for(i in seq(along = metric)) {
+      tmpData <- vals[, grep(paste("~", metric[i], sep = ""), names(vals), fixed = TRUE), drop = FALSE]
       
       out[[i]] <- do.call("rbind", lapply(tmpData, function(x) summary(x)[1:6]))
       naSum <- matrix(unlist(lapply(tmpData, function(x) sum(is.na(x)))), ncol = 1)
       colnames(naSum) <- "NA's"
       out[[i]] <- cbind(out[[i]], naSum)
-      rownames(out[[i]]) <- gsub(paste("~", object$metrics[i], sep = ""),
+      rownames(out[[i]]) <- gsub(paste("~", metric[i], sep = ""),
                                  "",
                                  rownames(out[[i]]),
                                  fixed = TRUE)
     }
   
-  names(out) <- object$metrics
+  names(out) <- metric
   out <- structure(
                    list(values = vals,
                         call = match.call(),
                         statistics = out,
                         models = object$models,
-                        metrics = object$metrics,
+                        metrics = metric,
                         methods = object$methods),
                    class = "summary.resamples")
   out
@@ -715,24 +721,17 @@ print.diff.resamples <- function(x, ...)
 
 summary.diff.resamples <- function(object, digits = max(3, getOption("digits") - 3), ...)
 {
-  comps <- ncol(object$difs[[1]])
-
-  
   all <- vector(mode = "list", length = length(object$metric))
   names(all) <- object$metric
 
   for(h in seq(along = object$metric))
     {
-      pvals <- matrix(NA, nrow = length(object$models), ncol = length( object$models))
+      pvals <- matrix(NA, nrow = length(object$models), ncol = length(object$models))
       meanDiff <- pvals
       index <- 0
-      for(i in seq(along = object$models))
-        {
-          for(j in seq(along = object$models))
-            {
-              
-              if(i < j)
-                {
+      for(i in seq(along = object$models)) {
+          for(j in seq(along = object$models)) {
+              if(i < j) {
                   index <- index + 1
                   meanDiff[i, j] <- object$statistics[[h]][index][[1]]$estimate
                 }
@@ -740,13 +739,9 @@ summary.diff.resamples <- function(object, digits = max(3, getOption("digits") -
         }
       
       index <- 0
-      for(i in seq(along = object$models))
-        {
-          for(j in seq(along = object$models))
-            {
-              
-              if(i < j)
-                {
+      for(i in seq(along = object$models)) {
+          for(j in seq(along = object$models)) {
+              if(i < j) {
                   index <- index + 1
                   pvals[j, i] <- object$statistics[[h]][index][[1]]$p.value
 

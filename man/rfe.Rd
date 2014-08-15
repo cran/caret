@@ -3,6 +3,7 @@
 \alias{rfe.default}
 \alias{rfeIter}
 \alias{predict.rfe}
+\alias{update.rfe}
 
 \title{Backwards Feature Selection}
 \description{
@@ -26,6 +27,8 @@ rfeIter(x, y,
         seeds = NA,
         ...)
 
+\method{update}{rfe}(object, x, y, size, ...) 
+
 \method{predict}{rfe}(object, newdata, ...)
 }
 
@@ -37,22 +40,25 @@ rfeIter(x, y,
   \item{sizes}{a numeric vector of integers corresponding to the number of features that should be retained}
   \item{metric}{a string that specifies what summary metric will be used to select the optimal model. By default, possible values are "RMSE" and "Rsquared" for regression and "Accuracy" and "Kappa" for classification. If custom performance metrics are used (via the \code{functions} argument in \code{\link{rfeControl}}, the value of \code{metric} should match one of the arguments.}         
   \item{maximize}{a logical: should the metric be maximized or minimized?}
-  \item{rfeControl}{a list of options, including functions for fitting and prediction. The web page  \url{http://caret.r-forge.r-project.org/} has more details and examples related to this function.}
+  \item{rfeControl}{a list of options, including functions for fitting and prediction. The web page  \url{http://topepo.github.io/caret/featureselection.html#rfe} has more details and examples related to this function.}
   \item{object}{an object of class \code{rfe}}
+  \item{size}{a single integers corresponding to the number of features that should be retained in the updated model}
   \item{newdata}{a matrix or data frame of new samples for prediction}
   \item{label}{an optional character string to be printed when in verbose mode.}
   \item{seeds}{an optional vector of integers for the size. The vector should have length of \code{length(sizes)+1}}
   \item{\dots}{options to pass to the model fitting function (ignored in \code{predict.rfe})}
 }
 \details{
-More details on this function can be found at \url{http://caret.r-forge.r-project.org/featureselection.html}.
+More details on this function can be found at \url{http://topepo.github.io/caret/featureselection.html}.
 
-This function implements backwards selection of predictors based on predictor importance ranking. The predictors are ranked and the less important ones are sequentially eliminated prior to modeling. The goal is to find a subset of predictors that can be used to produce an accurate model. The web page  \url{http://caret.r-forge.r-project.org/} has more details and examples related to this function.
+This function implements backwards selection of predictors based on predictor importance ranking. The predictors are ranked and the less important ones are sequentially eliminated prior to modeling. The goal is to find a subset of predictors that can be used to produce an accurate model. The web page  \url{http://topepo.github.io/caret/featureselection.html#rfe} has more details and examples related to this function.
 
 
 \code{rfe} can be used with "explicit parallelism", where different resamples (e.g. cross-validation group) can be split up and run on multiple machines or processors. By default, \code{rfe} will use a single processor on the host machine. As of version 4.99 of this package, the framework used for parallel processing uses the \pkg{foreach} package. To run the resamples in parallel, the code for \code{rfe} does not change; prior to the call to \code{rfe}, a parallel backend is registered with \pkg{foreach} (see the examples below). 
 
 \code{rfeIter} is the basic algorithm while \code{rfe} wraps these operations inside of resampling. To avoid selection bias, it is better to use the function \code{rfe} than \code{rfeIter}.
+
+When updating a model, if the entire set of resamples were not saved using \code{rfeControl(returnResamp = "final")}, the existing resamples are removed with a warning. 
 }
 \value{
 A list with elements

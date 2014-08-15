@@ -30,6 +30,7 @@ export(anovaScores,
        classDist,
        classDist.default,
        cluster,
+       cluster.resamples,
        confusionMatrix,
        confusionMatrix.train,
        contr.dummy,
@@ -88,6 +89,8 @@ export(anovaScores,
        lmFuncs,
        lmSBF,
        lrFuncs,
+       LPH07_1,
+       LPH07_2,
        maxDissim,
        MeanSD,
        minDiss,
@@ -172,6 +175,8 @@ export(anovaScores,
        sensitivity,
        sensitivity.default,
        sensitivity.table,
+       SLC14_1,
+       SLC14_2,
        sortImp,
        spatialSign,
        spatialSign.data.frame,
@@ -200,8 +205,9 @@ export(anovaScores,
        varImp,
        varImp.bagEarth,
        varImp.bagFDA,
-       xyplot.rfe,
-       varImp.plsda
+       varImp.plsda,
+       well_numbered,
+       xyplot.rfe
        )
 
 S3method(confusionMatrix, default)
@@ -409,6 +415,8 @@ S3method(sort, resamples)
 S3method(summary, diff.resamples)
 
 S3method(update, train)
+S3method(update, rfe)
+
 S3method(fitted, train)
 S3method(residuals, train)
 
@@ -416,3 +424,10 @@ S3method(levels, train)
 
 S3method(ggplot, train)
 S3method(ggplot, rfe)
+
+S3method(oob_pred, train)
+S3method(oob_pred, rfe)
+S3method(oob_pred, sbf)
+S3method(oob_pred, list)
+
+

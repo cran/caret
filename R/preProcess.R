@@ -46,16 +46,22 @@ preProcess.default <- function(x, method = c("center", "scale"),
       if(row.norm & !(any(method == "scale"))) method  <- c(method, "scale")
     }
   
-  if(is.matrix(x))
-    {
+  if(is.matrix(x)) {
       if(!is.numeric(x)) stop("x must be numeric")
     }
-  if(is.data.frame(x))
-    {
+  if(is.data.frame(x)) {
       isFactor <- unlist(lapply(x, is.factor))
       isChar <- unlist(lapply(x, is.character))
       if(any(isFactor | isChar)) stop("all columns of x must be numeric")        
-    }
+  }
+  if(!is.matrix(x) & !is.data.frame(x)) {
+    msg <- paste("preProcess is only designed for simple numeric",
+                 "matrices and data frames; your predictors have class(es): (",
+                 paste("'", class(x), "'", sep = "", collapse = ", "),
+                 ") and errors may occur")
+    warning(msg)
+  }
+
   
   theCall <- match.call(expand.dots = TRUE)
 
@@ -142,7 +148,7 @@ preProcess.default <- function(x, method = c("center", "scale"),
       scaleValue[which(scaleValue == 0)] <- 1
     }
 
-  cols <- if(any(method == "knnImpute")) which(apply(x, 2, function(x) !any(is.na(x)))) else NULL
+  cols <- if(any(method == "knnImpute")) which(apply(x, 2, function(x) any(is.na(x)))) else NULL
 
   if(any(method == "bagImpute"))
     {

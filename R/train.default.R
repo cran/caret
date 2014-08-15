@@ -37,6 +37,18 @@ train.default <- function(x, y,
   funcCall <- match.call(expand.dots = TRUE)
   modelType <- if(is.factor(y)) "Classification"  else "Regression"
   if(!(modelType %in% models$type)) stop(paste("wrong model type for", tolower(modelType)))
+
+  if(grepl("^svm", method) & grepl("String$", method)) {
+    if(is.vector(x) && is.character(x)) {
+      stop("'x' should be a character matrix with a single column for string kernel methods")
+    }
+    if(is.matrix(x) && is.numeric(x)) {
+      stop("'x' should be a character matrix with a single column for string kernel methods")
+    }
+    if(is.data.frame(x)) {
+      stop("'x' should be a character matrix with a single column for string kernel methods")
+    }
+  }
   
   if(any(class(x) == "data.table")) x <- as.data.frame(x)
   stopifnot(length(y) > 1)
@@ -106,7 +118,14 @@ train.default <- function(x, y,
                               timeslice = createTimeSlices(seq(along = y),
                                                            initialWindow = trControl$initialWindow,
                                                            horizon = trControl$horizon,
-                                                           fixedWindow = trControl$fixedWindow)$train)
+                                                           fixedWindow = trControl$fixedWindow)$train,
+                              subsemble = subsemble_index(y, V = trControl$number, J = trControl$repeats))
+  }
+  
+  if(trControl$method == "subsemble") {
+    if(!trControl$savePredictions) trControl$savePredictions <- TRUE
+    trControl$indexOut <- trControl$index$holdout
+    trControl$index <- trControl$index$model    
   }
   
   ## Create hold--out indicies
@@ -124,8 +143,10 @@ train.default <- function(x, y,
   }
   
   if(trControl$method != "oob" & is.null(trControl$index)) names(trControl$index) <- prettySeq(trControl$index)
+  if(trControl$method != "oob" & is.null(names(trControl$index)))    names(trControl$index)    <- prettySeq(trControl$index)
+  if(trControl$method != "oob" & is.null(names(trControl$indexOut))) names(trControl$indexOut) <- prettySeq(trControl$indexOut)
   
-  if(!is.data.frame(x)) x <- as.data.frame(x)
+#   if(!is.data.frame(x)) x <- as.data.frame(x)
   
   ## Gather all the pre-processing info. We will need it to pass into the grid creation
   ## code so that there is a concorance between the data used for modeling and grid creation
@@ -476,8 +497,11 @@ train.default <- function(x, y,
   if(method == "glmnet") finalModel$lambdaOpt <- bestTune$lambda
   
   if(trControl$returnData) { 
-    outData <- if(!is.data.frame(x)) as.data.frame(x) else x
-    outData$.outcome <- y
+    outData <- if(!is.data.frame(x)) try(as.data.frame(x), silent = TRUE) else x
+    if(class(outData)[1] == "try-error") {
+      warning("The training data could not be converted to a data frame for saving")
+      outData <- NULL
+    } else  outData$.outcome <- y
   } else outData <- NULL
   
   ## In the case of pam, the data will need to be saved differently
@@ -527,7 +551,7 @@ train.formula <- function (form, data, ..., weights, subset, na.action = na.fail
   m$... <- m$contrasts <- NULL
   m[[1]] <- as.name("model.frame")
   m <- eval.parent(m)
-  stopifnot(nrow(m)>1)
+  if(nrow(m) < 1) stop("Every row has at least one missing value were found")
   Terms <- attr(m, "terms")
   x <- model.matrix(Terms, m, contrasts, na.action = na.action)
   cons <- attr(x, "contrast")
