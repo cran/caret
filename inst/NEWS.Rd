@@ -2,7 +2,17 @@
 \title{News for Package \pkg{caret}}
 \newcommand{\cpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
-\section{Changes in version 6.0-32}{
+\section{Changes in version 6.0-35}{
+	\itemize{
+		\item A few bug fixes to \code{preProcess} were made related to KNN imputation. 
+		\item The parameter labels for polynomial SVM models were fixed
+		\item The tags for \code{dnn} models were fixed.  
+		\item The following functions were removed from the package: \code{generateExprVal.method.trimMean}, \code{normalize.AffyBatch.normalize2Reference}, \code{normalize2Reference}, and \code{PLS}. The original code and the man files can be found at \href{https://github.com/topepo/caret/tree/master/deprecated}{https://github.com/topepo/caret/tree/master/deprecated}.
+		\item A number of changes to comply with section 1.1.3.1 of "Writing R Extensions" were made. 
+	}
+}
+
+\section{Changes in version 6.0-34}{
 \itemize{
 
 \item For the input data \code{x} to \code{train}, we now  respect the class of the input value to accommodate other data types (such as sparse matrices). There are some complications though; for pre-processing we throw a
@@ -75,7 +85,7 @@ calculation for neural network models.
 
 \section{Changes in version 6.0-25}{
 \itemize{
-\item Changes were made that stoped execution of \code{train} if there are no rows in the data (changes suggested by Andrew Ziem)
+\item Changes were made that stopped execution of \code{train} if there are no rows in the data (changes suggested by Andrew Ziem)
 
 \item Andrew Ziem also helped improve the documentation.
 }
