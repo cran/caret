@@ -129,11 +129,12 @@ train.default <- function(x, y,
   }
   
   ## Create hold--out indicies
-  if(is.null(trControl$indexOut)){
+  if(is.null(trControl$indexOut) & trControl$method != "oob"){
     if(tolower(trControl$method) != "timeslice") {      
       trControl$indexOut <- lapply(trControl$index,
                                    function(training, allSamples) allSamples[-unique(training)],
                                    allSamples = seq(along = y))
+      names(trControl$indexOut) <- prettySeq(trControl$indexOut)
     } else {
       trControl$indexOut <- createTimeSlices(seq(along = y),
                                              initialWindow = trControl$initialWindow,
@@ -183,7 +184,12 @@ train.default <- function(x, y,
   
   if(trControl$method == "none" && nrow(tuneGrid) != 1) 
     stop("Only one model should be specified in tuneGrid with no resampling")
-  
+
+  ## In case prediction bounds are used, compute the limits. For now,
+  ## store these in the control object since that gets passed everywhere
+  trControl$yLimits <- if(is.numeric(y)) extendrange(y) else NULL
+
+
   if(trControl$method != "none") {
     ##------------------------------------------------------------------------------------------------------------------------------------------------------#
     
@@ -532,9 +538,11 @@ train.default <- function(x, y,
                         resampledCM = resampledCM,
                         perfNames = perfNames,
                         maximize = maximize,
-                        yLimits = if(is.numeric(y)) range(y) else NULL,
+                        yLimits = trControl$yLimits,
                         times = times), 
                    class = "train")
+   trControl$yLimits <- NULL
+
   if(trControl$timingSamps > 0) {
     pData <- lapply(x, function(x, n) sample(x, n, replace = TRUE), n = trControl$timingSamps)
     pData <- as.data.frame(pData)

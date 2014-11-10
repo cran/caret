@@ -196,6 +196,36 @@ nominalTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, tes
   
   ##################################
   
+  if(is.numeric(y)) {
+    if(is.logical(ctrl$predictionBounds) && any(ctrl$predictionBounds)) {
+      if(is.list(predicted)) {
+        predicted <- lapply(predicted, trimPredictions,
+                            mod_type = "Regression",
+                            bounds = ctrl$predictionBounds,
+                            limits = ctrl$yLimits)
+      } else {
+        predicted <- trimPredictions(mod_type = "Regression",
+                                     bounds =  ctrl$predictionBounds,
+                                     limits =  ctrl$yLimit,
+                                     pred = predicted)
+      }
+    } else {
+      if(is.numeric(ctrl$predictionBounds) && any(!is.na(ctrl$predictionBounds))) {
+        if(is.list(predicted)) {
+          predicted <- lapply(predicted, trimPredictions,
+                              mod_type = "Regression",
+                              bounds = ctrl$predictionBounds,
+                              limits = ctrl$yLimits)
+        } else {
+          predicted <- trimPredictions(mod_type = "Regression",
+                                       bounds =  ctrl$predictionBounds,
+                                       limits =  ctrl$yLimit,
+                                       pred = predicted)
+        }
+      }
+    } 
+  }
+  
   if(!is.null(submod))
   {
     ## merge the fixed and seq parameter values together
@@ -271,7 +301,7 @@ nominalTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, tes
                        all = TRUE)
       tmpPred$Resample <- names(resampleIndex)[iter]
     } else tmpPred <- NULL
-    
+
     ##################################
     thisResample <- ctrl$summaryFunction(tmp,
                                          lev = lev,
@@ -381,6 +411,36 @@ looTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, testing
                                       newdata = x[-ctrl$index[[iter]],, drop = FALSE],
                                       preProc = mod$preProc,
                                       param = submod)
+      
+      if(is.numeric(y)) {
+        if(is.logical(ctrl$predictionBounds) && any(ctrl$predictionBounds)) {
+          if(is.list(predicted)) {
+            predicted <- lapply(predicted, trimPredictions,
+                                mod_type = "Regression",
+                                bounds = ctrl$predictionBounds,
+                                limits = ctrl$yLimits)
+          } else {
+            predicted <- trimPredictions(mod_type = "Regression",
+                                         bounds =  ctrl$predictionBounds,
+                                         limits =  ctrl$yLimit,
+                                         pred = predicted)
+          }
+        } else {
+          if(is.numeric(ctrl$predictionBounds) && any(!is.na(ctrl$predictionBounds))) {
+            if(is.list(predicted)) {
+              predicted <- lapply(predicted, trimPredictions,
+                                  mod_type = "Regression",
+                                  bounds = ctrl$predictionBounds,
+                                  limits = ctrl$yLimits)
+            } else {
+              predicted <- trimPredictions(mod_type = "Regression",
+                                           bounds =  ctrl$predictionBounds,
+                                           limits =  ctrl$yLimit,
+                                           pred = predicted)
+            }
+          }
+        } 
+      }
       
       if(testing) print(head(predicted))
       if(ctrl$classProbs)
@@ -493,7 +553,10 @@ nominalSbfWorkflow <- function(x, y, ppOpts, ctrl, lev, ...)
   ppp <- c(ppp, ctrl$preProcOptions)
   
   resampleIndex <- ctrl$index
-  if(ctrl$method %in% c("boot632")) resampleIndex <- c(list("AllData" = rep(0, nrow(x))), resampleIndex)
+  if(ctrl$method %in% c("boot632")){
+    resampleIndex <- c(list("AllData" = rep(0, nrow(x))), resampleIndex)
+    ctrl$indexOut <- c(list("AllData" = rep(0, nrow(x))),  ctrl$indexOut)
+  }
   
   `%op%` <- getOper(ctrl$allowParallel && getDoParWorkers() > 1)
   result <- foreach(iter = seq(along = resampleIndex), .combine = "c", .verbose = FALSE, .packages = c("methods", "caret"), .errorhandling = "stop") %op%
@@ -502,10 +565,9 @@ nominalSbfWorkflow <- function(x, y, ppOpts, ctrl, lev, ...)
   
   library(caret)
   
-  if(names(resampleIndex)[iter] != "AllData")
-  {
+  if(names(resampleIndex)[iter] != "AllData") {
     modelIndex <- resampleIndex[[iter]]
-    holdoutIndex <- -unique(resampleIndex[[iter]])
+    holdoutIndex <- ctrl$indexOut[[iter]]
   } else {
     modelIndex <- 1:nrow(x)
     holdoutIndex <- modelIndex
@@ -604,17 +666,19 @@ nominalRfeWorkflow <- function(x, y, sizes, ppOpts, ctrl, lev, ...)
   ppp <- c(ppp, ctrl$preProcOptions)
   
   resampleIndex <- ctrl$index
-  if(ctrl$method %in% c("boot632")) resampleIndex <- c(list("AllData" = rep(0, nrow(x))), resampleIndex)
+  if(ctrl$method %in% c("boot632")) {
+    resampleIndex <- c(list("AllData" = rep(0, nrow(x))), resampleIndex)
+    ctrl$indexOut <- c(list("AllData" = rep(0, nrow(x))),  ctrl$indexOut)
+  }
   
   `%op%` <- getOper(ctrl$allowParallel && getDoParWorkers() > 1)
   result <- foreach(iter = seq(along = resampleIndex), .combine = "c", .verbose = FALSE, .packages = c("methods", "caret", "plyr"), .errorhandling = "stop") %op%
 {
   library(caret)
   
-  if(names(resampleIndex)[iter] != "AllData")
-  {
+  if(names(resampleIndex)[iter] != "AllData") {
     modelIndex <- resampleIndex[[iter]]
-    holdoutIndex <- -unique(resampleIndex[[iter]])
+    holdoutIndex <- ctrl$indexOut[[iter]]
   } else {
     modelIndex <- 1:nrow(x)
     holdoutIndex <- modelIndex
