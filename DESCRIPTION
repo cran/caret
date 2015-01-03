@@ -1,10 +1,11 @@
 Package: caret
-Version: 6.0-37
-Date: 2014-11-06
+Version: 6.0-41
+Date: 2015-01-02
 Title: Classification and Regression Training
 Author: Max Kuhn. Contributions from Jed Wing, Steve Weston, Andre
     Williams, Chris Keefer, Allan Engelhardt, Tony Cooper, Zachary Mayer,
-    Brenton Kenkel, the R Core Team and Michael Benesty.
+    Brenton Kenkel, the R Core Team, Michael Benesty, Reynald Lescarbeau,
+    Andrew Ziem, and Luca Scrucca.
 Description: Misc functions for training and plotting classification and
     regression models
 Maintainer: Max Kuhn <Max.Kuhn@pfizer.com>
@@ -14,9 +15,9 @@ Imports: car, reshape2, foreach, methods, plyr, nlme, BradleyTerry2
 Suggests: e1071, earth (>= 2.2-3), fastICA, gam, ipred, kernlab, klaR,
         MASS, ellipse, mda, mgcv, mlbench, nnet, party (>= 0.9-99992),
         pls, pROC, proxy, randomForest, RANN, spls, subselect, pamr,
-        superpc, Cubist, testthat
-License: GPL-2
-Packaged: 2014-11-10 18:55:04 UTC; kuhna03
+        superpc, Cubist, testthat (>= 0.9.1)
+License: GPL (>= 2)
 NeedsCompilation: yes
+Packaged: 2015-01-02 18:40:43 UTC; kuhna03
 Repository: CRAN
-Date/Publication: 2014-11-10 22:54:08
+Date/Publication: 2015-01-03 06:58:41

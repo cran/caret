@@ -195,7 +195,7 @@ preProcess.default <- function(x, method = c("center", "scale"),
   if(any(method == "ica"))
   {
     if(verbose) cat("Computing ICA loadings\n")
-    requireNamespace("fastICA", quietly = TRUE)
+    requireNamespaceQuietStop("fastICA")
     x <- sweep(x, 2, centerValue, "-")
     if(!row.norm & any(method == "scale")) x <- sweep(x, 2, scaleValue, "/")      
     tmp <- fastICA::fastICA(x, ...)
@@ -341,7 +341,13 @@ predict.preProcess <- function(object, newdata, ...)
                      foo = object$knnSummary)
     hasMiss <- t(hasMiss)
     
-    newdata[!cc,] <- hasMiss
+    if(class(newdata)[1] == class(hasMiss)[1]) {
+      newdata[!cc,] <- hasMiss
+    } else {
+      if(is.data.frame(newdata)) {
+        newdata[!cc,] <- as.data.frame(hasMiss)
+      } else newdata[!cc,] <- as.matrix(hasMiss)
+    }
   }
   
   if(any(object$method == "bagImpute") && any(!cc))
@@ -362,7 +368,13 @@ predict.preProcess <- function(object, newdata, ...)
       hasMiss[is.na(hasMiss[,missingVars[i]]),
               missingVars[i]] <- preds[is.na(hasMiss[,missingVars[i]])]
     }
-    newdata[!cc,] <- hasMiss
+    if(class(newdata)[1] == class(hasMiss)[1]) {
+      newdata[!cc,] <- hasMiss
+    } else {
+      if(is.data.frame(newdata)) {
+        newdata[!cc,] <- as.data.frame(hasMiss)
+      } else newdata[!cc,] <- as.matrix(hasMiss)
+    }
   }
   
   if (any(object$method == "medianImpute") && any(!cc)) {
@@ -448,7 +460,7 @@ print.preProcess <- function(x, ...) {
 
 
 nnimp <- function(new, old, k, foo) {
-  requireNamespace("RANN", quietly = TRUE)
+  requireNamespaceQuietStop("RANN")
   if(all(is.na(new)))
     stop("cannot impute when all predictors are missing in the new data point")
   nms <- names(new)
@@ -466,7 +478,7 @@ nnimp <- function(new, old, k, foo) {
 }
 
 bagImp <- function(var, x, B = 10) {
-  requireNamespace("ipred", quietly = TRUE)
+  requireNamespaceQuietStop("ipred")
   ## The formula interface is much slower than the
   ## (y, X) interface, but the latter would have to
   ## do case-wise deletion of samples from the
