@@ -42,6 +42,7 @@ evalSummaryFunction <- function(y, wts, ctrl, lev, metric, method) {
       stop("train()'s use of ROC codes requires class probabilities. See the classProbs option of trainControl()")
   }
   if(!is.null(wts)) testOutput$weights <- sample(wts, min(10, length(wts)))
+  testOutput$rowIndex <- sample(seq(along = y), size = nrow(testOutput))
   ctrl$summaryFunction(testOutput, lev, method)
 }
 
@@ -178,7 +179,7 @@ rfStats <- function(x)
 
 cforestStats <- function(x)
 {
-  library(party)
+  loadNamespace("party")
   
   obs <- x@data@get("response")[,1]
   pred <- predict(x,  x@data@get("input"), OOB = TRUE)
@@ -388,5 +389,30 @@ get_resample_perf.safs <- function(x) {
 get_resample_perf.gafs <- function(x) {
   out <- subset(x$external, Iter == x$optIter)
   out[, !(names(out) %in% "Iter")]
+}
+
+
+var_seq <- function(p, classification = FALSE, len = 3) {
+  if(len == 1) {  
+    tuneSeq <- if(classification) max(floor(p/3), 1) else floor(sqrt(p))
+  } else {
+    if(p <= len)
+    { 
+      tuneSeq <- floor(seq(2, to = p, length = p))
+    } else {
+      if(p < 500 ) tuneSeq <- floor(seq(2, to = p, length = len))
+      else tuneSeq <- floor(2^seq(1, to = log(p, base = 2), length = len))
+    }
+  }
+  if(any(table(tuneSeq) > 1)) {
+    tuneSeq <- unique(tuneSeq)
+    cat(
+      "note: only",
+      length(tuneSeq),
+      "unique complexity parameters in default grid.",
+      "Truncating the grid to",
+      length(tuneSeq), ".\n\n")      
+  }
+  tuneSeq
 }
 

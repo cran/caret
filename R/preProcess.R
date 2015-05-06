@@ -352,7 +352,7 @@ predict.preProcess <- function(object, newdata, ...)
   
   if(any(object$method == "bagImpute") && any(!cc))
   {
-    library(ipred)
+    loadNamespace("ipred")
     hasMiss <- newdata[!cc,,drop = FALSE]
     missingVars <- apply(hasMiss,
                          2,
@@ -486,9 +486,11 @@ bagImp <- function(var, x, B = 10) {
   if(!is.data.frame(x)) x <- as.data.frame(x)
   mod <- ipred::bagging(as.formula(paste(var, "~.")),
                         data = x,
-                        nbagg = B)
+                        nbagg = B,
+                        x = FALSE, 
+                        keepX = FALSE)
+  trim_code <- getModelInfo("treebag", FALSE)[[1]]$trim
   list(var = var,
-       model = mod)
+       model = trim_code(mod))
 }
-
 

@@ -24,7 +24,6 @@ icr.formula <- function (formula, data, weights, ...,
     res <- icr.default(x, y, weights = w, thresh = thresh, ...)
     res$terms <- Terms
     res$coefnames <- colnames(x)
-    res$call <- match.call()
     res$na.action <- attr(m, "na.action")
     res$contrasts <- cons
     res$xlevels <- .getXlevels(Terms, m)
@@ -34,8 +33,6 @@ icr.formula <- function (formula, data, weights, ...,
 
 icr.default <- function(x, y, ...)
   {
-    library(fastICA)
-
     xNames <- colnames(x)
     pp <- preProcess(x, "ica", ...)
     x <- predict(pp, x)
@@ -80,7 +77,7 @@ print.icr <- function (x, digits = max(3, getOption("digits") - 3), ...)
 
 predict.icr <- function(object, newdata, ...)
   {
-    library(fastICA)
+  loadNamespace("fastICA")
     if (!inherits(object, "icr")) stop("object not of class \"icr\"")
     if (missing(newdata))
       {

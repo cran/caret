@@ -37,7 +37,6 @@ avNNet.formula <- function (formula, data, weights, ...,
                         ...)
   res$terms <- Terms
   res$coefnames <- colnames(x)
-  res$call <- match.call()
   res$na.action <- attr(m, "na.action")
   res$contrasts <- cons
   res$xlevels <- .getXlevels(Terms, m)
@@ -62,7 +61,7 @@ avNNet.default <- function(x, y, repeats = 5, bag = FALSE, allowParallel = TRUE,
     
     theDots <- list(...)
 
-    ## to avoid a "no visible binding for global variable ‘i’" warning:
+    ## to avoid a "no visible binding for global variable 'i'" warning:
     i <- NULL
     `%op%` <-  if(allowParallel)  `%dopar%` else  `%do%`
      mods <- foreach(i = 1:repeats,
@@ -99,7 +98,7 @@ print.avNNet <- function (x, ...)
 
 predict.avNNet <- function(object, newdata, type = c("raw", "class", "prob"), ...)
   {
-    library(nnet)
+    loadNamespace("nnet")
     if (!inherits(object, "avNNet")) 
       stop("object not of class \"avNNet\"")
     if (missing(newdata))

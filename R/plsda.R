@@ -55,7 +55,7 @@ predict.plsda <- function(object, newdata = NULL, ncomp = NULL, type = "class", 
   } else {
     ## Bayes rule
     
-    library(klaR)
+    loadNamespace("klaR")
     tmp <- vector(mode = "list", length = length(ncomp))
     for(i in seq(along = ncomp)) {
       tmp[[i]] <- predict(object$probModel[[ ncomp[i] ]],
@@ -173,6 +173,5 @@ print.plsda <- function (x, ...) {
   switch(x$probMethod,
          softmax = cat("\nThe softmax function was used to compute class probabilities.\n"),
          Bayes = cat("\nBayes rule was used to compute class probabilities.\n"))
-  printCall(x$call)
   invisible(x)
 }

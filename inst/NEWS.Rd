@@ -2,6 +2,36 @@
 \title{News for Package \pkg{caret}}
 \newcommand{\cpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
+
+\section{Changes in version 6.0-47}{
+	\itemize{
+		\item CHAID from the R-Forge package \href{http://r-forge.r-project.org/projects/chaid/}{\pkg{CHAID}}
+		\item Models \code{xgbTree} amd \code{xgbLinear} from the \code{xgboost} package were added. That package is not on CRAN  and can be installed from github using the \cpkg{devtools} package and \code{install_github('dmlc/xgboost',subdir='R-package')}.
+		\item \code{dratewka} enabled \code{rbf} models for regression. 
+		\item A summary function for the multinomial likelihood called \code{mnLogLoss} was added. 
+		\item The total object size for \code{preProces} objects that used bagged imputation was reduced almost 5-fold. 
+		\item A new option to \code{trainControl} called \code{trim} was added where, if implemented, will reduce the model's footprint. However, features beyond simple prediction may not work. 
+		\item A rarely occurring bug in \code{gbm} model code was fixed (thanks to Wade Cooper)
+		\item \code{splom.resamples} now respects the \code{models} argument
+		\item A new argument to \code{lift} called \code{cuts} was added to allow more control over what thresholds are used to calculate the curve.
+		\item The \code{cuts} argument of \code{calibration} now accepts a vector of cut points.
+		\item Jason Schadewald noticed and fixed a bug in the man page for \code{dummyVars}
+		\item Call objects were removed from the following models: \code{avNNet}, \code{bagFDA}, \code{icr}, \code{knn3}, \code{knnreg}, \code{pcaNNet}, and \code{plsda}.
+		\item An argument was added to \code{createTimeSlices} to thin the number of resamples
+		\item The RFE-related functions \code{lrFuncs}, \code{lmFuncs}, and \code{gamFuncs} were updated so that \code{rfe} accepts a matrix \code{x} argument. 
+		\item Using the default grid generation with \code{train} and \code{glmnet}, an initial \code{glmnet} fit is created with \code{alpha = 0.50} to define the \code{lambda} values. 
+		\item \code{train} models for \code{"gbm"}, \code{"gam"}, \code{"gamSpline"}, and \code{"gamLoess"} now allow their respective arguments for the outcome probability distribution to be passed to the underlying function.
+		\item A bug in \code{print.varImp.train} was fixed. 
+		\item \code{train} now returns an additional column called \code{rowIndex} that is exposed when calling the summary function during resampling. 
+		\item The ability to compute class probabilities was removed from the \code{rpartCost} model since they are unlikely to agree with the class predictions. 
+		\item \code{extractProb} no longer redundantly calls \code{extractPrediction} to generate the class predictions. 
+		\item A new function called \code{var_seq} was added that finds a sequence of integers that can be useful for some tuning parameters such as random forests \code{mtry}. Model modules were update to use the new function. 
+		\item \code{n.minobsinnode} was added as a tuning parameter to \code{gbm} models. 
+		\item For models using out-of-bag resampling, \code{train} now properly checks the \code{metric} argument against the names of the measured outcomes. 
+		\item Both \code{createDataParition} and \code{createFolds} were modified to better handle cases where one or more class have very low numbers of data points.  
+	}
+}
+
 \section{Changes in version 6.0-41}{
 	\itemize{
 		\item The license was changed to GPL (>= 2) to accommodate new code from the GA package. 
@@ -275,9 +305,9 @@ eliminated from the depends field. Additionally, a few were moved to exports.
 
  \item A bug was (hopefully) fixed that occurred when some type of 
  parallel processing was used with \code{train}. The problem is 
- that the \cpkg{methods} package was not being loaded in the workers. 
+ that the \code{methods} package was not being loaded in the workers. 
  While reproducible, it is unknown why this occurs and why it is 
- only for some technologies and systems. The \cpkg{methods} package 
+ only for some technologies and systems. The \code{methods} package 
  is now a formal dependency and we coerce the workers to load it 
  remotely. 
  
@@ -500,7 +530,7 @@ row from the original data that is being held-out.
 long standing warnings of the rda packages since more than half a year
 now, we set the package to ORPHANED.")
 
-\item \cpkg{C5.0} was added (model codes \code{C5.0}, \code{C5.0Tree} and
+\item \cpkg{C50} was added (model codes \code{C5.0}, \code{C5.0Tree} and
 \code{C5.0Rules}).
 
 \item Fixed a bug in \code{train} with NaiveBayes when \code{fL != 0}
@@ -2212,7 +2242,7 @@ splits.
 \item Added a new class called \code{predictors} that returns the
 names of the predictors that were used in the final model.
 
-\item Also added \code{ppr} from the \cpkg{stats} package.
+\item Also added \code{ppr} from the \code{stats} package.
 
 \item Minor update to the project web page to deal with IE issues
 

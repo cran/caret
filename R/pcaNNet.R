@@ -32,7 +32,6 @@ pcaNNet.formula <- function (formula, data, weights, ...,
     res <- pcaNNet.default(x, y, weights = w, thresh = thresh, ...)
     res$terms <- Terms
     res$coefnames <- colnames(x)
-    res$call <- match.call()
     res$na.action <- attr(m, "na.action")
     res$contrasts <- cons
     res$xlevels <- .getXlevels(Terms, m)
@@ -77,21 +76,6 @@ pcaNNet.default <- function(x, y, thresh = .99, ...)
     class(out) <- "pcaNNet"
     out
   }
-
-
-#predict.pcaNNet <- function(object, newdata, ...)
-#  {
-#    library(nnet)
-#    
-#    if(is.null(newdata)) stop("provide newdata")
-#
-#    if(!is.null(object$names))
-#      {
-#        newdata <- newdata[, object$names, drop = FALSE]
-#      }
-#    x <- predict(object$pc, newdata)
-#    predict(object$model, x, ...)
-#  }
 
 print.pcaNNet <- function (x, ...) 
 {
