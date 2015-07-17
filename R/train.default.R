@@ -49,6 +49,17 @@ train.default <- function(x, y,
     }
   }
   
+  if(modelType == "Regression" & length(unique(y)) == 2)
+    warning(paste("You are trying to do regression and your outcome only has",
+                  "two possible values Are you trying to do classification?",
+                  "If so, use a 2 level factor as your outcome column."))
+  
+  if(modelType != "Classification" & !is.null(trControl$sampling))
+    stop("sampling methods are only implemented for classification problems")
+  if(!is.null(trControl$sampling)) {
+    trControl$sampling <- parse_sampling(trControl$sampling)
+  }
+  
   if(any(class(x) == "data.table")) x <- as.data.frame(x)
   stopifnot(length(y) > 1)
   stopifnot(nrow(x) > 1)
@@ -71,14 +82,21 @@ train.default <- function(x, y,
     classLevels <- levels(y)
     
     if(trControl$classProbs && any(classLevels != make.names(classLevels))) {
-      warning(paste("At least one of the class levels are not valid R variables names;",
-                    "This may cause errors if class probabilities are generated because",
-                    "the variables names will be converted to:",
-                    paste(make.names(classLevels), collapse = ", ")))
+      stop(paste("At least one of the class levels is not a valid R variable name;",
+                 "This will cause errors when class probabilities are generated because",
+                 "the variables names will be converted to ",
+                 paste(make.names(classLevels), collapse = ", "),
+                 ". Please use factor levels that can be used as valid R variable names",
+                 " (see ?make.names for help)."))
     }
     
     if(metric %in% c("RMSE", "Rsquared")) 
       stop(paste("Metric", metric, "not applicable for classification models"))
+    if(!trControl$classProbs && metric == "ROC")
+      stop(paste("Class probabilities are needed to score models using the",
+                 "area under the ROC curve. Set `classProbs = TRUE`",
+                 "in the trainControl() function."))
+      
     if(trControl$classProbs) {
       if(!is.function(models$prob)) {
         warning("Class probabilities were requested for a model that does not implement them")
@@ -102,6 +120,8 @@ train.default <- function(x, y,
   
   ## If they don't exist, make the data partitions for the resampling iterations.
   if(is.null(trControl$index)) {
+    if(trControl$method == "custom")
+      stop("'custom' resampling is appropriate when the `trControl` argument `index` is used")
     trControl$index <- switch(tolower(trControl$method),
                               oob = NULL,
                               none = list(seq(along = y)),
@@ -116,6 +136,15 @@ train.default <- function(x, y,
                                                            horizon = trControl$horizon,
                                                            fixedWindow = trControl$fixedWindow)$train,
                               subsemble = subsemble_index(y, V = trControl$number, J = trControl$repeats))
+  } else {
+    index_types <- unlist(lapply(trControl$index, is.integer))
+    if(!isTRUE(all(index_types)))
+      stop("`index` should be lists of integers.")
+    if(!is.null(trControl$indexOut)) {
+      index_types <- unlist(lapply(trControl$indexOut, is.integer))
+      if(!isTRUE(all(index_types)))
+        stop("`indexOut` should be lists of integers.")
+    }
   }
   
   if(trControl$method == "subsemble") {
@@ -494,6 +523,7 @@ train.default <- function(x, y,
                               pp = ppOpt,
                               last = TRUE,
                               classProbs = trControl$classProbs,
+                              sampling = trControl$sampling,
                               ...))
   
   if(trControl$trim && !is.null(models$trim)) {

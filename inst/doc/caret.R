@@ -3,6 +3,7 @@
 ###################################################
 ### code chunk number 1: loadLibs
 ###################################################
+library(MASS)
 library(caret)
 library(mlbench)
 data(Sonar)
