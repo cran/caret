@@ -9,7 +9,7 @@ train.default <- function(x, y,
                           ...,
                           weights = NULL,
                           metric = ifelse(is.factor(y), "Accuracy", "RMSE"),
-                          maximize = ifelse(metric == "RMSE", FALSE, TRUE),
+                          maximize = ifelse(metric %in% c("RMSE", "logLoss"), FALSE, TRUE),
                           trControl = trainControl(),
                           tuneGrid = NULL,
                           tuneLength = 3) {
@@ -34,7 +34,7 @@ train.default <- function(x, y,
   paramNames <- as.character(models$parameters$parameter)
   
   funcCall <- match.call(expand.dots = TRUE)
-  modelType <- if(is.factor(y)) "Classification"  else "Regression"
+  modelType <- get_model_type(y)
   if(!(modelType %in% models$type)) stop(paste("wrong model type for", tolower(modelType)))
   
   if(grepl("^svm", method) & grepl("String$", method)) {
@@ -61,9 +61,8 @@ train.default <- function(x, y,
   }
   
   if(any(class(x) == "data.table")) x <- as.data.frame(x)
-  stopifnot(length(y) > 1)
-  stopifnot(nrow(x) > 1)
-  stopifnot(nrow(x) == length(y))
+  check_dims(x = x, y = y)
+  n <- if(class(y)[1] == "Surv") nrow(y) else length(y)
   
   ## TODO add check method and execute here
   
@@ -114,9 +113,10 @@ train.default <- function(x, y,
   }
   
   
-  if(trControl$method == "oob" & !(method %in% oob_mods))
-    stop(paste("for oob error rates, model bust be one of:", 
-               paste(oob_mods, sep = "", collapse = ", ")))
+  if(trControl$method == "oob" & is.null(models$oob))
+    stop("Out of bag estimates are not implemented for this model")
+  
+  ## SURV TODO: make resampling functions classes or ifelses based on data type
   
   ## If they don't exist, make the data partitions for the resampling iterations.
   if(is.null(trControl$index)) {
@@ -127,7 +127,7 @@ train.default <- function(x, y,
                               none = list(seq(along = y)),
                               alt_cv =, cv = createFolds(y, trControl$number, returnTrain = TRUE),
                               repeatedcv =, adaptive_cv = createMultiFolds(y, trControl$number, trControl$repeats),
-                              loocv = createFolds(y, length(y), returnTrain = TRUE),
+                              loocv = createFolds(y, n, returnTrain = TRUE),
                               boot =, boot632 =,  adaptive_boot = createResample(y, trControl$number),
                               test = createDataPartition(y, 1, trControl$p),
                               adaptive_lgocv =, lgocv = createDataPartition(y, trControl$number, trControl$p),
@@ -155,10 +155,11 @@ train.default <- function(x, y,
   
   ## Create hold--out indicies
   if(is.null(trControl$indexOut) & trControl$method != "oob"){
-    if(tolower(trControl$method) != "timeslice") {      
+    if(tolower(trControl$method) != "timeslice") {     
+      y_index <- if(class(y)[1] == "Surv") 1:nrow(y) else seq(along = y)
       trControl$indexOut <- lapply(trControl$index,
                                    function(training, allSamples) allSamples[-unique(training)],
-                                   allSamples = seq(along = y))
+                                   allSamples = y_index)
       names(trControl$indexOut) <- prettySeq(trControl$indexOut)
     } else {
       trControl$indexOut <- createTimeSlices(seq(along = y),
@@ -171,8 +172,6 @@ train.default <- function(x, y,
   if(trControl$method != "oob" & is.null(trControl$index)) names(trControl$index) <- prettySeq(trControl$index)
   if(trControl$method != "oob" & is.null(names(trControl$index)))    names(trControl$index)    <- prettySeq(trControl$index)
   if(trControl$method != "oob" & is.null(names(trControl$indexOut))) names(trControl$indexOut) <- prettySeq(trControl$indexOut)
-  
-  #   if(!is.data.frame(x)) x <- as.data.frame(x)
   
   ## Gather all the pre-processing info. We will need it to pass into the grid creation
   ## code so that there is a concordance between the data used for modeling and grid creation
@@ -191,9 +190,12 @@ train.default <- function(x, y,
       if("knnImpute" %in% pp$method) pp$k <- ppOpt$k   
       pp$x <- x
       ppObj <- do.call("preProcess", pp)
-      tuneGrid <- models$grid(predict(ppObj, x), y, tuneLength)
+      tuneGrid <- models$grid(x = predict(ppObj, x), 
+                              y = y, 
+                              len = tuneLength, 
+                              search = trControl$search)
       rm(ppObj, pp)
-    } else tuneGrid <- models$grid(x, y, tuneLength)
+    } else tuneGrid <- models$grid(x = x, y = y, len = tuneLength, search = trControl$search)
   }
   dotNames <- hasDots(tuneGrid, models)
   if(dotNames) colnames(tuneGrid) <- gsub("^\\.", "", colnames(tuneGrid))
@@ -208,10 +210,11 @@ train.default <- function(x, y,
   
   if(trControl$method == "none" && nrow(tuneGrid) != 1) 
     stop("Only one model should be specified in tuneGrid with no resampling")
+
   
   ## In case prediction bounds are used, compute the limits. For now,
   ## store these in the control object since that gets passed everywhere
-  trControl$yLimits <- if(is.numeric(y)) extendrange(y) else NULL
+  trControl$yLimits <- if(is.numeric(y)) get_range(y) else NULL
   
   
   if(trControl$method != "none") {
@@ -296,6 +299,8 @@ train.default <- function(x, y,
       trainInfo <- models$loop(tuneGrid)
       if(!all(c("loop", "submodels") %in% names(trainInfo))) 
         stop("The 'loop' function should produce a list with elements 'loop' and 'submodels'")
+      lengths <- unlist(lapply(trainInfo$submodels, nrow))
+      if(all(lengths == 0)) trainInfo$submodels <- NULL
     } else trainInfo <- list(loop = tuneGrid)
     
     
@@ -320,7 +325,7 @@ train.default <- function(x, y,
     }
     
     
-    
+    ## SURV TODO: modify defaultSummary for Surv objects
     if(trControl$method == "oob") {
       ## delay this test until later
       perfNames <- metric   
@@ -556,7 +561,10 @@ train.default <- function(x, y,
     if(class(outData)[1] == "try-error") {
       warning("The training data could not be converted to a data frame for saving")
       outData <- NULL
-    } else  outData$.outcome <- y
+    } else   {
+      outData$.outcome <- y
+      if(!is.null(weights)) outData$.weights <- weights
+    }
   } else outData <- NULL
   
   ## In the case of pam, the data will need to be saved differently

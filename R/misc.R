@@ -29,9 +29,18 @@ well_numbered <- function(prefix, items) {
 
 
 evalSummaryFunction <- function(y, wts, ctrl, lev, metric, method) {
+  n <- if(class(y)[1] == "Surv") nrow(y) else length(y)
+  ## sample doesn't work for Surv objects
+  if(class(y)[1] != "Surv") {
+    pred_samp <- sample(y, min(10, n))
+    obs_samp <- sample(y, min(10, n))
+  } else {
+    pred_samp <- y[sample(1:n, min(10, n)), "time"]
+    obs_samp <- y[sample(1:n, min(10, n)),]    
+  }
+
   ## get phoney performance to obtain the names of the outputs
-  testOutput <- data.frame(pred = sample(y, min(10, length(y))),
-                           obs = sample(y, min(10, length(y))))
+  testOutput <- data.frame(pred = pred_samp, obs = obs_samp)
 
   if(ctrl$classProbs)
   {
@@ -42,7 +51,7 @@ evalSummaryFunction <- function(y, wts, ctrl, lev, metric, method) {
       stop("train()'s use of ROC codes requires class probabilities. See the classProbs option of trainControl()")
   }
   if(!is.null(wts)) testOutput$weights <- sample(wts, min(10, length(wts)))
-  testOutput$rowIndex <- sample(seq(along = y), size = nrow(testOutput))
+  testOutput$rowIndex <- sample(1:n, size = nrow(testOutput))
   ctrl$summaryFunction(testOutput, lev, method)
 }
 
@@ -123,73 +132,12 @@ flatTable <- function(pred, obs)
     cells
   }
 
-
 prettySeq <- function(x) paste("Resample", gsub(" ", "0", format(seq(along = x))), sep = "")
 
-ipredStats <- function(x)
-{
-  requireNamespaceQuietStop("e1071")
-  ## error check
-  if(is.null(x$X)) stop("to get OOB stats, keepX must be TRUE when calling the bagging function")
-
-  foo <- function(object, y, x)
-    {
-      holdY <- y[-object$bindx]
-      if(is.factor(y))
-        {
-          requireNamespaceQuietStop("e1071")
-          tmp <- predict(object$btree, x[-object$bindx,,drop = FALSE], type = "class")
-          tmp <- factor(as.character(tmp), levels = levels(y))
-          out <- c(
-                   mean(holdY == tmp),
-                   e1071::classAgreement(table(holdY, tmp))$kappa)
-
-        } else {
-          tmp <- predict(object$btree, x[-object$bindx,,drop = FALSE])
-
-          out <- c(
-                   sqrt(mean((tmp - holdY)^2, na.rm = TRUE)),
-                   cor(holdY, tmp, use = "pairwise.complete.obs")^2)
-        }
-      out
-    }
-  eachStat <- lapply(x$mtrees, foo, y = x$y, x = x$X)
-  eachStat <- matrix(unlist(eachStat), nrow = length(eachStat[[1]]))
-  out <- c(
-           apply(eachStat, 1, mean, na.rm = TRUE),
-           apply(eachStat, 1, sd, na.rm = TRUE))
-  names(out) <- if(is.factor(x$y)) c("Accuracy", "Kappa", "AccuracySD", "KappaSD") else c("RMSE", "Rsquared", "RMSESD", "RsquaredSD")
-  out
-}
-
-rfStats <- function(x)
-{
-  out <- switch(
-                x$type,
-                regression =   c(sqrt(max(x$mse[length(x$mse)], 0)), x$rsq[length(x$rsq)]),
-                classification = {
-                  requireNamespaceQuietStop("e1071")
-                  c(
-                    1 - x$err.rate[x$ntree, "OOB"],
-                    e1071::classAgreement(x$confusion[,-dim(x$confusion)[2]])[["kappa"]])
-                })
-  names(out) <- if(x$type == "regression") c("RMSE", "Rsquared") else c("Accuracy", "Kappa")
-  out
-}
-
-cforestStats <- function(x)
-{
-  loadNamespace("party")
-
-  obs <- x@data@get("response")[,1]
-  pred <- predict(x,  x@data@get("input"), OOB = TRUE)
-  postResample(pred, obs)
-
-
-}
-
-bagEarthStats <- function(x) apply(x$oob, 2, function(x) quantile(x, probs = .5))
-
+ipredStats    <- function(x) getModelInfo("treebag", regex = FALSE)[[1]]$oob(x)
+rfStats       <- function(x) getModelInfo("rf", regex = FALSE)[[1]]$oob(x)
+cforestStats  <- function(x) getModelInfo("cforest", regex = FALSE)[[1]]$oob(x)
+bagEarthStats <- function(x) getModelInfo("bagEarth", regex = FALSE)[[1]]$oob(x)
 
 R2 <- function(pred, obs, formula = "corr", na.rm = FALSE)
   {
@@ -527,4 +475,21 @@ get_labels <- function(mods, format = FALSE) {
     labs[labs == "glmnet"] <- "\\textsf{glmnet}"
   }
   if(length(mods) > 1) data.frame(model = mods, label = labs) else labs[1]
+}
+
+check_dims <- function(x, y) {
+  n <- if(class(y) == "Surv") nrow(y) else length(y)
+  stopifnot(nrow(x) > 1)
+  stopifnot(nrow(x) == n)
+  invisible(NULL)
+}
+
+get_model_type <- function(y, method = NULL) {
+  type <- if(class(y)[1] %in% c("numeric", "Surv", "integer")) "Regression" else "Classification"
+  type
+}
+
+get_range <- function(y) {
+  if(class(y)[1] == "factor") return(NA)
+  if(class(y)[1] %in% c("numeric", "integer")) extendrange(y) else extendrange(y[, "time"])
 }

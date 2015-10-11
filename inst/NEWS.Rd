@@ -1,8 +1,34 @@
 \name{NEWS}
 \title{News for Package \pkg{caret}}
 \newcommand{\cpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
+\newcommand{\issue}{\href{https://github.com/topepo/caret/issues/#1}{(issue #1)}}
 
-\section{Changes in version 6.0-51}{
+
+\section{Changes in version 6.0-57}{
+	\itemize{
+		\item Hyperparameter optimization via random search is now availible. See the new \href{http://topepo.github.io/caret/random.html}{help page} for examples and syntax. 
+		\item \code{preProcess} now allows (but ignores) non-numeric predictor columns. 
+		\item Models were added for optimal weighted and stabilized nearest neighbor classifiers from the \cpkg{snn} package were added with model codes \code{snn} and \code{ownn}
+		\item Random forests using the excellent \cpkg{ranger} package were added (\code{method = "ranger"})
+		\item An additional variation of rotation forests was added (\code{rotationForest2}) that also tunes over \code{cp}. Unfortunately, the sub-model trick can't be utilized in this instance.  
+		\item Kernelized distance weighted discriminant analysis models from \cpkg{kerndwd} where added (\code{dwdLieanr}, \code{dwdPoly}, and \code{dwdRadial})
+		\item A bug was fixed with \code{rfe} when \code{train} was used to generate a classification model but class probabilities were not (or could not be) generated \issue{234}. 
+		\item Can Candan added a python model \code{sklearn.neighbors.KNeighborsRegressor} that can be accessed via \code{train} using the \cpkg{rPython} package. The python modules \code{sklearn} and \code{pandas} are required for this to run. 
+		\item Jason Aizkalns fixed a bunch of typos. 
+		\item MarwaNabil found a bug with \code{lift} and missing values \issue{225}. This was fixed such that missing values are removed prior to the calculations (within each model)
+		\item Additional options were added to \code{LPH07_1} so that two class data can also be simulated and predictors are converted to factors. 
+		\item The model-specific code for computing out-of-bag performance estimates were moved into the model code library \issue{230}.
+		\item A variety of naive Bayes and tree augmented naive Bayes classifier from the \cpkg{bnclassify} package were added. Variations include simple models (methods labeled as \code{"nbDiscrete"} and \code{"tan"}), models using attribute weighting (\code{"awnb"} and \code{"awtan"}), and wrappers that use search methods to optimize the network structure (\code{"nbSearch"} and \code{"tanSearch"}). In each case, the predictors and outcomes must all be factor variables; for that reason, using the non-formula interface to \code{train} (e.g. \code{train(x, y)}) is critical to preserve the factor structure of the data. 
+		\item A function called \code{multiClassSummary} was added to compute performance values for problems with three or more classes. It works with or without predicted class probabilities \issue{107}.   
+		\item \code{confusionMatrix} was modified to deal with name collisions between this package and \cpkg{RSNNS} \issue{256}.
+		\item A bug in how the LVQ tune grid is filtered was fixed.
+		\item A bug in \code{preProcess} for ICA and PCA was fixed. 
+		\item Bugs in \code{avNNet} and \code{pcaNNet} when predicting class probabilities were fixed \issue{#261}. 
+	} 
+}
+
+
+\section{Changes in version 6.0-52}{
 	\itemize{
 		\item A new model using the \cpkg{randomForest} and \cpkg{inTrees} packages called \code{rfRules} was added. A basic random forest model is used and then is decomposed into rules (of user-specified complexity). The \cpkg{inTrees} package is used to prune and optimize the rules. Thanks to Mirjam Jenny who suggested the workflow. 
 		\item Other new models (and their packages): \code{bartMachine} (\cpkg{bartMachine}), \code{rotationForest} (\cpkg{rotationForest}), \code{sdwd} (\cpkg{sdwd}), \code{loclda} (\cpkg{klaR}), \code{nnls} (\cpkg{nnls}), \code{svmLinear2} (\cpkg{e1071}), \code{rqnc} (\cpkg{rqPen}), and \code{rqlasso} (\cpkg{rqPen})
