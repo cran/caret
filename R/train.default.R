@@ -15,6 +15,8 @@ train.default <- function(x, y,
                           tuneLength = 3) {
   startTime <- proc.time()
   
+  if(is.character(y)) y <- as.factor(y)
+  
   if(is.list(method)) {
     minNames <- c("library", "type", "parameters", "grid",
                   "fit", "predict", "prob")
@@ -79,6 +81,11 @@ train.default <- function(x, y,
     ## important with multiclass systems where one or more classes have low sample sizes
     ## relative to the others
     classLevels <- levels(y)
+    xtab <- table(y)
+    if(any(xtab == 0)) {
+      xtab_msg <- paste("'", names(xtab)[xtab == 0], "'", collapse = ", ", sep = "")
+      stop(paste("One or more factor levels in the outcome has no data:", xtab_msg))
+    }
     
     if(trControl$classProbs && any(classLevels != make.names(classLevels))) {
       stop(paste("At least one of the class levels is not a valid R variable name;",
@@ -151,6 +158,13 @@ train.default <- function(x, y,
     if(!trControl$savePredictions) trControl$savePredictions <- TRUE
     trControl$indexOut <- trControl$index$holdout
     trControl$index <- trControl$index$model    
+  }
+  
+  if(is.logical(trControl$savePredictions)) {
+    trControl$savePredictions <- if(trControl$savePredictions) "all" else "none"
+  } else {
+    if(!(trControl$savePredictions %in% c("all", "final", "none")))
+       stop('`savePredictions` should be either logical or "all", "final" or "none"')
   }
   
   ## Create hold--out indicies
@@ -572,6 +586,9 @@ train.default <- function(x, y,
     finalModel$xData <- x
     finalModel$yData <- y
   }     
+  
+  if(trControl$savePredictions == "final") 
+    tmp$predictions <- merge(bestTune, tmp$predictions)
   
   endTime <- proc.time()
   times <- list(everything = endTime - startTime,
