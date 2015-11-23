@@ -11,8 +11,8 @@ These functions plot the resampling results for the candidate subset sizes evalu
 \usage{
 \method{plot}{rfe}(x, metric = x$metric,  ...)
 
-\method{ggplot}{rfe}(data = NULL, metric = data$metric[1], output = "layered", ...)
-
+\method{ggplot}{rfe}(data = NULL, mapping = NULL, metric = data$metric[1],  
+       output = "layered", ..., environment = NULL)
 }
 \arguments{
   \item{x}{
@@ -26,7 +26,8 @@ an object of class \code{\link{rfe}}.
   \item{data}{
 an object of class \code{\link{rfe}}.
 }
-  \item{output}{either "data", "ggplot" or "layered". The first returns a data frame while the second returns a simple \code{ggplot} object with no layers. The third value returns a plot with a set of layers. }  
+  \item{output}{either "data", "ggplot" or "layered". The first returns a data frame while the second returns a simple \code{ggplot} object with no layers. The third value returns a plot with a set of layers. } 
+  \item{mapping, environment}{unused arguments to make consistent with \pkg{ggplot2} generic method} 
 }
 \details{
 These plots show the average performance versus the subset sizes. 
@@ -36,7 +37,7 @@ a lattice or ggplot object
 }
 \author{Max Kuhn}
 
-\references{Kuhn (2008), ``Building Predictive Models in R Using the caret'' (\url{http://www.jstatsoft.org/v28/i05/})}
+\references{Kuhn (2008), ``Building Predictive Models in R Using the caret'' (\url{http://www.jstatsoft.org/article/view/v028i05/v28i05.pdf})}
 
 \seealso{ \code{\link{rfe}}, \code{\link[lattice]{xyplot}}, \code{\link[ggplot2]{ggplot}}}
 

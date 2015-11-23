@@ -101,6 +101,7 @@ export(anovaScores,
        icr.formula,
        index2vec,
        ipredStats,
+       learing_curve_dat,
        knn3,
        knn3.formula,
        knn3.matrix,
@@ -484,6 +485,7 @@ S3method(levels, train)
 
 S3method(ggplot, train)
 S3method(ggplot, rfe)
+S3method(ggplot, varImp.train)
 
 S3method(oob_pred, train)
 S3method(oob_pred, rfe)

@@ -16,12 +16,14 @@
      ...)
 
 \method{ggplot}{train}(data = NULL, 
+       mapping = NULL,
        metric = data$metric[1], 
        plotType = "scatter", 
        output = "layered", 
        nameInStrip = FALSE,
        highlight = FALSE,
-       ...) 
+       ...,
+       environment = NULL) 
    
 }
 \arguments{
@@ -33,7 +35,8 @@
   \item{data}{an object of class \code{\link{train}}.}  
   \item{output}{either "data", "ggplot" or "layered". The first returns a data frame while the second returns a simple \code{ggplot} object with no layers. The third value returns a plot with a set of layers. }  
   \item{nameInStrip}{a logical: if there are more than 2 tuning parameters, should the name and value be included in the panel title?}
-   \item{highlight}{a logical: if \code{TRUE}, a diamond is placed around the optimal parameter setting for models using grid search.} 
+  \item{highlight}{a logical: if \code{TRUE}, a diamond is placed around the optimal parameter setting for models using grid search.} 
+  \item{mapping, environment}{unused arguments to make consistent with \pkg{ggplot2} generic method}
   \item{\dots}{\code{plot} only: specifications to be passed to \code{\link[lattice]{levelplot}}, \code{\link[lattice]{xyplot}}, \code{\link[lattice:xyplot]{stripplot}} (for line plots). The function automatically sets some arguments (e.g. axis labels) but passing in values here will over-ride the defaults }
 }
 \details{
@@ -57,7 +60,7 @@ parameters, this plot is created inside conditioning panels/facets.
 }
 \author{Max Kuhn}
 
-\references{Kuhn (2008), ``Building Predictive Models in R Using the caret'' (\url{http://www.jstatsoft.org/v28/i05/})}
+\references{Kuhn (2008), ``Building Predictive Models in R Using the caret'' (\url{http://www.jstatsoft.org/article/view/v028i05/v28i05.pdf})}
 
 \seealso{ \code{\link{train}}, \code{\link[lattice]{levelplot}}, \code{\link[lattice]{xyplot}}, \code{\link[lattice:xyplot]{stripplot}},  \code{\link[ggplot2]{ggplot}}}
 \examples{

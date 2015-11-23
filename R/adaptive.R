@@ -23,6 +23,8 @@ adaptiveWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev,
   init_index <- seq(along = resampleIndex)[1:(ctrl$adaptive$min-1)]
   extra_index <- seq(along = resampleIndex)[-(1:(ctrl$adaptive$min-1))]
   
+  keep_pred <- isTRUE(ctrl$savePredictions) || ctrl$savePredictions %in% c("all", "final")
+  
   init_result <- foreach(iter = seq(along = init_index), 
                          .combine = "c", 
                          .verbose = FALSE, 
@@ -173,7 +175,7 @@ adaptiveWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev,
                   for(k in seq(along = predicted)) predicted[[k]] <- cbind(predicted[[k]], probValues[[k]])
                 }
                 
-                if(ctrl$savePredictions) {
+                if(keep_pred) {
                   tmpPred <- predicted
                   for(modIndex in seq(along = tmpPred))
                   {
@@ -212,7 +214,7 @@ adaptiveWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev,
                 if(!is.null(wts)) tmp$weights <- wts[holdoutIndex]
                 if(ctrl$classProbs) tmp <- cbind(tmp, probValues)
                 
-                if(ctrl$savePredictions) {
+                if(keep_pred) {
                   tmpPred <- tmp
                   tmpPred$rowIndex <- holdoutIndex
                   tmpPred <- merge(tmpPred, info$loop[parm,,drop = FALSE],
@@ -239,7 +241,7 @@ adaptiveWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev,
   
   
   init_resamp <- rbind.fill(init_result[names(init_result) == "resamples"])
-  init_pred <- if(ctrl$savePredictions)  rbind.fill(init_result[names(init_result) == "pred"]) else NULL
+  init_pred <- if(keep_pred)  rbind.fill(init_result[names(init_result) == "pred"]) else NULL
   names(init_resamp) <- gsub("^\\.", "", names(init_resamp))
   if(any(!complete.cases(init_resamp[,!grepl("^cell|Resample", colnames(init_resamp)),drop = FALSE])))
     warning("There were missing values in resampled performance measures.")
@@ -398,7 +400,7 @@ adaptiveWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev,
                                      for(k in seq(along = predicted)) predicted[[k]] <- cbind(predicted[[k]], probValues[[k]])
                                    }
                                    
-                                   if(ctrl$savePredictions) {
+                                   if(keep_pred) {
                                      tmpPred <- predicted
                                      for(modIndex in seq(along = tmpPred))
                                      {
@@ -437,7 +439,7 @@ adaptiveWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev,
                                    if(!is.null(wts)) tmp$weights <- wts[holdoutIndex]
                                    if(ctrl$classProbs) tmp <- cbind(tmp, probValues)
                                    
-                                   if(ctrl$savePredictions) {
+                                   if(keep_pred) {
                                      tmpPred <- tmp
                                      tmpPred$rowIndex <- holdoutIndex
                                      tmpPred <- merge(tmpPred, new_info$loop[parm,,drop = FALSE],
@@ -496,8 +498,12 @@ adaptiveWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev,
     }
     
     if(class(filtered_mods)[1] == "try-error") {
+      if(ctrl$verboseIter) { 
+        cat("x parameter filtering failed:")
+        print(filtered_mods)
+        cat("\n")
+      }
       filtered_mods <- current_mods
-      cat("x parameter filtering failed\n")
     }
 
     if(ctrl$verboseIter) {
@@ -684,7 +690,7 @@ adaptiveWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev,
                     for(k in seq(along = predicted)) predicted[[k]] <- cbind(predicted[[k]], probValues[[k]])
                   }  
                   
-                  if(ctrl$savePredictions) {
+                  if(keep_pred) {
                     tmpPred <- predicted
                     for(modIndex in seq(along = tmpPred))
                     {
@@ -723,7 +729,7 @@ adaptiveWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev,
                   if(!is.null(wts)) tmp$weights <- wts[holdoutIndex]
                   if(ctrl$classProbs) tmp <- cbind(tmp, probValues)
                   
-                  if(ctrl$savePredictions) {
+                  if(keep_pred) {
                     tmpPred <- tmp
                     tmpPred$rowIndex <- holdoutIndex
                     tmpPred <- merge(tmpPred, new_info$loop[parm,,drop = FALSE],
@@ -750,7 +756,7 @@ adaptiveWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev,
     init_result <- c(init_result, final_result)
   }
   resamples <- rbind.fill(init_result[names(init_result) == "resamples"])
-  pred <- if(ctrl$savePredictions)  rbind.fill(init_result[names(init_result) == "pred"]) else NULL
+  pred <- if(keep_pred)  rbind.fill(init_result[names(init_result) == "pred"]) else NULL
   names(resamples) <- gsub("^\\.", "", names(resamples))
   
   if(any(!complete.cases(resamples[,!grepl("^cell|Resample", colnames(resamples)),drop = FALSE])))
@@ -766,7 +772,7 @@ adaptiveWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev,
                       function(x) c(.B = nrow(x)))
   out <- merge(out, num_resamp)
   
-  list(performance = out, resamples = resamples, predictions = if(ctrl$savePredictions) pred else NULL)
+  list(performance = out, resamples = resamples, predictions = if(keep_pred) pred else NULL)
 } 
 
 long2wide <- function(x, metric) {
@@ -795,17 +801,22 @@ bt_eval <- function(rs, metric, maximize, alpha = 0.05) {
   scores <- ddply(rs, .(Resample), get_scores, maximize = maximize, metric = metric)
   scores <- ddply(scores, .(player1, player2), function(x) c(win1 = sum(x$win1),
                                                              win2 = sum(x$win2)))
-  if(length(unique(rs$Resample)) >= 5) scores <- skunked(scores)
+  if(length(unique(rs$Resample)) >= 5) {
+    tmp_scores <- try(skunked(scores), silent = TRUE)
+    if(class(tmp_scores)[1] != "try-error") scores <- tmp_scores
+    scores
+  }
   best_mod <- ddply(rs, .(model_id), function(x, metric) mean(x[, metric]), metric = metric)
   best_mod <- if(maximize) 
     best_mod$model_id[which.max(best_mod$V1)] else 
       best_mod$model_id[which.min(best_mod$V1)]
   btModel <- BradleyTerry2::BTm(cbind(win1, win2), player1, player2, data = scores, refcat = best_mod)
-  upperBound <- BradleyTerry2::BTabilities(btModel)[,1] + constant*BradleyTerry2::BTabilities(btModel)[,2]
-  if(any(BradleyTerry2::BTabilities(btModel)[,2] > se_thresh)) {
+  btCoef <- summary(btModel)$coef
+  upperBound <- btCoef[, "Estimate"] + constant*btCoef[, "Std. Error"]
+  if(any(btCoef[, "Std. Error"] > se_thresh)) {
     ## These players either are uniformly dominated (='dom') or dominating
-    dom1 <- BradleyTerry2::BTabilities(btModel)[,2] > se_thresh 
-    dom2 <- if(maximize) BradleyTerry2::BTabilities(btModel)[,1] <= 0 else BradleyTerry2::BTabilities(btModel)[,1] >= 0
+    dom1 <- btCoef[, "Std. Error"] > se_thresh 
+    dom2 <- if(maximize) btCoef[, "Estimate"] <= 0 else btCoef[, "Estimate"] >= 0
     dom <- dom1 & dom2    
   } else dom <- rep(FALSE, length(upperBound))
   bound <- upperBound >= 0
@@ -826,6 +837,7 @@ get_scores <- function(x, maximize = NULL, metric = NULL)
   BradleyTerry2::countsToBinomial(as.table(binary))
 }
 
+## check to see if there are any models/players that never won a game
 skunked <- function(scores, verbose = TRUE) {
   p1 <- ddply(scores, .(player1), function(x) sum(x$win1))
   p2 <- ddply(scores, .(player2), function(x) sum(x$win2))
@@ -1005,11 +1017,14 @@ filter_on_diff <- function(dat, metric, cutoff = 0.1, maximize = TRUE, verbose =
       }
     }
   }
+
   deletecol <- deletecol[deletecol != 0]
   if(length(deletecol) > 0) {
     dumped <- colnames(x)[newOrder[deletecol]] 
     if (verbose)  cat(paste("o", length(deletecol), 
-                            ifelse(length(deletecol) > 1, "models were", "model was"),
+                            ifelse(length(deletecol) > 1, "models of", "model of"),
+                            varnum,
+                            ifelse(length(deletecol) > 1, "were", "was"),
                             "eliminated due to linear dependencies\n"))
     dat <- subset(dat, !(model_id %in% dumped))
   }
