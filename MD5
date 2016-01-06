@@ -1,8 +1,8 @@
-36505de769345da44641268639acd0ac *DESCRIPTION
+ac15fd1a4bf5dab3e39ca4fc98aadc0f *DESCRIPTION
 baed943173b34700657edf7a3c42e3f8 *NAMESPACE
 f9cfbda572ebf462c54e6bb99b426dc6 *R/BoxCoxTrans.R
 2fa2dec7b5cd614d25ff4d86c2f08a08 *R/aaa.R
-fa5733e1b7319959add32d7e25c54ba1 *R/adaptive.R
+6b2bc640e468da5542f2729ef6772ac7 *R/adaptive.R
 0217ce3d44c3f71206343ac5a5eea914 *R/additive.R
 07d8f468c708ec80ae4b60670b3ba527 *R/aucRoc.R
 dd71cf1914f2de04f1764f75eea1b835 *R/avNNet.R
@@ -15,7 +15,7 @@ c6aa4da69296a9afafdb60f596da408e *R/bag.R
 cee8cdc603c84c8854b90ee0330d637c *R/classDist.R
 c3631db48804db468b6ee8f4cf5e800a *R/classLevels.R
 8256ca2db0aa97fda5b4e3e6b0cebb09 *R/common_code.R
-db77e6b807aad3060080724741030779 *R/confusionMatrix.R
+befe1c68a7569d1b01ed2e6349da764d *R/confusionMatrix.R
 5ca4a350f7164be21dcdf1b6fcf8e1b9 *R/createDataPartition.R
 422b09af11ae37a795873f55df7d6e99 *R/createFolds.R
 c752ebc95c5f31b6c113f5a21b1d95c3 *R/createModel.R
@@ -23,7 +23,7 @@ c752ebc95c5f31b6c113f5a21b1d95c3 *R/createModel.R
 08c8c20a866825c13fdc9e479864f897 *R/createTimeSlices.R
 bd358c1d677a7f109735776b2f71a4e3 *R/diag.R
 981d9015940d5e69a32361a600bc73dd *R/dotplot.varImp.train.R
-83d4e1940029c9590bb35e89fd851381 *R/dummyVar.R
+ca6acec16747966937370ecf3cc27e7f *R/dummyVar.R
 f16c6ca43850e4e857130804e3175812 *R/expoTrans.R
 cdd5da36a3725d235f6ab0a67d7295b0 *R/extractPrediction.R
 b10af8b9e0567c605d4123c698c05569 *R/extractProb.R
@@ -45,8 +45,8 @@ f3a0fd7656877120dc155bf4ccd73b10 *R/learning_curve.R
 c9296b25e3d30c16b17a7edd5b42d9f6 *R/lift.R
 b1d3ae880e898463a1d2bf8aca454b68 *R/maxDissim.R
 badd13013a13f4a9517eae7c55d4ca74 *R/misc.R
-08e4db516becb7d06dafdf8aee53d53d *R/modelLookup.R
-f701ef3c63865d974ac226a775376cf3 *R/nearZeroVar.R
+9d7833bf9c8d0357000e081bc7811ae4 *R/modelLookup.R
+a4a538df7ad73ba67e527a891113033f *R/nearZeroVar.R
 a3e64fdde6404b275141a2b2d654f5f9 *R/negPredValue.R
 24ada61bde8c6ab496fbecb202756bce *R/panel.needle.R
 d4d5971f2e3d560d80ef9cf225b5dcf0 *R/pcaNNet.R
@@ -57,9 +57,9 @@ d3198159665e5d9c1f73934d697b863b *R/plotObsVsPred.R
 8b7fb712eb9d7b5842e4fb35f77d2796 *R/plsda.R
 da16131adb02fe4c64dae316fd54db34 *R/posPredValue.R
 e124c03fde52e123796dba5826ffab54 *R/postResample.R
-abfe544f51aab5a702309beea5e0fbdd *R/preProcess.R
+58fce7481002376ef38796c873d767f0 *R/preProcess.R
 70f8701dbf574dd1718316af73b3bdf0 *R/predict.PLS.R
-f963f04c7e7622a67ee87946df24ee84 *R/predict.train.R
+f8459765a8edc4f35af202ff9a1fa985 *R/predict.train.R
 2288dda252697188a164a14513dfa7e8 *R/predictionFunction.R
 fc8e971b440a1ed6aa60c55b25752838 *R/predictors.R
 473c4cf190598bc2c4436015d487f375 *R/print.confusionMatrix.R
@@ -85,7 +85,7 @@ ea3d00dcb78fdf23e4cc48e2379641a8 *R/selection.R
 5dce65830e530b9d7e37f20ce391f160 *R/specificity.R
 8c9f2c5264a1707a98c6ebdc348cbb85 *R/splsda.R
 60caf5e68706cfe32ecb2aa079ad80e7 *R/suggestions.R
-2baaf2035c36199fb3e945af7675d448 *R/train.default.R
+00ae842da661c90756f718addb01b836 *R/train.default.R
 186e37f5d1a16fd3ab9f339714ae9e46 *R/trainControl.R
 ce3921354f653b7453992162ceff0b47 *R/trim.R
 738cc893689e228e72db13f0e4382254 *R/twoClassSim.R
@@ -93,7 +93,7 @@ ce3921354f653b7453992162ceff0b47 *R/trim.R
 268eb9f3936ee7d2954ff144057a715c *R/varImp.R
 480d183463fc0fc32a9006ef4d81ac31 *R/varImp.train.R
 cbc61937a39fc974faa88dc4a6e4eedb *R/workflows.R
-b5cbbecc7ae8661f8cd5d88c01a44d4e *build/vignette.rds
+001aed374896df4b99d32973e5060ba1 *build/vignette.rds
 207388f37483d387a1bdb928c42bb4e7 *data/BloodBrain.RData
 2f905a97a1bdf8c66c2d1859fb6c3c94 *data/GermanCredit.RData
 cada87cea215be8bc2b5388b0c31841a *data/cars.RData
@@ -105,11 +105,11 @@ eca0c2532cc328c1d0ac5d32b3c9bbdc *data/oil.RData
 ecdae454e7a1a320b438d5e98e33606f *data/pottery.RData
 82d12ed229545b7a39820522a2af82f6 *data/segmentationData.RData
 30958b520366b02a43372f65773b77ac *data/tecator.RData
-d0da7d5545a34481a134b0a9930ba1c3 *inst/NEWS.Rd
+68314ad475b9de30eea318b74e47162c *inst/NEWS.Rd
 60e19e6f057a26981fd8288e8e860796 *inst/doc/caret.R
 43195fb0065a54f21bba2392cce93d96 *inst/doc/caret.Rnw
 e0a699e501cf7e790bedbfc957d2077e *inst/doc/caret.pdf
-7122fb495987830feacbfd41cea15cbb *inst/models/models.RData
+df6689d4ada82aa47be653d15116b844 *inst/models/models.RData
 5000a20c6c78295f724dafdabe2a6af7 *inst/models/sampling.RData
 2f930c29bc2f795db458385b0da13062 *man/BloodBrain.Rd
 4a34b02e30c3c81d42ea99439d3a1b77 *man/BoxCoxTrans.Rd
@@ -155,7 +155,7 @@ fa75e6bfff085b281d52f6675942ce82 *man/learning_curve.Rd
 6c60c8c2b14b7916c434bdc005d726e1 *man/mdrr.Rd
 d8ffad45e62fade65abc99bbd1926ce7 *man/modelLookup.Rd
 59917c24820819f8324008a573bb21de *man/models.Rd
-e9f1da4aa9b825eb6f4d32c64a461137 *man/nearZeroVar.Rd
+6d61a58d6995647ffbb9635740d414c1 *man/nearZeroVar.Rd
 2056d866cdfc3491c3aa04b15ff1dda4 *man/nullModel.Rd
 ae8edbdc8f02a5f6cbcb23b1de238846 *man/oil.Rd
 380afb182e1eda0970e0b81a94bcd8a0 *man/panel.lift.Rd
@@ -171,7 +171,7 @@ a90ee36ca6a4220aebed110f9e9fa768 *man/plotClassProbs.Rd
 7848d093e5752d102a9596ff3c2b2334 *man/postResample.Rd
 9b50981fb6e1d28b065c50da3bfddda0 *man/pottery.Rd
 dbb48e76103bee9b930a9a08f953d05a *man/prcomp.resamples.Rd
-906eaaee8fbb1285a8cad1ba0adb1b3e *man/preProcess.Rd
+3e2f533fc09e13190fdb97ae58974203 *man/preProcess.Rd
 32bc1248213eb6619b057e3239333820 *man/predict.bagEarth.Rd
 330f5f2f371630f18b21d2c464450d4f *man/predict.gafs.Rd
 443ca2eb26935314d70bd9d44335487f *man/predict.knn3.Rd
@@ -199,7 +199,7 @@ eb6895d76d589f97d72c0303330f7dbd *man/sbfControl.Rd
 8b2aae80409cca0ebce5abc793a2df09 *man/summary.bagEarth.Rd
 e04319c6dcd4f7b97ec698173102ce3d *man/tecator.Rd
 d8d8d8ea1ebe310c91138f785668ba2d *man/train.Rd
-41ed0659f7e151519f95d0db9fcd7e16 *man/trainControl.Rd
+de54e9878ed88a3406af160e0ec9dcdb *man/trainControl.Rd
 4b7a5afaa905670ddd13e4c3bdd57df7 *man/twoClassSim.Rd
 688f2a69e28b0305f5727b20e7be80a0 *man/update.safs.Rd
 b251c0f8c64d502d0ba5a8993a0ca413 *man/update.train.Rd
@@ -208,10 +208,12 @@ b251c0f8c64d502d0ba5a8993a0ca413 *man/update.train.Rd
 ce5316d7b5bb94d4cb25488273ec16f2 *src/caret.c
 d3861b74b91b00b294b74da4fce1ba52 *tests/testthat.R
 c47d3e9b6ed183def9aec3f83a8bdd13 *tests/testthat/preProcess.R
-47538f1ee057ab4896fec6b3fee79a75 *tests/testthat/preProcess_methods.R
+c4a037f9dfeea8824e58d5aae9312156 *tests/testthat/preProcess_methods.R
 6f63e87fc9546c984876a04a5247a914 *tests/testthat/test_BoxCox.R
+45fb1a828cbbca7c11cfeadb05117546 *tests/testthat/test_Dummies.R
 197ef19e2c9dc63bc6c0963c3f196f12 *tests/testthat/test_bad_class_options.R
-04d03637da152f30e36e1f43ad40df1d *tests/testthat/test_confusionMatrix.R
+3db194b2ae55ae7cfe0840187366c1cb *tests/testthat/test_confusionMatrix.R
+1e1064091fefbe085a7b2d8acfda84a0 *tests/testthat/test_glmnet_varImp.R
 e7bb9198202a5e7adb70c8bdf44f4b37 *tests/testthat/test_minimal.R
 24a613516fb5d73fc7f4929326c3761a *tests/testthat/test_mnLogLoss.R
 056a591e66b6892ddfd1141faf66c8f1 *tests/testthat/test_models_bagEarth.R
@@ -224,5 +226,6 @@ d9776fd3bd2bae2fed47a1a995f28807 *tests/testthat/trim_glm.R
 deb25462270f133514302d20b028b0a3 *tests/testthat/trim_rpart.R
 b8e3a5d921b147a3473ef65a9d15ef3d *tests/testthat/trim_train.R
 a1670964dd20a1f842da2c3f3b52a697 *tests/testthat/trim_treebag.R
+345504afc2628bde840f3ca539596d37 *vignettes/algorithm.tex
 cde50b47dd9a6c9be88b7b80edf1c2e2 *vignettes/caret.Rnw
 f2307d739c6d20807ac4d892f25e5f25 *vignettes/train_algo.pdf
