@@ -274,7 +274,7 @@ nominalTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, tes
                            model = method)
     if(testing) print(head(thisResample))
     ## for classification, add the cell counts
-    if(length(lev) > 1)
+    if(length(lev) > 1 && length(lev) <= 50)
     {
       cells <- lapply(predicted,
                       function(x) flatTable(x$pred, x$obs))
@@ -311,7 +311,7 @@ nominalTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, tes
                                          model = method)
     
     ## if classification, get the confusion matrix
-    if(length(lev) > 1) thisResample <- c(thisResample, flatTable(tmp$pred, tmp$obs))
+    if(length(lev) > 1 && length(lev) <= 50) thisResample <- c(thisResample, flatTable(tmp$pred, tmp$obs))
     thisResample <- as.data.frame(t(thisResample))
     thisResample <- cbind(thisResample, info$loop[parm,,drop = FALSE])
     
@@ -322,14 +322,14 @@ nominalTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, tes
                                 names(resampleIndex), iter, FALSE)
   list(resamples = thisResample, pred = tmpPred)
 }
-  
+
   resamples <- rbind.fill(result[names(result) == "resamples"])
   pred <- if(keep_pred)  rbind.fill(result[names(result) == "pred"]) else NULL
   if(ctrl$method %in% c("boot632"))
   {
-    perfNames <- names(ctrl$summaryFunction(data.frame(obs = y, pred = sample(y), weights = 1),
-                                            lev = lev,
-                                            model = method))
+    perfNames <- names(resamples)
+    perfNames <- perfNames[!(perfNames %in% c("Resample", as.character(method$parameters$parameter)))]
+    perfNames <- perfNames[!grepl("^\\.cell[0-9]", perfNames)]
     apparent <- subset(resamples, Resample == "AllData")
     apparent <- apparent[,!grepl("^\\.cell|Resample", colnames(apparent)),drop = FALSE]
     names(apparent)[which(names(apparent) %in% perfNames)] <- paste(names(apparent)[which(names(apparent) %in% perfNames)],
@@ -353,12 +353,10 @@ nominalTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, tes
                gsub("^\\.", "", colnames(info$loop)),
                MeanSD, 
                exclude = gsub("^\\.", "", colnames(info$loop)))
-  
-  if(ctrl$method %in% c("boot632"))
-  {
+
+  if(ctrl$method %in% c("boot632")) {
     out <- merge(out, apparent)
-    for(p in seq(along = perfNames))
-    {
+    for(p in seq(along = perfNames)) {
       const <- 1-exp(-1)
       out[, perfNames[p]] <- (const * out[, perfNames[p]]) +  ((1-const) * out[, paste(perfNames[p],"Apparent", sep = "")])
     }
@@ -526,6 +524,8 @@ oobTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, testing
   loadNamespace("caret")
   if(ctrl$verboseIter) progress(printed[parm,,drop = FALSE], "", 1, TRUE)
   
+  if(!(length(ctrl$seeds) == 1 && is.na(ctrl$seeds))) set.seed(ctrl$seeds[[1L]][parm])
+  
   mod <- createModel(x = x,
                      y = y,
                      wts = wts,
@@ -589,7 +589,7 @@ nominalSbfWorkflow <- function(x, y, ppOpts, ctrl, lev, ...)
     tmpPred$rowIndex <- seq(along = y)[unique(holdoutIndex)]
   } else tmpPred <- NULL
   resamples <- ctrl$functions$summary(sbfResults$pred, lev = lev)
-  if(is.factor(y)) resamples <- c(resamples, flatTable(sbfResults$pred$pred, sbfResults$pred$obs))
+  if(is.factor(y) && length(lev) <= 50) resamples <- c(resamples, flatTable(sbfResults$pred$pred, sbfResults$pred$obs))
   resamples <- data.frame(t(resamples))
   resamples$Resample <- names(resampleIndex)[iter]
   
@@ -612,6 +612,7 @@ nominalSbfWorkflow <- function(x, y, ppOpts, ctrl, lev, ...)
                           ...)
     apparent <- ctrl$functions$summary(appResults$pred, lev = lev)
     perfNames <- names(apparent)
+    perfNames <- perfNames[perfNames != "Resample"]
     
     const <- 1-exp(-1)
     
@@ -708,8 +709,7 @@ nominalRfeWorkflow <- function(x, y, sizes, ppOpts, ctrl, lev, ...)
     rfeResults$pred$rowIndex <- rep(seq(along = y)[unique(holdoutIndex)], nReps)
   }
   
-  if(is.factor(y))
-  {
+  if(is.factor(y) && length(lev) <= 50) {
     cells <- ddply(rfeResults$pred, .(Variables), function(x) flatTable(x$pred, x$obs))
     resamples <- merge(resamples, cells)
   }
@@ -724,9 +724,9 @@ nominalRfeWorkflow <- function(x, y, sizes, ppOpts, ctrl, lev, ...)
   
   if(ctrl$method %in% c("boot632"))
   {
-    perfNames <- names(ctrl$functions$summary(data.frame(obs =y, pred = sample(y)),
-                                              lev = lev,
-                                              model = method))
+    perfNames <- names(resamples)
+    perfNames <- perfNames[!(perfNames %in% c("Resample", "Variables"))]
+    perfNames <- perfNames[!grepl("^cell[0-9]", perfNames)]
     apparent <- subset(resamples, Resample == "AllData")
     apparent <- apparent[,!grepl("^\\.cell|Resample", colnames(apparent)),drop = FALSE]
     names(apparent)[which(names(apparent) %in% perfNames)] <- paste(names(apparent)[which(names(apparent) %in% perfNames)],

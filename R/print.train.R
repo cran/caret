@@ -15,6 +15,7 @@ stringFunc <- function (x)  {
            printCall = FALSE,
            details = FALSE,
            selectCol = FALSE,
+           showSD = FALSE,
            ...) {
     
     if(!is.null(x$modelInfo$label)) cat(x$modelInfo$label, "\n\n")
@@ -28,9 +29,11 @@ stringFunc <- function (x)  {
         if(is.character(lev)) chDim <- c(chDim, length(lev))
       } else lev <- NULL      
       chDim <- format(chDim)
-      cat(chDim[1], 
-          " samples\n", 
-          chDim[2],
+      cat(chDim[1], " samples", sep = "")
+      if(!is.null(x$control$indexFinal)) 
+        cat(",", length(x$control$indexFinal), "used for final model\n") else 
+          cat("\n")
+      cat(chDim[2],
           " predictor", ifelse(chDim[2] > 1, "s\n", "\n"),
           sep = "")
       if(is.character(lev)){
@@ -80,12 +83,13 @@ stringFunc <- function (x)  {
     if(x$control$method != "none") {
       
       tuneAcc <- x$results 
-     
+      
       tuneAcc <- tuneAcc[, names(tuneAcc) != "parameter"]
       
       cat("Resampling results")
-      if(dim(tuneAcc)[1] > 1) cat(" across tuning parameters:\n") else cat("\n")
-      cat("\n")
+      if(dim(tuneAcc)[1] > 1) cat(" across tuning parameters")
+      if(showSD) cat(" (values above are 'mean (sd)')")
+      cat(":\n\n")
       
       if(dim(tuneAcc)[1] > 1) {
         
@@ -110,11 +114,15 @@ stringFunc <- function (x)  {
       } else optString <- ""
       
       sdCols <- grep("SD$", colnames(tuneAcc))
-      sdCheck <- unlist(lapply(tuneAcc[, sdCols, drop = FALSE],
-                               function(u) all(is.na(u))))
-      if(any(sdCheck)) {
-        rmCols <- names(sdCheck)[sdCheck]
-        tuneAcc <- tuneAcc[, !(names(tuneAcc) %in% rmCols)]  
+      if(showSD) {
+        sdCheck <- unlist(lapply(tuneAcc[, sdCols, drop = FALSE],
+                                 function(u) all(is.na(u))))
+        if(any(sdCheck)) {
+          rmCols <- names(sdCheck)[sdCheck]
+          tuneAcc <- tuneAcc[, !(names(tuneAcc) %in% rmCols)]  
+        }
+      } else {
+        tuneAcc <- tuneAcc[, -sdCols, drop = FALSE]
       }
       
       params <- names(x$bestTune)
@@ -136,7 +144,7 @@ stringFunc <- function (x)  {
           
         } else constString <- NULL
       } else constString <- NULL
-
+      
       tuneAcc <- tuneAcc[,!grepl("Apparent$", names(tuneAcc)),drop = FALSE]
       colnames(tuneAcc)[colnames(tuneAcc) == ".B"] <- "Resamples"
       nms <- names(tuneAcc)[names(tuneAcc) %in% params]
@@ -153,11 +161,23 @@ stringFunc <- function (x)  {
       printMat <- do.call("format.data.frame", theDots)
       printMat <- as.matrix(printMat)
       rownames(printMat) <- rep("", dim(printMat)[1])
-      colnames(printMat) <- gsub("SD", " SD", colnames(printMat))
-      
+
+      if(showSD){
+        sdCols <- grep("SD$", colnames(printMat), value = TRUE)
+        sd_dat <- printMat[, sdCols, drop = FALSE]
+        printMat <- printMat[, !(colnames(printMat) %in% sdCols), drop = FALSE]
+        for(col_name in sdCols) {
+          not_sd <- gsub("SD$", "", col_name)
+          if(any(colnames(printMat) == not_sd)) {
+            printMat[, not_sd] <- paste0(printMat[, not_sd], " (",
+                                         sd_dat[, col_name], ")")
+          }
+        }
+      } 
       if(!selectCol) printMat <- printMat[, colnames(printMat) != "Selected", drop = FALSE]
       
       print(printMat, quote = FALSE, print.gap = 2)
+
       cat("\n")
       
       if(!is.null(constString)){

@@ -136,6 +136,7 @@ train.default <- function(x, y,
     trControl$index <- switch(tolower(trControl$method),
                               oob = NULL,
                               none = list(seq(along = y)),
+                              apparent = list(all = seq(along = y)),
                               alt_cv =, cv = createFolds(y, trControl$number, returnTrain = TRUE),
                               repeatedcv =, adaptive_cv = createMultiFolds(y, trControl$number, trControl$repeats),
                               loocv = createFolds(y, n, returnTrain = TRUE),
@@ -158,6 +159,8 @@ train.default <- function(x, y,
     }
   }
   
+  if(trControl$method == "apparent") trControl$indexOut <- list(all = seq(along = y))
+
   if(trControl$method == "subsemble") {
     if(!trControl$savePredictions) trControl$savePredictions <- TRUE
     trControl$indexOut <- trControl$index$holdout
@@ -329,23 +332,28 @@ train.default <- function(x, y,
     } else trainInfo <- list(loop = tuneGrid)
     
     
+    num_rs <- if(trControl$method != "oob") length(trControl$index) else 1L
+    if(trControl$method == "boot632") num_rs <- num_rs + 1L
     ## Set or check the seeds when needed
-    if(is.null(trControl$seeds) | all(is.na(trControl$seeds)))  {
-      seeds <- vector(mode = "list", length = length(trControl$index))
-      seeds <- lapply(seeds, function(x) sample.int(n = 1000000, size = nrow(trainInfo$loop)))
-      seeds[[length(trControl$index) + 1]] <- sample.int(n = 1000000, size = 1)
-      trControl$seeds <- seeds     
+    if(is.null(trControl$seeds) || all(is.na(trControl$seeds)))  {
+      seeds <- sample.int(n = 1000000L, size = num_rs * nrow(trainInfo$loop) + 1L)
+      seeds <- lapply(seq(from = 1L, to = length(seeds), by = nrow(trainInfo$loop)),
+                      function(x) { seeds[x:(x+nrow(trainInfo$loop)-1L)] })
+      seeds[[num_rs + 1L]] <- seeds[[num_rs + 1L]][1L]
+      trControl$seeds <- seeds
     } else {
       if(!(length(trControl$seeds) == 1 && is.na(trControl$seeds))) {
         ## check versus number of tasks
         numSeeds <- unlist(lapply(trControl$seeds, length))
-        badSeed <- (length(trControl$seeds) < length(trControl$index) + 1) ||
-          (any(numSeeds[-length(numSeeds)] < nrow(trainInfo$loop)))
+        badSeed <- (length(trControl$seeds) < num_rs + 1L) ||
+          (any(numSeeds[-length(numSeeds)] < nrow(trainInfo$loop))) ||
+          (numSeeds[length(numSeeds)] < 1L)
         if(badSeed) stop(paste("Bad seeds: the seed object should be a list of length",
-                               length(trControl$index) + 1, "with", 
-                               length(trControl$index), "integer vectors of size",
-                               nrow(trainInfo$loop), "and the last list element having a",
-                               "single integer"))      
+                               num_rs + 1, "with",
+                               num_rs, "integer vectors of size",
+                               nrow(trainInfo$loop), "and the last list element having at least a",
+                               "single integer"))
+        if(any(is.na(unlist(trControl$seeds)))) stop("At least one seed is missing (NA)")
       }
     }
     
@@ -419,7 +427,7 @@ train.default <- function(x, y,
         }
       }
     }
-    
+  
     ## TODO we used to give resampled results for LOO
     if(!(trControl$method %in% c("LOOCV", "oob"))) {
       if(modelType == "Classification" && length(grep("^\\cell", colnames(resampleResults))) > 0) {
@@ -530,7 +538,7 @@ train.default <- function(x, y,
   ## Reorder rows of performance
   orderList <- list()
   for(i in seq(along = paramNames)) orderList[[i]] <- performance[,paramNames[i]]
-  names(orderList) <- paramNames
+
   performance <- performance[do.call("order", orderList),]      
   
   if(trControl$verboseIter) {
@@ -544,9 +552,13 @@ train.default <- function(x, y,
   
   ## Make the final model based on the tuning results
   
+  indexFinal <- if(is.null(trControl$indexFinal)) seq(along = y) else trControl$indexFinal
+  
   if(!(length(trControl$seeds) == 1 && is.na(trControl$seeds))) set.seed(trControl$seeds[[length(trControl$seeds)]][1])
   finalTime <- system.time(
-    finalModel <- createModel(x = x, y = y, wts = weights, 
+    finalModel <- createModel(x = x[indexFinal,,drop=FALSE], 
+                              y = y[indexFinal], 
+                              wts = weights[indexFinal], 
                               method = models, 
                               tuneValue = bestTune, 
                               obsLevels = classLevels,

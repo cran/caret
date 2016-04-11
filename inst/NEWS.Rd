@@ -3,7 +3,32 @@
 \newcommand{\cpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 \newcommand{\issue}{\href{https://github.com/topepo/caret/issues/#1}{(issue #1)}}
 
-\section{Changes in version 6.0-64}{
+\section{Changes in version 6.0-68}{
+	\itemize{
+		\item \code{print.train} no longer shows the standard deviation of the resampled values unless the new option is used (\code{print.train(, showSD = TRUE)}). When shown, they are within parentheses (e.g. "4.24 (0.493)"). 
+ 		\item An adjustment the innards of adaptive resampling was changed so that the test for linear dependencies is more stringent.  
+		\item A bug in the bootstrap 632 estimate was found and fixed by Alexis Sarda \issue{349} \issue{353}. 
+		\item The \code{cforest} module's \code{oob} element was modified based on another bug found by Alexis Sarda \issue{351}.
+		\item The methods for \code{bagEarth}, \code{bagEarthGCV}, \code{bagFDA}, \code{bagFDAGCV}, \code{earth}, \code{fda}, and \code{gcvEarth} models have been updates so that case-weights can be used. 
+		\item The \code{rda} module contained a bug found by Eric Czech \issue{369}.
+		\item A bug was fixed for printing out the resampling details with LGOCV found by github user zsharpm \issue{366}
+		\item A new data set was added (\code{data(Sacramento)}) with sale prices of homes. 
+		\item Another adaboost algorithm (\code{method = "adaboost"} from the \cpkg{fastAdaboost} package) was added \issue{284}.  
+		\item Yet another boosting algorithm (\code{method = "deepboost"} from the \cpkg{deepboost} package) was added \issue{388}. 
+		\item Alexis Sarda made changes to the confusion matrix code for \code{train}, \code{rfe}, and \code{sbf} objects that more rationally normalizes the resampled tables \issue{355}.
+		\item A bug in how \cpkg{RSNNS} perceptron models were tuned (found by github user smlek) was fixed \issue{392}.
+		\item A bug in computing the bootstrap 632 estimate was fixed (found by Stu) \issue{382}.
+		\item John Johnson contributed an update to \code{xgbLinear} \issue{372}. 
+		\item Resampled confusion matrices are not automatically computed when there are 50 or more classes due to the storage requirements (\issue{356}). However, the relevant functions have been updated to use the out-of-sample predictions instead (when the user asks for them to be returned by the function). 
+		\item Some changes were made to \code{predict.train} to error trap (and fix) cases when predictions are requested without referencing a \code{newdata} object \issue{347}.
+		\item Github user pverspeelt identified a bug in our model code for \code{glmboost} (and \code{gamboost}) related to the \code{mstop} function modifying the model object in memory. It was fixed \issue{396}. 
+		\item For \issue{346}, an option to select which samples are used to fit the final model, called \code{indexFinal}, was added to \code{trainControl}.  
+		\item For issue \issue{390} found by JanLauGe, a bug was fixed in \code{dummyVars} related to the names of the resulting data set. 
+		\item Models \code{rknn} and \code{rknnBel} were removed since their package is no longer on CRAN.
+	}  
+}
+
+\section{Changes in version 6.0-66}{
 	\itemize{
 		\item Model averaged naive Bayes (\code{method = "manb"}) from the \cpkg{bnclassify} package was added. 
 		\item \code{blackboost} was updated to work with outcomes with 3+ classes. 
@@ -19,6 +44,7 @@
 		\item A bug was fixed \issue{342} where the data used for prediction was inappropriately converted from its original class. 
 		\item Matt (aka washcycle) added option to return column names to \code{nearZeroVar} function
 		\item Homer Strong fixed \code{varImp} for \code{glmnet} models so that they return the absolute value of the regression coefficients \issue{173} \issue{190}
+		\item The basic naive Bayes method (\code{method = "nb"}) gained a tuning parameter, \code{adjust}, that adjusts the bandwidth (see \code{?density}). The parameter is ignored when \code{usekernel = FALSE}.
 	} 
 }
 

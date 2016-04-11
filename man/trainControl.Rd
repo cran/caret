@@ -22,6 +22,7 @@ trainControl(method = "boot",
              sampling = NULL,
              index = NULL,
              indexOut = NULL,
+             indexFinal = NULL,
              timingSamps = 0,
              predictionBounds = rep(FALSE, 2),
              seeds = NA,
@@ -50,9 +51,10 @@ trainControl(method = "boot",
   \item{sampling}{a single character value describing the type of additional sampling that is conducted after resampling (usually to resolve class imbalances). Values are \code{"none"}, \code{"down"}, \code{"up"}, \code{"smote"}, or \code{"rose"}. The latter two values require the \pkg{DMwR} and \pkg{ROSE} packages, respectively. This argument can also be a list to facilitate custom sampling and these details can be found on the \pkg{caret} package website for sampling (link below).}
   \item{index}{a list with elements for each resampling iteration. Each list element is a vector of integers corresponding to the rows used for training at that iteration.}
   \item{indexOut}{a list (the same length as \code{index}) that dictates which data are held-out for each resample (as integers). If \code{NULL}, then the unique set of samples not contained in \code{index} is used.}
+  \item{indexFinal}{an optional vector of integers indicating which samples are used to fit the final model after resampling. If \code{NULL}, then entire data set is used.}
   \item{timingSamps}{the number of training set samples that will be used to measure the time for predicting samples (zero indicates that the prediction time should not be estimated.}
   \item{predictionBounds}{a logical or numeric vector of length 2 (regression only). If logical, the predictions can be constrained to be within the limit of the training set outcomes. For example, a value of \code{c(TRUE, FALSE)} would only constrain the lower end of predictions. If numeric, specific bounds can be used. For example, if \code{c(10, NA)}, values below 10 would be predicted as 10 (with no constraint in the upper side).}
-  \item{seeds}{an optional set of integers that will be used to set the seed at each resampling iteration. This is useful when the models are run in parallel. A value of \code{NA} will stop the seed from being set within the worker processes while a value of \code{NULL} will set the seeds using a random set of integers. Alternatively, a list can be used. The list should have \code{B+1} elements where \code{B} is the number of resamples. The first \code{B} elements of the list should be vectors of integers of length \code{M} where \code{M} is the number of models being evaluated. The last element of the list only needs to be a single integer (for the final model). See the Examples section below and the Details section. }
+  \item{seeds}{an optional set of integers that will be used to set the seed at each resampling iteration. This is useful when the models are run in parallel. A value of \code{NA} will stop the seed from being set within the worker processes while a value of \code{NULL} will set the seeds using a random set of integers. Alternatively, a list can be used. The list should have \code{B+1} elements where \code{B} is the number of resamples, unless \code{method} is \code{"boot632"} in which case \code{B} is the number of resamples plus 1. The first \code{B} elements of the list should be vectors of integers of length \code{M} where \code{M} is the number of models being evaluated. The last element of the list only needs to be a single integer (for the final model). See the Examples section below and the Details section. }
   \item{adaptive}{a list used when \code{method} is \code{"adaptive_cv"}, \code{"adaptive_boot"} or \code{"adaptive_LGOCV"}. See Details below. }
   \item{trim}{a logical. If \code{TRUE} the final model in \code{object\$finalModel} may have some components of the object removed so reduce the size of the saved object. The \code{predict} method will still work, but some other features of the model may not work. \code{trim}ing will occur only for models where this feature has been implemented. }
   \item{allowParallel}{if a parallel backend is loaded and available, should the function use it?}
@@ -76,12 +78,16 @@ Using adaptive resampling when \code{method} is either \code{"adaptive_cv"}, \co
   \item \code{complete}: if a single parameter value is found before the end of resampling, should the full set of resamples be computed for that parameter. )
 }
 
-The option \code{search = "grid"} uses the default grid search routine. When \code{search = "random"}, a random search procedure is used (Bergstra and Bengio, 2012). See \url{http://topepo.github.io/caret/random.html} for details and an example. 
+The option \code{search = "grid"} uses the default grid search routine. When \code{search = "random"}, a random search procedure is used (Bergstra and Bengio, 2012). See \url{http://topepo.github.io/caret/random.html} for details and an example.
+
+The \code{"boot632"} method uses the 0.632 estimator presented in Efron (1983), not to be confused with the 0.632+ estimator proposed later by the same author.
 }
 
 \author{Max Kuhn}
 
 \references{
+Efron (1983). ``Estimating the error rate of a prediction rule: improvement on cross-validation''. Journal of the American Statistical Association, 78(382):316-331
+
 Bergstra and Bengio (2012), ``Random Search for Hyper-Parameter Optimization'', Journal of Machine Learning Research, 13(Feb):281-305
 
 Kuhn (2014), ``Futility Analysis in the Cross-Validation of Machine Learning Models'' \url{http://arxiv.org/abs/1405.6974},

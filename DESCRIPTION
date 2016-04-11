@@ -1,6 +1,6 @@
 Package: caret
-Version: 6.0-64
-Date: 2016-01-04
+Version: 6.0-68
+Date: 2016-04-10
 Title: Classification and Regression Training
 Author: Max Kuhn. Contributions from Jed Wing, Steve Weston, Andre
     Williams, Chris Keefer, Allan Engelhardt, Tony Cooper, Zachary Mayer,
@@ -20,6 +20,6 @@ Suggests: BradleyTerry2, e1071, earth (>= 2.2-3), fastICA, gam, ipred,
         spls, subselect, pamr, superpc, Cubist, testthat (>= 0.9.1)
 License: GPL (>= 2)
 NeedsCompilation: yes
-Packaged: 2016-01-05 15:47:04 UTC; kuhna03
+Packaged: 2016-04-10 14:37:08 UTC; kuhna03
 Repository: CRAN
-Date/Publication: 2016-01-06 10:08:57
+Date/Publication: 2016-04-11 09:06:33
