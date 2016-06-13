@@ -85,6 +85,7 @@ train.default <- function(x, y,
     ## important with multiclass systems where one or more classes have low sample sizes
     ## relative to the others
     classLevels <- levels(y)
+    attributes(classLevels) <- list(ordered = is.ordered(y)) 
     xtab <- table(y)
     if(any(xtab == 0)) {
       xtab_msg <- paste("'", names(xtab)[xtab == 0], "'", collapse = ", ", sep = "")
@@ -635,13 +636,13 @@ train.default <- function(x, y,
                         perfNames = perfNames,
                         maximize = maximize,
                         yLimits = trControl$yLimits,
-                        times = times), 
+                        times = times,
+                        levels = classLevels), 
                    class = "train")
   trControl$yLimits <- NULL
   
   if(trControl$timingSamps > 0) {
-    pData <- lapply(x, function(x, n) sample(x, n, replace = TRUE), n = trControl$timingSamps)
-    pData <- as.data.frame(pData)
+    pData <- x[sample(1:nrow(x), trControl$timingSamps, replace = TRUE),,drop = FALSE]
     out$times$prediction <- system.time(predict(out, pData))
   } else  out$times$prediction <- rep(NA, 3)
   out
