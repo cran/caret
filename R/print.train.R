@@ -108,7 +108,17 @@ stringFunc <- function (x)  {
         
         finalTune$Selected <- "*"
         
+        ## See https://stat.ethz.ch/pipermail/r-help/2016-July/440230.html
+        if(any(names(tuneAcc) %in% "method")) 
+          names(tuneAcc)[names(tuneAcc) %in% "method"] <- ".method"
+        if(any(names(finalTune) %in% "method")) 
+          names(finalTune)[names(finalTune) %in% "method"] <- ".method"
+        
         tuneAcc <- merge(tuneAcc, finalTune, all.x = TRUE)
+        
+        if(any(names(tuneAcc) %in% ".method")) 
+          names(tuneAcc)[names(tuneAcc) %in% ".method"] <- "method"
+
         tuneAcc$Selected[is.na(tuneAcc$Selected)] <- ""
         
       } else optString <- ""
@@ -280,7 +290,7 @@ pp_list <- function(x) {
       names(pp) <- gsub("pca", "principal component signal extraction", names(pp))
       names(pp) <- gsub("ica", "independent component signal extraction", names(pp))
       names(pp) <- gsub("spatialSign", "spatial sign transformation", names(pp))
-      names(pp) <- gsub("knnImpute", paste(x$k, "nearest neighbor imputation"), names(pp))
+      names(pp) <- gsub("knnImpute", "nearest neighbor imputation", names(pp))
       names(pp) <- gsub("bagImpute", "bagged tree imputation", names(pp))
       names(pp) <- gsub("medianImpute", "median imputation", names(pp))
       names(pp) <- gsub("range", "re-scaling to [0, 1]", names(pp)) 
@@ -297,7 +307,7 @@ pp_list <- function(x) {
     pp <- gsub("pca", "principal component signal extraction", pp)
     pp <- gsub("ica", "independent component signal extraction", pp)
     pp <- gsub("spatialSign", "spatial sign transformation", pp)
-    pp <- gsub("knnImpute", paste(x$k, "nearest neighbor imputation"), pp)
+    pp <- gsub("knnImpute", "nearest neighbor imputation", pp)
     pp <- gsub("bagImpute", "bagged tree imputation", pp)
     pp <- gsub("medianImpute", "median imputation", pp)
     pp <- gsub("range", "re-scaling to [0, 1]", pp)  

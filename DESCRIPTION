@@ -1,6 +1,6 @@
 Package: caret
-Version: 6.0-70
-Date: 2016-06-09
+Version: 6.0-71
+Date: 2016-07-24
 Title: Classification and Regression Training
 Author: Max Kuhn. Contributions from Jed Wing, Steve Weston, Andre
     Williams, Chris Keefer, Allan Engelhardt, Tony Cooper, Zachary Mayer,
@@ -15,11 +15,12 @@ BugReports: https://github.com/topepo/caret/issues
 Imports: car, foreach, methods, plyr, nlme, reshape2, stats, stats4,
         utils, grDevices
 Suggests: BradleyTerry2, e1071, earth (>= 2.2-3), fastICA, gam, ipred,
-        kernlab, klaR, MASS, ellipse, mda, mgcv, mlbench, nnet, party
-        (>= 0.9-99992), pls, pROC (>= 1.8), proxy, randomForest, RANN,
-        spls, subselect, pamr, superpc, Cubist, testthat (>= 0.9.1)
+        kernlab, klaR, MASS, ellipse, mda, mgcv, mlbench, MLmetrics,
+        nnet, party (>= 0.9-99992), pls, pROC (>= 1.8), proxy,
+        randomForest, RANN, spls, subselect, pamr, superpc, Cubist,
+        testthat (>= 0.9.1)
 License: GPL (>= 2)
 NeedsCompilation: yes
-Packaged: 2016-06-13 10:50:50 UTC; kuhna03
+Packaged: 2016-08-03 11:38:39 UTC; kuhna03
 Repository: CRAN
-Date/Publication: 2016-06-13 16:03:41
+Date/Publication: 2016-08-05 11:53:10
