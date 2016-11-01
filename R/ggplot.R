@@ -1,3 +1,6 @@
+#' @rdname plot.train
+#' @importFrom stats as.formula
+#' @export
 ggplot.train <- function(data = NULL, mapping = NULL, metric = data$metric[1], plotType = "scatter", output = "layered",
                nameInStrip = FALSE, highlight = FALSE, ..., environment = NULL) {
   if(!(output %in% c("data", "layered", "ggplot"))) stop("'outout' should be either 'data', 'ggplot' or 'layered'")
@@ -139,7 +142,8 @@ ggplot.train <- function(data = NULL, mapping = NULL, metric = data$metric[1], p
   out
 }
 
-
+#' @rdname plot.rfe
+#' @export
 ggplot.rfe <- function(data = NULL, mapping = NULL, metric = data$metric[1],
                        output = "layered", ..., environment = NULL)
 {
@@ -162,6 +166,7 @@ ggplot.rfe <- function(data = NULL, mapping = NULL, metric = data$metric[1],
   out
 }
 
+#' @importFrom stats complete.cases
 random_search_plot <- function(x, metric = x$metric[1]) {
 
   params <- x$modelInfo$parameters

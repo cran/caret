@@ -9,6 +9,9 @@ getOper <- function(x) if(x)  `%dopar%` else  `%do%`
 getTrainOper <- function(x) if(x)  `%dopar%` else  `%do%`
 
 
+#' @rdname caret-internal
+#' @export
+#' @keywords internal
 progress <- function(x, names, iter, start = TRUE)
 {
   text <- paste(ifelse(start, "+ ", "- "),
@@ -18,6 +21,9 @@ progress <- function(x, names, iter, start = TRUE)
   cat(text, "\n")
 }
 
+#' @rdname caret-internal
+#' @importFrom stats sd
+#' @export
 MeanSD <- function(x, exclude = NULL)
 {
   if(!is.null(exclude)) x <- x[, !(colnames(x) %in% exclude), drop = FALSE]
@@ -26,6 +32,8 @@ MeanSD <- function(x, exclude = NULL)
   out
 }
 
+#' @rdname caret-internal
+#' @export
 expandParameters <- function(fixed, seq)
 {
   if(is.null(seq)) return(fixed)
@@ -41,6 +49,9 @@ expandParameters <- function(fixed, seq)
   out
 }
 
+#' @importFrom utils head
+#' @importFrom stats complete.cases
+#' @import foreach
 nominalTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, testing = FALSE, ...)
 {
   loadNamespace("caret")
@@ -370,7 +381,7 @@ nominalTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, tes
 }
 
 
-
+#' @import foreach
 looTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, testing = FALSE, ...)
 {
   loadNamespace("caret")
@@ -512,6 +523,7 @@ looTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, testing
   list(performance = out, predictions = result)
 }
 
+#' @import foreach
 oobTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, testing = FALSE, ...)
 {
   loadNamespace("caret")
@@ -552,6 +564,7 @@ oobTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, testing
 
 ################################################################################################
 
+#' @import foreach
 nominalSbfWorkflow <- function(x, y, ppOpts, ctrl, lev, ...)
 {
   loadNamespace("caret")
@@ -627,7 +640,7 @@ nominalSbfWorkflow <- function(x, y, ppOpts, ctrl, lev, ...)
   list(performance = performance, everything = result, predictions = if(ctrl$saveDetails) pred else NULL)
 }
 
-
+#' @import foreach
 looSbfWorkflow <- function(x, y, ppOpts, ctrl, lev, ...)
 {
   loadNamespace("caret")
@@ -666,6 +679,7 @@ looSbfWorkflow <- function(x, y, ppOpts, ctrl, lev, ...)
 
 ################################################################################################
 
+#' @import foreach
 nominalRfeWorkflow <- function(x, y, sizes, ppOpts, ctrl, lev, ...)
 {
   loadNamespace("caret")
@@ -755,7 +769,7 @@ nominalRfeWorkflow <- function(x, y, sizes, ppOpts, ctrl, lev, ...)
   list(performance = externPerf, everything = result)
 }
 
-
+#' @import foreach
 looRfeWorkflow <- function(x, y, sizes, ppOpts, ctrl, lev, ...)
 {
   loadNamespace("caret")

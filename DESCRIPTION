@@ -1,26 +1,27 @@
 Package: caret
-Version: 6.0-71
-Date: 2016-07-24
+Version: 6.0-72
+Date: 2016-10-31
 Title: Classification and Regression Training
 Author: Max Kuhn. Contributions from Jed Wing, Steve Weston, Andre
     Williams, Chris Keefer, Allan Engelhardt, Tony Cooper, Zachary Mayer,
     Brenton Kenkel, the R Core Team, Michael Benesty, Reynald Lescarbeau,
-    Andrew Ziem, Luca Scrucca, Yuan Tang, and Can Candan.
+    Andrew Ziem, Luca Scrucca, Yuan Tang, Can Candan, and Tyler Hunt.
 Description: Misc functions for training and plotting classification and
     regression models.
-Maintainer: Max Kuhn <Max.Kuhn@pfizer.com>
+Maintainer: Max Kuhn <mxkuhn@gmail.com>
 Depends: R (>= 2.10), lattice (>= 0.20), ggplot2
 URL: https://github.com/topepo/caret/
 BugReports: https://github.com/topepo/caret/issues
-Imports: car, foreach, methods, plyr, nlme, reshape2, stats, stats4,
-        utils, grDevices
+Imports: car, foreach, methods, plyr, ModelMetrics (>= 1.1.0), nlme,
+        reshape2, stats, stats4, utils, grDevices
 Suggests: BradleyTerry2, e1071, earth (>= 2.2-3), fastICA, gam, ipred,
         kernlab, klaR, MASS, ellipse, mda, mgcv, mlbench, MLmetrics,
-        nnet, party (>= 0.9-99992), pls, pROC (>= 1.8), proxy,
-        randomForest, RANN, spls, subselect, pamr, superpc, Cubist,
-        testthat (>= 0.9.1)
+        nnet, party (>= 0.9-99992), pls, pROC, proxy, randomForest,
+        RANN, spls, subselect, pamr, superpc, Cubist, testthat (>=
+        0.9.1)
 License: GPL (>= 2)
+RoxygenNote: 5.0.1
 NeedsCompilation: yes
-Packaged: 2016-08-03 11:38:39 UTC; kuhna03
+Packaged: 2016-10-31 16:20:00 UTC; kuhna03
 Repository: CRAN
-Date/Publication: 2016-08-05 11:53:10
+Date/Publication: 2016-11-01 10:15:32

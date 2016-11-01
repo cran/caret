@@ -1,3 +1,5 @@
+#' @rdname varImp
+#' @export
 "varImp.train" <-
   function(object, useModel = TRUE, nonpara = TRUE, scale = TRUE, ...)
 {
@@ -56,7 +58,8 @@
   structure(out, class = "varImp.train")
 }
 
-
+#' @rdname varImp
+#' @export
 "varImp.train" <- function(object, useModel = TRUE, nonpara = TRUE, scale = TRUE, ...) {
   code <- object$modelInfo
   if(is.null(code$varImp)) useModel <- FALSE
