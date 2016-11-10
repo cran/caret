@@ -3,6 +3,14 @@
 \newcommand{\cpkg}{\href{https://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 \newcommand{\issue}{\href{https://github.com/topepo/caret/issues/#1}{(issue #1)}}
 
+\section{Changes in version 6.0-73}{
+	\itemize{
+		\item Negative binomial generalized linear models (\code{MASS:::glm.nb}) were added \issue{476}
+		\item \code{mnLogLoss} now returns a named vector (\issue{514}, bug found by Jay Qi)
+		\item A bunch of method/class related bugs induced by the previous version were fixed. 
+	}
+}
+
 \section{Changes in version 6.0-72}{
 	\itemize{
 		\item The inverse hyperbolic sine transformation was added to \code{preProcess} \issue{56}
