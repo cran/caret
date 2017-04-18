@@ -4,7 +4,7 @@
 #' \code{train} and method specific methods
 #' 
 #' For models that do not have corresponding \code{varImp} methods, see
-#' \code{filerVarImp}.
+#' \code{\link{filterVarImp}}.
 #' 
 #' Otherwise:
 #' 
@@ -354,6 +354,24 @@ varImp.nnet <- function(object, ...){
   code <- varImpDependencies("nnet")
   code$varImp(object, ...)
 }
+
+#' @rdname varImp
+#' @export
+varImp.avNNet <- function(object, ...){
+  code <- varImpDependencies("nnet")
+  imps <- lapply(object$model, code$varImp)
+  imps <- do.call("rbind", imps)
+  imps <- aggregate(imps, by = list(vars = rownames(imps)), mean)
+  rownames(imps) <- as.character(imps$vars)
+  imps$vars <- NULL
+  imps
+}
+
+foo <- function(x) {
+  browser()
+  colMeans(x)
+}
+
 
 #' @rdname varImp
 #' @export

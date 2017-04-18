@@ -56,7 +56,7 @@ ga_func_check <- function(x) {
 #'
 #' These functions are used with the \code{functions} argument of the
 #' \code{\link{gafsControl}} function. More information on the details of these
-#' functions are at \url{http://topepo.github.io/caret/GA.html}.
+#' functions are at \url{http://topepo.github.io/caret/feature-selection-using-genetic-algorithms.html}.
 #'
 #' Most of the \code{gafs_*} functions are based on those from the GA package
 #' by Luca Scrucca. These functions here are small re-writes to work outside of
@@ -102,7 +102,7 @@ ga_func_check <- function(x) {
 #'
 #' \url{cran.r-project.org/web/packages/GA/}
 #'
-#' \url{http://topepo.github.io/caret/GA.html}
+#' \url{http://topepo.github.io/caret/feature-selection-using-genetic-algorithms.html}
 #' @examples
 #'
 #' pop <- gafs_initial(vars = 10, popSize = 10)
@@ -830,8 +830,12 @@ gafs <- function (x, ...) UseMethod("gafs")
 #' This is an example of the output produced when \code{gafsControl(verbose =
 #' TRUE)} is used:
 #'
-#' \preformatted{Fold2 1 0.715 (13) Fold2 2 0.715->0.737 (13->17, 30.4\%) *
-#' Fold2 3 0.737->0.732 (17->14, 24.0\%) Fold2 4 0.737->0.769 (17->23, 25.0\%) *}
+#' \preformatted{
+#' Fold2 1 0.715 (13) 
+#' Fold2 2 0.715->0.737 (13->17, 30.4\%) *
+#' Fold2 3 0.737->0.732 (17->14, 24.0\%) 
+#' Fold2 4 0.737->0.769 (17->23, 25.0\%) *
+#' }
 #'
 #' For the second resample (e.g. fold 2), the best subset across all
 #' individuals tested in the first generation contained 13 predictors and was

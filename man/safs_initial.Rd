@@ -2,12 +2,17 @@
 % Please edit documentation in R/safs.R
 \docType{data}
 \name{safs_initial}
-\alias{caretSA}
-\alias{rfSA}
 \alias{safs_initial}
 \alias{safs_perturb}
 \alias{safs_prob}
+\alias{caretSA}
+\alias{rfSA}
 \alias{treebagSA}
+\alias{safs_perturb}
+\alias{safs_prob}
+\alias{caretSA}
+\alias{treebagSA}
+\alias{rfSA}
 \title{Ancillary simulated annealing functions}
 \format{An object of class \code{list} of length 8.}
 \usage{
@@ -29,6 +34,8 @@ rfSA
 \item{prob}{The probability that an individual predictor is included in the
 initial predictor set}
 
+\item{\dots}{not currently used}
+
 \item{x}{the integer index vector for the current subset}
 
 \item{number}{the number of predictor variables to perturb}
@@ -38,8 +45,6 @@ initial predictor set}
 \item{iteration}{the number of iterations overall or the number of
 iterations since restart (if \code{improve} is used in
 \code{\link{safsControl}})}
-
-\item{\dots}{not currently used}
 }
 \value{
 The return value depends on the function. Note that the SA code
@@ -72,7 +77,7 @@ Built-in functions related to simulated annealing
 
 These functions are used with the \code{functions} argument of the
 \code{\link{safsControl}} function. More information on the details of these
-functions are at \url{http://topepo.github.io/caret/SA.html}.
+functions are at \url{http://topepo.github.io/caret/feature-selection-using-simulated-annealing.html}.
 
 The \code{initial} function is used to create the first predictor subset.
 The function \code{safs_initial} randomly selects 20\% of the predictors.
@@ -144,14 +149,13 @@ rf_sa <- safs(x = predictors,
 
 
 }
-\author{
-Max Kuhn
-}
 \references{
-\url{http://topepo.github.io/caret/SA.html}
+\url{http://topepo.github.io/caret/feature-selection-using-simulated-annealing.html}
 }
 \seealso{
 \code{\link{safs}}, \code{\link{safsControl}}
 }
+\author{
+Max Kuhn
+}
 \keyword{datasets}
-

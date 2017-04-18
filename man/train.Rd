@@ -4,6 +4,8 @@
 \alias{train}
 \alias{train.default}
 \alias{train.formula}
+\alias{train.default}
+\alias{train.formula}
 \title{Fit Predictive Models over Different Tuning Parameters}
 \usage{
 train(x, ...)
@@ -11,7 +13,8 @@ train(x, ...)
 \method{train}{default}(x, y, method = "rf", preProcess = NULL, ...,
   weights = NULL, metric = ifelse(is.factor(y), "Accuracy", "RMSE"),
   maximize = ifelse(metric \%in\% c("RMSE", "logLoss"), FALSE, TRUE),
-  trControl = trainControl(), tuneGrid = NULL, tuneLength = 3)
+  trControl = trainControl(), tuneGrid = NULL,
+  tuneLength = ifelse(trControl$method == "none", 1, 3))
 
 \method{train}{formula}(form, data, ..., weights, subset, na.action = na.fail,
   contrasts = NULL)
@@ -19,15 +22,20 @@ train(x, ...)
 \arguments{
 \item{x}{an object where samples are in rows and features are in columns.
 This could be a simple matrix, data frame or other type (e.g. sparse
-matrix). See Details below.}
+matrix) but must have column names. See Details below. Preprocessing using the \code{preProcess}
+argument only supports matrices or data frames.}
+
+\item{\dots}{arguments passed to the classification or regression routine
+(such as \code{\link[randomForest]{randomForest}}). Errors will occur if
+values for tuning parameters are passed here.}
 
 \item{y}{a numeric or factor vector containing the outcome for each sample.}
 
 \item{method}{a string specifying which classification or regression model
 to use. Possible values are found using \code{names(getModelInfo())}. See
-\url{http://topepo.github.io/caret/bytag.html}. A list of functions can also
+\url{http://topepo.github.io/caret/train-models-by-tag.html}. A list of functions can also
 be passed for a custom model function. See
-\url{http://topepo.github.io/caret/custom_models.html} for details.}
+\url{http://topepo.github.io/caret/using-your-own-model-in-train.html} for details.}
 
 \item{preProcess}{a string vector that defines a pre-processing of the
 predictor data. Current possibilities are "BoxCox", "YeoJohnson",
@@ -53,13 +61,13 @@ must be named.)}
 
 \item{trControl}{a list of values that define how this function acts. See
 \code{\link{trainControl}} and
-\url{http://topepo.github.io/caret/training.html#custom}. (NOTE: If given,
+\url{http://topepo.github.io/caret/using-your-own-model-in-train.html}. (NOTE: If given,
 this argument must be named.)}
 
 \item{tuneGrid}{a data frame with possible tuning values. The columns are
 named the same as the tuning parameters. Use \code{\link{getModelInfo}} to
 get a list of tuning parameters for each model or see
-\url{http://topepo.github.io/caret/modelList.html}. (NOTE: If given, this
+\url{http://topepo.github.io/caret/available-models.html}. (NOTE: If given, this
 argument must be named.)}
 
 \item{tuneLength}{an integer denoting the amount of granularity in the
@@ -84,10 +92,6 @@ required variable. (NOTE: If given, this argument must be named.)}
 
 \item{contrasts}{a list of contrasts to be used for some or all the factors
 appearing as variables in the model formula.}
-
-\item{\dots}{arguments passed to the classification or regression routine
-(such as \code{\link[randomForest]{randomForest}}). Errors will occur if
-values for tuning parameters are passed here.}
 }
 \value{
 A list is returned of class \code{train} containing: \item{method
@@ -96,7 +100,7 @@ A list is returned of class \code{train} containing: \item{method
 tuning parameters.} \item{bestTune }{a data frame with the final
 parameters.}
 
-\item{call }{the (matched) function call with dots expanded} \item{dots}{a
+\item{call}{the (matched) function call with dots expanded} \item{dots}{a
 list containing any ... values passed to the original call} \item{metric}{a
 string that specifies what summary metric will be used to select the optimal
 model.} \item{control}{the list of control parameters.} \item{preProcess
@@ -137,11 +141,11 @@ may not work (e.g. pre-processing). When using string kernels, the vector of
 character strings should be converted to a matrix with a single column.
 
 More details on this function can be found at
-\url{http://topepo.github.io/caret/training.html}.
+\url{http://topepo.github.io/caret/model-training-and-tuning.html}.
 
 A variety of models are currently available and are enumerated by tag (i.e.
 their model characteristics) at
-\url{http://topepo.github.io/caret/bytag.html}.
+\url{http://topepo.github.io/caret/train-models-by-tag.html}.
 }
 \examples{
 
@@ -163,14 +167,14 @@ knnFit1 <- train(TrainData, TrainClasses,
 knnFit2 <- train(TrainData, TrainClasses,
                  method = "knn",
                  preProcess = c("center", "scale"),
-                 tuneLength = 10, 
+                 tuneLength = 10,
                  trControl = trainControl(method = "boot"))
 
 
 library(MASS)
 nnetFit <- train(TrainData, TrainClasses,
                  method = "nnet",
-                 preProcess = "range", 
+                 preProcess = "range",
                  tuneLength = 2,
                  trace = FALSE,
                  maxit = 100)
@@ -182,7 +186,7 @@ library(mlbench)
 data(BostonHousing)
 
 lmFit <- train(medv ~ . + rm:lstat,
-               data = BostonHousing, 
+               data = BostonHousing,
                method = "lm")
 
 library(rpart)
@@ -197,8 +201,8 @@ rpartFit <- train(medv ~ .,
 madSummary <- function (data,
                         lev = NULL,
                         model = NULL) {
-  out <- mad(data$obs - data$pred, 
-             na.rm = TRUE)  
+  out <- mad(data$obs - data$pred,
+             na.rm = TRUE)
   names(out) <- "MAD"
   out
 }
@@ -207,7 +211,7 @@ robustControl <- trainControl(summaryFunction = madSummary)
 marsGrid <- expand.grid(degree = 1, nprune = (1:10) * 2)
 
 earthFit <- train(medv ~ .,
-                  data = BostonHousing, 
+                  data = BostonHousing,
                   method = "earth",
                   tuneGrid = marsGrid,
                   metric = "MAD",
@@ -226,24 +230,20 @@ earthFit <- train(medv ~ .,
 ## The code for train() does not change:
 set.seed(1)
 usingMC <-  train(medv ~ .,
-                  data = BostonHousing, 
+                  data = BostonHousing,
                   method = "glmboost")
 
 ## or use:
-## library(doMPI) or 
-## library(doParallel) or 
+## library(doMPI) or
+## library(doParallel) or
 ## library(doSMP) and so on
 
 }
 
 
 }
-\author{
-Max Kuhn (the guts of \code{train.formula} were based on Ripley's
-\code{nnet.formula})
-}
 \references{
-\url{http://topepo.github.io/caret/training.html}
+\url{http://topepo.github.io/caret/}
 
 Kuhn (2008), ``Building Predictive Models in R Using the caret''
 (\url{http://www.jstatsoft.org/article/view/v028i05/v28i05.pdf})
@@ -253,5 +253,8 @@ Kuhn (2008), ``Building Predictive Models in R Using the caret''
 \code{\link{update.train}}, \code{\link{modelLookup}},
 \code{\link{createFolds}}
 }
+\author{
+Max Kuhn (the guts of \code{train.formula} were based on Ripley's
+\code{nnet.formula})
+}
 \keyword{models}
-

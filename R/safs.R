@@ -177,8 +177,8 @@ predict.safs <- function (object, newdata, ...) {
 #' Many of these options are the same as those described for
 #' \code{\link[caret]{trainControl}}. More extensive documentation and examples
 #' can be found on the \pkg{caret} website at
-#' \url{http://topepo.github.io/caret/GA.html#syntax} and
-#' \url{http://topepo.github.io/caret/SA.html#syntax}.
+#' \url{http://topepo.github.io/caret/feature-selection-using-genetic-algorithms.html#syntax} and
+#' \url{http://topepo.github.io/caret/feature-selection-using-simulated-annealing.html#syntax}.
 #'
 #' The \code{functions} component contains the information about how the model
 #' should be fit and summarized. It also contains the elements needed for the
@@ -227,8 +227,8 @@ predict.safs <- function (object, newdata, ...) {
 #' \code{new}, and \code{iteration}, computes the acceptance probabilities
 #' }
 #'
-#' The pages \url{http://topepo.github.io/caret/GA.html} and
-#' \url{http://topepo.github.io/caret/SA.html} have more details about each of
+#' The pages \url{http://topepo.github.io/caret/feature-selection-using-genetic-algorithms.html} and
+#' \url{http://topepo.github.io/caret/feature-selection-using-simulated-annealing.html} have more details about each of
 #' these functions.
 #'
 #' \code{holdout} can be used to hold out samples for computing the internal
@@ -301,8 +301,8 @@ predict.safs <- function (object, newdata, ...) {
 #' @seealso \code{\link{safs}}, \code{\link{safs}}, , \code{\link{caretGA}},
 #' \code{\link{rfGA}}, \code{\link{treebagGA}}, \code{\link{caretSA}},
 #' \code{\link{rfSA}}, \code{\link{treebagSA}}
-#' @references \url{http://topepo.github.io/caret/GA.html},
-#' \url{http://topepo.github.io/caret/SA.html}
+#' @references \url{http://topepo.github.io/caret/feature-selection-using-genetic-algorithms.html},
+#' \url{http://topepo.github.io/caret/feature-selection-using-simulated-annealing.html}
 #' @keywords utilities
 #' @export safsControl
 safsControl <- function(functions = NULL,
@@ -399,10 +399,15 @@ safsControl <- function(functions = NULL,
 #' This is an example of the output produced when \code{safsControl(verbose =
 #' TRUE)} is used:
 #'
-#' \preformatted{Fold03 1 0.401 (11) Fold03 2 0.401->0.410 (11+1, 91.7\%) *
-#' Fold03 3 0.410->0.396 (12+1, 92.3\%) 0.969 A Fold03 4 0.410->0.370 (12+2,
-#' 85.7\%) 0.881 Fold03 5 0.410->0.399 (12+2, 85.7\%) 0.954 A Fold03 6
-#' 0.410->0.399 (12+1, 78.6\%) 0.940 A Fold03 7 0.410->0.428 (12+2, 73.3\%) * }
+#' \preformatted{
+#' Fold03 1 0.401 (11) 
+#' Fold03 2 0.401->0.410 (11+1, 91.7\%) *
+#' Fold03 3 0.410->0.396 (12+1, 92.3\%) 0.969 A 
+#' Fold03 4 0.410->0.370 (12+2, 85.7\%) 0.881 
+#' Fold03 5 0.410->0.399 (12+2, 85.7\%) 0.954 A 
+#' Fold03 6 0.410->0.399 (12+1, 78.6\%) 0.940 A 
+#' Fold03 7 0.410->0.428 (12+2, 73.3\%) * 
+#' }
 #'
 #' The text "Fold03" indicates that this search is for the third
 #' cross-validation fold. The initial subset of 11 predictors had a fitness
@@ -447,9 +452,9 @@ safsControl <- function(functions = NULL,
 #' @return an object of class \code{safs}
 #' @author Max Kuhn
 #' @seealso \code{\link{safsControl}}, \code{\link{predict.safs}}
-#' @references \url{http://topepo.github.io/caret/GA.html}
+#' @references \url{http://topepo.github.io/caret/feature-selection-using-genetic-algorithms.html}
 #'
-#' \url{http://topepo.github.io/caret/SA.html}
+#' \url{http://topepo.github.io/caret/feature-selection-using-simulated-annealing.html}
 #'
 #' Kuhn and Johnson (2013), Applied Predictive Modeling, Springer
 #'
@@ -677,7 +682,7 @@ safs <- function (x, ...) UseMethod("safs")
 #'
 #' These functions are used with the \code{functions} argument of the
 #' \code{\link{safsControl}} function. More information on the details of these
-#' functions are at \url{http://topepo.github.io/caret/SA.html}.
+#' functions are at \url{http://topepo.github.io/caret/feature-selection-using-simulated-annealing.html}.
 #'
 #' The \code{initial} function is used to create the first predictor subset.
 #' The function \code{safs_initial} randomly selects 20\% of the predictors.
@@ -732,7 +737,7 @@ safs <- function (x, ...) UseMethod("safs")
 #' regression).
 #' @author Max Kuhn
 #' @seealso \code{\link{safs}}, \code{\link{safsControl}}
-#' @references \url{http://topepo.github.io/caret/SA.html}
+#' @references \url{http://topepo.github.io/caret/feature-selection-using-simulated-annealing.html}
 #' @examples
 #'
 #' selected_vars <- safs_initial(vars = 10 , prob = 0.2)

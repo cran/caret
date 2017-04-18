@@ -3,6 +3,7 @@
 \name{gafsControl}
 \alias{gafsControl}
 \alias{safsControl}
+\alias{gafsControl}
 \title{Control parameters for GA and SA feature selection}
 \usage{
 gafsControl(functions = NULL, method = "repeatedcv", metric = NULL,
@@ -82,8 +83,8 @@ Control the computational nuances of the \code{\link{gafs}} and
 Many of these options are the same as those described for
 \code{\link[caret]{trainControl}}. More extensive documentation and examples
 can be found on the \pkg{caret} website at
-\url{http://topepo.github.io/caret/GA.html#syntax} and
-\url{http://topepo.github.io/caret/SA.html#syntax}.
+\url{http://topepo.github.io/caret/feature-selection-using-genetic-algorithms.html#syntax} and
+\url{http://topepo.github.io/caret/feature-selection-using-simulated-annealing.html#syntax}.
 
 The \code{functions} component contains the information about how the model
 should be fit and summarized. It also contains the elements needed for the
@@ -132,8 +133,8 @@ changes to the subsets.
 \code{new}, and \code{iteration}, computes the acceptance probabilities
 }
 
-The pages \url{http://topepo.github.io/caret/GA.html} and
-\url{http://topepo.github.io/caret/SA.html} have more details about each of
+The pages \url{http://topepo.github.io/caret/feature-selection-using-genetic-algorithms.html} and
+\url{http://topepo.github.io/caret/feature-selection-using-simulated-annealing.html} have more details about each of
 these functions.
 
 \code{holdout} can be used to hold out samples for computing the internal
@@ -162,17 +163,16 @@ least likely to incur multiple re-starting of the worker processes. Keep in
 mind that if multiple levels of parallelization occur, this can effect the
 number of workers and the amount of memory required exponentially.
 }
-\author{
-Max Kuhn
-}
 \references{
-\url{http://topepo.github.io/caret/GA.html},
-\url{http://topepo.github.io/caret/SA.html}
+\url{http://topepo.github.io/caret/feature-selection-using-genetic-algorithms.html},
+\url{http://topepo.github.io/caret/feature-selection-using-simulated-annealing.html}
 }
 \seealso{
 \code{\link{safs}}, \code{\link{safs}}, , \code{\link{caretGA}},
 \code{\link{rfGA}}, \code{\link{treebagGA}}, \code{\link{caretSA}},
 \code{\link{rfSA}}, \code{\link{treebagSA}}
 }
+\author{
+Max Kuhn
+}
 \keyword{utilities}
-

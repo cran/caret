@@ -31,19 +31,32 @@
 #' 
 #' The option \code{search = "grid"} uses the default grid search routine. When
 #' \code{search = "random"}, a random search procedure is used (Bergstra and
-#' Bengio, 2012). See \url{http://topepo.github.io/caret/random.html} for
+#' Bengio, 2012). See \url{http://topepo.github.io/caret/random-hyperparameter-search.html} for
 #' details and an example.
 #' 
-#' The \code{"boot632"} method uses the 0.632 estimator presented in Efron
-#' (1983), not to be confused with the 0.632+ estimator proposed later by the
-#' same author.
+#' The supported bootstrap methods are:
+#' 
+#' \itemize{
+#'   \item \code{"boot"}: the usual bootstrap.
+#'   \item \code{"boot632"}: the 0.632 bootstrap estimator (Efron, 1983).
+#'   \item \code{"optimism_boot"}: the optimism bootstrap estimator.
+#'     (Efron and Tibshirani, 1994).
+#'   \item \code{"boot_all"}: all of the above (for efficiency, 
+#'     but "boot" will be used for calculations).
+#' }
+#' 
+#' The \code{"boot632"} method should not to be confused with the 0.632+ 
+#' estimator proposed later by the same author.
+#' 
+#' Note that if \code{index} or \code{indexOut} are specified, the label shown by \code{train} may not be accurate since these arguments supersede the \code{method} argument.
 #' 
 #' @param method The resampling method: \code{"boot"}, \code{"boot632"},
+#' \code{"optimism_boot"}, \code{"boot_all"},
 #' \code{"cv"}, \code{"repeatedcv"}, \code{"LOOCV"}, \code{"LGOCV"} (for
 #' repeated training/test splits), \code{"none"} (only fits one model to the
 #' entire training set), \code{"oob"} (only for random forest, bagged trees,
 #' bagged earth, bagged flexible discriminant analysis, or conditional tree
-#' forest models), \code{"adaptive_cv"}, \code{"adaptive_boot"} or
+#' forest models), \code{timeslice}, \code{"adaptive_cv"}, \code{"adaptive_boot"} or
 #' \code{"adaptive_LGOCV"}
 #' @param number Either the number of folds or number of resampling iterations
 #' @param repeats For repeated k-fold cross-validation only: the number of
@@ -62,12 +75,13 @@
 #' @param search Either \code{"grid"} or \code{"random"}, describing how the
 #' tuning parameter grid is determined. See details below.
 #' @param initialWindow,horizon,fixedWindow,skip possible arguments to
-#' \code{\link{createTimeSlices}}
+#' \code{\link{createTimeSlices}} when method is \code{timeslice}.
 #' @param classProbs a logical; should class probabilities be computed for
 #' classification models (along with predicted values) in each resample?
 #' @param summaryFunction a function to compute performance metrics across
 #' resamples. The arguments to the function should be the same as those in
-#' \code{\link{defaultSummary}}.
+#' \code{\link{defaultSummary}}. Note that it \code{method = "oob"} is used, 
+#' this option is ignored and a warning is issued. 
 #' @param selectionFunction the function used to select the optimal tuning
 #' parameter. This can be a name of the function or the function itself. See
 #' \code{\link{best}} for details and other options.
@@ -126,6 +140,9 @@
 #' improvement on cross-validation''. Journal of the American Statistical
 #' Association, 78(382):316-331
 #' 
+#' Efron, B., & Tibshirani, R. J. (1994). ``An introduction to the bootstrap'',
+#' pages 249-252. CRC press.
+#' 
 #' Bergstra and Bengio (2012), ``Random Search for Hyper-Parameter
 #' Optimization'', Journal of Machine Learning Research, 13(Feb):281-305
 #' 
@@ -133,7 +150,7 @@
 #' Models'' \url{http://arxiv.org/abs/1405.6974},
 #' 
 #' Package website for subsampling:
-#' \url{http://topepo.github.io/caret/sampling.html}
+#' \url{https://topepo.github.io/caret/subsampling-for-class-imbalances.html}
 #' @keywords utilities
 #' @examples
 #' 
@@ -210,7 +227,7 @@ trainControl <- function(method = "boot",
   if(length(predictionBounds) > 0 && length(predictionBounds) != 2) stop("'predictionBounds' should be a logical or numeric vector of length 2")
   if(any(names(preProcOptions) == "method")) stop("'method' cannot be specified here")
   if(any(names(preProcOptions) == "x")) stop("'x' cannot be specified here")
-
+  
   if(!(adaptive$method %in% c("gls", "BT"))) stop("incorrect value of adaptive$method")
   if(adaptive$alpha < .0000001 | adaptive$alpha > 1) stop("incorrect value of adaptive$alpha")
   if(grepl("adapt", method)) {
@@ -220,6 +237,11 @@ trainControl <- function(method = "boot",
   }
   if(!(search %in% c("grid", "random")))
     stop("`search` should be either 'grid' or 'random'")
+  if(method == "oob" & any(names(match.call()) == "summaryFunction")) {
+    warning("Custom summary measures cannot be computed for out-of-baf resampling. ",
+            "This value of `summaryFunction` will be ignored.", 
+            call. = FALSE)
+  }
   
   list(method = method,
        number = number,
@@ -249,6 +271,3 @@ trainControl <- function(method = "boot",
        trim = trim,
        allowParallel = allowParallel)
 }
-
-
-

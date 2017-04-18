@@ -50,7 +50,7 @@ sbfIter <- function(x, y,
 #' Model fitting after applying univariate filters
 #'
 #' More details on this function can be found at
-#' \url{http://topepo.github.io/caret/featureselection.html#filter}.
+#' \url{http://topepo.github.io/caret/feature-selection-using-univariate-filters.html}.
 #'
 #' This function can be used to get resampling estimates for models when
 #' simple, filter-based feature selection is applied to the training data.
@@ -405,8 +405,6 @@ print.sbf <- function(x, top = 5, digits = max(3, getOption("digits") - 3), ...)
 #' @export
 predict.sbf <- function(object, newdata = NULL, ...)
 {
-  if(!all(object$optVariables %in% colnames(newdata)))
-    stop("required columns in newdata are missing")
   if(!is.null(newdata))
   {
     if (inherits(object, "sbf.formula"))
@@ -422,6 +420,8 @@ predict.sbf <- function(object, newdata = NULL, ...)
       xint <- match("(Intercept)", colnames(newdata), nomatch = 0)
       if (xint > 0) newdata <- newdata[, -xint, drop = FALSE]
     }
+    if(!all(object$optVariables %in% colnames(newdata)))
+      stop("required columns in newdata are missing", call. = FALSE)
     newdata <- newdata[, object$optVariables, drop = FALSE]
     out <- object$control$functions$pred(object$fit, newdata)
   } else {
@@ -438,7 +438,7 @@ predict.sbf <- function(object, newdata = NULL, ...)
 #' Controls the execution of models with simple filters for feature selection
 #'
 #' More details on this function can be found at
-#' \url{http://topepo.github.io/caret/featureselection.html#filter}.
+#' \url{http://topepo.github.io/caret/feature-selection-using-univariate-filters.html}.
 #'
 #' Simple filter-based feature selection requires function to be specified for
 #' some operations.
@@ -593,7 +593,7 @@ sbfControl <- function(functions = NULL,
 #' Ancillary functions for univariate feature selection
 #'
 #' More details on these functions can be found at
-#' \url{http://topepo.github.io/caret/featureselection.html#filter}.
+#' \url{http://topepo.github.io/caret/feature-selection-using-univariate-filters.html}.
 #'
 #' This page documents the functions that are used in selection by filtering
 #' (SBF). The functions described here are passed to the algorithm via the

@@ -150,7 +150,7 @@ invHyperbolicSineFunc <- function(x) log(x+sqrt(x^2+1))
 #' @seealso \code{\link{BoxCoxTrans}}, \code{\link{expoTrans}}
 #' \code{\link[MASS]{boxcox}}, \code{\link[stats]{prcomp}},
 #' \code{\link[fastICA]{fastICA}}, \code{\link{spatialSign}}
-#' @references \url{http://topepo.github.io/caret/preprocess.html}
+#' @references \url{http://topepo.github.io/caret/pre-processing.html}
 #' 
 #' Kuhn and Johnson (2013), Applied Predictive Modeling, Springer, New York
 #' (chapter 4)
@@ -203,11 +203,13 @@ preProcess.default <- function(x, method = c("center", "scale"),
                                uniqueCut = 10,
                                cutoff = 0.9,
                                ...) {
+  if(!inherits(x, "matrix") & !inherits(x, "data.frame"))
+    stop("Matrices or data frames are required for preprocessing", call. = FALSE)
   column_types <- get_types(x)
   tmp <- pre_process_options(method, column_types)
   method <- tmp$opts
   wildcards <- tmp$wildcards
-
+  
   ## the row.norm option in fastICA states: "logical value indicating whether rows
   ## of the data matrix X should be standardized beforehand." Basically, this means that
   ## we would center *and* scale before the ICA step, so let's adjust the "scale" method too
@@ -256,7 +258,7 @@ preProcess.default <- function(x, method = c("center", "scale"),
     }
     method$conditionalX <- NULL
   }    
-
+  
   ## check for highly correlated predictors
   if(any(names(method) == "corr")){
     cmat <- try(cor(x[, !(colnames(x) %in% method$ignore), drop = FALSE], 
@@ -268,11 +270,19 @@ preProcess.default <- function(x, method = c("center", "scale"),
         removed <- colnames(cmat)[high_corr]
         method$remove <- unique(c(method$remove, removed))
         if(verbose) cat(paste(" ", length(removed), "highly correlated predictors were removed.\n"))
-        x <- x[, !(colnames(x) %in% removed)]
       } else warning(paste("correlation matrix could not be computed:\n", cmat))
     }
     method$corr <- NULL
   }
+  
+  x <- x[, !(colnames(x) %in% method$remove), drop = FALSE] 
+  method = sapply(names(method), function(u) 
+    if(u != 'remove'){
+      method[[u]][ which(( method[[u]] %in% colnames(x)))]
+    } else { 
+      method[[u]]
+    }
+  )
   
   if(any(names(method) == "invHyperbolicSine")) {
     if(verbose) cat(" applying invHyperbolicSine\n")
@@ -324,7 +334,7 @@ preProcess.default <- function(x, method = c("center", "scale"),
                    expoTrans.default, numUnique = numUnique)
     } else {
       et <- apply(x[, method$expoTrans, drop = FALSE], 2,
-                   expoTrans.default, numUnique = numUnique)
+                  expoTrans.default, numUnique = numUnique)
     }
     if(verbose) cat(" applying them to training data\n")
     omit_expo <- NULL
