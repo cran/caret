@@ -1,9 +1,9 @@
 
-### In this file, there are a lot of functions form caret that are
-### references using the explicit namespace operator (:::). For some
-### reason, with some parallel processing technologies and foreach,
+### In this file, there are a lot of functions from packages that are
+### referenced using `getFromNamespace`. For some
+### reason, with _some_ parallel processing technologies and foreach,
 ### functions inside of caret cannot be found despite using the
-### ".packages" argument and calling the caret package via library().
+### ".packages" argument or even calling the caret package via library().
 
 getOper <- function(x) if(x)  `%dopar%` else  `%do%`
 getTrainOper <- function(x) if(x)  `%dopar%` else  `%do%`
@@ -37,7 +37,7 @@ MeanSD <- function(x, exclude = NULL)
 expandParameters <- function(fixed, seq)
 {
   if(is.null(seq)) return(fixed)
-  
+
   isSeq <- names(fixed) %in% names(seq)
   out <- fixed
   for(i in 1:nrow(seq))
@@ -57,13 +57,13 @@ nominalTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, tes
   loadNamespace("caret")
   ppp <- list(options = ppOpts)
   ppp <- c(ppp, ctrl$preProcOptions)
-  
+
   printed <- format(info$loop, digits = 4)
   colnames(printed) <- gsub("^\\.", "", colnames(printed))
-  
+
   ## For 632 estimator, add an element to the index of zeros to trick it into
   ## fitting and predicting the full data set.
-  
+
   resampleIndex <- ctrl$index
   if(ctrl$method %in% c("boot632", "optimism_boot", "boot_all"))
   {
@@ -75,34 +75,35 @@ nominalTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, tes
   keep_pred <- isTRUE(ctrl$savePredictions) || ctrl$savePredictions %in% c("all", "final")
   pkgs <- c("methods", "caret")
   if(!is.null(method$library)) pkgs <- c(pkgs, method$library)
+  export <- c("optimismBoot")
   
-  result <- foreach(iter = seq(along = resampleIndex), .combine = "c", .verbose = FALSE, .packages = pkgs, .errorhandling = "stop") %:%
-    foreach(parm = 1:nrow(info$loop), .combine = "c", .verbose = FALSE, .packages = pkgs, .errorhandling = "stop")  %op%
+  result <- foreach(iter = seq(along = resampleIndex), .combine = "c", .verbose = FALSE, .export = export) %:%
+    foreach(parm = 1L:nrow(info$loop), .combine = "c", .verbose = FALSE, .packages = pkgs, .export = export)  %op%
     {
-      testing <- FALSE
       if(!(length(ctrl$seeds) == 1 && is.na(ctrl$seeds))) set.seed(ctrl$seeds[[iter]][parm])
-      
+
       loadNamespace("caret")
+      lapply(pkgs, requireNamespaceQuietStop)
       if(ctrl$verboseIter) progress(printed[parm,,drop = FALSE],
                                     names(resampleIndex), iter)
-      
-      if(names(resampleIndex)[iter] != "AllData")
-      {
+
+      if(names(resampleIndex)[iter] != "AllData") {
+
         modelIndex <- resampleIndex[[iter]]
         holdoutIndex <- ctrl$indexOut[[iter]]
       } else {
         modelIndex <- 1:nrow(x)
         holdoutIndex <- modelIndex
       }
-      
-      extraIndex <- if(is.null(ctrl$indexExtra)) NULL else ctrl$indexExtra[[iter]]
+
+      is_regression <- is.null(lev) 
       
       if(testing) cat("pre-model\n")
-
+      
       if(!is.null(info$submodels[[parm]]) && nrow(info$submodels[[parm]]) > 0) {
         submod <- info$submodels[[parm]]
       } else submod <- NULL
-      
+
       mod <- try(
         createModel(x = subset_x(x, modelIndex),
                     y = y[modelIndex],
@@ -115,168 +116,67 @@ nominalTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, tes
                     sampling = ctrl$sampling,
                     ...),
         silent = TRUE)
-      
+
       if(testing) print(mod) 
       
-      predictedExtra <- NULL
-      if(class(mod)[1] != "try-error")
-      {
-        predicted <- try(
+      if(!model_failed(mod)) {
+          predicted <- try(
           predictionFunction(method = method,
                              modelFit = mod$fit,
                              newdata = subset_x(x, holdoutIndex),
                              preProc = mod$preProc,
                              param = submod),
           silent = TRUE)
-        
-        if(class(predicted)[1] == "try-error")
-        {
-          wrn <- paste(colnames(printed[parm,,drop = FALSE]),
-                       printed[parm,,drop = FALSE],
-                       sep = "=",
-                       collapse = ", ")
-          wrn <- paste("predictions failed for ", names(resampleIndex)[iter],
-                       ": ", wrn, " ", as.character(predicted), sep = "")
-          if(ctrl$verboseIter) cat(wrn, "\n")
-          warning(wrn)
-          rm(wrn)
+
+        if(pred_failed(predicted)) {
+          fail_warning(settings = printed[parm,,drop = FALSE], 
+                       msg  = predicted, 
+                       where = "predictions", 
+                       iter = names(resampleIndex)[iter], 
+                       verb = ctrl$verboseIter)
           
-          ## setup a dummy results with NA values for all predictions
-          nPred <- length(holdoutIndex)
-          if(!is.null(lev))
-          {
-            predicted <- rep("", nPred)
-            predicted[seq(along = predicted)] <- NA
-          } else {
-            predicted <- rep(NA, nPred)
-          }
-          if(!is.null(submod))
-          {
-            tmp <- predicted
-            predicted <- vector(mode = "list", length = nrow(info$submodels[[parm]]) + 1)
-            for(i in seq(along = predicted)) predicted[[i]] <- tmp
-            rm(tmp)
-          }
-        } else if(!is.null(extraIndex)) {
-          predictedExtra <- lapply(extraIndex, function(idx) {
-            predictionFunction(method = method,
-                               modelFit = mod$fit,
-                               newdata = subset_x(x, idx),
-                               preProc = mod$preProc,
-                               param = submod)
-          })
+          predicted <- fill_failed_pred(index = holdoutIndex, lev = lev, submod)
+          
         }
       } else {
-        wrn <- paste(colnames(printed[parm,,drop = FALSE]),
-                     printed[parm,,drop = FALSE],
-                     sep = "=",
-                     collapse = ", ")
-        wrn <- paste("model fit failed for ", names(resampleIndex)[iter],
-                     ": ", wrn, " ", as.character(mod), sep = "")
-        if(ctrl$verboseIter) cat(wrn, "\n")
-        warning(wrn)
-        rm(wrn)
-        
-        ## setup a dummy results with NA values for all predictions
-        nPred <- length(holdoutIndex)
-        if(!is.null(lev))
-        {
-          predicted <- rep("", nPred)
-          predicted[seq(along = predicted)] <- NA
-        } else {
-          predicted <- rep(NA, nPred)
-        }
-        if(!is.null(submod))
-        {
-          tmp <- predicted
-          predicted <- vector(mode = "list", length = nrow(info$submodels[[parm]]) + 1)
-          for(i in seq(along = predicted)) predicted[[i]] <- tmp
-          rm(tmp)
-        }
+        fail_warning(settings = printed[parm,,drop = FALSE], 
+                     msg  = mod, 
+                     iter = names(resampleIndex)[iter], 
+                     verb = ctrl$verboseIter)
+        predicted <- fill_failed_pred(index = holdoutIndex, lev = lev, submod)
       }
-      
+
       if(testing) print(head(predicted))
-      probValuesExtra <- NULL
-      if(ctrl$classProbs)
-      {
-        if(class(mod)[1] != "try-error")
-        {
+
+      if(ctrl$classProbs) {
+        if(!model_failed(mod)) {
           probValues <- probFunction(method = method,
                                      modelFit = mod$fit,
                                      newdata = subset_x(x, holdoutIndex),
                                      preProc = mod$preProc,
                                      param = submod)
-          
-          if (!is.null(extraIndex))
-            probValuesExtra <- lapply(extraIndex, function(index) {
-              probFunction(method = method,
-                           modelFit = mod$fit,
-                           newdata = subset_x(x, index),
-                           preProc = mod$preProc,
-                           param = submod)
-            })
-        } else {
-          probValues <- as.data.frame(matrix(NA, nrow = nPred, ncol = length(lev)))
-          colnames(probValues) <- lev
-          if(!is.null(submod))
-          {
-            probValues <- rep(list(probValues), nrow(info$submodels[[parm]]) + 1L)
-          }
+       } else {
+          probValues <- fill_failed_prob(holdoutIndex, lev, submod)
         }
         if(testing) print(head(probValues))
       }
-      
-      if(is.null(probValuesExtra)) {
-        probValuesExtra <- as.data.frame(matrix(NA, nrow = nrow(x), ncol = length(lev)))
-        colnames(probValuesExtra) <- lev
-        if(!is.null(submod)) {
-          probValuesExtra <- rep(list(probValuesExtra), nrow(info$submodels[[parm]]) + 1L)
-        }
-        probValuesExtra <- rep(list(probValuesExtra), 2L)
-      }
-      
+
       ##################################
       
-      if(is.numeric(y)) {
-        if(is.logical(ctrl$predictionBounds) && any(ctrl$predictionBounds)) {
-          if(is.list(predicted)) {
-            predicted <- lapply(predicted, trimPredictions,
-                                mod_type = "Regression",
-                                bounds = ctrl$predictionBounds,
-                                limits = ctrl$yLimits)
-          } else {
-            predicted <- trimPredictions(mod_type = "Regression",
-                                         bounds =  ctrl$predictionBounds,
-                                         limits =  ctrl$yLimit,
-                                         pred = predicted)
-          }
-        } else {
-          if(is.numeric(ctrl$predictionBounds) && any(!is.na(ctrl$predictionBounds))) {
-            if(is.list(predicted)) {
-              predicted <- lapply(predicted, trimPredictions,
-                                  mod_type = "Regression",
-                                  bounds = ctrl$predictionBounds,
-                                  limits = ctrl$yLimits)
-            } else {
-              predicted <- trimPredictions(mod_type = "Regression",
-                                           bounds =  ctrl$predictionBounds,
-                                           limits =  ctrl$yLimit,
-                                           pred = predicted)
-            }
-          }
-        } 
-      }
+      predicted <- trim_values(predicted, ctrl, is_regression) 
       
+      ##################################
+
       if(!is.null(submod))
       {
         ## merge the fixed and seq parameter values together
         allParam <- expandParameters(info$loop[parm,,drop = FALSE], info$submodels[[parm]])
         allParam <- allParam[complete.cases(allParam),, drop = FALSE]
-        
+
         ## collate the predicitons across all the sub-models
         predicted <- lapply(predicted,
                             function(x, y, wts, lv, rows) {
-                              x <- getFromNamespace("outcome_conversion", "caret")(x, lv = lev)
+                              x <- outcome_conversion(x, lv = lev)
                               out <- data.frame(pred = x, obs = y, stringsAsFactors = FALSE)
                               if(!is.null(wts)) out$weights <- wts
                               out$rowIndex <- rows
@@ -286,39 +186,13 @@ nominalTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, tes
                             wts = wts[holdoutIndex],
                             lv = lev,
                             rows = holdoutIndex)
-        if(!is.null(predictedExtra))
-          predictedExtra <- mapply(predictedExtra, extraIndex, 
-                                   SIMPLIFY = FALSE, USE.NAMES = FALSE,
-                                   FUN = function(pred, rows) {
-                                     lapply(pred, function(x) {
-                                       y <- y[rows]
-                                       wts <- wts[rows]
-                                       
-                                       x <- outcome_conversion(x, lv = lev)
-                                       out <- data.frame(pred = x, obs = y, stringsAsFactors = FALSE)
-                                       if(!is.null(wts)) out$weights <- wts
-                                       out$rowIndex <- rows
-                                       out
-                                     })
-                                   })
-        if(testing) print(head(predicted))
-        
-        ## same for the class probabilities
-        if(ctrl$classProbs) {
+
+        if(ctrl$classProbs) 
           predicted <- mapply(cbind, predicted, probValues, SIMPLIFY = FALSE)
-          if (!is.null(predictedExtra))
-            predictedExtra <- mapply(predictedExtra, probValuesExtra,
-                                     SIMPLIFY = FALSE,
-                                     FUN = function(predEx, probEx) {
-                                       mapply(cbind, predEx, probEx, SIMPLIFY = FALSE)
-                                     })
-        }
         
-        if(keep_pred || (ctrl$method == "boot_all" && names(resampleIndex)[iter] == "AllData"))
-        {
+        if(keep_pred) {
           tmpPred <- predicted
-          for(modIndex in seq(along = tmpPred))
-          {
+          for(modIndex in seq(along = tmpPred)) {
             tmpPred[[modIndex]] <- merge(tmpPred[[modIndex]], 
                                          allParam[modIndex,,drop = FALSE],
                                          all = TRUE)
@@ -326,45 +200,24 @@ nominalTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, tes
           tmpPred <- rbind.fill(tmpPred)
           tmpPred$Resample <- names(resampleIndex)[iter]
         } else tmpPred <- NULL
-        
+
         ## get the performance for this resample for each sub-model
         thisResample <- lapply(predicted,
                                ctrl$summaryFunction,
                                lev = lev,
                                model = method)
         if(testing) print(head(thisResample))
-        
-        if(!is.null(predictedExtra)) {
-          thisResampleExtra <- lapply(predictedExtra, function(predicted) {
-            lapply(predicted,
-                   ctrl$summaryFunction,
-                   lev = lev,
-                   model = method)
-          })
-          thisResampleExtra[[1L]] <- lapply(thisResampleExtra[[1L]], function(res) {
-            names(res) <- paste0(names(res), "Orig")
-            res
-          })
-          thisResampleExtra[[2L]] <- lapply(thisResampleExtra[[2L]], function(res) {
-            names(res) <- paste0(names(res), "Boot")
-            res
-          })
-          thisResampleExtra <- do.call(cbind, lapply(thisResampleExtra, function(x) do.call(rbind, x)))
-          thisResampleExtra <- cbind(allParam, thisResampleExtra)
-        } else thisResampleExtra <- NULL
-        
         ## for classification, add the cell counts
-        if(length(lev) > 1 && length(lev) <= 50)
-        {
+        if(length(lev) > 1 && length(lev) <= 50) {
           cells <- lapply(predicted,
                           function(x) flatTable(x$pred, x$obs))
           for(ind in seq(along = cells)) thisResample[[ind]] <- c(thisResample[[ind]], cells[[ind]])
         }
-        thisResample <- do.call("rbind", thisResample)          
+        thisResample <- do.call("rbind", thisResample)
         thisResample <- cbind(allParam, thisResample)
-        
+
       } else {       
-        if(is.factor(y)) predicted <- getFromNamespace("outcome_conversion", "caret")(predicted, lv = lev)
+        if(is.factor(y)) predicted <- outcome_conversion(predicted, lv = lev)
         tmp <-  data.frame(pred = predicted,
                            obs = y[holdoutIndex],
                            stringsAsFactors = FALSE)
@@ -374,64 +227,39 @@ nominalTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, tes
         if(!is.null(wts)) tmp$weights <- wts[holdoutIndex]
         if(ctrl$classProbs) tmp <- cbind(tmp, probValues)
         tmp$rowIndex <- holdoutIndex
-        
-        if(keep_pred || (ctrl$method == "boot_all" && names(resampleIndex)[iter] == "AllData"))
-        {
+
+        if(keep_pred) {
           tmpPred <- tmp
           tmpPred$rowIndex <- holdoutIndex
           tmpPred <- merge(tmpPred, info$loop[parm,,drop = FALSE],
                            all = TRUE)
           tmpPred$Resample <- names(resampleIndex)[iter]
         } else tmpPred <- NULL
-        
+
         ##################################
-        
+
         thisResample <- ctrl$summaryFunction(tmp,
                                              lev = lev,
                                              model = method)
-        
+
         ## if classification, get the confusion matrix
-        if(length(lev) > 1 && length(lev) <= 50) thisResample <- c(thisResample, flatTable(tmp$pred, tmp$obs))
+        if(length(lev) > 1 && length(lev) <= 50) 
+          thisResample <- c(thisResample, flatTable(tmp$pred, tmp$obs))
         thisResample <- as.data.frame(t(thisResample))
         thisResample <- cbind(thisResample, info$loop[parm,,drop = FALSE])
-        
-        ## for optimism bootstrap
-        if(!is.null(predictedExtra)) {
-          thisResampleExtra <- mapply(predictedExtra, extraIndex, probValuesExtra,
-                                      SIMPLIFY = FALSE, USE.NAMES = FALSE,
-                                      FUN = function(predicted, holdoutIndex, probValues) {
-                                        if(is.factor(y)) predicted <- outcome_conversion(predicted, lv = lev)
-                                        tmp <-  data.frame(pred = predicted,
-                                                           obs = y[holdoutIndex],
-                                                           stringsAsFactors = FALSE)
-                                        ## Sometimes the code above does not coerce the first
-                                        ## columnn to be named "pred" so force it
-                                        names(tmp)[1] <- "pred"
-                                        if(!is.null(wts)) tmp$weights <- wts[holdoutIndex]
-                                        if(ctrl$classProbs) tmp <- cbind(tmp, probValues)
-                                        tmp$rowIndex <- holdoutIndex
-                                        ctrl$summaryFunction(tmp, lev = lev, model = method)
-                                      })
-          
-          names(thisResampleExtra[[1L]]) <- paste0(names(thisResampleExtra[[1L]]), "Orig")
-          names(thisResampleExtra[[2L]]) <- paste0(names(thisResampleExtra[[2L]]), "Boot")
-          
-          thisResampleExtra <- unlist(thisResampleExtra, recursive = FALSE)
-          
-          thisResampleExtra <- cbind(as.data.frame(t(thisResampleExtra)), info$loop[parm, , drop = FALSE])
-          
-        } else thisResampleExtra <- NULL
-        
       }
       thisResample$Resample <- names(resampleIndex)[iter]
       
+      thisResampleExtra <- optimism_xy(ctrl, x, y, wts, iter, lev, method, mod, predicted, 
+                                       submod, info$loop[parm,, drop = FALSE])
+
       if(ctrl$verboseIter) progress(printed[parm,,drop = FALSE],
                                     names(resampleIndex), iter, FALSE)
-      
+
       if(testing) print(thisResample)
       list(resamples = thisResample, pred = tmpPred, resamplesExtra = thisResampleExtra)
     }
-  
+
   resamples <- rbind.fill(result[names(result) == "resamples"])
   pred <- rbind.fill(result[names(result) == "pred"])
   resamplesExtra <- rbind.fill(result[names(result) == "resamplesExtra"])
@@ -448,7 +276,7 @@ nominalTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, tes
     if(any(!complete.cases(apparent[,!grepl("^cell|Resample", colnames(apparent)),drop = FALSE])))
     {
       warning("There were missing values in the apparent performance measures.")
-    }        
+    }
     resamples <- subset(resamples, Resample != "AllData")
     if(!is.null(pred))
     {
@@ -457,18 +285,18 @@ nominalTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, tes
     }
   }
   names(resamples) <- gsub("^\\.", "", names(resamples))
-  
+
   if(any(!complete.cases(resamples[,!grepl("^cell|Resample", colnames(resamples)),drop = FALSE])))
   {
     warning("There were missing values in resampled performance measures.")
   }
-  
+
   out <- ddply(resamples[,!grepl("^cell|Resample", colnames(resamples)),drop = FALSE],
                ## TODO check this for seq models
                gsub("^\\.", "", colnames(info$loop)),
-               MeanSD, 
+               MeanSD,
                exclude = gsub("^\\.", "", colnames(info$loop)))
-  
+
   if(ctrl$method %in% c("boot632", "boot_all")) {
     out <- merge(out, apparent)
     const <- 1 - exp(-1)
@@ -478,7 +306,7 @@ nominalTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, tes
       NULL
     })
   }
-  
+
   if(ctrl$method %in% c("optimism_boot", "boot_all")) {
     out <- merge(out, apparent)
     out <- merge(out, ddply(resamplesExtra[, !grepl("Resample", colnames(resamplesExtra)), drop = FALSE],
@@ -500,7 +328,7 @@ nominalTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, tes
       NULL
     })
   }
-  
+
   list(performance = out, resamples = resamples, predictions = if(keep_pred) pred else NULL)
 }
 
@@ -509,98 +337,97 @@ nominalTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, tes
 looTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, testing = FALSE, ...)
 {
   loadNamespace("caret")
-  
+
   ppp <- list(options = ppOpts)
   ppp <- c(ppp, ctrl$preProcOptions)
-  
+
   printed <- format(info$loop)
   colnames(printed) <- gsub("^\\.", "", colnames(printed))
-  
+
   `%op%` <- getOper(ctrl$allowParallel && getDoParWorkers() > 1)
-  
+
   pkgs <- c("methods", "caret")
   if(!is.null(method$library)) pkgs <- c(pkgs, method$library)
-  
+
   result <- foreach(iter = seq(along = ctrl$index), .combine = "rbind", .verbose = FALSE, .packages = pkgs, .errorhandling = "stop") %:%
-    foreach(parm = 1:nrow(info$loop), .combine = "rbind", .verbose = FALSE, .packages = pkgs, .errorhandling = "stop") %op% {
-      
+    foreach(parm = 1:nrow(info$loop), .combine = "rbind", .verbose = FALSE, .errorhandling = "stop") %op% {
+
       if(!(length(ctrl$seeds) == 1 && is.na(ctrl$seeds))) set.seed(ctrl$seeds[[iter]][parm])
       if(testing) cat("after loops\n")
       loadNamespace("caret")
+      lapply(pkgs, requireNamespaceQuietStop)
       if(ctrl$verboseIter) progress(printed[parm,,drop = FALSE],
                                     names(ctrl$index), iter, TRUE)
       if(is.null(info$submodels[[parm]]) || nrow(info$submodels[[parm]]) > 0) {
         submod <- info$submodels[[parm]]
       } else submod <- NULL
+
+      is_regression <- is.null(lev)
       
-      mod <- createModel(x = subset_x(x, ctrl$index[[iter]]),
-                         y = y[ctrl$index[[iter]] ],
-                         wts = wts[ctrl$index[[iter]] ],
-                         method = method,
-                         tuneValue = info$loop[parm,,drop = FALSE],
-                         obsLevels = lev,
-                         pp = ppp,
-                         classProbs = ctrl$classProbs,
-                         sampling = ctrl$sampling,
-                         ...)
+      mod <- try(
+        createModel(x = subset_x(x, ctrl$index[[iter]]),
+                    y = y[ctrl$index[[iter]] ],
+                    wts = wts[ctrl$index[[iter]] ],
+                    method = method,
+                    tuneValue = info$loop[parm,,drop = FALSE],
+                    obsLevels = lev,
+                    pp = ppp,
+                    classProbs = ctrl$classProbs,
+                    sampling = ctrl$sampling,
+                    ...),
+        silent = TRUE)
       
-      holdoutIndex <- -unique(ctrl$index[[iter]])
+      holdoutIndex <- ctrl$indexOut[[iter]]
       
-      predicted <- predictionFunction(method = method,
-                                      modelFit = mod$fit,
-                                      newdata = subset_x(x, -ctrl$index[[iter]]),
-                                      preProc = mod$preProc,
-                                      param = submod)
-      
-      if(is.numeric(y)) {
-        if(is.logical(ctrl$predictionBounds) && any(ctrl$predictionBounds)) {
-          if(is.list(predicted)) {
-            predicted <- lapply(predicted, trimPredictions,
-                                mod_type = "Regression",
-                                bounds = ctrl$predictionBounds,
-                                limits = ctrl$yLimits)
-          } else {
-            predicted <- trimPredictions(mod_type = "Regression",
-                                         bounds =  ctrl$predictionBounds,
-                                         limits =  ctrl$yLimit,
-                                         pred = predicted)
-          }
-        } else {
-          if(is.numeric(ctrl$predictionBounds) && any(!is.na(ctrl$predictionBounds))) {
-            if(is.list(predicted)) {
-              predicted <- lapply(predicted, trimPredictions,
-                                  mod_type = "Regression",
-                                  bounds = ctrl$predictionBounds,
-                                  limits = ctrl$yLimits)
-            } else {
-              predicted <- trimPredictions(mod_type = "Regression",
-                                           bounds =  ctrl$predictionBounds,
-                                           limits =  ctrl$yLimit,
-                                           pred = predicted)
-            }
-          }
-        } 
+      if(!model_failed(mod)) {
+        predicted <- try(
+          predictionFunction(method = method,
+                             modelFit = mod$fit,
+                             newdata = subset_x(x, -ctrl$index[[iter]]),
+                             preProc = mod$preProc,
+                             param = submod),
+          silent = TRUE)
+        
+        if(pred_failed(predicted)) {
+          fail_warning(settings = printed[parm,,drop = FALSE], 
+                       msg  = predicted, 
+                       where = "predictions", 
+                       iter = names(ctrl$index)[iter], 
+                       verb = ctrl$verboseIter)
+          
+          predicted <- fill_failed_pred(index = holdoutIndex, lev = lev, submod)
+        }
+      } else {
+        fail_warning(settings = printed[parm,,drop = FALSE], 
+                     msg  = mod, 
+                     iter = names(ctrl$index)[iter], 
+                     verb = ctrl$verboseIter)
+        predicted <- fill_failed_pred(index = holdoutIndex, lev = lev, submod)
       }
-      
+
       if(testing) print(head(predicted))
-      if(ctrl$classProbs)
-      {
-        probValues <- probFunction(method = method,
-                                   modelFit = mod$fit,
-                                   newdata = subset_x(x, holdoutIndex),
-                                   preProc = mod$preProc,
-                                   param = submod)
+      if(ctrl$classProbs) {
+        if(!model_failed(mod)) {
+          probValues <- probFunction(method = method,
+                                     modelFit = mod$fit,
+                                     newdata = subset_x(x, holdoutIndex),
+                                     preProc = mod$preProc,
+                                     param = submod)
+        } else {
+          probValues <- fill_failed_prob(holdoutIndex, lev, submod)
+        }
         if(testing) print(head(probValues))
       }
+
+      predicted <- trim_values(predicted, ctrl, is_regression) 
       
       ##################################
       
-      if(!is.null(info$submodels))
-      {
+      if(!is.null(info$submodels)) {
         ## collate the predictions across all the sub-models
         predicted <- lapply(predicted,
                             function(x, y, wts, lv, rows) {
-                              x <- getFromNamespace("outcome_conversion", "caret")(x, lv = lev)
+                              x <- outcome_conversion(x, lv = lev)
                               out <- data.frame(pred = x, obs = y, stringsAsFactors = FALSE)
                               if(!is.null(wts)) out$weights <- wts
                               out$rowIndex <- rows
@@ -611,19 +438,18 @@ looTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, testing
                             lv = lev,
                             rows = seq(along = y)[holdoutIndex])
         if(testing) print(head(predicted))
-        
+
         ## same for the class probabilities
         if(ctrl$classProbs)
-        {
-          for(k in seq(along = predicted)) predicted[[k]] <- cbind(predicted[[k]], probValues[[k]])
-        }
+          for(k in seq(along = predicted)) 
+            predicted[[k]] <- cbind(predicted[[k]], probValues[[k]])
         predicted <- do.call("rbind", predicted)
         allParam <- expandParameters(info$loop[parm,,drop = FALSE], submod)
         rownames(predicted) <- NULL
         predicted <- cbind(predicted, allParam)
         ## if saveDetails then save and export 'predicted'
       } else {
-        predicted <- getFromNamespace("outcome_conversion", "caret")(predicted, lv = lev)
+        predicted <- outcome_conversion(predicted, lv = lev)
         predicted <-  data.frame(pred = predicted,
                                  obs = y[holdoutIndex],
                                  stringsAsFactors = FALSE)
@@ -631,13 +457,13 @@ looTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, testing
         if(ctrl$classProbs) predicted <- cbind(predicted, probValues)
         predicted$rowIndex <- seq(along = y)[holdoutIndex]
         predicted <- cbind(predicted, info$loop[parm,,drop = FALSE])
-        
+
       }
       if(ctrl$verboseIter) progress(printed[parm,,drop = FALSE],
                                     names(ctrl$index), iter, FALSE)
       predicted
     }
-  
+
   names(result) <- gsub("^\\.", "", names(result))
   out <- ddply(result,
                as.character(method$parameter$parameter),
@@ -658,13 +484,14 @@ oobTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, testing
   `%op%` <- getOper(ctrl$allowParallel && getDoParWorkers() > 1)
   pkgs <- c("methods", "caret")
   if(!is.null(method$library)) pkgs <- c(pkgs, method$library)
-  result <- foreach(parm = 1:nrow(info$loop), .packages = pkgs, .combine = "rbind") %op%
+  result <- foreach(parm = 1:nrow(info$loop), .combine = "rbind") %op%
   {
     loadNamespace("caret")
+    lapply(pkgs, requireNamespaceQuietStop)
     if(ctrl$verboseIter) progress(printed[parm,,drop = FALSE], "", 1, TRUE)
-    
+
     if(!(length(ctrl$seeds) == 1 && is.na(ctrl$seeds))) set.seed(ctrl$seeds[[1L]][parm])
-    
+
     mod <- createModel(x = x,
                        y = y,
                        wts = wts,
@@ -675,11 +502,11 @@ oobTrainWorkflow <- function(x, y, wts, info, method, ppOpts, ctrl, lev, testing
                        classProbs = ctrl$classProbs,
                        sampling = ctrl$sampling,
                        ...)
-    
+
     out <- method$oob(mod$fit)
-    
+
     if(ctrl$verboseIter) progress(printed[parm,,drop = FALSE], "", 1, FALSE)
-    
+
     cbind(as.data.frame(t(out)), info$loop[parm,,drop = FALSE])
   }
   names(result) <- gsub("^\\.", "", names(result))
@@ -694,20 +521,20 @@ nominalSbfWorkflow <- function(x, y, ppOpts, ctrl, lev, ...)
   loadNamespace("caret")
   ppp <- list(options = ppOpts)
   ppp <- c(ppp, ctrl$preProcOptions)
-  
+
   resampleIndex <- ctrl$index
   if(ctrl$method %in% c("boot632")){
     resampleIndex <- c(list("AllData" = rep(0, nrow(x))), resampleIndex)
     ctrl$indexOut <- c(list("AllData" = rep(0, nrow(x))),  ctrl$indexOut)
   }
-  
+
   `%op%` <- getOper(ctrl$allowParallel && getDoParWorkers() > 1)
-  result <- foreach(iter = seq(along = resampleIndex), .combine = "c", .verbose = FALSE, .packages = c("methods", "caret"), .errorhandling = "stop") %op%
+  result <- foreach(iter = seq(along = resampleIndex), .combine = "c", .verbose = FALSE, .errorhandling = "stop") %op%
   {
     if(!(length(ctrl$seeds) == 1 && is.na(ctrl$seeds))) set.seed(ctrl$seeds[iter])
-    
+
     loadNamespace("caret")
-    
+    requireNamespaceQuietStop("methods")
     if(names(resampleIndex)[iter] != "AllData") {
       modelIndex <- resampleIndex[[iter]]
       holdoutIndex <- ctrl$indexOut[[iter]]
@@ -715,7 +542,7 @@ nominalSbfWorkflow <- function(x, y, ppOpts, ctrl, lev, ...)
       modelIndex <- 1:nrow(x)
       holdoutIndex <- modelIndex
     }
-    
+
     sbfResults <- sbfIter(subset_x(x, modelIndex),
                           y[modelIndex],
                           subset_x(x, holdoutIndex),
@@ -732,14 +559,14 @@ nominalSbfWorkflow <- function(x, y, ppOpts, ctrl, lev, ...)
     if(is.factor(y) && length(lev) <= 50) resamples <- c(resamples, flatTable(sbfResults$pred$pred, sbfResults$pred$obs))
     resamples <- data.frame(t(resamples))
     resamples$Resample <- names(resampleIndex)[iter]
-    
+
     list(resamples = resamples, selectedVars = sbfResults$variables, pred = tmpPred)
   }
-  
+
   resamples <- rbind.fill(result[names(result) == "resamples"])
   pred <- if(ctrl$saveDetails) rbind.fill(result[names(result) == "pred"]) else NULL
   performance <- MeanSD(resamples[,!grepl("Resample", colnames(resamples)),drop = FALSE])
-  
+
   if(ctrl$method %in% c("boot632"))
   {
     modelIndex <- 1:nrow(x)
@@ -753,14 +580,14 @@ nominalSbfWorkflow <- function(x, y, ppOpts, ctrl, lev, ...)
     apparent <- ctrl$functions$summary(appResults$pred, lev = lev)
     perfNames <- names(apparent)
     perfNames <- perfNames[perfNames != "Resample"]
-    
+
     const <- 1-exp(-1)
-    
+
     for(p in seq(along = perfNames))
       performance[perfNames[p]] <- (const * performance[perfNames[p]]) +  ((1-const) * apparent[perfNames[p]])
-    
+
   }
-  
+
   list(performance = performance, everything = result, predictions = if(ctrl$saveDetails) pred else NULL)
 }
 
@@ -770,33 +597,33 @@ looSbfWorkflow <- function(x, y, ppOpts, ctrl, lev, ...)
   loadNamespace("caret")
   ppp <- list(options = ppOpts)
   ppp <- c(ppp, ctrl$preProcOptions)
-  
+
   resampleIndex <- ctrl$index
-  
+
   vars <- vector(mode = "list", length = length(y))
-  
+
   `%op%` <- getOper(ctrl$allowParallel && getDoParWorkers() > 1)
-  result <- foreach(iter = seq(along = resampleIndex), .combine = "c", .verbose = FALSE, .packages = c("methods", "caret"), .errorhandling = "stop") %op%
+  result <- foreach(iter = seq(along = resampleIndex), .combine = "c", .verbose = FALSE, .errorhandling = "stop") %op%
   {
     if(!(length(ctrl$seeds) == 1 && is.na(ctrl$seeds))) set.seed(ctrl$seeds[iter])
-    
+
     loadNamespace("caret")
-    
+    requireNamespaceQuietStop("methods")
     modelIndex <- resampleIndex[[iter]]
     holdoutIndex <- -unique(resampleIndex[[iter]])
-    
+
     sbfResults <- sbfIter(subset_x(x, modelIndex),
                           y[modelIndex],
                           subset_x(x, holdoutIndex),
                           y[holdoutIndex],
                           ctrl,
                           ...)
-    
+
     sbfResults
   }
   resamples <- do.call("rbind", result[names(result) == "pred"])
   performance <- ctrl$functions$summary(resamples, lev = lev)
-  
+
   list(performance = performance, everything = result, predictions = if(ctrl$saveDetails) resamples else NULL)
 }
 
@@ -809,18 +636,20 @@ nominalRfeWorkflow <- function(x, y, sizes, ppOpts, ctrl, lev, ...)
   loadNamespace("caret")
   ppp <- list(options = ppOpts)
   ppp <- c(ppp, ctrl$preProcOptions)
-  
+
   resampleIndex <- ctrl$index
   if(ctrl$method %in% c("boot632")) {
     resampleIndex <- c(list("AllData" = rep(0, nrow(x))), resampleIndex)
     ctrl$indexOut <- c(list("AllData" = rep(0, nrow(x))),  ctrl$indexOut)
   }
-  
+
   `%op%` <- getOper(ctrl$allowParallel && getDoParWorkers() > 1)
-  result <- foreach(iter = seq(along = resampleIndex), .combine = "c", .verbose = FALSE, .packages = c("methods", "caret", "plyr"), .errorhandling = "stop") %op%
+  result <- foreach(iter = seq(along = resampleIndex), .combine = "c", .verbose = FALSE, .errorhandling = "stop") %op%
   {
     loadNamespace("caret")
-    
+    requireNamespace("plyr")
+    requireNamespace("methods")
+
     if(names(resampleIndex)[iter] != "AllData") {
       modelIndex <- resampleIndex[[iter]]
       holdoutIndex <- ctrl$indexOut[[iter]]
@@ -828,7 +657,7 @@ nominalRfeWorkflow <- function(x, y, sizes, ppOpts, ctrl, lev, ...)
       modelIndex <- 1:nrow(x)
       holdoutIndex <- modelIndex
     }
-    
+
     seeds <- if(!(length(ctrl$seeds) == 1 && is.na(ctrl$seeds))) ctrl$seeds[[iter]] else NA
     rfeResults <- rfeIter(subset_x(x, modelIndex),
                           y[modelIndex],
@@ -839,8 +668,8 @@ nominalRfeWorkflow <- function(x, y, sizes, ppOpts, ctrl, lev, ...)
                           label = names(resampleIndex)[iter],
                           seeds = seeds,
                           ...)
-    resamples <- ddply(rfeResults$pred, .(Variables), ctrl$functions$summary, lev = lev)
-    
+    resamples <- plyr::ddply(rfeResults$pred, .(Variables), ctrl$functions$summary, lev = lev)
+
     if(ctrl$saveDetails)
     {
       rfeResults$pred$Resample <- names(resampleIndex)[iter]
@@ -849,12 +678,12 @@ nominalRfeWorkflow <- function(x, y, sizes, ppOpts, ctrl, lev, ...)
       nReps <- length(table(rfeResults$pred$Variables))
       rfeResults$pred$rowIndex <- rep(seq(along = y)[unique(holdoutIndex)], nReps)
     }
-    
+
     if(is.factor(y) && length(lev) <= 50) {
-      cells <- ddply(rfeResults$pred, .(Variables), function(x) flatTable(x$pred, x$obs))
+      cells <- plyr::ddply(rfeResults$pred, .(Variables), function(x) flatTable(x$pred, x$obs))
       resamples <- merge(resamples, cells)
     }
-    
+
     resamples$Resample <- names(resampleIndex)[iter]
     vars <- do.call("rbind", rfeResults$finalVariables)
     vars$Resample <- names(resampleIndex)[iter]
@@ -862,7 +691,7 @@ nominalRfeWorkflow <- function(x, y, sizes, ppOpts, ctrl, lev, ...)
   }
   resamples <- do.call("rbind", result[names(result) == "resamples"])
   rownames(resamples) <- NULL
-  
+
   if(ctrl$method %in% c("boot632"))
   {
     perfNames <- names(resamples)
@@ -875,8 +704,8 @@ nominalRfeWorkflow <- function(x, y, sizes, ppOpts, ctrl, lev, ...)
     names(apparent) <- gsub("^\\.", "", names(apparent))
     resamples <- subset(resamples, Resample != "AllData")
   }
-  
-  externPerf <- ddply(resamples[,!grepl("\\.cell|Resample", colnames(resamples)),drop = FALSE],
+
+  externPerf <- plyr::ddply(resamples[,!grepl("\\.cell|Resample", colnames(resamples)),drop = FALSE],
                       .(Variables),
                       MeanSD,
                       exclude = "Variables")
@@ -899,16 +728,16 @@ looRfeWorkflow <- function(x, y, sizes, ppOpts, ctrl, lev, ...)
   loadNamespace("caret")
   ppp <- list(options = ppOpts)
   ppp <- c(ppp, ctrl$preProcOptions)
-  
+
   resampleIndex <- ctrl$index
   `%op%` <- getOper(ctrl$allowParallel && getDoParWorkers() > 1)
-  result <- foreach(iter = seq(along = resampleIndex), .combine = "c", .verbose = FALSE, .packages = c("methods", "caret"), .errorhandling = "stop") %op%
+  result <- foreach(iter = seq(along = resampleIndex), .combine = "c", .verbose = FALSE, .errorhandling = "stop") %op%
   {
     loadNamespace("caret")
-    
+    requireNamespaceQuietStop("methods")
     modelIndex <- resampleIndex[[iter]]
     holdoutIndex <- -unique(resampleIndex[[iter]])
-    
+
     seeds <- if(!(length(ctrl$seeds) == 1 && is.na(ctrl$seeds))) ctrl$seeds[[iter]] else NA
     rfeResults <- rfeIter(subset_x(x, modelIndex),
                           y[modelIndex],
@@ -921,7 +750,7 @@ looRfeWorkflow <- function(x, y, sizes, ppOpts, ctrl, lev, ...)
     rfeResults
   }
   preds <- do.call("rbind", result[names(result) == "pred"])
-  resamples <- ddply(preds, .(Variables), ctrl$functions$summary, lev = lev)   
+  resamples <- ddply(preds, .(Variables), ctrl$functions$summary, lev = lev)
   list(performance = resamples, everything = result)
 }
 

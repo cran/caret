@@ -140,7 +140,7 @@ dummyVars.default <- function (formula, data, sep = ".", levelsOnly = FALSE, ful
 {
   formula <- as.formula(formula)
   if(!is.data.frame(data)) data <- as.data.frame(data)
-
+  
   vars <- all.vars(formula)
   if(any(vars == "."))
   {
@@ -179,7 +179,7 @@ dummyVars.default <- function (formula, data, sep = ".", levelsOnly = FALSE, ful
               fullRank = fullRank)
   class(out) <- "dummyVars"
   out
-
+  
 }
 
 #' @rdname dummyVars
@@ -209,7 +209,7 @@ predict.dummyVars <- function(object, newdata, na.action = na.pass, ...)
   if(!is.data.frame(newdata)) newdata <- as.data.frame(newdata)
   if(!all(object$vars %in% names(newdata))) stop(
     paste("Variable(s)",
-          paste("'", object$vars[object$vars %in% names(newdata)],
+          paste("'", object$vars[!object$vars %in% names(newdata)],
                 "'", sep = "",
                 collapse = ", "),
           "are not in newdata"))
@@ -223,10 +223,10 @@ predict.dummyVars <- function(object, newdata, na.action = na.pass, ...)
     options(contrasts = newContr)
   }
   m <- model.frame(Terms, newdata, na.action = na.action, xlev = object$lvls)
-
+  
   x <- model.matrix(Terms, m)
   if(!object$fullRank) options(contrasts = oldContr)
-
+  
   if(object$levelsOnly) {
     for(i in object$facVars) {
       for(j in object$lvls[[i]]) {
@@ -235,16 +235,18 @@ predict.dummyVars <- function(object, newdata, na.action = na.pass, ...)
       }
     }
   }
+  cnames <- colnames(x)
   if(!is.null(object$sep) & !object$levelsOnly) {
     for(i in object$facVars[order(-nchar(object$facVars))]) {
       ## the default output form model.matrix is NAMElevel with no separator.
       for(j in object$lvls[[i]]) {
         from_text <- paste0(i, j)
         to_text <- paste(i, j, sep = object$sep)
-        colnames(x) <- gsub(from_text, to_text, colnames(x), fixed = TRUE)
-       }
+        cnames <- gsub(from_text, to_text, cnames, fixed = TRUE)
+      }
     }
   }
+  colnames(x) <- cnames
   x[, colnames(x) != "(Intercept)", drop = FALSE]
 }
 
