@@ -13,6 +13,13 @@ ppMethods <- c("BoxCox", "YeoJohnson", "expoTrans", "invHyperbolicSine",
 
 invHyperbolicSineFunc <- function(x) log(x+sqrt(x^2+1))
 
+getRangeBounds <- function(pp) {
+ if(!is.null(pp$rangeBounds)) {
+   list(lower = pp$rangeBounds[1], upper = pp$rangeBounds[2])
+ } else {
+   list(lower = 0.0, upper = 1.0)
+ }
+}
 
 #' Pre-Processing of Predictors
 #' 
@@ -41,7 +48,7 @@ invHyperbolicSineFunc <- function(x) log(x+sqrt(x^2+1))
 #' from the data in \code{x}) from the predictor values while \code{method =
 #' "scale"} divides by the standard deviation.
 #' 
-#' The "range" transformation scales the data to be within [0, 1]. If new
+#' The "range" transformation scales the data to be within \code{rangeBounds}. If new
 #' samples have values larger or smaller than those in the training set, values
 #' will be outside of this range.
 #' 
@@ -129,6 +136,8 @@ invHyperbolicSineFunc <- function(x) log(x+sqrt(x^2+1))
 #' the number of total samples. See \code{\link{nearZeroVar}}. 
 #' @param cutoff a numeric value for the pair-wise absolute correlation cutoff. 
 #' See \code{\link{findCorrelation}}.  
+#' @param rangeBounds a two-element numeric vector specifying closed interval
+#' for range transformation
 #' @param \dots additional arguments to pass to \code{\link[fastICA]{fastICA}},
 #' such as \code{n.comp}
 #' @return \code{preProcess} results in a list with elements \item{call}{the
@@ -201,6 +210,7 @@ preProcess.default <- function(x, method = c("center", "scale"),
                                freqCut = 95/5, 
                                uniqueCut = 10,
                                cutoff = 0.9,
+                               rangeBounds = c(0, 1),
                                ...) {
   if(!inherits(x, "matrix") & !inherits(x, "data.frame"))
     stop("Matrices or data frames are required for preprocessing", call. = FALSE)
@@ -383,6 +393,12 @@ preProcess.default <- function(x, method = c("center", "scale"),
   
   if(any(names(method) == "range")) {
     if(verbose) cat("Calculating", length(method$range), "statistcs for scaling to a range\n")
+    ## check rangeBounds consistency
+    if(!is.numeric(rangeBounds) || length(rangeBounds) != 2)
+      stop("'rangeBounds' should be a two-element numeric vector")
+    if(rangeBounds[1] >= rangeBounds[2])
+      stop("'rangeBounds' interval is empty")
+
     ranges <- apply(x[, method$range, drop = FALSE], 
                     2, 
                     function(x) c(min(x, na.rm = na.remove), 
@@ -396,7 +412,9 @@ preProcess.default <- function(x, method = c("center", "scale"),
       method$range <- method$range[!(method$range %in% names(is_same)[is_same])]
     }
     x[, method$range] <- sweep(x[, method$range, drop = FALSE], 2, ranges[1,], "-")
-    x[, method$range] <- sweep(x[, method$range, drop = FALSE], 2, ranges[2,] - ranges[1,], "/")
+    x[, method$range] <- sweep(x[, method$range, drop = FALSE], 2,
+                               (ranges[2,] - ranges[1,]) / (rangeBounds[2] - rangeBounds[1]), "/")
+    x[, method$range] <- sweep(x[, method$range, drop = FALSE], 2, rangeBounds[1], "+")
   } else ranges <- NULL
   
   if(any(names(method) == "bagImpute")){
@@ -480,7 +498,8 @@ preProcess.default <- function(x, method = c("center", "scale"),
               bagImp = bagModels,
               median = medianValue,
               data = if(any(names(method) == "knnImpute")) 
-                x[complete.cases(x),method$knnImpute,drop = FALSE] else NULL)
+                x[complete.cases(x),method$knnImpute,drop = FALSE] else NULL,
+              rangeBounds = rangeBounds)
   out <- structure(out, class = "preProcess")
   out
 }
@@ -539,12 +558,17 @@ predict.preProcess <- function(object, newdata, ...) {
   }  
   
   if(any(names(object$method) == "range")) {
+    rangeBounds <- getRangeBounds(object)
     newdata[, object$method$range] <- 
       sweep(newdata[, object$method$range, drop = FALSE], 2, 
             object$ranges[1,], "-")
     newdata[, object$method$range] <- 
-      sweep(newdata[, object$method$range, drop = FALSE], 2, 
-            object$ranges[2,] - object$ranges[1,], "/")
+      sweep(newdata[, object$method$range, drop = FALSE], 2,
+            (object$ranges[2,] - object$ranges[1,]) /
+              (rangeBounds$upper - rangeBounds$lower), "/")
+    newdata[, object$method$range] <-
+      sweep(newdata[, object$method$range, drop = FALSE], 2,
+            rangeBounds$lower, "+")
   }
   
   if(any(names(object$method) == "center")) 
@@ -689,7 +713,10 @@ print.preProcess <- function(x, ...) {
   pp <- gsub("knnImpute", paste(x$k, "nearest neighbor imputation"), pp)
   pp <- gsub("bagImpute", "bagged tree imputation", pp)  
   pp <- gsub("medianImpute", "median imputation", pp)    
-  pp <- gsub("range", "re-scaling to [0, 1]", pp)  
+
+  rangeBounds <- getRangeBounds(x)
+  pp <- gsub("range", paste0("re-scaling to [", rangeBounds$lower, ", ", rangeBounds$upper, "]"), pp)
+
   pp <- gsub("remove", "removed", pp)  
   pp <- gsub("ignore", "ignored", pp)  
   
@@ -882,7 +909,7 @@ pre_process_options <- function(opts, vars) {
   }
   
   if(any(methods %in% "range") & any(methods %in% c("center", "scale", "BoxCox")))
-    stop("Centering, scaling and/or Box-Cox transformations are inconsistent with scaling to a range of [0, 1]")  
+    stop("Centering, scaling and/or Box-Cox transformations are inconsistent with scaling to a range")
   
   ## coerce certain options based on others
   if("pca" %in% methods) {

@@ -5,7 +5,7 @@
 \alias{predict.bagFDA}
 \title{Predicted values based on bagged Earth and FDA models}
 \usage{
-\method{predict}{bagEarth}(object, newdata = NULL, type = "response", ...)
+\method{predict}{bagEarth}(object, newdata = NULL, type = NULL, ...)
 
 \method{predict}{bagFDA}(object, newdata = NULL, type = "class", ...)
 }
@@ -31,7 +31,11 @@ vector and \code{type = "probs"} outputs a matrix of class probabilities.}
 \item{\dots}{not used}
 }
 \value{
-a vector of predictions
+A vector of predictions (for regression or \code{type = "class"})
+ or a data frame of class probabilities. By default, when the model 
+ predicts a number, a vector of numeric predictions is returned. When
+ a classification model is used, the default prediction is a factor vector
+ of classes.
 }
 \description{
 Predicted values based on bagged Earth and FDA models
@@ -49,7 +53,9 @@ method is used, otherwise the values are calculated via the second method.
 \dontrun{
 data(trees)
 ## out of bag predictions vs just re-predicting the training set
+set.seed(655)
 fit1 <- bagEarth(Volume ~ ., data = trees, keepX = TRUE)
+set.seed(655)
 fit2 <- bagEarth(Volume ~ ., data = trees, keepX = FALSE)
 hist(predict(fit1) - predict(fit2))
 }

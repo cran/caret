@@ -107,7 +107,8 @@
 #' set.seed(1)
 #' dat <- data.frame(obs =  factor(sample(classes, 50, replace = TRUE)),
 #'                   pred = factor(sample(classes, 50, replace = TRUE)),
-#'                   class1 = runif(50), class2 = runif(50))
+#'                   class1 = runif(50))
+#' dat$class2 <- 1 - dat$class1            
 #'
 #' defaultSummary(dat, lev = classes)
 #' twoClassSummary(dat, lev = classes)
@@ -122,7 +123,7 @@ postResample <- function(pred, obs)
   pred <- pred[!isNA]
   obs <- obs[!isNA]
 
-  if(!is.factor(obs) & is.numeric(obs))
+  if (!is.factor(obs) && is.numeric(obs))
     {
       if(length(obs) + length(pred) == 0)
         {
@@ -136,7 +137,6 @@ postResample <- function(pred, obs)
               if(class(resamplCor) == "try-error") resamplCor <- NA
             }
           mse <- mean((pred - obs)^2)
-          n <- length(obs)
           mae <- mean(abs(pred - obs))
 
           out <- c(sqrt(mse), resamplCor^2, mae)
@@ -170,7 +170,6 @@ twoClassSummary <- function (data, lev = NULL, model = NULL)
   requireNamespaceQuietStop('ModelMetrics')
   if (!all(levels(data[, "pred"]) == lvls))
     stop("levels of observed and predicted data do not match")
-  data$y = as.numeric(data$obs == lvls[2])
   rocAUC <- ModelMetrics::auc(ifelse(data$obs == lev[2], 0, 1), data[, lvls[1]])
   out <- c(rocAUC,
            sensitivity(data[, "pred"], data[, "obs"], lev[1]),
