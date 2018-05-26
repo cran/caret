@@ -70,8 +70,7 @@ model_failed <- function(x) {
 pred_failed <- function(x)
   inherits(x, "try-error")
 
-## Convert the recipe to holdout data. rename this to something like
-## get_perf_data
+## Convert the recipe to holdout data.
 #' @importFrom recipes bake all_predictors all_outcomes has_role
 holdout_rec <- function(object, dat, index) {
   ##
@@ -117,7 +116,11 @@ rec_model <- function(rec, dat, method, tuneValue, obsLevels,
     other_cols <- var_info[var_info$role %in% c("predictor", "case weight", "performance var"),]
 
     other_cols <- other_cols$variable
-    other_dat <- dat[, other_cols]  ## test this with data frames and tibbles
+    other_dat <- if (is.matrix(dat) |
+                     (is.data.frame(dat) & !inherits(dat, "tbl_df")))
+      dat[, other_cols, drop = FALSE]
+    else
+      dat[, other_cols]
 
     tmp <- sampling$func(other_dat, y)
     orig_dat <- dat

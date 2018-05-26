@@ -1,5 +1,5 @@
 Package: caret
-Version: 6.0-79
+Version: 6.0-80
 Title: Classification and Regression Training
 Author: Max Kuhn. Contributions from Jed Wing, Steve Weston, Andre
     Williams, Chris Keefer, Allan Engelhardt, Tony Cooper, Zachary Mayer,
@@ -18,11 +18,11 @@ Suggests: BradleyTerry2, e1071, earth (>= 2.2-3), fastICA, gam (>=
         1.15), ipred, kernlab, knitr, klaR, MASS, ellipse, mda, mgcv,
         mlbench, MLmetrics, nnet, party (>= 0.9-99992), pls, pROC,
         proxy, randomForest, RANN, spls, subselect, pamr, superpc,
-        Cubist, testthat (>= 0.9.1)
+        Cubist, testthat (>= 0.9.1), rpart, dplyr
 License: GPL (>= 2)
 RoxygenNote: 6.0.1
 VignetteBuilder: knitr
 NeedsCompilation: yes
-Packaged: 2018-03-19 19:33:02 UTC; max
+Packaged: 2018-05-26 15:05:02 UTC; max
 Repository: CRAN
-Date/Publication: 2018-03-29 20:31:17 UTC
+Date/Publication: 2018-05-26 22:01:28 UTC

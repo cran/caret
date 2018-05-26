@@ -1,5 +1,5 @@
-722d432677217fa26186580a0b73f8bb *DESCRIPTION
-91af83482de846d08b4196d8cd052a60 *NAMESPACE
+95633ce210492cce938811a65f96c1de *DESCRIPTION
+a79a231ee80376656b6a9e2c204dd994 *NAMESPACE
 08360abde4d985bf2c2cc1dd30476d3a *R/BoxCoxTrans.R
 0b8d7141053581bad767714f01829454 *R/aaa.R
 f034b469f02f5746ed792b3df6336f9d *R/adaptive.R
@@ -16,7 +16,7 @@ f034b469f02f5746ed792b3df6336f9d *R/adaptive.R
 d551ab18ea74306759ba4b0f23e4abca *R/classLevels.R
 6e73b87584eecff7633ddea4c6bae6bb *R/common_code.R
 b3928312f917195547f2098710a49a1a *R/confusionMatrix.R
-68cdad569cc1a2130213e9a589eec336 *R/createDataPartition.R
+4b8209052ecb5acecf3faca2ab75e316 *R/createDataPartition.R
 23cc00abe2487c20a8e705a29a129ba1 *R/createModel.R
 247dab2202f8f0d87e9238778b213612 *R/createResample.R
 bd358c1d677a7f109735776b2f71a4e3 *R/diag.R
@@ -55,7 +55,7 @@ c8d1d387ff9afd804c06edd8b29434e8 *R/plotClassProbs.R
 224c80529305b313e0854b13785e2be1 *R/posPredValue.R
 d733acc152865974afa098d0a0f2a37f *R/postResample.R
 daaec22a9fe828f9cf2edaac3d768e7f *R/preProcess.R
-f4a86d9cd391a9803093ee9b06584c08 *R/prec_rec.R
+c6021d82ca8f1a297f8bb0ca0ae00671 *R/prec_rec.R
 70f8701dbf574dd1718316af73b3bdf0 *R/predict.PLS.R
 c088d9d7bb34cb49bbdf641fde208440 *R/predict.train.R
 565f89c4485e872653390dd41dbf5934 *R/predictionFunction.R
@@ -64,12 +64,12 @@ c088d9d7bb34cb49bbdf641fde208440 *R/predict.train.R
 8b0939913f6725abbb68dd08f885c3dd *R/print.train.R
 5971970c522e33fcc24bfae7435cc08a *R/print.varImp.train.R
 79858c4d63fdc4431de575c5f57ef278 *R/probFunction.R
-0436b6c7c701227f65e3ae0d70d0ebf0 *R/recipes.R
+b45af28c5807ebd0ae1aa6e973aba58f *R/recipes.R
 b603dccc3c4465408b76d620c2b612d9 *R/reg_sims.R
 101fcb88e2cded35f5248ef9dd78034b *R/resampleHist.R
 c1eefb9ce3bd03d9dda8ee168441eaf2 *R/resampleSummary.R
 123f8a73dcf42bf33ebda5cbfb20842e *R/resampleWrapper.R
-3c5f84e321496fa2ab1ec767d10892d9 *R/resamples.R
+d8c5072c18d024f8658078d40a5b90d0 *R/resamples.R
 f35adcfb5079916f62d20ad5356b1104 *R/rfe.R
 2950adc46ce1d8c7055a6559d263f426 *R/safs.R
 a3a0b988af9528d9276a186b8ea70e63 *R/sampling.R
@@ -90,7 +90,7 @@ bfaa1aa836adbd3d9652dafb850870b0 *R/twoClassSim.R
 dc18943a4f4c05cbff1e147283e0c5f5 *R/varImp.R
 93517def3bdaa418a35bd94b20d66dae *R/varImp.train.R
 7fb6849188d79b816d235a2494b57005 *R/workflows.R
-7f3c29e435a02008334b741a590880b6 *build/vignette.rds
+ffa46d25b6a9267c8db09defcee176e3 *build/vignette.rds
 207388f37483d387a1bdb928c42bb4e7 *data/BloodBrain.RData
 2f905a97a1bdf8c66c2d1859fb6c3c94 *data/GermanCredit.RData
 77128138c553249554844546d9443ede *data/Sacramento.RData
@@ -104,12 +104,12 @@ ecdae454e7a1a320b438d5e98e33606f *data/pottery.RData
 29417712c25f42dc372865d7e657b129 *data/scat.RData
 82d12ed229545b7a39820522a2af82f6 *data/segmentationData.RData
 30958b520366b02a43372f65773b77ac *data/tecator.RData
-fb81f9f4f293559979330ed7cfd51df8 *inst/NEWS.Rd
+f7d787c80d2bc3a6ddc4def6e0994fab *inst/NEWS.Rd
 1a9365410dd8e61df301a5531a352990 *inst/doc/caret.R
-4bb4b7843c356a216a9ce79b18e08487 *inst/doc/caret.Rmd
-ccbb456cd8dcc05072b7d212848b1793 *inst/doc/caret.html
-af0bb857cf9a2ed3edbb45db77e6fb29 *inst/models/models.RData
-35a93a3c5566775ed3c1653c1667ce46 *inst/models/sampling.RData
+2cc8d74f7dc744208069edbb899b4925 *inst/doc/caret.Rmd
+27b06108a0778af02dc174d8d9f3649c *inst/doc/caret.html
+6e19224b4ceba5e4088c2fab53da56c7 *inst/models/models.RData
+cf67cb4dc87cc4e1004a8799fbe27198 *inst/models/sampling.RData
 432f30b8821578720800c12f45f10f2b *man/BloodBrain.Rd
 c330e884c3512bc79ef15449850967e7 *man/BoxCoxTrans.Rd
 291995591a926fa6da3455018cc85aeb *man/GermanCredit.Rd
@@ -128,7 +128,7 @@ ea10de177fb4c46c5f6550b4b808fc80 *man/classDist.Rd
 cdf595648d8fa5e4da940baf200d8dd5 *man/confusionMatrix.Rd
 39b942caf4bf110653e5ba833e1019e5 *man/confusionMatrix.train.Rd
 3bd135493d614c420d879eaf1b3f5d41 *man/cox2.Rd
-06b06303a9403b27193a39b32ccba09f *man/createDataPartition.Rd
+9a6a9cace04c46f7adfa4595071f605e *man/createDataPartition.Rd
 78c1c06b1265336475b0d1fc5b6e75f6 *man/densityplot.rfe.Rd
 29e1838f8358ccb5305a60e5b40e7fa9 *man/dhfr.Rd
 f927eb2f183390b17c6be3cd63b7cd62 *man/diff.resamples.Rd
@@ -181,7 +181,7 @@ d9035a7bd0845fe556d7f8a570906cce *man/predict.train.Rd
 d3db921653b0cea427f66c5dcd809567 *man/predictors.Rd
 8c09c6031aaad699993eea5d5334decf *man/print.confusionMatrix.Rd
 20e948a54736a88e79c968a50139267b *man/print.train.Rd
-f89f8b5c096d569a577169cc17dd19a2 *man/recall.Rd
+b4f6de2bd42b55db3a8ed9bbaff03b44 *man/recall.Rd
 296244c173655d1522384681e3c5da66 *man/resampleHist.Rd
 0e7209798b50f46fa3836f16368ecbf8 *man/resampleSummary.Rd
 4c86df1a55649534623cf68e4686e8f2 *man/resamples.Rd
@@ -207,7 +207,7 @@ dff65b8a8766ebf6b2c4f31610ff7040 *man/update.train.Rd
 96983b0f246d4bf5d3afe1e2674b795d *man/varImp.Rd
 f5657c4e5a369dde5b93fb15e1ff23e2 *man/varImp.gafs.Rd
 e7f662877adfb12fa4fba0b71c73fda8 *man/var_seq.Rd
-d72466c9fcd4bd434e6068c1c44bfe8f *man/xyplot.resamples.Rd
+ca559489c57bc11c79820ab596b3fc4b *man/xyplot.resamples.Rd
 56d459e4b0373ffe9399006d4ff48cce *src/caret.c
 d3861b74b91b00b294b74da4fce1ba52 *tests/testthat.R
 6f63e87fc9546c984876a04a5247a914 *tests/testthat/test_BoxCox.R
@@ -231,6 +231,7 @@ c8b8a1482828dd54b6c01439be284799 *tests/testthat/test_misc.R
 e2614c27d52912759d852df6d754e02c *tests/testthat/test_safs.R
 dad92d2290d5074b6d95f64973956f29 *tests/testthat/test_sampling_options.R
 012135cb890b9c45d39212b1d0a0f2ea *tests/testthat/test_spatialSign.R
+1c6a90e12aa70f6e47af08adb1198a11 *tests/testthat/test_tibble.R
 dc2bc35beae741d9299b72e7d863aaaa *tests/testthat/test_twoClassSummary.R
 ad1cd68c579acb27ca029c6a044de76a *tests/testthat/test_varImp.R
 3504f6579c67aab95fe36ed423bae447 *tests/testthat/trim.R
@@ -241,5 +242,5 @@ d9776fd3bd2bae2fed47a1a995f28807 *tests/testthat/trim_glm.R
 deb25462270f133514302d20b028b0a3 *tests/testthat/trim_rpart.R
 b8e3a5d921b147a3473ef65a9d15ef3d *tests/testthat/trim_train.R
 a1670964dd20a1f842da2c3f3b52a697 *tests/testthat/trim_treebag.R
-4bb4b7843c356a216a9ce79b18e08487 *vignettes/caret.Rmd
+2cc8d74f7dc744208069edbb899b4925 *vignettes/caret.Rmd
 68ce544c85bd7fffe0f65e6c992012c4 *vignettes/train_algo.png
