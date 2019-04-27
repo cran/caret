@@ -1,4 +1,4 @@
-624b719ab9eaa35066515d2a390972ae *DESCRIPTION
+149ec6b9e038dd4bccfe1e866fcd9c7a *DESCRIPTION
 a24b745fcda37b8726396b28aeb49fba *NAMESPACE
 08360abde4d985bf2c2cc1dd30476d3a *R/BoxCoxTrans.R
 90e7462d8160b85896c346b5bd0ddfb7 *R/aaa.R
@@ -104,11 +104,11 @@ ecdae454e7a1a320b438d5e98e33606f *data/pottery.RData
 29417712c25f42dc372865d7e657b129 *data/scat.RData
 82d12ed229545b7a39820522a2af82f6 *data/segmentationData.RData
 30958b520366b02a43372f65773b77ac *data/tecator.RData
-5885dfb3f8d96bf70da894e1bcd562f6 *inst/NEWS.Rd
+a997ad908dc91316bcb774b97c6fa39c *inst/NEWS.Rd
 1a9365410dd8e61df301a5531a352990 *inst/doc/caret.R
 936b3c89a68fdf25ade6c93e86a354de *inst/doc/caret.Rmd
 68bc6ff5d27315d927d79118c40c938e *inst/doc/caret.html
-5bcbd2dbac0ef222df46dcb337cea1a6 *inst/models/models.RData
+889447edae15c02891850bdaf769a37c *inst/models/models.RData
 cf67cb4dc87cc4e1004a8799fbe27198 *inst/models/sampling.RData
 432f30b8821578720800c12f45f10f2b *man/BloodBrain.Rd
 2c9aed1b346ccbd4de77430de02a4a4f *man/BoxCoxTrans.Rd
