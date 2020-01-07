@@ -317,8 +317,11 @@ train.default <- function(x, y,
   if(is.character(y)) y <- as.factor(y)
 
   if( !is.numeric(y) & !is.factor(y) ){
-    #This error will often trigger if the y value is logical.
-    stop( "Please make sure `y` is a factor or numeric value." , call. = FALSE )
+    msg <- paste("Please make sure that the outcome column is a factor or numeric .",
+                 "The class(es) of the column:",
+                 paste0("'", class(y), "'", collapse = ", "))
+
+    stop(msg, call. = FALSE )
   }
 
   if(is.list(method)) {
@@ -474,6 +477,9 @@ train.default <- function(x, y,
         tuneGrid <- tuneGrid[1:tuneLength,,drop = FALSE]
     }
   }
+
+  ## Remove duplicates from grid that can occur with random sampling and discrete model parameters
+  tuneGrid <- tuneGrid[!duplicated(tuneGrid), , drop = FALSE]
 
   ## Check to make sure that there are tuning parameters in some cases
   if(grepl("adaptive", trControl$method) & nrow(tuneGrid) == 1) {

@@ -1,29 +1,61 @@
 Package: caret
-Version: 6.0-84
+Version: 6.0-85
 Title: Classification and Regression Training
-Author: Max Kuhn. Contributions from Jed Wing, Steve Weston, Andre
-    Williams, Chris Keefer, Allan Engelhardt, Tony Cooper, Zachary Mayer,
-    Brenton Kenkel, the R Core Team, Michael Benesty, Reynald Lescarbeau,
-    Andrew Ziem, Luca Scrucca, Yuan Tang, Can Candan, and Tyler Hunt.
+Authors@R: c(
+  person("Max", "Kuhn", role = c("aut", "cre"), email = "mxkuhn@gmail.com"),
+  person("Jed", "Wing", role = "ctb"),
+	person("Steve", "Weston", role = "ctb"),
+	person("Andre", "Williams", role = "ctb"),
+	person("Chris", "Keefer", role = "ctb"),
+	person("Allan", "Engelhardt", role = "ctb"),
+	person("Tony", "Cooper", role = "ctb"),
+	person("Zachary", "Mayer", role = "ctb"),
+	person("Brenton", "Kenkel", role = "ctb"),
+	person("R Core Team", role = "ctb"),
+	person("Michael", "Benesty", role = "ctb"),
+	person("Reynald", "Lescarbeau", role = "ctb"),
+	person("Andrew", "Ziem", role = "ctb"),
+	person("Luca", "Scrucca", role = "ctb"),
+	person("Yuan", "Tang", role = "ctb"),
+	person("Can", "Candan", role = "ctb"),
+	person("Tyler", "Hunt", role = "ctb")
+    )
 Description: Misc functions for training and plotting classification and
     regression models.
-Maintainer: Max Kuhn <mxkuhn@gmail.com>
 Depends: R (>= 3.2.0), lattice (>= 0.20), ggplot2
 URL: https://github.com/topepo/caret/
 BugReports: https://github.com/topepo/caret/issues
 Imports: foreach, methods, plyr, ModelMetrics (>= 1.1.0), nlme,
         reshape2, stats, stats4, utils, grDevices, recipes (>= 0.1.4),
-        withr (>= 2.0.0)
+        withr (>= 2.0.0), pROC,
 Suggests: BradleyTerry2, e1071, earth (>= 2.2-3), fastICA, gam (>=
         1.15), ipred, kernlab, knitr, klaR, MASS, ellipse, mda, mgcv,
-        mlbench, MLmetrics, nnet, party (>= 0.9-99992), pls, pROC,
-        proxy, randomForest, RANN, spls, subselect, pamr, superpc,
-        Cubist, testthat (>= 0.9.1), rpart, dplyr
+        mlbench, MLmetrics, nnet, party (>= 0.9-99992), pls, proxy,
+        randomForest, RANN, spls, subselect, pamr, superpc, Cubist,
+        testthat (>= 0.9.1), rpart, dplyr
 License: GPL (>= 2)
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.2.9000
 VignetteBuilder: knitr
 Encoding: UTF-8
 NeedsCompilation: yes
-Packaged: 2019-04-26 14:30:05 UTC; max
+Packaged: 2020-01-04 19:51:47 UTC; max
+Author: Max Kuhn [aut, cre],
+  Jed Wing [ctb],
+  Steve Weston [ctb],
+  Andre Williams [ctb],
+  Chris Keefer [ctb],
+  Allan Engelhardt [ctb],
+  Tony Cooper [ctb],
+  Zachary Mayer [ctb],
+  Brenton Kenkel [ctb],
+  R Core Team [ctb],
+  Michael Benesty [ctb],
+  Reynald Lescarbeau [ctb],
+  Andrew Ziem [ctb],
+  Luca Scrucca [ctb],
+  Yuan Tang [ctb],
+  Can Candan [ctb],
+  Tyler Hunt [ctb]
+Maintainer: Max Kuhn <mxkuhn@gmail.com>
 Repository: CRAN
-Date/Publication: 2019-04-27 04:50:03 UTC
+Date/Publication: 2020-01-07 20:20:20 UTC

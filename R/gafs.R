@@ -101,7 +101,7 @@ ga_func_check <- function(x) {
 #' @references Scrucca L (2013). GA: A Package for Genetic Algorithms in R.
 #' Journal of Statistical Software, 53(4), 1-37.
 #'
-#' \url{cran.r-project.org/web/packages/GA/}
+#' \url{https://cran.r-project.org/package=GA}
 #'
 #' \url{http://topepo.github.io/caret/feature-selection-using-genetic-algorithms.html}
 #' @examples
@@ -639,7 +639,7 @@ ga_select <- function(x, y, perf = NULL,
                                        subsets,
                                        external[, !(names(external) %in% ga_external_names), drop = FALSE]),
                silent = TRUE)
-  if(class(diffs)[1] == "try-error") diffs <- NULL
+  if (inherits(diffs, "try-error")) diffs <- NULL
 
   list(internal = internal,
        subsets = subsets,
@@ -922,7 +922,7 @@ gafs <- function (x, ...) UseMethod("gafs")
 #' Springer, Chapter 19 \url{http://appliedpredictivemodeling.com}
 #'
 #' Scrucca L (2013). GA: A Package for Genetic Algorithms in R. Journal of
-#' Statistical Software, 53(4), 1-37. \url{www.jstatsoft.org/v53/i04}
+#' Statistical Software, 53(4), 1-37. \url{https://www.jstatsoft.org/article/view/v053i04}
 #'
 #' Mitchell M (1996), An Introduction to Genetic Algorithms, MIT Press.
 #'
@@ -1610,7 +1610,7 @@ update.gafs <- function(object, iter, x, y, ...) {
       diffs <- try(process_diffs(result[names(result) == "diffs"],
                                  colnames(x)),
                    silent = TRUE)
-      if(class(diffs)[1] == "try-error") {
+      if (inherits(diffs, "try-error"))  {
         diffs <- NULL
         # warning("An error occured when computing the variable differences")
       }

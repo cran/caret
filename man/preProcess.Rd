@@ -8,11 +8,24 @@
 \usage{
 preProcess(x, ...)
 
-\method{preProcess}{default}(x, method = c("center", "scale"),
-  thresh = 0.95, pcaComp = NULL, na.remove = TRUE, k = 5,
-  knnSummary = mean, outcome = NULL, fudge = 0.2, numUnique = 3,
-  verbose = FALSE, freqCut = 95/5, uniqueCut = 10, cutoff = 0.9,
-  rangeBounds = c(0, 1), ...)
+\method{preProcess}{default}(
+  x,
+  method = c("center", "scale"),
+  thresh = 0.95,
+  pcaComp = NULL,
+  na.remove = TRUE,
+  k = 5,
+  knnSummary = mean,
+  outcome = NULL,
+  fudge = 0.2,
+  numUnique = 3,
+  verbose = FALSE,
+  freqCut = 95/5,
+  uniqueCut = 10,
+  cutoff = 0.9,
+  rangeBounds = c(0, 1),
+  ...
+)
 
 \method{predict}{preProcess}(object, newdata, ...)
 }
@@ -99,7 +112,7 @@ nothing is recomputed when using the \code{predict} function.
 
 The Box-Cox (\code{method = "BoxCox"}), Yeo-Johnson (\code{method =
 "YeoJohnson"}), and exponential transformations (\code{method =
-"expoTrans"})have been "repurposed" here: they are being used to transform
+"expoTrans"}) have been "repurposed" here: they are being used to transform
 the predictor variables. The Box-Cox transformation was developed for
 transforming the response variable while another method, the Box-Tidwell
 transformation, was created to estimate transformations of predictor data.
@@ -107,7 +120,7 @@ However, the Box-Cox method is simpler, more computationally efficient and
 is equally effective for estimating power transformations. The Yeo-Johnson
 transformation is similar to the Box-Cox model but can accommodate
 predictors with zero and/or negative values (while the predictors values for
-the Box-Cox transformation must be strictly positive.) The exponential
+the Box-Cox transformation must be strictly positive). The exponential
 transformation of Manly (1976) can also be used for positive or negative
 data.
 

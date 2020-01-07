@@ -3,6 +3,17 @@
 \newcommand{\cpkg}{\href{https://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 \newcommand{\issue}{\href{https://github.com/topepo/caret/issues/#1}{(issue #1)}}
 
+\section{Changes in version 6.0-85}{
+  \itemize{
+    \item Internal changes required by r-devel for new matrix class structure.
+    \item Michael Mayer contributed a faster version of `groupKFold()`. \issue{1108}
+    \item A typo in a variable name was fixed. \issue{1087}
+    \item Removed some warnings related to contrasts.
+    \item Temporarily moved ROC calculations back to the \cpkg{pROC} package related to \code{JackStat/ModelMetrics#30}. \issue{1105}
+
+  }
+}
+
 \section{Changes in version 6.0-84}{
   \itemize{
     \item Another new version was related to character encodings.
@@ -13,6 +24,7 @@
   \itemize{
     \item A new version was requested by CRAN since en dashes were used in the documentation.
     \item A bug was fixed where, for some recipes that involve class imbalance sampling, the resampling indicies were computed incorrectly \issue{1030}.
+    \item code{train} now removes duplicate models in the tuning grid. Duplicates could occur for models with discrete parameters.
   }
 }
 
@@ -514,7 +526,7 @@ more internal functions.
 
 \section{Changes in version 6.0-21}{
 \itemize{
-\item A new system for user-defined models has been added. 
+\item A new system for user-defined models has been added.
 \item When creating the grid of tuning parameter values, the column
 names no longer need to be preceded by a period. Periods can still be
 used as before but are not required. This isn't guaranteed to break
