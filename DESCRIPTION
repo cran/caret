@@ -1,5 +1,5 @@
 Package: caret
-Version: 6.0-85
+Version: 6.0-86
 Title: Classification and Regression Training
 Authors@R: c(
   person("Max", "Kuhn", role = c("aut", "cre"), email = "mxkuhn@gmail.com"),
@@ -25,20 +25,20 @@ Description: Misc functions for training and plotting classification and
 Depends: R (>= 3.2.0), lattice (>= 0.20), ggplot2
 URL: https://github.com/topepo/caret/
 BugReports: https://github.com/topepo/caret/issues
-Imports: foreach, methods, plyr, ModelMetrics (>= 1.1.0), nlme,
-        reshape2, stats, stats4, utils, grDevices, recipes (>= 0.1.4),
+Imports: foreach, methods, plyr, ModelMetrics (>= 1.2.2.2), nlme,
+        reshape2, stats, stats4, utils, grDevices, recipes (>= 0.1.10),
         withr (>= 2.0.0), pROC,
 Suggests: BradleyTerry2, e1071, earth (>= 2.2-3), fastICA, gam (>=
         1.15), ipred, kernlab, knitr, klaR, MASS, ellipse, mda, mgcv,
         mlbench, MLmetrics, nnet, party (>= 0.9-99992), pls, proxy,
         randomForest, RANN, spls, subselect, pamr, superpc, Cubist,
-        testthat (>= 0.9.1), rpart, dplyr
+        testthat (>= 0.9.1), rpart, dplyr, covr
 License: GPL (>= 2)
 RoxygenNote: 7.0.2.9000
 VignetteBuilder: knitr
 Encoding: UTF-8
 NeedsCompilation: yes
-Packaged: 2020-01-04 19:51:47 UTC; max
+Packaged: 2020-03-20 03:09:16 UTC; max
 Author: Max Kuhn [aut, cre],
   Jed Wing [ctb],
   Steve Weston [ctb],
@@ -58,4 +58,4 @@ Author: Max Kuhn [aut, cre],
   Tyler Hunt [ctb]
 Maintainer: Max Kuhn <mxkuhn@gmail.com>
 Repository: CRAN
-Date/Publication: 2020-01-07 20:20:20 UTC
+Date/Publication: 2020-03-20 10:20:07 UTC
