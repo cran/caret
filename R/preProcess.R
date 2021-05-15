@@ -52,7 +52,8 @@ getRangeBounds <- function(pp) {
 #' samples have values larger or smaller than those in the training set, values
 #' will be outside of this range.
 #'
-#' Predictors that are not numeric are ignored in the calculations.
+#' Predictors that are not numeric are ignored in the calculations (including
+#' methods "zv`" and "nzv`").
 #'
 #' \code{method = "zv"} identifies numeric predictor columns with a single
 #' value (i.e. having zero variance) and excludes them from further
@@ -165,7 +166,7 @@ getRangeBounds <- function(pp) {
 #' (chapter 4)
 #'
 #' Kuhn (2008), Building predictive models in R using the caret
-#' (\url{http://www.jstatsoft.org/article/view/v028i05/v28i05.pdf})
+#' (\url{https://www.jstatsoft.org/article/view/v028i05/v28i05.pdf})
 #'
 #' Box, G. E. P. and Cox, D. R. (1964) An analysis of transformations (with
 #' discussion). Journal of the Royal Statistical Society B, 26, 211-252.
@@ -281,14 +282,14 @@ preProcess.default <- function(x, method = c("center", "scale"),
     cmat <- try(cor(x[, !(colnames(x) %in% c(method$ignore, method$remove)), drop = FALSE],
                     use = "pairwise.complete.obs"),
                 silent = TRUE)
-    if(inherits(cmat, "try-error")) {
+    if(!inherits(cmat, "try-error")) {
       high_corr <- findCorrelation(cmat, cutoff = cutoff)
       if(length(high_corr) > 0) {
         removed <- colnames(cmat)[high_corr]
         method$remove <- unique(c(method$remove, removed))
         if(verbose) cat(paste(" ", length(removed), "highly correlated predictors were removed.\n"))
-      } else warning(paste("correlation matrix could not be computed:\n", cmat))
-    }
+      }
+    } else warning(paste("correlation matrix could not be computed:\n", cmat))
     method$corr <- NULL
   }
 
@@ -649,6 +650,9 @@ predict.preProcess <- function(object, newdata, ...) {
   if(any(names(object$method) == "pca")) {
     pca_cols <- newdata[, object$method$pca, drop = FALSE]
     pca_cols <-if(is.matrix(pca_cols)) pca_cols %*% object$rotation else as.matrix(pca_cols) %*% object$rotation
+    if (ncol(pca_cols) == 1) {
+      colnames(pca_cols) <- "PC1"
+    }
     if(is.data.frame(newdata)) pca_cols <- as.data.frame(pca_cols, stringsAsFactors = TRUE)
     newdata <- cbind(newdata, pca_cols)
     ## normally we get rid of columns that we used to create

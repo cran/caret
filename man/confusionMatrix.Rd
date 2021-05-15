@@ -4,6 +4,7 @@
 \alias{confusionMatrix}
 \alias{confusionMatrix.table}
 \alias{confusionMatrix.default}
+\alias{confusionMatrix.matrix}
 \title{Create a confusion matrix}
 \usage{
 confusionMatrix(data, ...)
@@ -13,6 +14,14 @@ confusionMatrix(data, ...)
   reference,
   positive = NULL,
   dnn = c("Prediction", "Reference"),
+  prevalence = NULL,
+  mode = "sens_spec",
+  ...
+)
+
+\method{confusionMatrix}{matrix}(
+  data,
+  positive = NULL,
   prevalence = NULL,
   mode = "sens_spec",
   ...
@@ -150,7 +159,7 @@ confusionMatrix(iris$Species, sample(iris$Species))
 \references{
 Kuhn, M. (2008), ``Building predictive models in R using the
 caret package, '' \emph{Journal of Statistical Software},
-(\url{http://www.jstatsoft.org/article/view/v028i05/v28i05.pdf}).
+(\url{https://www.jstatsoft.org/article/view/v028i05/v28i05.pdf}).
 
 Altman, D.G., Bland, J.M. (1994) ``Diagnostic tests 1: sensitivity and
 specificity,'' \emph{British Medical Journal}, vol 308, 1552.

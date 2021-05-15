@@ -17,7 +17,7 @@ train(x, ...)
   ...,
   weights = NULL,
   metric = ifelse(is.factor(y), "Accuracy", "RMSE"),
-  maximize = ifelse(metric \%in\% c("RMSE", "logLoss", "MAE"), FALSE, TRUE),
+  maximize = ifelse(metric \%in\% c("RMSE", "logLoss", "MAE", "logLoss"), FALSE, TRUE),
   trControl = trainControl(),
   tuneGrid = NULL,
   tuneLength = ifelse(trControl$method == "none", 1, 3)
@@ -335,7 +335,7 @@ usingMC <-  train(medv ~ .,
 \url{http://topepo.github.io/caret/}
 
 Kuhn (2008), ``Building Predictive Models in R Using the caret''
-(\url{http://www.jstatsoft.org/article/view/v028i05/v28i05.pdf})
+(\url{https://www.jstatsoft.org/article/view/v028i05/v28i05.pdf})
 
 \url{https://topepo.github.io/recipes/}
 }

@@ -84,7 +84,7 @@
 #' \code{\link[stats]{binom.test}}
 #' @references Kuhn, M. (2008), ``Building predictive models in R using the
 #' caret package, '' \emph{Journal of Statistical Software},
-#' (\url{http://www.jstatsoft.org/article/view/v028i05/v28i05.pdf}).
+#' (\url{https://www.jstatsoft.org/article/view/v028i05/v28i05.pdf}).
 #'
 #' Altman, D.G., Bland, J.M. (1994) ``Diagnostic tests 1: sensitivity and
 #' specificity,'' \emph{British Medical Journal}, vol 308, 1552.
@@ -182,6 +182,22 @@ confusionMatrix.default <- function(data, reference,
   classTable <- table(data, reference, dnn = dnn, ...)
 
   getFromNamespace("confusionMatrix.table", "caret")(classTable, positive, prevalence = prevalence, mode = mode)
+}
+
+#' @rdname confusionMatrix
+#' @method confusionMatrix matrix
+#' @importFrom utils getFromNamespace
+#' @export
+confusionMatrix.matrix <- function(data,
+                                   positive = NULL,
+                                   prevalence = NULL,
+                                   mode = "sens_spec",
+                                   ...) {
+  if (length(unique(dim(data))) != 1) {
+    stop("matrix must have equal dimensions")
+  }
+  classTable <- as.table(data, ...)
+  confusionMatrix(classTable, positive, prevalence = prevalence, mode = mode)
 }
 
 #' @rdname confusionMatrix

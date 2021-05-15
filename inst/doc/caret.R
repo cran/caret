@@ -4,6 +4,7 @@ library(caret)
 library(mlbench)
 data(Sonar)
 library(pls)
+library(klaR)
 library(knitr)
 opts_chunk$set(
   comment = "#>",

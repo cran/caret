@@ -154,7 +154,7 @@
 #' @references \url{http://topepo.github.io/caret/}
 #'
 #' Kuhn (2008), ``Building Predictive Models in R Using the caret''
-#' (\url{http://www.jstatsoft.org/article/view/v028i05/v28i05.pdf})
+#' (\url{https://www.jstatsoft.org/article/view/v028i05/v28i05.pdf})
 #'
 #' \url{https://topepo.github.io/recipes/}
 #' @keywords models
@@ -302,7 +302,7 @@ train.default <- function(x, y,
                           ...,
                           weights = NULL,
                           metric = ifelse(is.factor(y), "Accuracy", "RMSE"),
-                          maximize = ifelse(metric %in% c("RMSE", "logLoss", "MAE"), FALSE, TRUE),
+                          maximize = ifelse(metric %in% c("RMSE", "logLoss", "MAE", "logLoss"), FALSE, TRUE),
                           trControl = trainControl(),
                           tuneGrid = NULL,
                           tuneLength = ifelse(trControl$method == "none", 1, 3)) {
@@ -317,7 +317,7 @@ train.default <- function(x, y,
   if(is.character(y)) y <- as.factor(y)
 
   if( !is.numeric(y) & !is.factor(y) ){
-    msg <- paste("Please make sure that the outcome column is a factor or numeric .",
+    msg <- paste("Please make sure that the outcome column is a factor or numeric.",
                  "The class(es) of the column:",
                  paste0("'", class(y), "'", collapse = ", "))
 
@@ -867,7 +867,10 @@ train.default <- function(x, y,
   if(method == "glmnet") finalModel$lambdaOpt <- bestTune$lambda
 
   if(trControl$returnData) {
-    outData <- if(!is.data.frame(x)) try(as.data.frame(x, stringsAsFactors = TRUE), silent = TRUE) else x
+    outData <- if (inherits(x, "sparseMatrix")) as.matrix(x) else x
+    if(!is.data.frame(outData)) {
+      outData <- try(as.data.frame(outData, stringsAsFactors = TRUE), silent = TRUE)
+    }
     if(inherits(outData, "try-error")) {
       warning("The training data could not be converted to a data frame for saving")
       outData <- NULL
