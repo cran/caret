@@ -1,4 +1,4 @@
-60316a018059ed81dbdb874859cffb16 *DESCRIPTION
+69f4306c29d483401e9ec4d00f9be328 *DESCRIPTION
 9c692a4d593a0cb49236d55353e4b5f1 *NAMESPACE
 08360abde4d985bf2c2cc1dd30476d3a *R/BoxCoxTrans.R
 90e7462d8160b85896c346b5bd0ddfb7 *R/aaa.R
@@ -33,7 +33,7 @@ e3a2bec3b8f864f3fcb15aaeea8dd314 *R/featurePlot.R
 29b43a5d3d501f11d31117f72354e34f *R/gafs.R
 97e9016988b83bb09a98dce5cfc15995 *R/getTrainPerf.R
 1af18bdee846815fc5d26d5426f5ad45 *R/ggplot.R
-3d1ca584f519886d3d51156a7eded4f6 *R/heldout.R
+d079b5b53ddabb9f30beb930b9cd5167 *R/heldout.R
 db9eccb202b23d2d615fbbf0ddde32a2 *R/icr.R
 5361401b0b4905193c4bd496602c801a *R/knn3.R
 a15c8a33f1c14725b68cb30d53087013 *R/knnreg.R
@@ -105,11 +105,12 @@ b4f33509ee5271ad2348a5d2df2947f1 *data/mdrr.RData
 a181462ecfef277f1c93e200f6d1119b *data/scat.RData
 d886ea952f8361184e3d9439ceb1868a *data/segmentationData.RData
 615172cee8d28e823be805b301a94f36 *data/tecator.RData
-93c047b70153280141b6954fab5be681 *inst/NEWS.Rd
+f31e6541d06cdc6db335bbac8f59e462 *inst/CITATION
+2009b3b72897db47690876fab225f8e0 *inst/NEWS.Rd
 6972170b35b3d4b3e5b40eb6cc00625a *inst/doc/caret.R
 47707dac520730f58ab4ebb7cd1d1284 *inst/doc/caret.Rmd
-3eed3768ce83cf190efb373419f66a69 *inst/doc/caret.html
-c2d43e7308f63528213750574368fecc *inst/models/models.RData
+c332fb948aa4818098ab5d18722eabed *inst/doc/caret.html
+48aff0601cb8c65e6044c7e58adbb47a *inst/models/models.RData
 9d4ab57acae38cd09051b78b2fe7aec5 *inst/models/sampling.RData
 432f30b8821578720800c12f45f10f2b *man/BloodBrain.Rd
 6085a91dd6ed2ba6c2f9c92efac116cd *man/BoxCoxTrans.Rd
@@ -235,7 +236,7 @@ dac66d68d49d1796faf38679c164ed37 *tests/testthat/test_recipe_upsample.R
 23b1123afe13e0743db1ca7f69b39221 *tests/testthat/test_resamples.R
 4997e6eb5224b2615511f8594fc27e72 *tests/testthat/test_safs.R
 dad92d2290d5074b6d95f64973956f29 *tests/testthat/test_sampling_options.R
-ee74b46cad70c2f93a37f4352fe70b11 *tests/testthat/test_sparse_Matrix.R
+1e158179ce986760cf22074b68149c8c *tests/testthat/test_sparse_Matrix.R
 a0838ab719e03966c940a3299e0cf500 *tests/testthat/test_spatialSign.R
 2c0e25865d5aa9d30d5529c67e34c897 *tests/testthat/test_tibble.R
 f829c3e5fb00eb60d5c36a0c0d77ae98 *tests/testthat/test_twoClassSummary.R
