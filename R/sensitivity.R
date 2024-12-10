@@ -90,7 +90,7 @@
 #'
 #' prev <- seq(0.001, .99, length = 20)
 #' npvVals <- ppvVals <- prev  * NA
-#' for(i in seq(along = prev))
+#' for(i in seq(along.with = prev))
 #'   {
 #'     ppvVals[i] <- posPredValue(pred, truth, prevalence = prev[i])
 #'     npvVals[i] <- negPredValue(pred, truth, prevalence = prev[i])
@@ -196,6 +196,7 @@ sensitivity <-
 }
 
 #' @rdname sensitivity
+#' @export
 "sensitivity.matrix" <-
   function(data, positive = rownames(data)[1], ...)
 {

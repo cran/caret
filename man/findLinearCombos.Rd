@@ -24,9 +24,6 @@ then identify the sets of columns that are involved in the dependencies.
 
 To "resolve" them, columns are iteratively removed and the matrix rank is
 rechecked.
-
-The \code{\link[subselect:trim.matrix]{trim.matrix}} function in the
-\pkg{subselect} package can also be used to accomplish the same goal.
 }
 \examples{
 
@@ -52,9 +49,6 @@ testData2[,6] <- c(0, 0, 1, 0, 0, 1)
 
 findLinearCombos(testData2)
 
-}
-\seealso{
-\code{\link[subselect:trim.matrix]{trim.matrix}}
 }
 \author{
 Kirk Mettler and Jed Wing (\code{enumLC}) and Max Kuhn
