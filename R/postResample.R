@@ -1,113 +1,101 @@
 #' Calculates performance across resamples
 #'
-#' Given two numeric vectors of data, the mean squared error and
-#'  R-squared are calculated. For two factors, the overall agreement
-#'  rate and Kappa are determined.
+#' Given two numeric vectors of data, the mean squared error and R-squared are
+#' calculated. For two factors, the overall agreement rate and Kappa are
+#' determined.
 #'
-#' \code{postResample} is meant to be used with \code{apply}
-#'  across a matrix. For numeric data the code checks to see if the
-#'  standard deviation of either vector is zero. If so, the
-#'  correlation between those samples is assigned a value of zero.
-#'  \code{NA} values are ignored everywhere.
+#' `postResample` is meant to be used with `apply` across a matrix. For numeric
+#' data the code checks to see if the standard deviation of either vector is
+#' zero. If so, the correlation between those samples is assigned a value of
+#' zero. `NA` values are ignored everywhere.
 #'
-#' Note that many models have more predictors (or parameters) than
-#'  data points, so the typical mean squared error denominator (n -
-#'  p) does not apply. Root mean squared error is calculated using
-#'  \code{sqrt(mean((pred - obs)^2}. Also, \eqn{R^2} is calculated
-#'  wither using as the square of the correlation between the
-#'  observed and predicted outcomes when \code{form = "corr"}. when
-#'  \code{form = "traditional"}, \deqn{ R^2 = 1-\frac{\sum (y_i -
-#'  \hat{y}_i)^2}{\sum (y_i - \bar{y})^2} }. Mean absolute error
-#'  is calculated using \code{mean(abs(pred-obs))}.
+#' Note that many models have more predictors (or parameters) than data points,
+#' so the typical mean squared error denominator (n - p) does not apply. Root
+#' mean squared error is calculated using `sqrt(mean((pred - obs)^2`. Also,
+#' \eqn{R^2} is calculated wither using as the square of the correlation
+#' between the observed and predicted outcomes when `form = "corr"`. when `form
+#' = "traditional"`, \deqn{ R^2 = 1-\frac{\sum (y_i - \hat{y}_i)^2}{\sum (y_i -
+#' \bar{y})^2} }. Mean absolute error is calculated using
+#' `mean(abs(pred-obs))`.
 #'
-#' \code{defaultSummary} is the default function to compute
-#'  performance metrics in \code{\link{train}}. It is a wrapper
-#'  around \code{postResample}. The first argument is \code{data},
-#'  which is \code{data.frame} with columns named \code{obs} and
-#'  \code{pred} for the observed and predicted outcome values
-#'  (either numeric data for regression or character values for
-#'  classification). The second argument is \code{lev}, a character
-#'  string that has the outcome factor levels or NULL for a
-#'  regression model. The third parameter is \code{model}, which can
-#'  be used if a summary metric is specific to a model function. If
-#'  other columns from the data are required to compute the summary
-#'  statistics, but should not be used in the model, the
-#'  \code{recipe} method for \code{\link{train}} can be used.
+#' `defaultSummary` is the default function to compute performance metrics in
+#' [train()]. It is a wrapper around `postResample`. The first argument is
+#' `data`, which is `data.frame` with columns named `obs` and `pred` for the
+#' observed and predicted outcome values (either numeric data for regression or
+#' character values for classification). The second argument is `lev`, a
+#' character string that has the outcome factor levels or NULL for a regression
+#' model. The third parameter is `model`, which can be used if a summary metric
+#' is specific to a model function. If other columns from the data are required
+#' to compute the summary statistics, but should not be used in the model, the
+#' `recipe` method for [train()] can be used.
 #'
-#' \code{twoClassSummary} computes sensitivity, specificity and
-#'  the area under the ROC curve. \code{mnLogLoss} computes the
-#'  minus log-likelihood of the multinomial distribution (without
-#'  the constant term): \deqn{ -logLoss = \frac{-1}{n}\sum_{i=1}^n
-#'  \sum_{j=1}^C y_{ij} \log(p_{ij}) } where the \code{y} values are
-#'  binary indicators for the classes and \code{p} are the predicted
-#'  class probabilities.
+#' `twoClassSummary` computes sensitivity, specificity and the area under the
+#' ROC curve. `mnLogLoss` computes the minus log-likelihood of the multinomial
+#' distribution (without the constant term): \deqn{ -logLoss =
+#' \frac{-1}{n}\sum_{i=1}^n \sum_{j=1}^C y_{ij} \log(p_{ij}) } where the `y`
+#' values are binary indicators for the classes and `p` are the predicted class
+#' probabilities.
 #'
-#' \code{prSummary} (for precision and recall) computes values for
-#'  the default 0.50 probability cutoff as well as the area under
-#'  the precision-recall curve across all cutoffs and is labelled as
-#'  \code{"AUC"} in the output. If assumes that the first level of
-#'  the factor variables corresponds to a relevant result but the
-#'  \code{lev} argument can be used to change this.
+#' `prSummary` (for precision and recall) computes values for the default 0.50
+#' probability cutoff as well as the area under the precision-recall curve
+#' across all cutoffs and is labelled as `"AUC"` in the output. If assumes that
+#' the first level of the factor variables corresponds to a relevant result but
+#' the `lev` argument can be used to change this.
 #'
-#' \code{multiClassSummary} computes some overall measures of for
-#'  performance (e.g. overall accuracy and the Kappa statistic) and
-#'  several averages of statistics calculated from "one-versus-all"
-#'  configurations. For example, if there are three classes, three
-#'  sets of sensitivity values are determined and the average is
-#'  reported with the name ("Mean_Sensitivity"). The same is true
-#'  for a number of statistics generated by
-#'  \code{\link{confusionMatrix}}. With two classes, the basic
-#'  sensitivity is reported with the name "Sensitivity".
+#' `multiClassSummary` computes some overall measures of for performance (e.g.
+#' overall accuracy and the Kappa statistic) and several averages of statistics
+#' calculated from "one-versus-all" configurations. For example, if there are
+#' three classes, three sets of sensitivity values are determined and the
+#' average is reported with the name ("Mean_Sensitivity"). The same is true for
+#' a number of statistics generated by [confusionMatrix()]. With two classes,
+#' the basic sensitivity is reported with the name "Sensitivity".
 #'
-#' To use \code{twoClassSummary} and/or \code{mnLogLoss}, the
-#'  \code{classProbs} argument of \code{\link{trainControl}} should
-#'  be \code{TRUE}. \code{multiClassSummary} can be used without
-#'  class probabilities but some statistics (e.g. overall log loss
-#'  and the average of per-class area under the ROC curves) will not
-#'  be in the result set.
+#' To use `twoClassSummary` and/or `mnLogLoss`, the `classProbs` argument of
+#' [trainControl()] should be `TRUE`. `multiClassSummary` can be used without
+#' class probabilities but some statistics (e.g. overall log loss and the
+#' average of per-class area under the ROC curves) will not be in the result
+#' set.
 #'
-#' Other functions can be used via the \code{summaryFunction}
-#'  argument of \code{\link{trainControl}}. Custom functions must
-#'  have the same arguments as\code{defaultSummary}.
+#' Other functions can be used via the `summaryFunction` argument of
+#' [trainControl()]. Custom functions must have the same arguments
+#' as`defaultSummary`.
 #'
-#' The function \code{getTrainPerf} returns a one row data frame
-#'  with the resampling results for the chosen model. The statistics
-#'  will have the prefix "\code{Train}" (i.e. "\code{TrainROC}").
-#'  There is also a column called "\code{method}" that echoes the
-#'  argument of the call to \code{\link{trainControl}} of the same
-#'  name.
+#' The function `getTrainPerf` returns a one row data frame with the resampling
+#' results for the chosen model. The statistics will have the prefix "`Train`"
+#' (i.e. "`TrainROC`"). There is also a column called "`method`" that echoes
+#' the argument of the call to [trainControl()] of the same name.
 #'
-#' @aliases postResample defaultSummary twoClassSummary prSummary
-#'  getTrainPerf mnLogLoss R2 RMSE multiClassSummary MAE
+#' @aliases postResample defaultSummary twoClassSummary prSummary getTrainPerf mnLogLoss R2 RMSE multiClassSummary MAE
 #' @param pred A vector of numeric data (could be a factor)
 #' @param obs A vector of numeric data (could be a factor)
-#' @param data a data frame with columns \code{obs} and
-#'  \code{pred} for the observed and predicted outcomes. For metrics
-#'  that rely on class probabilities, such as
-#'  \code{twoClassSummary}, columns should also include predicted
-#'  probabilities for each class. See the \code{classProbs} argument
-#'  to \code{\link{trainControl}}.
-#' @param lev a character vector of factors levels for the
-#'  response. In regression cases, this would be \code{NULL}.
-#' @param model a character string for the model name (as taken
-#'  from the \code{method} argument of \code{\link{train}}.
+#' @param data a data frame with columns `obs` and `pred` for the observed and
+#'   predicted outcomes. For metrics that rely on class probabilities, such as
+#'   `twoClassSummary`, columns should also include predicted probabilities for
+#'   each class. See the `classProbs` argument to [trainControl()].
+#' @param lev a character vector of factors levels for the response. In
+#'   regression cases, this would be `NULL`.
+#' @param model a character string for the model name (as taken from the
+#'   `method` argument of [train()].
 #' @return A vector of performance estimates.
 #' @author Max Kuhn, Zachary Mayer
-#' @seealso \code{\link{trainControl}}
+#' @seealso [trainControl()], [yardstickSummary()]
 #' @references Kvalseth. Cautionary note about \eqn{R^2}. American Statistician
-#' (1985) vol. 39 (4) pp. 279-285
+#'   (1985) vol. 39 (4) pp. 279-285
+#' @family performance
 #' @keywords utilities
 #' @examples
 #'
-#' predicted <-  matrix(rnorm(50), ncol = 5)
+#' predicted <- matrix(rnorm(50), ncol = 5)
 #' observed <- rnorm(10)
 #' apply(predicted, 2, postResample, obs = observed)
 #'
 #' classes <- c("class1", "class2")
 #' set.seed(1)
-#' dat <- data.frame(obs =  factor(sample(classes, 50, replace = TRUE)),
-#'                   pred = factor(sample(classes, 50, replace = TRUE)),
-#'                   class1 = runif(50))
+#' dat <- data.frame(
+#'   obs = factor(sample(classes, 50, replace = TRUE)),
+#'   pred = factor(sample(classes, 50, replace = TRUE)),
+#'   class1 = runif(50)
+#' )
 #' dat$class2 <- 1 - dat$class1
 #'
 #' defaultSummary(dat, lev = classes)
@@ -116,168 +104,178 @@
 #' mnLogLoss(dat, lev = classes)
 #'
 #' @export postResample
-postResample <- function(pred, obs)
-{
-
+postResample <- function(pred, obs) {
+  if (length(pred) != length(obs)) {
+    cli::cli_abort(
+      "{.arg pred} (length {length(pred)}) and {.arg obs} (length {length(obs)}) must be the same length."
+    )
+  }
   isNA <- is.na(pred)
   pred <- pred[!isNA]
   obs <- obs[!isNA]
 
-  if (!is.factor(obs) && is.numeric(obs))
-    {
-      if(length(obs) + length(pred) == 0)
-        {
-          out <- rep(NA, 3)
-        } else {
-          if(length(unique(pred)) < 2 || length(unique(obs)) < 2)
-            {
-              resamplCor <- NA
-            } else {
-              resamplCor <- try(cor(pred, obs, use = "pairwise.complete.obs"), silent = TRUE)
-              if (inherits(resamplCor, "try-error")) resamplCor <- NA
-            }
-          mse <- mean((pred - obs)^2)
-          mae <- mean(abs(pred - obs))
-
-          out <- c(sqrt(mse), resamplCor^2, mae)
-        }
-      names(out) <- c("RMSE", "Rsquared", "MAE")
+  if (!is.factor(obs) && is.numeric(obs)) {
+    if (length(obs) + length(pred) == 0) {
+      out <- rep(NA, 3)
     } else {
-      if(length(obs) + length(pred) == 0)
-        {
-          out <- rep(NA, 2)
-        } else {
-          pred <- factor(pred, levels = levels(obs))
-          requireNamespaceQuietStop("e1071")
-          out <- unlist(e1071::classAgreement(table(obs, pred)))[c("diag", "kappa")]
-        }
-      names(out) <- c("Accuracy", "Kappa")
+      # rsq is undefined (and yardstick warns) when either vector is constant
+      out <- c(
+        yardstick::rmse_vec(obs, pred),
+        suppressWarnings(yardstick::rsq_vec(obs, pred)),
+        yardstick::mae_vec(obs, pred)
+      )
     }
-  if(any(is.nan(out))) out[is.nan(out)] <- NA
+    names(out) <- c("RMSE", "Rsquared", "MAE")
+  } else {
+    if (length(obs) + length(pred) == 0) {
+      out <- rep(NA, 2)
+    } else {
+      pred <- factor(pred, levels = levels(obs))
+      out <- c(
+        yardstick::accuracy_vec(obs, pred),
+        yardstick::kap_vec(obs, pred)
+      )
+    }
+    names(out) <- c("Accuracy", "Kappa")
+  }
+  if (any(is.nan(out))) {
+    out[is.nan(out)] <- NA
+  }
   out
 }
 
 
 #' @rdname postResample
-#' @importFrom pROC roc
 #' @export
-twoClassSummary <- function (data, lev = NULL, model = NULL) {
-  if(length(lev) > 2) {
-    stop(paste("Your outcome has", length(lev),
-               "levels. The twoClassSummary() function isn't appropriate."))
+twoClassSummary <- function(data, lev = NULL, model = NULL) {
+  if (length(lev) > 2) {
+    stop(paste(
+      "Your outcome has",
+      length(lev),
+      "levels. The twoClassSummary() function isn't appropriate."
+    ))
   }
-  requireNamespaceQuietStop('pROC')
   if (!all(levels(data[, "pred"]) == lev)) {
     stop("levels of observed and predicted data do not match")
   }
-  rocObject <- try(pROC::roc(data$obs, data[, lev[1]], direction = ">", quiet = TRUE), silent = TRUE)
-  rocAUC <- if(inherits(rocObject, "try-error")) NA else rocObject$auc
-  out <- c(rocAUC,
-           sensitivity(data[, "pred"], data[, "obs"], lev[1]),
-           specificity(data[, "pred"], data[, "obs"], lev[2]))
+  # undefined metrics (e.g. a resample with one class) are NA; yardstick also
+  # warns about them
+  suppressWarnings(
+    out <- c(
+      prob_metric(yardstick::roc_auc_vec, data$obs, data[, lev[1]]),
+      yardstick::sens_vec(data$obs, data$pred),
+      yardstick::spec_vec(data$obs, data$pred)
+    )
+  )
   names(out) <- c("ROC", "Sens", "Spec")
   out
 }
 
 #' @rdname postResample
-#' @importFrom stats complete.cases
 #' @export
-mnLogLoss <- function(data, lev = NULL, model = NULL){
-  if(is.null(lev)) stop("'lev' cannot be NULL")
-  if(!all(lev %in% colnames(data)))
+mnLogLoss <- function(data, lev = NULL, model = NULL) {
+  if (is.null(lev)) {
+    stop("'lev' cannot be NULL")
+  }
+  if (!all(lev %in% colnames(data))) {
     stop("'data' should have columns consistent with 'lev'")
-  if(!all(sort(lev) %in% sort(levels(data$obs))))
+  }
+  if (!all(sort(lev) %in% sort(levels(data$obs)))) {
     stop("'data$obs' should have levels consistent with 'lev'")
+  }
 
-  dataComplete <- data[complete.cases(data),]
-  probs <- as.matrix(dataComplete[, lev, drop = FALSE])
+  dataComplete <- data[complete.cases(data), ]
+  if (nrow(dataComplete) == 0) {
+    return(c(logLoss = NA_real_))
+  }
+  # yardstick matches probability columns to the factor levels by position
+  probs <- as.matrix(dataComplete[, levels(dataComplete$obs), drop = FALSE])
+  # yardstick's binary estimator expects only the first level's probabilities
+  if (ncol(probs) == 2) {
+    probs <- probs[, 1]
+  }
 
-  logLoss <- ModelMetrics::mlogLoss(dataComplete$obs, probs)
+  logLoss <- yardstick::mn_log_loss_vec(dataComplete$obs, probs)
   c(logLoss = logLoss)
 }
 
 #' @rdname postResample
 #' @export
-multiClassSummary <- function(data, lev = NULL, model = NULL){
+multiClassSummary <- function(data, lev = NULL, model = NULL) {
   #Check data
-  if (!all(levels(data[, "pred"]) == levels(data[, "obs"])))
+  if (!all(levels(data[, "pred"]) == levels(data[, "obs"]))) {
     stop("levels of observed and predicted data do not match")
+  }
 
   has_class_probs <- all(lev %in% colnames(data))
+  obs <- data[, "obs"]
+  pred <- data[, "pred"]
+  classes <- levels(pred)
+  is_binary <- length(classes) == 2
 
-  if(has_class_probs) {
+  if (has_class_probs) {
     ## Overall multinomial loss
     lloss <- mnLogLoss(data = data, lev = lev, model = model)
 
-    requireNamespaceQuietStop("pROC")
-    requireNamespaceQuietStop("MLmetrics")
-
-    #Calculate custom one-vs-all ROC curves for each class
+    # One-vs-all ROC and PR curves for each class, averaged over the classes
+    # that occur in the data
     prob_stats <-
-      lapply(levels(data[, "pred"]),
-             function(x){
-               #Grab one-vs-all data for the class
-               obs  <- ifelse(data[,"obs"] == x, 1, 0)
-               prob <- data[,x]
-               roc_auc <- try(pROC::roc(obs, data[,x], direction = "<", quiet = TRUE), silent = TRUE)
-               roc_auc <- if (inherits(roc_auc, "try-error")) NA else roc_auc$auc
-               pr_auc <- try(MLmetrics::PRAUC(y_pred = data[,x], y_true = obs),
-                             silent = TRUE)
-               if(inherits(pr_auc, "try-error"))
-                 pr_auc <- NA
-               res <- c(ROC = roc_auc, AUC = pr_auc)
-               return(res)
-               })
+      lapply(classes, function(x) {
+        is_x <- factor(obs == x, levels = c(TRUE, FALSE))
+        suppressWarnings(
+          res <- c(
+            ROC = prob_metric(yardstick::roc_auc_vec, is_x, data[, x]),
+            AUC = prob_metric(yardstick::pr_auc_vec, is_x, data[, x])
+          )
+        )
+        res
+      })
     prob_stats <- do.call("rbind", prob_stats)
     prob_stats <- colMeans(prob_stats, na.rm = TRUE)
   }
 
-  #Calculate confusion matrix-based statistics
-  CM <- confusionMatrix(data[, "pred"], data[, "obs"],
-                        mode = "everything")
-
-  #Aggregate and average class-wise stats
-  #Todo: add weights
-  # RES: support two classes here as well
-  if (length(levels(data[, "pred"])) == 2) {
-    class_stats <- CM$byClass
+  # With two classes, the first level is the event; otherwise, the per-class
+  # statistics are macro averaged
+  if (is_binary) {
+    estimator <- "binary"
   } else {
-    class_stats <- colMeans(CM$byClass)
-    names(class_stats) <- paste("Mean", names(class_stats))
+    estimator <- "macro"
+  }
+  class_stat <- function(fn) {
+    suppressWarnings(fn(obs, pred, estimator = estimator))
+  }
+  if (is_binary) {
+    detection_rate <- mean(pred == classes[1] & obs == classes[1])
+  } else {
+    detection_rate <- mean(pred == obs) / length(classes)
   }
 
-  # Aggregate overall stats
-  overall_stats <-
-    if (has_class_probs)
-      c(CM$overall,
-        logLoss = as.numeric(lloss),
-        AUC = unname(prob_stats["ROC"]),
-        prAUC = unname(prob_stats["AUC"]))
-  else
-    CM$overall
+  stats <- c(
+    Accuracy = yardstick::accuracy_vec(obs, pred),
+    Kappa = yardstick::kap_vec(obs, pred),
+    Mean_F1 = class_stat(yardstick::f_meas_vec),
+    Mean_Sensitivity = class_stat(yardstick::sens_vec),
+    Mean_Specificity = class_stat(yardstick::spec_vec),
+    Mean_Pos_Pred_Value = class_stat(yardstick::ppv_vec),
+    Mean_Neg_Pred_Value = class_stat(yardstick::npv_vec),
+    Mean_Precision = class_stat(yardstick::precision_vec),
+    Mean_Recall = class_stat(yardstick::recall_vec),
+    Mean_Detection_Rate = detection_rate,
+    Mean_Balanced_Accuracy = class_stat(yardstick::bal_accuracy_vec)
+  )
 
+  if (has_class_probs) {
+    stats <- c(
+      logLoss = as.numeric(lloss),
+      AUC = unname(prob_stats["ROC"]),
+      prAUC = unname(prob_stats["AUC"]),
+      stats
+    )
+  }
+  if (is_binary) {
+    names(stats) <- gsub("^Mean_", "", names(stats))
+  }
+  stats[is.nan(stats)] <- NA
 
-  # Combine overall with class-wise stats and remove some stats we don't want
-  stats <- c(overall_stats, class_stats)
-  stats <- stats[! names(stats) %in% c('AccuracyNull', "AccuracyLower", "AccuracyUpper",
-                                       "AccuracyPValue", "McnemarPValue",
-                                       'Mean Prevalence', 'Mean Detection Prevalence')]
-
-  # Clean names
-  names(stats) <- gsub('[[:blank:]]+', '_', names(stats))
-
-  # Change name ordering to place most useful first
-  # May want to remove some of these eventually
-  stat_list <- c("Accuracy", "Kappa", "Mean_F1",
-                 "Mean_Sensitivity", "Mean_Specificity",
-                 "Mean_Pos_Pred_Value", "Mean_Neg_Pred_Value",
-                 "Mean_Precision", "Mean_Recall",
-                 "Mean_Detection_Rate",
-                 "Mean_Balanced_Accuracy")
-  if(has_class_probs) stat_list <- c("logLoss", "AUC", "prAUC", stat_list)
-  if (length(levels(data[, "pred"])) == 2) stat_list <- gsub("^Mean_", "", stat_list)
-
-  stats <- stats[c(stat_list)]
-
-  return(stats)
+  stats
 }

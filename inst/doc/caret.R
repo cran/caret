@@ -1,12 +1,26 @@
 ## ----loadLibs, include = FALSE-----------------------
-library(MASS)
 library(caret)
-library(mlbench)
-data(Sonar)
-library(pls)
-library(klaR)
 library(knitr)
+
+## The modelling packages used below are all suggested, not required. When any
+## of them is missing the chunks are left unevaluated so that the vignette
+## still builds (e.g. in a check that installs hard dependencies only).
+needed <- c("MASS", "mlbench", "pls", "klaR")
+has_pkgs <- all(vapply(needed, requireNamespace, logical(1), quietly = TRUE))
+
+if (has_pkgs) {
+  library(MASS)
+  library(mlbench)
+  library(pls)
+  library(klaR)
+  data(Sonar)
+}
+
+## `eval` does not apply to inline code, so inline results go through this
+inl <- function(x) tryCatch(x, error = function(e) "")
+
 opts_chunk$set(
+  eval = has_pkgs,
   comment = "#>",
   collapse = TRUE,
   digits = 3,
@@ -31,7 +45,7 @@ getInfo <- function(what = "Suggests") {
 }
 
 ## ----install, eval = FALSE---------------------------
-#  install.packages("caret", dependencies = c("Depends", "Suggests"))
+# install.packages("caret", dependencies = c("Depends", "Suggests"))
 
 ## ----SonarSplit--------------------------------------
 library(caret)
@@ -61,14 +75,14 @@ nrow(training)
 nrow(testing)
 
 ## ----plsTune1, eval = FALSE--------------------------
-#  plsFit <- train(
-#    Class ~ .,
-#    data = training,
-#    method = "pls",
-#    ## Center and scale the predictors for the training
-#    ## set and all future samples.
-#    preProc = c("center", "scale")
-#  )
+# plsFit <- train(
+#   Class ~ .,
+#   data = training,
+#   method = "pls",
+#   ## Center and scale the predictors for the training
+#   ## set and all future samples.
+#   preProc = c("center", "scale")
+# )
 
 ## ----pls_fit-----------------------------------------
 ctrl <- trainControl(

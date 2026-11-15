@@ -1,84 +1,96 @@
-#' Tools for Models Available in \code{train}
+#' Tools for Models Available in `train`
 #'
 #' These function show information about models and packages that are
-#' accessible via \code{\link{train}}
+#' accessible via [train()]
 #'
-#' \code{modelLookup} is good for getting information related to the tuning
-#' parameters for a model. \code{getModelInfo} will return all the functions
-#' and metadata associated with a model. Both of these functions will only
-#' search within the models bundled in this package.
+#' `modelLookup` is good for getting information related to the tuning
+#' parameters for a model. `getModelInfo` will return all the functions and
+#' metadata associated with a model. Both of these functions will only search
+#' within the models bundled in this package.
 #'
-#' \code{checkInstall} will check to see if packages are installed. If they are
-#' not and the session is interactive, an option is given to install the
-#' packages using \code{\link[utils]{install.packages}} using that functions
-#' default arguments (the missing packages are listed if you would like to
-#' install them with other options). If the session is not interactive, an
-#' error is thrown.
+#' `checkInstall` will check to see if packages are installed. If they are not
+#' and the session is interactive, an option is given to install the packages
+#' using [utils::install.packages()] using that functions default arguments
+#' (the missing packages are listed if you would like to install them with
+#' other options). If the session is not interactive, an error is thrown.
 #'
 #' @aliases modelLookup getModelInfo checkInstall
-#' @param model a character string associated with the \code{method} argument
-#' of \code{\link{train}}. If no value is passed, all models are returned. For
-#' \code{getModelInfo}, regular expressions can be used.
-#' @param regex a logical: should a regular expressions be used? If
-#' \code{FALSE}, a simple match is conducted against the whole name of the
-#' model.
+#' @param model a character string associated with the `method` argument of
+#'   [train()]. If no value is passed, all models are returned. For
+#'   `getModelInfo`, regular expressions can be used.
+#' @param regex a logical: should a regular expressions be used? If `FALSE`, a
+#'   simple match is conducted against the whole name of the model.
 #' @param pkg a character string of package names.
-#' @param ...  options to pass to \code{\link[base]{grepl}}
-#' @return \code{modelLookup} produces a data frame with columns \item{model
-#' }{a character string for the model code} \item{parameter }{the tuning
-#' parameter name} \item{label }{a tuning parameter label (used in plots)}
-#' \item{forReg }{a logical; can the model be used for regression?}
-#' \item{forClass }{a logical; can the model be used for classification?}
-#' \item{probModel }{a logical; does the model produce class probabilities?}
+#' @param ...  options to pass to [base::grepl()]
+#' @return `modelLookup` produces a data frame with columns:
 #'
-#' \code{getModelInfo} returns a list containing one or more lists of the
-#' standard model information.
+#' * `model`: a character string for the model code
+#' * `parameter`: the tuning parameter name
+#' * `label`: a tuning parameter label (used in plots)
+#' * `forReg`: a logical; can the model be used for regression?
+#' * `forClass`: a logical; can the model be used for classification?
+#' * `probModel`: a logical; does the model produce class probabilities?
 #'
-#' \code{checkInstall} returns not value.
-#' @note The column \code{seq} is no longer included in the output of
-#' \code{modelLookup}.
+#' `getModelInfo` returns a list containing one or more lists of the standard
+#' model information. `checkInstall` returns not value.
+#' @note The column `seq` is no longer included in the output of `modelLookup`.
 #' @author Max Kuhn
-#' @seealso \code{\link{train}}, \code{\link[utils]{install.packages}},
-#' \code{\link[base]{grepl}}
+#' @seealso [train()], [utils::install.packages()], [base::grepl()]
 #' @keywords utilities
-#' @examples
+#' @examplesIf !caret:::is_cran_check()
 #'
 #' \dontrun{
-#' modelLookup()
-#' modelLookup("gbm")
+#' if (caret:::has_packages("pls")) {
+#'   modelLookup()
+#'   modelLookup("gbm")
 #'
-#' getModelInfo("pls")
-#' getModelInfo("^pls")
-#' getModelInfo("pls", regex = FALSE)
+#'   getModelInfo("pls")
+#'   getModelInfo("^pls")
+#'   getModelInfo("pls", regex = FALSE)
 #'
-#' checkInstall(getModelInfo("pls")$library)
+#'   checkInstall(getModelInfo("pls")$library)
+#' }
 #' }
 #'
 #' @export modelLookup
-modelLookup <- function(model = NULL){
+modelLookup <- function(model = NULL) {
   load(system.file("models", "models.RData", package = "caret"))
-  if(!is.null(model)){
-    if(!(model %in% names(models))) stop(paste("Model '", method, "' is not in the ",
-                                               "set of existing models", sep = ""))
+  if (!is.null(model)) {
+    if (!(model %in% names(models))) {
+      stop(paste(
+        "Model '",
+        model,
+        "' is not in the ",
+        "set of existing models",
+        sep = ""
+      ))
+    }
 
     models <- models[model == names(models)]
   }
-  out <- lapply(models,
-                function(x) {
-                  out <- x$parameters[, c("parameter", "label")]
-                  out$forReg <- "Regression" %in% x$type
-                  out$forClass <- "Classification" %in% x$type
-                  out$probModel <- !is.null(x$prob)
-                  out
-                })
-  for(i in seq(along.with = out)) out[[i]]$model <- names(models)[i]
+  out <- lapply(models, function(x) {
+    out <- x$parameters[, c("parameter", "label")]
+    out$forReg <- "Regression" %in% x$type
+    out$forClass <- "Classification" %in% x$type
+    out$probModel <- !is.null(x$prob)
+    out
+  })
+  for (i in seq(along.with = out)) {
+    out[[i]]$model <- names(models)[i]
+  }
   out <- do.call("rbind", out)
   rownames(out) <- NULL
-  out <- out[, c('model', 'parameter', 'label', 'forReg', 'forClass', 'probModel')]
-  out[order(out$model),]
+  out <- out[, c(
+    'model',
+    'parameter',
+    'label',
+    'forReg',
+    'forClass',
+    'probModel'
+  )]
+  out[order(out$model), ]
 }
 
-#' @importFrom utils installed.packages
 missing_packages <- function(mods = getModelInfo()) {
   libs <- unique(unlist(lapply(mods, function(x) x$library)))
   here <- rownames(installed.packages())
@@ -86,61 +98,93 @@ missing_packages <- function(mods = getModelInfo()) {
 }
 
 #' @rdname modelLookup
-#' @importFrom utils install.packages menu
 #' @export
-checkInstall <- function(pkg){
+checkInstall <- function(pkg) {
   good <- rep(TRUE, length(pkg))
-  for(i in seq(along.with = pkg)){
+  for (i in seq(along.with = pkg)) {
     tested <- try(find.package(pkg[i]), silent = TRUE)
-    if (inherits(tested, "try-error")) good[i] <- FALSE
+    if (inherits(tested, "try-error")) {
+      good[i] <- FALSE
+    }
   }
-  if(any(!good)){
+  if (any(!good)) {
     pkList <- paste(pkg[!good], collapse = ", ")
-    msg <- paste(sum(!good),
-                 ifelse(sum(!good) > 1, " packages are", " package is"),
-                 " needed and",
-                 ifelse(sum(!good) > 1, " are", " is"),
-                 " not installed. (",
-                 pkList,
-                 "). Would you like to try to install",
-                 ifelse(sum(!good) > 1, " them", " it"),
-                 " now?",
-                 sep = "")
+    msg <- paste(
+      sum(!good),
+      ifelse(sum(!good) > 1, " packages are", " package is"),
+      " needed and",
+      ifelse(sum(!good) > 1, " are", " is"),
+      " not installed. (",
+      pkList,
+      "). Would you like to try to install",
+      ifelse(sum(!good) > 1, " them", " it"),
+      " now?",
+      sep = ""
+    )
 
-    if(interactive()) {
-      cat(msg)
-      bioc <- c("affy", "logicFS", "gpls", "vbmp")
-      installChoice <- menu(c("yes", "no"))
-      if(installChoice == 1){
-        hasBioc <- any(pkg[!good] %in% bioc)
-        if(!hasBioc) {
-          install.packages(pkg[!good])
-        } else {
-          inst <- pkg[!good]
-          instC <- inst[!(inst %in% bioc)]
-          instB <- inst[inst %in% bioc]
-          if(length(instC) > 0) install.packages(instC)
-          biocLite <- NULL
-          source("http://bioconductor.org/biocLite.R")
-          biocLite(instB)
-        }
-      } else  {
-        stop("Required packages are missing: ", pkList, call. = FALSE)
-      }
+    if (is_interactive() && install_prompt(msg) == 1) {
+      install_missing(pkg[!good])
     } else {
       stop("Required packages are missing: ", pkList, call. = FALSE)
     }
   }
+  invisible(NULL)
+}
+
+## Whether to offer the install. The option makes the prompt reachable from
+## tests, which never run interactively.
+is_interactive <- function() {
+  opt <- getOption("caret.interactive")
+  if (!is.null(opt)) {
+    return(isTRUE(opt))
+  }
+  interactive()
+}
+
+## Ask whether to install, returning 1 for yes and 2 for no.
+install_prompt <- function(msg) {
+  cat(msg)
+  menu(c("yes", "no"))
+}
+
+## Install the missing packages, sending the Bioconductor ones to
+## BiocManager (the biocLite installer this used to source was retired with
+## Bioconductor 3.8).
+install_missing <- function(pkg) {
+  bioc <- c("affy", "logicFS", "gpls", "vbmp")
+  from_bioc <- pkg[pkg %in% bioc]
+  from_cran <- pkg[!(pkg %in% bioc)]
+
+  if (length(from_cran) > 0) {
+    install.packages(from_cran)
+  }
+  if (length(from_bioc) > 0) {
+    if (!has_biocmanager()) {
+      install.packages("BiocManager")
+    }
+    BiocManager::install(from_bioc)
+  }
+  invisible(pkg)
+}
+
+has_biocmanager <- function() {
+  requireNamespace("BiocManager", quietly = TRUE)
 }
 
 #' @rdname modelLookup
 #' @export
 getModelInfo <- function(model = NULL, regex = TRUE, ...) {
   load(system.file("models", "models.RData", package = "caret"))
-  if(!is.null(model)){
-    keepers <- if(regex) grepl(model, names(models), ...) else which(model == names(models))[1]
+  if (!is.null(model)) {
+    if (regex) {
+      keepers <- grepl(model, names(models), ...)
+    } else {
+      keepers <- which(model == names(models))[1]
+    }
     models <- models[keepers]
   }
-  if(length(models) == 0) stop("That model is not in caret's built-in library")
+  if (length(models) == 0) {
+    stop("That model is not in caret's built-in library")
+  }
   models
 }
